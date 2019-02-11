@@ -16,8 +16,9 @@ def cmd( method, distrib, nb_diracs ):
 methods = [ "recursive", "neighbor", "cgal" ]
 # sizes = [ 1 * 1e5, 2 * 1e5, 4 * 1e5, 8 * 1e5, 16 * 1e5, 32 * 1e5 ]
 
-for distrib in [ "split_w", "split", "regular", "random_w", "random" ]:
-    sizes = [ 1e4, 1e5, 1e6 ]
+# for distrib in [ "split_w", "split", "regular", "random_w", "random" ]:
+for distrib in [ "random" ]:
+    sizes = [ 1e4, 1e5, 1e6, 1e7, 1e8 ]
     if distrib == "split_w":
         sizes = [ 1e4, 1e5 ]
 
@@ -51,5 +52,6 @@ for distrib in [ "split_w", "split", "regular", "random_w", "random" ]:
     plt.savefig( distrib + ".pdf" )
     plt.savefig( distrib + ".png" )
 
+    print( distrib )
     print( "speedup recursive:", np.mean( np.array( timings[ "cgal" ] ) / np.array( timings[ "recursive" ] ) ) )
     print( "speedup neighbor:", np.mean( np.array( timings[ "cgal" ] ) / np.array( timings[ "neighbor" ] ) ) )
