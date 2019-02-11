@@ -16,14 +16,17 @@ public:
 
     ~Tick();
 
-    static auto get_time() {
+    static TP get_time() {
         return std::chrono::high_resolution_clock::now();
     }
 
-    template<class T>
-    static double elapsed_since( T start ) {
-        auto delta = std::chrono::high_resolution_clock::now() - start;
+    static double delta( TP beg, TP end ) {
+        auto delta = end, beg;
         return std::chrono::duration_cast<std::chrono::microseconds>( delta ).count() / 1e6;
+    }
+
+    static double elapsed_since( TP start ) {
+        return delta( start, std::chrono::high_resolution_clock::now() );
     }
 
     void start( const std::string &id ) {

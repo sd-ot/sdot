@@ -11,7 +11,7 @@ namespace sdot {
 
 template<class Pc>
 SpZGrid<Pc>::SpZGrid( TI max_diracs_per_cell ) : max_diracs_per_cell( max_diracs_per_cell ) {
-    depth_initial_send = 0;
+    depth_initial_send = 5;
 }
 
 template<class Pc>
@@ -169,6 +169,25 @@ void SpZGrid<Pc>::update_box( const Pt *positions, const TF *weights, Box *box, 
 }
 
 template<class Pc>
+typename SpZGrid<Pc>::TI SpZGrid<Pc>::nb_diracs( Box *box ) {
+    if ( ! box )
+        return 0;
+    if ( box->last_child )
+        return nb_diracs( box->last_child ) +
+               nb_diracs( box->sibling );
+    return box->end_indices - box->end_indices + box->ext_pwi.size() +
+           nb_diracs( box->sibling );
+}
+
+template<class Pc>
+std::string SpZGrid<Pc>::ext_info() const {
+    std::ostringstream ss;
+    for( const Neighbor &ng : neighbors )
+        ss << "\n  r=" << ng.mpi_rank << " c=" << nb_diracs( ng.root );
+    return ss.str();
+}
+
+template<class Pc>
 std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *weights, std::vector<Box *> front, int max_depth ) {
     Hpipe::CbQueue cq;
     std::size_t num_in_front = 0;
@@ -205,6 +224,7 @@ std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *wei
         } else
             bq << 0u;
     }
+
     std::vector<char> src( cq.size() );
     cq.read_some( src.data(), src.size() );
     return src;
@@ -231,10 +251,9 @@ typename SpZGrid<Pc>::Box* SpZGrid<Pc>::deserialize_rec( const std::vector<char>
         bq >> box->min_pt;
         bq >> box->max_pt;
         bq >> box->depth;
-        if ( std::size_t num_last_child = bq.read_unsigned() )
-            reinterpret_cast<std::size_t&>( box->last_child ) = num_last_child;
-        if ( std::size_t num_sibling = bq.read_unsigned() )
-            reinterpret_cast<std::size_t&>( box->sibling ) = num_sibling;
+
+        reinterpret_cast<std::size_t&>( box->last_child ) = bq.read_unsigned();
+        reinterpret_cast<std::size_t&>( box->sibling    ) = bq.read_unsigned();
 
         std::size_t nb_ext_diracs = bq.read();
         box->ext_pwi.resize( nb_ext_diracs );
@@ -247,10 +266,10 @@ typename SpZGrid<Pc>::Box* SpZGrid<Pc>::deserialize_rec( const std::vector<char>
     }
 
     for( Box *box : new_boxes ) {
-        if ( box->last_child )
-            box->last_child = new_boxes[ reinterpret_cast<const std::size_t&>( box->last_child ) ];
-        if ( box->sibling )
-            box->sibling = new_boxes[ reinterpret_cast<const std::size_t&>( box->sibling ) ];
+        if ( auto l = reinterpret_cast<const std::size_t&>( box->last_child ) )
+            box->last_child = new_boxes[ l ];
+        if ( auto l = reinterpret_cast<const std::size_t&>( box->sibling    ) )
+            box->sibling    = new_boxes[ l ];
     }
 
     return new_boxes.size() ? new_boxes[ 0 ] : nullptr;
@@ -427,7 +446,7 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
         return true;
     };
 
-    auto make_lc_and_call_cb = [&]( std::set<std::size_t> &g_missing_ranks, std::vector<TI> &g_interrupted_num_diracs, int &err, std::size_t nb_jobs, int nb_threads, const TI *dirac_indices, TI nb_dirac_indices ) {
+    auto make_lc_and_call_cb = [&]( std::set<std::size_t> &g_missing_ranks, std::vector<TI> &g_interrupted_num_diracs, int &err, std::size_t nb_jobs, int nb_threads, const TI *dirac_indices, TI nb_dirac_indices, int phase ) {
         std::vector<std::vector<TI>> interrupted_num_diracs( nb_threads );
         std::vector<std::set<std::size_t>> missing_ranks( nb_threads );
 
@@ -483,17 +502,19 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
                         } while (( ch = ch->sibling ));
                     } else if ( box->beg_indices < box->end_indices ) {
                         for( TI num_in_ind_1 = box->beg_indices; num_in_ind_1 < box->end_indices; ++num_in_ind_1 ) {
-                            TI num_dirac_1 = dirac_indices[ num_in_ind_1 ];
+                            TI num_dirac_1 = this->dirac_indices[ num_in_ind_1 ];
                             if ( num_dirac_0 != num_dirac_1 )
                                 plane_cut( lc, c0, w0, sym( positions[ num_dirac_1 ], num_sym ), weights[ num_dirac_1 ], num_dirac_1 );
                         }
                     } else if ( allow_mpi && box->ext_pwi.size() ) {
                         for( TI num_in_ext = 0; num_in_ext < box->ext_pwi.size(); ++num_in_ext )
                             plane_cut( lc, c0, w0, sym( box->ext_pwi[ num_in_ext ].position, num_sym ), box->ext_pwi[ num_in_ext ].weight, box->ext_pwi[ num_in_ext ].num_dirac );
-                    } else {
+                    } else if ( allow_mpi ) {
                         interrupted_num_diracs[ num_thread ].push_back( num_dirac_0 );
                         missing_ranks[ num_thread ].insert( box->rank );
                         interrupted = true;
+                        while ( ! front.empty() )
+                            front.pop();
                         break;
                     }
                 }
@@ -526,12 +547,14 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
     std::set<std::size_t> missing_ranks;
     std::vector<TI> interrupted_num_diracs;
     int nb_threads = thread_pool.nb_threads(), nb_jobs = 4 * nb_threads;
-    make_lc_and_call_cb( missing_ranks, interrupted_num_diracs, err, nb_jobs, nb_threads, dirac_indices.data(), dirac_indices.size() );
+    make_lc_and_call_cb( missing_ranks, interrupted_num_diracs, err, nb_jobs, nb_threads, dirac_indices.data(), dirac_indices.size(), 0 );
     if ( err )
         return err;
 
     //
-    while ( true ) {
+    for( int phase = 1; ; ++phase ) {
+        PMPI( interrupted_num_diracs.size() );
+
         // get the needs for each machine
         std::vector<std::vector<int>> needs;
         std::vector<int> v_missing_ranks( missing_ranks.begin(), missing_ranks.end() );
@@ -577,7 +600,7 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
         // try to make the missing cells
         missing_ranks.clear();
         std::vector<TI> old_interrupted_num_diracs = std::move( interrupted_num_diracs );
-        make_lc_and_call_cb( missing_ranks, interrupted_num_diracs, err, nb_jobs, nb_threads, old_interrupted_num_diracs.data(), old_interrupted_num_diracs.size() );
+        make_lc_and_call_cb( missing_ranks, interrupted_num_diracs, err, nb_jobs, nb_threads, old_interrupted_num_diracs.data(), old_interrupted_num_diracs.size(), phase );
         if ( err )
             return err;
     }

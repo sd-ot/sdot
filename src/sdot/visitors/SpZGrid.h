@@ -23,7 +23,7 @@ public:
 
     // parameters
     static constexpr bool   allow_translations    = true;
-    static constexpr int    degree_w_approx       = 1;
+    static constexpr int    degree_w_approx       = 2;
     static constexpr bool   allow_mpi             = true;
 
     // static definitions
@@ -81,6 +81,8 @@ private:
     std::vector<char>       serialize_rec         ( const Pt *positions, const TF *weights, std::vector<Box *> front, int max_depth );
     void                    initial_send          ( const Pt *positions, const TF *weights );
     void                    update_box            ( const Pt *positions, const TF *weights, Box *box, TI beg_indices, TI end_indices, TI depth );
+    static TI               nb_diracs             ( Box *box );
+    std::string             ext_info              () const;
 
     std::vector<TI>         dirac_indices;
     std::vector<Neighbor>   neighbors;
