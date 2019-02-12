@@ -363,7 +363,13 @@ bool ConvexPolyhedron2<Pc,CI>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no>
     }
 
     // only 1 outside
+    #ifdef __AVX2__
     std::size_t i1 = _tzcnt_u64( outside );
+    #else
+    std::size_t i1 = 0;
+    for( auto cp = outside; ( cp & 1 ) == 0; ++i1 )
+        cp /= 2;
+    #endif
     if ( nb_outside == 1 ) {
         if ( nb_points == 64 )
             TODO;
