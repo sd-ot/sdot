@@ -3,7 +3,7 @@
 #include "../src/sdot/visitors/ZGrid.h"
 #include "../src/sdot/system/MpiInst.h"
 #include "../src/sdot/system/Time.h"
-#include "set_up_diracs.h"
+#include "set_up_diracs_3D.h"
 #include <cxxopts.hpp>
 
 //// nsmake cpp_flag -march=native
@@ -12,8 +12,8 @@
 //// nsmake lib_flag -O5
 
 int main( int argc, char **argv ) {
-    struct Pc { enum { nb_bits_per_axis = 31, allow_ball_cut = 0, dim = 2 }; using TI = std::size_t; using TF = double; };
-    using  Pt = Point2<Pc::TF>;
+    struct Pc { enum { nb_bits_per_axis = 31, allow_ball_cut = 0, dim = 3 }; using TI = std::size_t; using TF = double; };
+    using  Pt = Point3<Pc::TF>;
     using  TF = Pc::TF;
 
     // options
@@ -53,15 +53,17 @@ int main( int argc, char **argv ) {
 
     bool periodic = args.count( "periodic" );
     if ( periodic )
-        for( Pc::TF y = -1; y <= 1; ++y )
-            for( Pc::TF x = -1; x <= 1; ++x )
-                if ( x || y )
-                    grid.translations.push_back( { x, y } );
+        for( Pc::TF z = -1; z <= 1; ++z )
+            for( Pc::TF y = -1; y <= 1; ++y )
+                for( Pc::TF x = -1; x <= 1; ++x )
+                    if ( x || y || z )
+                        grid.translations.push_back( Pt{ x, y, z } );
 
     // Bounds
     using Bounds = sdot::ConvexPolyhedronAssembly<Pc>;
     Bounds bounds;
-    bounds.add_box( { - TF( periodic ), - TF( periodic ) }, { 1 + TF( periodic ), 1 + TF( periodic ) } );
+    //    bounds.add_box( { - TF( periodic ), - TF( periodic ), - TF( periodic ) }, { 1 + TF( periodic ), 1 + TF( periodic ), 1 + TF( periodic ) } );
+    bounds.add_box( { - 2, - 2, - 2 }, { 1 + 2, 1 + 2, 1 + 2 } );
 
     // volume
     std::vector<TF> volumes( weights.size(), TF( 0 ) );
@@ -69,6 +71,12 @@ int main( int argc, char **argv ) {
     grid.update( positions.data(), weights.data(), weights.size() );
     auto t1 = Time::get_time();
     grid.for_each_laguerre_cell( [&]( auto &lc, std::size_t num_dirac ) {
+        lc.plane_cut( { 0, 0, 0 }, { -1, 0, 0 } );
+        lc.plane_cut( { 0, 0, 0 }, { 0, -1, 0 } );
+        lc.plane_cut( { 0, 0, 0 }, { 0, 0, -1 } );
+        lc.plane_cut( { 1, 1, 1 }, { +1, 0, 0 } );
+        lc.plane_cut( { 1, 1, 1 }, { 0, +1, 0 } );
+        lc.plane_cut( { 1, 1, 1 }, { 0, 0, +1 } );
         volumes[ num_dirac ] = lc.measure();
     }, bounds.englobing_convex_polyhedron(), positions.data(), weights.data(), weights.size() );
     auto t2 = Time::get_time();
@@ -88,6 +96,12 @@ int main( int argc, char **argv ) {
 
         grid.update( positions.data(), weights.data(), weights.size() );
         grid.for_each_laguerre_cell( [&]( auto &lc, std::size_t num_dirac ) {
+            lc.plane_cut( { 0, 0, 0 }, { -1, 0, 0 } );
+            lc.plane_cut( { 0, 0, 0 }, { 0, -1, 0 } );
+            lc.plane_cut( { 0, 0, 0 }, { 0, 0, -1 } );
+            lc.plane_cut( { 1, 1, 1 }, { +1, 0, 0 } );
+            lc.plane_cut( { 1, 1, 1 }, { 0, +1, 0 } );
+            lc.plane_cut( { 1, 1, 1 }, { 0, 0, +1 } );
             lc.display( vtk_output, { weights[ num_dirac ], TF( num_dirac ) } );
         }, bounds.englobing_convex_polyhedron(), positions.data(), weights.data(), weights.size() );
 

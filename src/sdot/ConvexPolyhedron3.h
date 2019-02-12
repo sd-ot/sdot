@@ -18,7 +18,8 @@ public:
     static constexpr bool     allow_ball_cut = Pc::allow_ball_cut;
     using                     TI               = typename Pc::TI; ///< index type
     using                     TF               = typename Pc::TF; ///< index type
-    using                     Pt               = Point2<TF>;  ///< 3D point
+    using                     Pt               = Point3<TF>;      ///< 3D point
+    struct                    Box              { Pt p0, p1; };
 
     struct Node {
         union                 SoI              { TF sd; TI index; };
@@ -87,18 +88,23 @@ public:
 
     /// we start from a tetrahedra that includes the sphere defined by sphere_center and sphere_radius... but this sphere is not used
     /**/                      ConvexPolyhedron3        ( Pt englobing_center = { 0, 0, 0 }, TF englobing_radius = 1, CI englobing_cut_id = {} );
+    /**/                      ConvexPolyhedron3        ( const Box &box, CI cut_id = {} );
 
     // information
     void                      for_each_boundary_measure( FunctionEnum::Unit, const std::function<void( TF area, CI id )> &f ) const;
     void                      write_to_stream          ( std::ostream &os ) const;
     void                      for_each_node            ( const std::function<void( Pt v )> &f ) const;
-    template<class V> void    display                  ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false, std::mutex *m = 0 ) const;
+    TI                        nb_points                () const { return nodes.size(); }
+    Pt                        point                    ( TI n ) const { return nodes[ n ].pos; }
+    template<class V> void    display                  ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false ) const;
 
     // modifications
     void                      set_cut_ids              ( CI cut_id ); ///< replace all the cut_ids
-    void                      sphere_cut               ( Pt center, TF radius, CI cut_id = {} ); ///< beware: only one sphere cut is authorized, and it must be done after all the plane cuts.
-    void                      plane_cut                ( Pt origin, Pt normal, CI cut_id = {} );
+    template<int no> void     plane_cut                ( Pt origin, Pt normal, CI cut_id, N<no> normal_is_normalized ); ///< return true if effective cut
+    void                      plane_cut                ( Pt origin, Pt normal, CI cut_id = {} ) { plane_cut( origin, normal, cut_id, N<1>() ); }
+    void                      ball_cut                 ( Pt center, TF radius, CI cut_id = {} ); ///< beware: only one sphere cut is authorized, and it must be done after all the plane cuts.
     void                      clear                    ( Pt englobing_center, TF englobing_radius, CI englobing_cut_id = {} );
+    void                      clear                    ( const Box &box, CI cut_id = {} );
 
     // computations
     void                      add_centroid_contrib     ( FunctionEnum::Unit, Pt &ctd, TF &vol ) const;
@@ -111,6 +117,9 @@ public:
     Pt                        centroid                 ()                   const { return centroid            ( FunctionEnum::Unit()           ); }
     TF                        measure                  ()                   const { return measure             ( FunctionEnum::Unit()           ); }
 
+    // tests
+    bool                      contains                 ( const Pt &pos ) const;
+    bool                      empty                    () const { return nodes.empty(); }
 
     // approximate computations
     template<class Fu> TF     boundary_measure_ap      ( const Fu &fu, TF max_ratio_area_error = 1e-4 ) const; ///< area from a triangulation of the surface
@@ -121,12 +130,17 @@ public:
     Pt                        centroid_ap              ( TI n = 1e8 )                     const { return centroid_ap        ( FunctionEnum::Unit(), n                    ); } ///< centroid, computed with monte-carlo
     TF                        measure_ap               ( TI n = 1e8 )                     const { return measure_ap         ( FunctionEnum::Unit(), n                    ); } ///< volume, computed with monte-carlo
 
+    CI                        sphere_cut_id;
+    Pt                        sphere_center;
+    TF                        sphere_radius;
+
 private:
     // internal modifications methods
     void                      add_round_surface        ( const std::vector<TI> &edges );
     void                      add_flat_surface         ( std::pair<TI,TI> edge_indices_bounds, TI cut_index );
 
     TI                        add_straight_edge        ( TI n0, TI n1, TI cut_index );
+    std::pair<TI,TI>          add_edge_indices         ( TI e0, TI e1, TI e2, TI e3 );
     std::pair<TI,TI>          add_edge_indices         ( TI e0, TI e1, TI e2 );
     TI                        add_round_edge           ( TI n0, TI n1, TI cut_index );
     TI                        add_cut_info             ( Pt cut_O, Pt cut_N, CI cut_id );
@@ -167,11 +181,9 @@ private:
     std::vector<TI>           node_connectivity;
     std::vector<TI>           num_connections;
     TI                        nb_connections;
-
-    CI                        sphere_cut_id;
-    Pt                        sphere_center;
-    TF                        sphere_radius;
 };
 
 #include "ConvexPolyhedron3.tcc"
+
+
 

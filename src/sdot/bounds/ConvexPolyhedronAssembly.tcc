@@ -62,7 +62,7 @@ const typename ConvexPolyhedronAssembly<Pc>::CP& ConvexPolyhedronAssembly<Pc>::e
                 min_pos[ d ] = + std::numeric_limits<TF>::max();
                 max_pos[ d ] = - std::numeric_limits<TF>::max();
                 for( const Item &item : items ) {
-                    for( std::size_t i = 0; i < item.polyhedron.nb_points; ++i ) {
+                    for( std::size_t i = 0; i < item.polyhedron.nb_points(); ++i ) {
                         min_pos[ d ] = min( min_pos[ d ], item.polyhedron.point( i )[ d ] );
                         max_pos[ d ] = max( max_pos[ d ], item.polyhedron.point( i )[ d ] );
                     }

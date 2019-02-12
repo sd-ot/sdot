@@ -18,7 +18,7 @@ methods = [ "recursive", "neighbor", "cgal" ]
 
 # for distrib in [ "split_w", "split", "regular", "random_w", "random" ]:
 for distrib in [ "random" ]:
-    sizes = [ 1e4, 1e5, 1e6, 1e7, 1e8 ]
+    sizes = [ 1e4, 1e5, 1e6, 1e7, 2e7, 3e7, 4e7 ]
     if distrib == "split_w":
         sizes = [ 1e4, 1e5 ]
 

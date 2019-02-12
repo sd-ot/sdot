@@ -1,19 +1,25 @@
-#include "../src/PowerDiagram/ConvexPolyhedron3.h"
-#include <gtest/gtest.h>
+#include "../src/sdot/ConvexPolyhedron3.h"
+#include "catch_main.h"
 
-using TF = double;
-using Pt = Point3<TF>;
+struct Pc { using TF = double; using TI = std::size_t; };
+using  Cp = ConvexPolyhedron3<Pc,std::string>;
+using  Pt = Point3<Pc::TF>;
+using  TF = Pc::TF;
 
-TEST( ConvexPolyhedron3, diam ) {
-    ConvexPolyhedron3<double,std::string> cs( { 0, 0, 0 }, 2 );
+TEST_CASE( "ConvexPolyhedron3", "diam" ) {
+    Cp cs( Cp::Box{ { -5, -5, -5 }, { +5, +5, +5 } }, "ext" );
+
     for( double z : { -1, 0, 1 } )
         for( double y : { -1, 0, 1 } )
             for( double x : { -1, 0, 1 } )
                 if ( x || y || z )
                     cs.plane_cut( normalized( Pt( { x, y, z } ) ), normalized( Pt( { x, y, z } ) ) );
 
-    EXPECT_NEAR( 4.77730, cs.volume(), 1e-4 );
-    EXPECT_NEAR( 14.3319, cs.area  (), 1e-4 );
+    CHECK_THAT( cs.boundary_measure(), WithinAbs<double>( 14.3319, 1e-4 ) );
+    CHECK_THAT( cs.measure         (), WithinAbs<double>( 4.77730, 1e-4 ) );
+
+    CHECK( cs.contains( { 0, 0, 0 } ) == 1 );
+    CHECK( cs.contains( { 2, 0, 0 } ) == 0 );
 
     VtkOutput<1> vo( { "num" } );
     cs.display( vo, { 0 }, 0 );

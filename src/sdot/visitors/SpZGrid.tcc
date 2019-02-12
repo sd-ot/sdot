@@ -341,6 +341,200 @@ float SpZGrid<Pc>::Box::dist_2( Pt p, TF w ) const {
     return float( norm_2_p2( p - TF( 0.5 ) * ( min_pt + max_pt ) ) );
 }
 
+template<class Pc> template<class TA>
+typename SpZGrid<Pc>::TF SpZGrid<Pc>::pol_val( const TA &c, Pt p, Pt x ) const {
+    TF res = c[ 0 ];
+    if ( degree_w_approx >= 1 )
+        for( std::size_t i = 0; i < dim; ++i )
+            res += ( c[ 1 + i ] - 2 * p[ i ] ) * x[ i ];
+    if ( degree_w_approx >= 2 )
+        for( std::size_t i = 0, cpt = 0; i < dim; ++i )
+            for( std::size_t j = 0; j <= i; ++j, ++cpt )
+                res += c[ 1 + dim + cpt ] * x[ i ] * x[ j ];
+    return res;
+};
+
+template<class Pc>
+bool SpZGrid<Pc>::can_be_evicted( CP &lc, Point2<TF> c0, TF w0, Box *box, int num_sym ) {
+    const auto &c = box->coeffs_w_approx;
+    c0 = inv_sym( c0, num_sym );
+
+    for( TI num_p = 0; num_p < lc.nb_points; ++num_p ) {
+        Pt p = inv_sym( lc.point( num_p ), num_sym );
+        TF cm = norm_2_p2( c0 ) - w0 - 2 * dot( c0, p );
+
+        if ( degree_w_approx == 0 && cm > c[ 0 ] )
+            return false;
+
+        if ( degree_w_approx >= 1 ) {
+            // corners
+            if ( cm > pol_val( c, p, { box->min_pt.x, box->min_pt.y } ) )
+                return false;
+            if ( cm > pol_val( c, p, { box->max_pt.x, box->min_pt.y } ) )
+                return false;
+            if ( cm > pol_val( c, p, { box->min_pt.x, box->max_pt.y } ) )
+                return false;
+            if ( cm > pol_val( c, p, { box->max_pt.x, box->max_pt.y } ) )
+                return false;
+        }
+
+        if ( degree_w_approx >= 2 ) {
+            // lines
+            TF b_x, b_y;
+            if ( c[ 3 ] ) {
+                // y = box->min_pt.y
+                b_x = 0.5 * ( 2 * p.x - c[ 1 ] - c[ 4 ] * box->min_pt.y ) / c[ 3 ];
+                if ( b_x > box->min_pt.x && b_x < box->max_pt.x && cm > pol_val( c, p, { b_x, box->min_pt.y } ) )
+                    return false;
+
+                // y = box->max_pt.y
+                b_x = 0.5 * ( 2 * p.x - c[ 1 ] - c[ 4 ] * box->max_pt.y ) / c[ 3 ];
+                if ( b_x > box->min_pt.x && b_x < box->max_pt.x && cm > pol_val( c, p, { b_x, box->max_pt.y } ) )
+                    return false;
+            }
+            if ( c[ 5 ] ) {
+                // x = box->min_pt.x
+                b_y = 0.5 * ( 2 * p.y - c[ 2 ] - c[ 4 ] * box->min_pt.x ) / c[ 5 ];
+                if ( b_y > box->min_pt.y && b_y < box->max_pt.y && cm > pol_val( c, p, { box->min_pt.x, b_y } ) )
+                    return false;
+
+                // x = box->max_pt.x
+                b_y = 0.5 * ( 2 * p.y - c[ 2 ] - c[ 4 ] * box->max_pt.x ) / c[ 5 ];
+                if ( b_y > box->min_pt.y && b_y < box->max_pt.y && cm > pol_val( c, p, { box->max_pt.x, b_y } ) )
+                    return false;
+            }
+
+            // surface
+            TF det = 4 * c[ 3 ] * c[ 5 ] - pow( c[ 4 ], 2 );
+            if ( det ) {
+                TF b_x = ( 2 * ( 2 * p.x - c[ 1 ] ) * c[ 5 ] - ( 2 * p.y - c[ 2 ] ) * c[ 4 ] ) / det;
+                if ( b_x > box->min_pt.x && b_x < box->max_pt.x ) {
+                    TF b_y = ( 2 * ( 2 * p.y - c[ 2 ] ) * c[ 3 ] - ( 2 * p.x - c[ 1 ] ) * c[ 4 ] ) / det;
+                    if ( b_y > box->min_pt.y && b_y < box->max_pt.y && cm > pol_val( c, p, { b_x, b_y } ) )
+                        return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+template<class Pc>
+bool SpZGrid<Pc>::can_be_evicted( CP &lc, Point3<TF> c0, TF w0, Box *box, int num_sym ) {
+    const auto &c = box->coeffs_w_approx;
+    c0 = inv_sym( c0, num_sym );
+
+    for( TI num_p = 0; num_p < lc.nb_points(); ++num_p ) {
+        Pt p = inv_sym( lc.point( num_p ), num_sym );
+        TF cm = norm_2_p2( c0 ) - w0 - 2 * dot( c0, p );
+
+        if ( degree_w_approx == 0 && cm > c[ 0 ] )
+            return false;
+
+        if ( degree_w_approx >= 1 ) {
+            if ( cm > pol_val( c, p, { box->min_pt.x, box->min_pt.y, box->min_pt.z } ) )
+                return false;
+            if ( cm > pol_val( c, p, { box->max_pt.x, box->min_pt.y, box->min_pt.z } ) )
+                return false;
+            if ( cm > pol_val( c, p, { box->min_pt.x, box->max_pt.y, box->min_pt.z } ) )
+                return false;
+            if ( cm > pol_val( c, p, { box->max_pt.x, box->max_pt.y, box->min_pt.z } ) )
+                return false;
+            if ( cm > pol_val( c, p, { box->min_pt.x, box->min_pt.y, box->max_pt.z } ) )
+                return false;
+            if ( cm > pol_val( c, p, { box->max_pt.x, box->min_pt.y, box->max_pt.z } ) )
+                return false;
+            if ( cm > pol_val( c, p, { box->min_pt.x, box->max_pt.y, box->max_pt.z } ) )
+                return false;
+            if ( cm > pol_val( c, p, { box->max_pt.x, box->max_pt.y, box->max_pt.z } ) )
+                return false;
+        }
+
+        if ( degree_w_approx >= 2 ) {
+            // lines
+            TF b_x;
+            if ( c[ 4 ] ) {
+                b_x = 0.5 * ( 2 * p.x - c[ 1 ] - c[ 5 ] * box->min_pt.y - c[ 7 ] * box->min_pt.z ) / c[ 4 ];
+                if ( b_x > box->min_pt.x && b_x < box->max_pt.x && cm > pol_val( c, p, { b_x, box->min_pt.y, box->min_pt.z } ) )
+                    return false;
+                b_x = 0.5 * ( 2 * p.x - c[ 1 ] - c[ 5 ] * box->min_pt.y - c[ 7 ] * box->max_pt.z ) / c[ 4 ];
+                if ( b_x > box->min_pt.x && b_x < box->max_pt.x && cm > pol_val( c, p, { b_x, box->min_pt.y, box->max_pt.z } ) )
+                    return false;
+                b_x = 0.5 * ( 2 * p.x - c[ 1 ] - c[ 5 ] * box->max_pt.y - c[ 7 ] * box->min_pt.z ) / c[ 4 ];
+                if ( b_x > box->min_pt.x && b_x < box->max_pt.x && cm > pol_val( c, p, { b_x, box->max_pt.y, box->min_pt.z } ) )
+                    return false;
+                b_x = 0.5 * ( 2 * p.x - c[ 1 ] - c[ 5 ] * box->max_pt.y - c[ 7 ] * box->max_pt.z ) / c[ 4 ];
+                if ( b_x > box->min_pt.x && b_x < box->max_pt.x && cm > pol_val( c, p, { b_x, box->max_pt.y, box->max_pt.z } ) )
+                    return false;
+            }
+
+            TF b_y;
+            if ( c[ 6 ] ) {
+                b_y = 0.5 * ( 2 * p.y - c[ 2 ] - c[ 5 ] * box->min_pt.x - c[ 8 ] * box->min_pt.z ) / c[ 6 ];
+                if ( b_y > box->min_pt.y && b_y < box->max_pt.y && cm > pol_val( c, p, { box->min_pt.x, b_y, box->min_pt.z } ) )
+                    return false;
+                b_y = 0.5 * ( 2 * p.y - c[ 2 ] - c[ 5 ] * box->min_pt.x - c[ 8 ] * box->max_pt.z ) / c[ 6 ];
+                if ( b_y > box->min_pt.y && b_y < box->max_pt.y && cm > pol_val( c, p, { box->min_pt.x, b_y, box->max_pt.z } ) )
+                    return false;
+                b_y = 0.5 * ( 2 * p.y - c[ 2 ] - c[ 5 ] * box->max_pt.x - c[ 8 ] * box->min_pt.z ) / c[ 6 ];
+                if ( b_y > box->min_pt.y && b_y < box->max_pt.y && cm > pol_val( c, p, { box->max_pt.x, b_y, box->min_pt.z } ) )
+                    return false;
+                b_y = 0.5 * ( 2 * p.y - c[ 2 ] - c[ 5 ] * box->max_pt.x - c[ 8 ] * box->max_pt.z ) / c[ 6 ];
+                if ( b_y > box->min_pt.y && b_y < box->max_pt.y && cm > pol_val( c, p, { box->max_pt.x, b_y, box->max_pt.z } ) )
+                    return false;
+            }
+            
+            TF b_z;
+            if ( c[ 9 ] ) {
+                b_z = 0.5 * ( 2 * p.z - c[ 3 ] - c[ 7 ] * box->min_pt.x - c[ 8 ] * box->min_pt.y ) / c[ 9 ];
+                if ( b_z > box->min_pt.z && b_z < box->max_pt.z && cm > pol_val( c, p, { box->min_pt.x, box->min_pt.y, b_z } ) )
+                    return false;
+                b_z = 0.5 * ( 2 * p.z - c[ 3 ] - c[ 7 ] * box->min_pt.x - c[ 8 ] * box->max_pt.y ) / c[ 9 ];
+                if ( b_z > box->min_pt.z && b_z < box->max_pt.z && cm > pol_val( c, p, { box->min_pt.x, box->max_pt.y, b_z } ) )
+                    return false;
+                b_z = 0.5 * ( 2 * p.z - c[ 3 ] - c[ 7 ] * box->max_pt.x - c[ 8 ] * box->min_pt.y ) / c[ 9 ];
+                if ( b_z > box->min_pt.z && b_z < box->max_pt.z && cm > pol_val( c, p, { box->max_pt.x, box->min_pt.y, b_z } ) )
+                    return false;
+                b_z = 0.5 * ( 2 * p.z - c[ 3 ] - c[ 7 ] * box->max_pt.x - c[ 8 ] * box->max_pt.y ) / c[ 9 ];
+                if ( b_z > box->min_pt.z && b_z < box->max_pt.z && cm > pol_val( c, p, { box->max_pt.x, box->max_pt.y, b_z } ) )
+                    return false;
+            }
+
+            // surfaces
+            // TF det = 4 * c[ 3 ] * c[ 5 ] - pow( c[ 4 ], 2 );
+            // if ( det ) {
+            //     TF b_x = ( 2 * ( 2 * p.x - c[ 1 ] ) * c[ 5 ] - ( 2 * p.y - c[ 2 ] ) * c[ 4 ] ) / det;
+            //     if ( b_x > box->min_pt.x && b_x < box->max_pt.x ) {
+            //         TF b_y = ( 2 * ( 2 * p.y - c[ 2 ] ) * c[ 3 ] - ( 2 * p.x - c[ 1 ] ) * c[ 4 ] ) / det;
+            //         if ( b_y > box->min_pt.y && b_y < box->max_pt.y && cm > pol_val( c, p, { b_x, b_y } ) )
+            //             return false;
+            //     }
+            // }
+
+            // volume
+            auto detm = []( TF a, TF b, TF c, TF d, TF e, TF f, TF g, TF h, TF i ) {
+                return a * e * i + b * f * g + c * d * h - c * e * g - b * d * i - a * f * h;
+            };
+            if ( TF det = detm( 2 * c[ 4 ], c[ 5 ], c[ 7 ], c[ 5 ], 2 * c[ 6 ], c[ 8 ], c[ 7 ], c[ 8 ], 2 * c[ 9 ] ) ) {
+                TF v_x = 2 * p.x - c[ 1 ];
+                TF v_y = 2 * p.y - c[ 2 ];
+                TF v_z = 2 * p.z - c[ 3 ];
+                TF b_x = detm( v_x       , c[ 5 ], c[ 7 ], v_y   , 2 * c[ 6 ], c[ 8 ], v_z   , c[ 8 ], 2 * c[ 9 ] ) / det;
+                TF b_y = detm( 2 * c[ 4 ], v_x   , c[ 7 ], c[ 5 ], v_y       , c[ 8 ], c[ 7 ], v_z   , 2 * c[ 9 ] ) / det;
+                TF b_z = detm( 2 * c[ 4 ], c[ 5 ], v_x   , c[ 5 ], 2 * c[ 6 ], v_y   , c[ 7 ], c[ 8 ], v_z        ) / det;
+                if ( b_x > box->min_pt.x && b_x < box->max_pt.x &&
+                     b_y > box->min_pt.y && b_y < box->max_pt.y &&
+                     b_z > box->min_pt.z && b_z < box->max_pt.z &&
+                     cm > pol_val( c, p, { b_x, b_y, b_z } ) )
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 template<class Pc> template<int ball_cut>
 int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num, int num_thread )> &cb, const CP &starting_lc, const Pt *positions, const TF *weights, TI nb_diracs, bool stop_if_void_lc, N<ball_cut> ) {
     using std::sqrt;
@@ -354,96 +548,11 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
         int   num_sym; ///< num of translation/symetry or -1 if untouched
     };
 
-    auto sym = [&]( Pt pt, int num_sym ) {
-        if ( allow_translations && num_sym >= 0 )
-            return pt + translations[ num_sym ];
-        return pt;
-    };
-
-    auto inv_sym = [&]( Pt pt, int num_sym ) {
-        if ( allow_translations && num_sym >= 0 )
-            return pt - translations[ num_sym ];
-        return pt;
-    };
-
     auto plane_cut = [&]( CP &lc, Pt c0, TF w0, Pt c1, TF w1, TI i1 ) {
         Pt V = c1 - c0;
         TF n = norm_2_p2( V );
         TF x = TF( 0.5 ) + TF( 0.5 ) * ( w0 - w1 ) / n;
         lc.plane_cut( c0 + x * V, V, i1, N<0>() );
-    };
-
-    auto can_be_evicted = [&]( CP &lc, Pt c0, TF w0, Box *box, int num_sym ) -> bool {
-        const auto &c = box->coeffs_w_approx;
-        c0 = inv_sym( c0, num_sym );
-
-        auto pol_val_2 = [&]( Pt p, TF x, TF y ) {
-            if ( degree_w_approx >= 2 )
-                return c[ 0 ] + ( c[ 1 ] - 2 * p.x ) * x + ( c[ 2 ] - 2 * p.y ) * y + c[ 3 ] * pow( x, 2 ) + c[ 4 ] * x * y + c[ 5 ] * pow( y, 2 );
-            if ( degree_w_approx >= 1 )
-                return c[ 0 ] + ( c[ 1 ] - 2 * p.x ) * x + ( c[ 2 ] - 2 * p.y ) * y;
-            return c[ 0 ];
-        };
-
-        for( TI num_p = 0; num_p < lc.nb_points; ++num_p ) {
-            Pt p = inv_sym( lc.point( num_p ), num_sym );
-            TF cm = norm_2_p2( c0 ) - w0 - 2 * dot( c0, p );
-
-            if ( degree_w_approx == 0 && cm > pol_val_2( p, 0, 0 ) )
-                return false;
-
-            if ( degree_w_approx >= 1 ) {
-                // corners
-                if ( cm > pol_val_2( p, box->min_pt.x, box->min_pt.y ) )
-                    return false;
-                if ( cm > pol_val_2( p, box->max_pt.x, box->min_pt.y ) )
-                    return false;
-                if ( cm > pol_val_2( p, box->min_pt.x, box->max_pt.y ) )
-                    return false;
-                if ( cm > pol_val_2( p, box->max_pt.x, box->max_pt.y ) )
-                    return false;
-
-                // lines
-                TF b_x, b_y;
-                if ( c[ 3 ] ) {
-                    // y = box->min_pt.y
-                    b_x = 0.5 * ( 2 * p.x - c[ 1 ] - c[ 4 ] * box->min_pt.y ) / c[ 3 ];
-                    if ( b_x > box->min_pt.x && b_x < box->max_pt.x && cm > pol_val_2( p, b_x, box->min_pt.y ) )
-                        return false;
-
-                    // y = box->max_pt.y
-                    b_x = 0.5 * ( 2 * p.x - c[ 1 ] - c[ 4 ] * box->max_pt.y ) / c[ 3 ];
-                    if ( b_x > box->min_pt.x && b_x < box->max_pt.x && cm > pol_val_2( p, b_x, box->max_pt.y ) )
-                        return false;
-                }
-                if ( c[ 5 ] ) {
-                    // x = box->min_pt.x
-                    b_y = 0.5 * ( 2 * p.y - c[ 2 ] - c[ 4 ] * box->min_pt.x ) / c[ 5 ];
-                    if ( b_y > box->min_pt.y && b_y < box->max_pt.y && cm > pol_val_2( p, box->min_pt.x, b_y ) )
-                        return false;
-
-                    // x = box->max_pt.x
-                    b_y = 0.5 * ( 2 * p.y - c[ 2 ] - c[ 4 ] * box->max_pt.x ) / c[ 5 ];
-                    if ( b_y > box->min_pt.y && b_y < box->max_pt.y && cm > pol_val_2( p, box->max_pt.x, b_y ) )
-                        return false;
-                }
-            }
-
-            // surface
-            if ( degree_w_approx >= 2 ) {
-                TF det = 4 * c[ 3 ] * c[ 5 ] - pow( c[ 4 ], 2 );
-                if ( det ) {
-                    TF b_x = ( 2 * ( 2 * p.x - c[ 1 ] ) * c[ 5 ] - ( 2 * p.y - c[ 2 ] ) * c[ 4 ] ) / det;
-                    if ( b_x > box->min_pt.x && b_x < box->max_pt.x ) {
-                        TF b_y = ( 2 * ( 2 * p.y - c[ 2 ] ) * c[ 3 ] - ( 2 * p.x - c[ 1 ] ) * c[ 4 ] ) / det;
-                        if ( b_y > box->min_pt.y && b_y < box->max_pt.y && cm > pol_val_2( p, b_x, b_y ) )
-                            return false;
-                    }
-                }
-            }
-        }
-
-        return true;
     };
 
     auto make_lc_and_call_cb = [&]( std::set<std::size_t> &g_missing_ranks, std::vector<TI> &g_interrupted_num_diracs, int &err, std::size_t nb_jobs, int nb_threads, const TI *dirac_indices, TI nb_dirac_indices, int phase ) {

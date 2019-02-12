@@ -7,6 +7,11 @@ ConvexPolyhedron3<Pc,CI>::ConvexPolyhedron3( Pt englobing_center, TF englobing_r
     clear( englobing_center, englobing_radius, englobing_cut_id );
 }
 
+template<class Pc, class CI>
+ConvexPolyhedron3<Pc,CI>::ConvexPolyhedron3( const Box &box, CI cut_id ) {
+    clear( box, cut_id );
+}
+
 template<class Pc,class CI>
 void ConvexPolyhedron3<Pc,CI>::for_each_boundary_measure( FunctionEnum::Unit, const std::function<void(TF,CI)> &f ) const {
     // round parts
@@ -62,7 +67,7 @@ void ConvexPolyhedron3<Pc,CI>::set_cut_ids( CI cut_id ) {
 
 template<class Pc,class CI>
 
-void ConvexPolyhedron3<Pc,CI>::sphere_cut( Pt center, TF radius, CI cut_id ) {
+void ConvexPolyhedron3<Pc,CI>::ball_cut( Pt center, TF radius, CI cut_id ) {
     sphere_center = center;
     sphere_radius = radius;
     sphere_cut_id = cut_id;
@@ -298,9 +303,8 @@ void ConvexPolyhedron3<Pc,CI>::sphere_cut( Pt center, TF radius, CI cut_id ) {
         sphere_radius = 0;
 }
 
-template<class Pc,class CI>
-
-void ConvexPolyhedron3<Pc,CI>::plane_cut( Pt origin, Pt normal, CI cut_id ) {
+template<class Pc,class CI> template<int no>
+void ConvexPolyhedron3<Pc,CI>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> normal_is_normalized ) {
     bool all_ko = true;
     bool all_ok = true;
     for( Node &node : nodes ) {
@@ -444,16 +448,15 @@ void ConvexPolyhedron3<Pc,CI>::plane_cut( Pt origin, Pt normal, CI cut_id ) {
 }
 
 template<class Pc,class CI>
-
 void ConvexPolyhedron3<Pc,CI>::clear( Pt englobing_center, TF englobing_radius, CI englobing_cut_id ) {
     part_round_surfaces.resize( 0 );
-    flat_surfaces     .resize( 0 );
-    edge_indices      .resize( 0 );
-    cut_info          .resize( 0 );
-    edges             .resize( 0 );
-    nodes             .resize( 0 );
-    holes             .resize( 0 );
-    sphere_radius     = -1;
+    flat_surfaces      .resize( 0 );
+    edge_indices       .resize( 0 );
+    cut_info           .resize( 0 );
+    edges              .resize( 0 );
+    nodes              .resize( 0 );
+    holes              .resize( 0 );
+    sphere_radius      = -1;
 
 
     // englobing tetra
@@ -487,8 +490,61 @@ void ConvexPolyhedron3<Pc,CI>::clear( Pt englobing_center, TF englobing_radius, 
     add_face( e2 + 0, e3 + 0, e5 + 1 );
 }
 
-template<class Pc,class CI>
+template<class Pc, class CI>
+void ConvexPolyhedron3<Pc,CI>::clear( const Box &box, CI cut_id ) {
+    part_round_surfaces.resize( 0 );
+    flat_surfaces      .resize( 0 );
+    edge_indices       .resize( 0 );
+    cut_info           .resize( 0 );
+    edges              .resize( 0 );
+    nodes              .resize( 0 );
+    holes              .resize( 0 );
+    sphere_radius      = -1;
 
+    const TI n0 = add_node( Pt{ box.p0.x, box.p0.y, box.p0.z } );
+    const TI n1 = add_node( Pt{ box.p1.x, box.p0.y, box.p0.z } );
+    const TI n2 = add_node( Pt{ box.p0.x, box.p1.y, box.p0.z } );
+    const TI n3 = add_node( Pt{ box.p1.x, box.p1.y, box.p0.z } );
+    const TI n4 = add_node( Pt{ box.p0.x, box.p0.y, box.p1.z } );
+    const TI n5 = add_node( Pt{ box.p1.x, box.p0.y, box.p1.z } );
+    const TI n6 = add_node( Pt{ box.p0.x, box.p1.y, box.p1.z } );
+    const TI n7 = add_node( Pt{ box.p1.x, box.p1.y, box.p1.z } );
+
+    const TI e0 = add_straight_edge( n0, n1, 0 );
+    const TI e1 = add_straight_edge( n1, n3, 0 );
+    const TI e2 = add_straight_edge( n3, n2, 0 );
+    const TI e3 = add_straight_edge( n2, n0, 0 );
+
+    const TI e4 = add_straight_edge( n4, n6, 0 );
+    const TI e5 = add_straight_edge( n6, n7, 0 );
+    const TI e6 = add_straight_edge( n7, n5, 0 );
+    const TI e7 = add_straight_edge( n5, n4, 0 );
+
+    const TI e8 = add_straight_edge( n0, n4, 0 );
+    const TI e9 = add_straight_edge( n1, n5, 0 );
+    const TI ea = add_straight_edge( n3, n7, 0 );
+    const TI eb = add_straight_edge( n2, n6, 0 );
+
+    auto add_face = [&]( TI e0, TI e1, TI e2, TI e3 ) {
+        const Pt &P0 = nodes[ edges[ e0 ].n0 ].pos;
+        const Pt &P1 = nodes[ edges[ e0 ].n1 ].pos;
+        const Pt &P2 = nodes[ edges[ e1 ].n1 ].pos;
+        const Pt  n  = normalized( cross_prod( P0 - P1, P2 - P1 ) );
+        const TI  ci = add_cut_info( nodes[ edges[ e0 ].n0 ].pos, n, cut_id );
+        add_flat_surface( add_edge_indices( e0, e1, e2, e3 ), ci );
+    };
+
+    add_face( e0 + 0, e1 + 0, e2 + 0, e3 + 0 );
+    add_face( e4 + 0, e5 + 0, e6 + 0, e7 + 0 );
+
+    add_face( e8 + 0, e7 + 1, e9 + 1, e0 + 1 );
+    add_face( ea + 0, e5 + 1, eb + 1, e2 + 1 );
+
+    add_face( eb + 0, e4 + 1, e8 + 1, e3 + 1 );
+    add_face( e9 + 0, e6 + 1, ea + 1, e1 + 1 );
+}
+
+template<class Pc,class CI>
 void ConvexPolyhedron3<Pc,CI>::add_centroid_contrib( FunctionEnum::Unit, Pt &ctd, TF &mea ) const {
     // base
     if ( flat_surfaces.empty() ) {
@@ -533,8 +589,15 @@ void ConvexPolyhedron3<Pc,CI>::add_centroid_contrib( FunctionEnum::Unit, Pt &ctd
     }
 }
 
-template<class Pc,class CI>
+template<class Pc, class CI>
+bool ConvexPolyhedron3<Pc,CI>::contains( const Pt &pos ) const {
+    for( const CutInfo &ci : cut_info )
+        if ( dot( pos - ci.cut_O, ci.cut_N ) >= 0 )
+            return false;
+    return true;
+}
 
+template<class Pc,class CI>
 typename ConvexPolyhedron3<Pc,CI>::Pt ConvexPolyhedron3<Pc,CI>::centroid( FunctionEnum::Unit ) const {
     Pt ctd = { 0, 0, 0 };
     TF mea = 0;
@@ -565,6 +628,7 @@ typename Pc::TF ConvexPolyhedron3<Pc,CI>::measure( FunctionEnum::Unit ) const {
         }
 
         res = 0;
+        P( sc );
         for( const FlatSurface &fp : flat_surfaces )
             res += dot( cut_info[ fp.cut_index ].cut_O - sc, cut_info[ fp.cut_index ].cut_N ) * area( fp ) / 3;
     } else {
@@ -721,7 +785,6 @@ void ConvexPolyhedron3<Pc,CI>::add_flat_surface( std::pair<TI,TI> edge_indices_b
 }
 
 template<class Pc,class CI>
-
 typename ConvexPolyhedron3<Pc,CI>::TI ConvexPolyhedron3<Pc,CI>::add_straight_edge( TI n0, TI n1, TI cut_index ) {
     Edge edge;
     edge.n0        = n0;
@@ -744,7 +807,16 @@ typename ConvexPolyhedron3<Pc,CI>::TI ConvexPolyhedron3<Pc,CI>::add_straight_edg
 }
 
 template<class Pc,class CI>
+std::pair<typename ConvexPolyhedron3<Pc,CI>::TI,typename ConvexPolyhedron3<Pc,CI>::TI> ConvexPolyhedron3<Pc,CI>::add_edge_indices( TI e0, TI e1, TI e2, TI e3 ) {
+    TI beg = edge_indices.size();
+    edge_indices.push_back( e0 );
+    edge_indices.push_back( e1 );
+    edge_indices.push_back( e2 );
+    edge_indices.push_back( e3 );
+    return { beg, edge_indices.size() };
+}
 
+template<class Pc,class CI>
 std::pair<typename ConvexPolyhedron3<Pc,CI>::TI,typename ConvexPolyhedron3<Pc,CI>::TI> ConvexPolyhedron3<Pc,CI>::add_edge_indices( TI e0, TI e1, TI e2 ) {
     TI beg = edge_indices.size();
     edge_indices.push_back( e0 );
@@ -754,7 +826,6 @@ std::pair<typename ConvexPolyhedron3<Pc,CI>::TI,typename ConvexPolyhedron3<Pc,CI
 }
 
 template<class Pc,class CI>
-
 typename ConvexPolyhedron3<Pc,CI>::TI ConvexPolyhedron3<Pc,CI>::add_round_edge( TI n0, TI n1, TI cut_index ) {
     Edge edge;
     edge.n0        = n0;
@@ -1167,16 +1238,18 @@ void ConvexPolyhedron3<Pc,CI>::get_edge_points( std::vector<Pt> &points, const E
 }
 
 template<class Pc,class CI> template<class V>
-void ConvexPolyhedron3<Pc,CI>::display( V &vo, const typename V::CV &cell_data, bool filled, TF max_ratio_area_error, bool display_tangents, std::mutex *m ) const {
+void ConvexPolyhedron3<Pc,CI>::display( V &vo, const typename V::CV &cell_data, bool filled, TF max_ratio_area_error, bool display_tangents ) const {
+    vo.mutex.lock();
+
     // full or empty sphere ?
     if ( filled ) {
+
         // round surfaces
         for_each_triangle_rf( [&]( Pt p0, Pt p1, Pt p2 ) {
             vo.add_polygon( { p0, p1, p2 }, cell_data );
-        }, max_ratio_area_error, true, m );
+        }, max_ratio_area_error, true );
 
         // flat surfaces
-        if ( m ) m->lock();
         for( const FlatSurface &fs : flat_surfaces ) {
             std::vector<Pt> points;
             for( TI num_edge_indices = fs.beg_in_edge_indices; num_edge_indices < fs.end_in_edge_indices; ++num_edge_indices )
@@ -1185,10 +1258,8 @@ void ConvexPolyhedron3<Pc,CI>::display( V &vo, const typename V::CV &cell_data, 
             //            for( std::size_t i = 2; i < points.size(); ++i )
             //                vo.add_polygon( { points[ 0 ], points[ i - 1 ], points[ i - 0 ] }, cell_data );
         }
-        if ( m ) m->unlock();
 
         // hole planes
-        if ( m ) m->lock();
         for( const Hole &hole : holes ) {
             TF s = dot( cut_info[ hole.cut_index ].cut_O - sphere_center, cut_info[ hole.cut_index ].cut_N );
             Pt O = sphere_center + s * cut_info[ hole.cut_index ].cut_N;
@@ -1200,7 +1271,6 @@ void ConvexPolyhedron3<Pc,CI>::display( V &vo, const typename V::CV &cell_data, 
                 points.push_back( O + r * std::cos( i * 2 * M_PI / d ) * X + r * std::sin( i * 2 * M_PI / d ) * Y );
             vo.add_polygon( points, cell_data );
         }
-        if ( m ) m->unlock();
     } else {
         for( TI i = 0; i < edges.size() / 2; ++i ) {
             const Edge &edge = edges[ 2 * i ];
@@ -1217,6 +1287,8 @@ void ConvexPolyhedron3<Pc,CI>::display( V &vo, const typename V::CV &cell_data, 
             vo.add_arrow( nodes[ edge.n1 ].pos, edge.tangent_1, cell_data );
         }
     }
+
+    vo.mutex.unlock();
 }
 
 template<class Pc,class CI> template<class F>
