@@ -2,7 +2,7 @@
 
 #include "../src/sdot/system/Assert.h"
 #include "../src/sdot/system/Mpi.h"
-#include "../src/sdot/Point2.h"
+#include "../src/sdot/Point3.h"
 #include <fstream>
 #include <random>
 #include <vector>
