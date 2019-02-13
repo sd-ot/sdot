@@ -325,6 +325,9 @@ void ConvexPolyhedron3<Pc,CI>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no>
         return;
     }
 
+    if ( no == 0 )
+        normal /= norm_2( normal );
+
     TI cut_index = add_cut_info( origin, normal, cut_id );
 
     // new nodes and new edges. edge.nedge will contain index of the new edges. edge.used will be != 0 if edge is kept
@@ -614,23 +617,9 @@ typename Pc::TF ConvexPolyhedron3<Pc,CI>::measure( FunctionEnum::Unit ) const {
     if ( flat_surfaces.empty() ) {
         res = 4 * M_PI / 3 * std::pow( std::max( TF( 0 ), sphere_radius ), 3 );
     } else if ( part_round_surfaces.empty() ) {
-        // find a center (ideally not too far from the considered points)
-        Pt sc = { 0, 0, 0 };
-        if ( sphere_radius > 0 ) {
-            sc = sphere_center;
-        } else {
-            for( const FlatSurface &fp : flat_surfaces ) {
-                if ( fp.beg_in_edge_indices < fp.end_in_edge_indices ) {
-                    sc = nodes[ edges[ edge_indices[ fp.beg_in_edge_indices ] ].n0 ].pos;
-                    break;
-                }
-            }
-        }
-
         res = 0;
-        P( sc );
         for( const FlatSurface &fp : flat_surfaces )
-            res += dot( cut_info[ fp.cut_index ].cut_O - sc, cut_info[ fp.cut_index ].cut_N ) * area( fp ) / 3;
+            res += dot( cut_info[ fp.cut_index ].cut_O, cut_info[ fp.cut_index ].cut_N ) * area( fp ) / 3;
     } else {
         if ( part_round_surfaces.size() == 1 ) {
             res = sphere_radius * area( part_round_surfaces[ 0 ] ) / 3;

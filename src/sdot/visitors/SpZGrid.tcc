@@ -523,6 +523,11 @@ bool SpZGrid<Pc>::can_be_evicted( CP &lc, Point3<TF> c0, TF w0, Box *box, int nu
                 TF b_x = detm( v_x       , c[ 5 ], c[ 7 ], v_y   , 2 * c[ 6 ], c[ 8 ], v_z   , c[ 8 ], 2 * c[ 9 ] ) / det;
                 TF b_y = detm( 2 * c[ 4 ], v_x   , c[ 7 ], c[ 5 ], v_y       , c[ 8 ], c[ 7 ], v_z   , 2 * c[ 9 ] ) / det;
                 TF b_z = detm( 2 * c[ 4 ], c[ 5 ], v_x   , c[ 5 ], 2 * c[ 6 ], v_y   , c[ 7 ], c[ 8 ], v_z        ) / det;
+                //                P( 2 * c[ 4 ] * b_x + c[ 5 ] * b_y + c[ 7 ] * b_z - v_x );
+                //                P( c[ 5 ] * b_x + 2 * c[ 6 ] * b_y + c[ 8 ] * b_z - v_y );
+                //                P( c[ 7 ] * b_x + c[ 8 ] * b_y + 2 * c[ 9 ] * b_z - v_z );
+                //                for( std::size_t var = 0; var < 100; ++var )
+                //                    ASSERT( pol_val( c, p, { b_x, b_y, b_z } ) <= 1e-6 + pol_val( c, p, { b_x + 1e-2 * rand() / RAND_MAX, b_y + 1e-2 * rand() / RAND_MAX, b_z + 1e-2 * rand() / RAND_MAX } ), "" );
                 if ( b_x > box->min_pt.x && b_x < box->max_pt.x &&
                      b_y > box->min_pt.y && b_y < box->max_pt.y &&
                      b_z > box->min_pt.z && b_z < box->max_pt.z &&
