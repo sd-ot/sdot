@@ -49,13 +49,13 @@ private:
 
     struct Buf {
         enum {
-            header_size = sizeof( Buf * ) + sizeof( int ),
-            data_size   = buf_size - header_size
+            footer_size = sizeof( Buf * ) + sizeof( char * ),
+            data_size   = buf_size - footer_size
         };
 
+        char  data[ data_size ]; ///<
         Buf  *prev;              ///<
         char *free;              ///<
-        char  data[ data_size ]; ///<
     };
 
     Buf *last;

@@ -70,7 +70,7 @@ void test_and_display( VtkOutput<1> &vo, std::vector<std::pair<Point2<double>,Po
     icp.ball_cut( { off }, 1 );
     icp.display( vo, { Pc::TF( r ) }, 0 );
     icp.display( vo, { Pc::TF( r ) }, 1 );
-    CHECK( icp.nb_points == nb_points );
+    CHECK( icp._nb_points == nb_points );
     CHECK_THAT( icp.boundary_measure(), WithinAbs( perimeter, 1e-4 ) );
 }
 

@@ -60,9 +60,10 @@ public:
     Pt                        max_position              () const;
     void                      display_asy               ( std::ostream &os, const std::string &draw_info = "", const std::string &fill_info = "", bool fill = false, bool avoid_bounds = false, bool want_line = true ) const; ///< ouput asymptote format
     template<class V> void    display                   ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false ) const;
+    std::size_t               nb_points                 () const { return _nb_points; }
     Pt                        normal                    ( std::size_t n ) const { return { normals[ 0 ][ n ], normals[ 1 ][ n ] }; }
     Pt                        point                     ( std::size_t n ) const { return { points[ 0 ][ n ], points[ 1 ][ n ] }; }
-    bool                      empty                     () const { return nb_points == 0 && sphere_radius <= 0; }
+    bool                      empty                     () const { return _nb_points == 0 && sphere_radius <= 0; }
 
     // modifications
     void                      intersect_with            ( const ConvexPolyhedron2 &cp );
@@ -118,8 +119,6 @@ public:
     TF                        sphere_radius;
     CI                        sphere_cut_id;
 
-    std::size_t               nb_points;
-
 private:
     enum                      CutType                   { LINE = 0, ARC = 1 };
     struct                    Cut                       { int cut_type; CI cut_id; Pt normal; Pt point; };
@@ -129,6 +128,7 @@ private:
     TF                        _arc_length               ( Pt p0, Pt p1 ) const;
     TF                        _arc_area                 ( Pt p0, Pt p1 ) const;
 
+    std::size_t               _nb_points;
     std::vector<Cut>          _tmp_cuts;
 };
 

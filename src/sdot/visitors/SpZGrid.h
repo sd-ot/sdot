@@ -23,7 +23,7 @@ public:
 
     // parameters
     static constexpr bool   allow_translations    = true;
-    static constexpr int    degree_w_approx       = 2;
+    static constexpr int    degree_w_approx       = 0;
     static constexpr bool   allow_mpi             = true;
 
     // static definitions
@@ -84,10 +84,9 @@ private:
     static TI               nb_diracs             ( Box *box );
     std::string             ext_info              () const;
 
-    bool                    can_be_evicted        ( CP &lc, Point2<TF> c0, TF w0, Box *box, int num_sym );
-    bool                    can_be_evicted        ( CP &lc, Point3<TF> c0, TF w0, Box *box, int num_sym );
+    bool                    can_be_evicted        ( CP &lc, Pt c0, TF w0, Box *box, int num_sym );
 
-    template<class TA> TF   pol_val               ( const TA &c, Pt p, Pt x ) const;
+    template<class TA> TF   w_approx              ( const TA &c, Pt x ) const;
     Pt                      inv_sym               ( Pt pt, int num_sym ) const { if ( allow_translations && num_sym >= 0 ) return pt - translations[ num_sym ]; return pt; };
     Pt                      sym                   ( Pt pt, int num_sym ) const { if ( allow_translations && num_sym >= 0 ) return pt + translations[ num_sym ]; return pt; }
 

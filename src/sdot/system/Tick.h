@@ -21,7 +21,7 @@ public:
     }
 
     static double delta( TP beg, TP end ) {
-        auto delta = end, beg;
+        auto delta = end - beg;
         return std::chrono::duration_cast<std::chrono::microseconds>( delta ).count() / 1e6;
     }
 

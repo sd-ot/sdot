@@ -3,7 +3,7 @@
 #include "../src/sdot/visitors/ZGrid.h"
 #include "../src/sdot/system/MpiInst.h"
 #include "../src/sdot/system/Time.h"
-#include "set_up_diracs.h"
+#include "set_up_diracs_2D.h"
 #include <cxxopts.hpp>
 
 //// nsmake cpp_flag -march=native
