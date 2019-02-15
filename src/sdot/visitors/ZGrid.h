@@ -25,8 +25,8 @@ public:
     // static definitions
     static constexpr bool   full_may_cut_test     = false;
     static constexpr int    sizeof_zcoords        = ( dim * nb_bits_per_axis + 7 ) / 8; ///< nb meaningful bytes in z-coordinates
-    using                   CP2                   = ConvexPolyhedron2<Pc,TI>;
-    using                   CP3                   = ConvexPolyhedron3<Pc,TI>;
+    using                   CP2                   = ConvexPolyhedron2<Pc>;
+    using                   CP3                   = ConvexPolyhedron3<Pc>;
     using                   CP                    = typename std::conditional<dim==3,CP3,CP2>::type;
     using                   Pt                    = typename CP::Pt;
     using                   TZ                    = std::uint64_t; ///< zcoords

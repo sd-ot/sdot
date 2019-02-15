@@ -19,7 +19,7 @@ struct Cp3Node {
     using    TF             = typename Pc::TF; ///< floating point type
     using    TI             = typename Pc::TI; ///< size type
     using    Pt             = Point3<TF>;      ///< 3D point
-
+    union    Ni             { Cp3Node *node; Edge *edge; };
     /**/     Cp3Node        () : op_count( 0 ) {}
 
     void     write_to_stream( std::ostream &os ) const { os << pos; }
@@ -28,6 +28,7 @@ struct Cp3Node {
     Cp3Node *next_in_cut;   ///<
     TI       op_count;      ///<
     EdgeList edges;         ///<
+    Ni       nitem;         ///< new node or edge for current operation
     Pt       pos;           ///<
 };
 

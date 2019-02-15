@@ -363,6 +363,12 @@ bool SpZGrid<Pc>::can_be_evicted( CP &lc, Pt c0, TF w0, Box *box, int num_sym ) 
 
     Pt min_pt = sym( box->min_pt, num_sym );
     Pt max_pt = sym( box->max_pt, num_sym );
+
+    //    auto *node = lc.find_node_maximizing( [&]( TF &val, Pt p ) {
+    //        val = norm_2_p2( c0 - p ) - w0 - ( norm_2_p2( c1 - p ) - w_approx( box->coeffs_w_approx, inv_sym( c1, num_sym ) ) );
+    //        return val > 0;
+    //    } );
+
     for( TI num_p = 0; num_p < lc.nb_points(); ++num_p ) {
         Pt p = lc.point( num_p );
 

@@ -12,8 +12,8 @@
 //// nsmake lib_flag -O5
 
 int main( int argc, char **argv ) {
-    struct Pc { enum { nb_bits_per_axis = 31, allow_ball_cut = 0, dim = 3 }; using TI = std::size_t; using TF = double; };
-    using  Pt = Point3<Pc::TF>;
+    struct Pc { enum { nb_bits_per_axis = 31, allow_ball_cut = 0, dim = 3 }; using TI = std::size_t; using TF = double; using CI = TI; };
+    using  Pt = sdot::Point3<Pc::TF>;
     using  TF = Pc::TF;
 
     // options
@@ -92,7 +92,7 @@ int main( int argc, char **argv ) {
 
     // display
     if ( args.count( "vtk-output" ) ) {
-        VtkOutput<2> vtk_output( { "weight", "num" } );
+        sdot::VtkOutput<2> vtk_output( { "weight", "num" } );
 
         grid.update( positions.data(), weights.data(), weights.size() );
         grid.for_each_laguerre_cell( [&]( auto &lc, std::size_t num_dirac ) {

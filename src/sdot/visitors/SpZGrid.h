@@ -28,8 +28,8 @@ public:
 
     // static definitions
     static constexpr int    nb_coeffs_w_approx    = 1 + dim * ( degree_w_approx >= 1 ) + dim * ( dim + 1 ) / 2 * ( degree_w_approx >= 2 );
-    using                   CP2                   = ConvexPolyhedron2<Pc,TI>;
-    using                   CP3                   = ConvexPolyhedron3<Pc,TI>;
+    using                   CP2                   = ConvexPolyhedron2<Pc>;
+    using                   CP3                   = ConvexPolyhedron3<Pc>;
     using                   CP                    = typename std::conditional<dim==3,CP3,CP2>::type;
     using                   Pt                    = typename CP::Pt;
 

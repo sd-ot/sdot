@@ -26,6 +26,8 @@ public:
     Iterator      end            () const { return nullptr; }
 
     void          insert_between ( T *prev, T *next, T *item ) { get_next( prev ) = item; get_next( item ) = next; }
+    void          set_front      ( T *item ) { first_item = item; }
+    void          set_back       ( T *item ) { get_next( item ) = nullptr; last_item = item;  }
     void          append         ( T *item ) { if ( last_item ) get_next( last_item ) = item; else first_item = item; last_item = item; get_next( item ) = nullptr; }
     void          clear          () { first_item = nullptr; last_item = nullptr; }
 

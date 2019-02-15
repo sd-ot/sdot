@@ -7,28 +7,28 @@ using  Pt = sdot::Point3<Pc::TF>;
 using  TF = Pc::TF;
 
 TEST_CASE( "ConvexPolyhedron3", "diam" ) {
-    //    Cp cs( Cp::Box{ { -5, -5, -5 }, { +5, +5, +5 } } );
-    //    for( double z : { -1, 0, 1 } )
-    //        for( double y : { -1, 0, 1 } )
-    //            for( double x : { -1, 0, 1 } )
-    //                if ( x || y || z )
-    //                    cs.plane_cut( normalized( Pt( { x, y, z } ) ), normalized( Pt( { x, y, z } ) ) );
+    Cp cs( Cp::Box{ { -5, -5, -5 }, { +5, +5, +5 } } );
+    for( double z : { -1, 0, 1 } )
+        for( double y : { -1, 0, 1 } )
+            for( double x : { -1, 0, 1 } )
+                if ( x || y || z )
+                    cs.plane_cut( normalized( Pt( { x, y, z } ) ), normalized( Pt( { x, y, z } ) ) );
 
-    Cp cs( Cp::Box{ { 0, 0, 0 }, { 2, 2, 2 } } );
-    //    cs.plane_cut( Pt( { 4.5, 4.5, 4.5 } ), normalized( Pt( { 1, 1, 1 } ) ) );
-    cs.plane_cut( Pt( { 1, 1, 1 } ), normalized( Pt( { 0, 0, 1 } ) ) );
+    CHECK_THAT( cs.boundary_measure(), WithinAbs<double>( 14.3319, 1e-4 ) );
+    CHECK_THAT( cs.measure         (), WithinAbs<double>( 4.77730, 1e-4 ) );
 
-    P( cs.measure() );
-    //    CHECK_THAT( cs.boundary_measure(), WithinAbs<double>( 14.3319, 1e-4 ) );
-    //    CHECK_THAT( cs.measure         (), WithinAbs<double>( 4.77730, 1e-4 ) );
-
-    //    CHECK( cs.contains( { 0, 0, 0 } ) == 1 );
-    //    CHECK( cs.contains( { 2, 0, 0 } ) == 0 );
+    CHECK( cs.contains( { 0, 0, 0 } ) == 1 );
+    CHECK( cs.contains( { 2, 0, 0 } ) == 0 );
 
     sdot::VtkOutput<1> vo( { "num" } );
-    //    cs.display( vo, { 0 }, 0 );
-    cs.display( vo, { 0 }, 1 );
+    cs.display( vo, { 0 } );
     vo.save( "cut.vtk" );
+
+    // operator=
+    Cp cp( Cp::Box{ { -5, -5, -5 }, { +5, +5, +5 } } );
+    cp = cs;
+
+    CHECK_THAT( cp.measure         (), WithinAbs<double>( 4.77730, 1e-4 ) );
 }
 
 //TEST( LaguerreCell_3D, only_sphere ) {

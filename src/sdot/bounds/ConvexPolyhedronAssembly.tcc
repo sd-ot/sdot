@@ -55,17 +55,15 @@ const typename ConvexPolyhedronAssembly<Pc>::CP& ConvexPolyhedronAssembly<Pc>::e
         if ( englobing_polyheron_is_up_to_date == false ) {
             englobing_polyheron_is_up_to_date = true;
 
+            Pt delta;
             Pt min_pos;
             Pt max_pos;
-            Pt delta;
             for( std::size_t d = 0; d < dim; ++d ) {
                 min_pos[ d ] = + std::numeric_limits<TF>::max();
                 max_pos[ d ] = - std::numeric_limits<TF>::max();
                 for( const Item &item : items ) {
-                    for( std::size_t i = 0; i < item.polyhedron.nb_points(); ++i ) {
-                        min_pos[ d ] = min( min_pos[ d ], item.polyhedron.point( i )[ d ] );
-                        max_pos[ d ] = max( max_pos[ d ], item.polyhedron.point( i )[ d ] );
-                    }
+                    min_pos[ d ] = min( min_pos[ d ], item.polyhedron.find_node_maximizing( [&]( TF &val, Pt pos ) { val = - pos[ d ]; return false; } )->pos[ d ] );
+                    max_pos[ d ] = max( max_pos[ d ], item.polyhedron.find_node_maximizing( [&]( TF &val, Pt pos ) { val = + pos[ d ]; return false; } )->pos[ d ] );
                 }
                 delta[ d ] = max_pos[ d ] - min_pos[ d ];
             }

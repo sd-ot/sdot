@@ -38,7 +38,9 @@ public:
 
     /// we start from a tetrahedron that includes the sphere defined by sphere_center and sphere_radius... but this sphere is not used
     /**/                    ConvexPolyhedron3        ( const Tetra &tetra, CI cut_id = {} );
-    /**/                    ConvexPolyhedron3        ( const Box &box, CI cut_id = {} );
+    /**/                    ConvexPolyhedron3        ( const Box &box = { { 0, 0, 0 }, { 1, 1, 1 } }, CI cut_id = {} );
+
+    void                    operator=                ( const ConvexPolyhedron3 &cp );
 
     // display
     void                    write_to_stream          ( std::ostream &os ) const;
@@ -53,7 +55,7 @@ public:
 
     // computations
     void                    for_each_boundary_measure( FunctionEnum::Unit, const std::function<void( TF area, CI id )> &f ) const;
-    template<class F> Node *find_node_maximizing     ( const F &f ) const; ///< f must return true to stop the search. It takes ( TF &criterion, Pt pos ) as parameters
+    template<class F> Node *find_node_maximizing     ( const F &f ) const; ///< f must return true to stop the search. It takes ( TF &value, Pt pos ) as parameters
     void                    add_centroid_contrib     ( FunctionEnum::Unit, Pt &ctd, TF &vol ) const;
     TF                      boundary_measure         ( FunctionEnum::Unit ) const;
     Pt                      centroid                 ( FunctionEnum::Unit ) const;
@@ -66,6 +68,7 @@ public:
 
     // tests
     bool                    contains                 ( const Pt &pos ) const;
+    bool                    empty                    () const { return faces.empty() && ( allow_ball_cut == false || sphere_radius <= 0 ); }
 
     // approximate computations
     template<class Fu> TF   boundary_measure_ap      ( const Fu &fu, TF max_ratio_area_error = 1e-4 ) const; ///< area from a triangulation of the surface
@@ -81,12 +84,22 @@ public:
     TF                      sphere_radius;
 
 private:
-    struct                  GetNextInCut             { template<class T> T *&operator()( T *e ) const { return e->next_in_cut; } };
     using                   FaceList                 = PoolWithActiveAndInactiveItems<Face>;
     using                   HoleList                 = PoolWithActiveAndInactiveItems<Hole>;
     using                   EdgeList                 = PoolWithInactiveItems<Edge>;
     using                   NodeList                 = PoolWithInactiveItems<Node>;
     struct                  EdgePair                 { Edge *a, *b; };
+
+    struct                  MarkCutInfo              {
+        struct              Gnic                     { template<class T> T *&operator()( T *e ) const { return e->next_in_cut; } };
+
+        ListRef<Face,Gnic>  cut_faces;
+        ListRef<Edge,Gnic>  cut_edges;
+        ListRef<Edge,Gnic>  rem_edges;
+        ListRef<Node,Gnic>  rem_nodes;
+        Pt                  origin;
+        Pt                  normal;
+    };
 
     // internal modifications methods
     EdgePair                add_straight_edge        ( Node *n0, Node *n1 );
@@ -97,7 +110,7 @@ private:
     static void             p_cut                    ( std::vector<Triangle> &triangles, std::vector<Pt> &points, Pt cut_O, Pt cut_N );
 
     // internal computation methods
-    void                    mark_cut_faces_and_edges ( ListRef<Face,GetNextInCut> &cut_faces, ListRef<Edge,GetNextInCut> &cut_edges, ListRef<Node,GetNextInCut> &cut_nodes, Node *node, const Pt &origin, const Pt &normal, TF sp );
+    void                    mark_cut_faces_and_edges ( MarkCutInfo &mci, Node *node, TF sp );
     template<class F> void  for_each_triangle_rf     ( F &&func, TF max_ratio_area_error = 1e-1, bool remove_holes = true, std::mutex *m = 0 ) const; ///< for each triangle of the round faces
     void                    get_ap_edge_points       ( std::vector<Pt> &points, const Edge &edge, int nb_divs = 50, bool end = false ) const; ///<
     Pt                      point_for_angle          ( const Edge &edge, TF an ) const;

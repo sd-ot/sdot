@@ -16,6 +16,69 @@ ConvexPolyhedron3<Pc>::ConvexPolyhedron3( const Box &box, CI cut_id ) : op_count
 }
 
 template<class Pc>
+void ConvexPolyhedron3<Pc>::operator=( const ConvexPolyhedron3 &cp ) {
+    nb_connections = cp.nb_connections;
+    sphere_cut_id  = cp.sphere_cut_id;
+    sphere_center  = cp.sphere_center;
+    sphere_radius  = cp.sphere_radius;
+    op_count       = cp.op_count;
+
+    faces.clear();
+    holes.clear();
+    edges.clear();
+    nodes.clear();
+
+    ++op_count;
+    auto new_node = [&]( Node *orig ) -> Node * {
+        if ( orig->op_count == op_count )
+            return orig->nitem.node;
+        orig->op_count = op_count;
+
+        Node *node = add_node( orig->pos );
+        orig->nitem.node = node;
+        return node;
+    };
+
+    auto new_edge = [&]( Edge &orig ) -> Edge * {
+        if ( orig.op_count == op_count )
+            return orig.nedge;
+        orig.sibling->op_count = op_count;
+        orig.op_count = op_count;
+
+        if ( orig.round() ) {
+            TODO;
+        }
+
+        EdgePair ep = add_straight_edge( new_node( orig.n0 ), new_node( orig.n1 ) );
+        orig.sibling->nedge = ep.b;
+        orig.nedge = ep.a;
+        return ep.a;
+    };
+
+    for( const Face &orig : cp.faces ) {
+        Face *face = faces.new_item();
+        face->cut_id = orig.cut_id;
+        face->cut_O  = orig.cut_O;
+        face->cut_N  = orig.cut_N;
+        face->round  = orig.round;
+
+        face->edges.clear();
+        for( Edge &edge : orig.edges ) {
+            Edge *nedge = new_edge( edge );
+            face->edges.append( nedge );
+            nedge->face = face;
+        }
+    }
+
+    for( const Hole &orig : cp.holes ) {
+        Hole *hole = holes.new_item();
+        hole->cut_id = orig.cut_id;
+        hole->cut_N  = orig.cut_N ;
+        hole->cut_O  = orig.cut_O ;
+    }
+}
+
+template<class Pc>
 void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::Unit, const std::function<void(TF,CI)> &f ) const {
     TODO;
     //    // round parts
@@ -300,39 +363,39 @@ template<class Pc> template<class F>
 typename ConvexPolyhedron3<Pc>::Node *ConvexPolyhedron3<Pc>::find_node_maximizing( const F &f ) const {
     Node *node = faces.begin()->edges.begin()->n0;
 
-    TF criterion;
-    if ( f( criterion, node->pos ) )
+    TF value;
+    if ( f( value, node->pos ) )
         return node;
 
     while ( true ) {
         Node *best_node = node;
-        TF best_criterion = criterion;
+        TF best_value = value;
         for( const Edge &edge : node->edges ) {
-            TF edge_n1_criterion;
-            if ( f( edge_n1_criterion, edge.n1->pos ) )
+            TF edge_n1_value;
+            if ( f( edge_n1_value, edge.n1->pos ) )
                 return edge.n1;
-            if ( best_criterion < edge_n1_criterion ) {
-                best_criterion = edge_n1_criterion;
+            if ( best_value < edge_n1_value ) {
+                best_value = edge_n1_value;
                 best_node = edge.n1;
             }
         }
 
-        // nothing to raise the criterion ?
+        // nothing to raise the value ?
         if ( node == best_node )
             return nullptr;
 
-        criterion = best_criterion;
+        value = best_value;
         node = best_node;
     }
 }
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::mark_cut_faces_and_edges( ListRef<Face,GetNextInCut> &cut_faces, ListRef<Edge,GetNextInCut> &cut_edges, ListRef<Node,GetNextInCut> &cut_nodes, Node *node, const Pt &origin, const Pt &normal, TF sp0 ) {
+void ConvexPolyhedron3<Pc>::mark_cut_faces_and_edges( MarkCutInfo &mci, Node *node, TF sp0 ) {
     // node is assumed to be exterior
     if ( node->op_count == op_count )
         return;
     node->op_count = op_count;
-    cut_nodes.append( node );
+    mci.rem_nodes.append( node );
 
     for( Edge &edge : node->edges ) {
         if ( edge.op_count == op_count )
@@ -345,26 +408,25 @@ void ConvexPolyhedron3<Pc>::mark_cut_faces_and_edges( ListRef<Face,GetNextInCut>
             if ( face->op_count == op_count )
                 return;
             face->op_count = op_count;
-            cut_faces.append( face );
+            mci.cut_faces.append( face );
         };
         mark_face( edge.sibling->face );
         mark_face( edge.face );
 
         // node on the other side is exterior ?
-        TF sp1 = dot( edge.n1->pos - origin, normal );
+        TF sp1 = dot( edge.n1->pos - mci.origin, mci.normal );
         if ( sp1 > 0 ) {
             // both nodes are out => we can remove the edge (the)
-            edges.free( edge.sibling );
-            edges.free( &edge );
+            mci.rem_edges.append( &edge );
 
             // we have a potentially new ext node to explore
-            mark_cut_faces_and_edges( cut_faces, cut_edges, cut_nodes, edge.n1, origin, normal, sp1 );
+            mark_cut_faces_and_edges( mci, edge.n1, sp1 );
         } else {
             // add a new node
             Node *nn = add_node( node->pos - sp0 / ( sp1 - sp0 ) * ( edge.n1->pos - node->pos ) );
             nn->op_count = op_count;
 
-            cut_edges.append( &edge );
+            mci.cut_edges.append( &edge );
             edge.sibling->n1 = nn;
             edge.n0 = nn;
         }
@@ -391,54 +453,84 @@ void ConvexPolyhedron3<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
 
     // update totally or partially the exterior edges
     ++op_count;
-    ListRef<Face,GetNextInCut> cut_faces;
-    ListRef<Edge,GetNextInCut> cut_edges;
-    ListRef<Node,GetNextInCut> cut_nodes;
-    mark_cut_faces_and_edges( cut_faces, cut_edges, cut_nodes, node, origin, normal, dot( node->pos - origin, normal ) );
+    MarkCutInfo mci;
+    mci.origin = origin;
+    mci.normal = normal;
+    mark_cut_faces_and_edges( mci, node, dot( node->pos - origin, normal ) );
 
     // remove all the exterior nodes
-    for( Node &node : cut_nodes )
+    for( Node &node : mci.rem_nodes )
         nodes.free( &node );
 
     // register cut edges
-    for( Edge &edge : cut_edges )
+    for( Edge &edge : mci.cut_edges )
         edge.n0->edges.append( &edge );
 
     // go through the faces which contain at least one ext node
-    for( Face &face : cut_faces ) {
-        Edge *enter = nullptr;
-        Edge *leave = nullptr;
+    Node *last_created_node = nullptr;
+    for( Face &face : mci.cut_faces ) {
+        Edge *leave_ext = nullptr;
+        Edge *enter_ext = nullptr;
         for( Edge &edge : face.edges ) {
             // n0 is exterior ?
             if ( edge.n0->op_count == op_count ) {
                 if ( edge.n1->op_count != op_count ) {
-                    if ( leave ) {
-                        EdgePair ep = add_straight_edge( leave->n1, edge.n0 );
-                        face.edges.insert_between( leave, &edge, ep.a );
+                    if ( enter_ext ) {
+                        EdgePair ep = add_straight_edge( enter_ext->n1, edge.n0 );
+                        face.edges.insert_between( enter_ext, &edge, ep.a );
+
+                        last_created_node = edge.n0;
+                        ep.b->n0->nitem.edge = ep.b;
                         ep.a->face = &face;
                         break;
-                    } else
-                        enter = &edge;
+                    }
+                    leave_ext = &edge;
                 }
             } else {
                 // n0 is inside, n1 node is outside
                 if ( edge.n1->op_count == op_count ) {
-                    if ( enter ) {
-                        P( "le" );
+                    if ( leave_ext ) {
+                        EdgePair ep = add_straight_edge( edge.n1, leave_ext->n0 );
+                        face.edges.set_front( leave_ext );
+                        face.edges.set_back( &edge );
+                        face.edges.append( ep.a );
+
+                        last_created_node = edge.n1;
+                        ep.b->n0->nitem.edge = ep.b;
+                        ep.a->face = &face;
                         break;
-                    } else
-                        leave = &edge;
+                    }
+                    enter_ext = &edge;
                 }
             }
         }
-        if ( enter == nullptr && leave == nullptr ) {
+        if ( leave_ext == nullptr && enter_ext == nullptr )
             faces.free( &face );
-        }
     }
 
-    P( faces.size() );
-    P( edges.size() );
-    P( nodes.size() );
+    // remove all the exterior edges
+    for( Edge &edge : mci.rem_edges ) {
+        edges.free( edge.sibling );
+        edges.free( &edge );
+    }
+
+    // make the new face
+    if ( last_created_node ) {
+        Face *face = faces.new_item();
+        if ( allow_ball_cut )
+            face->round = false;
+        face->cut_id = cut_id;
+        face->cut_O  = origin;
+        face->cut_N  = normal;
+
+        face->edges.clear();
+        face->edges.append( last_created_node->nitem.edge );
+        last_created_node->nitem.edge->face = face;
+        for( Node *node = last_created_node->nitem.edge->n1; node != last_created_node; node = node->nitem.edge->n1 ) {
+            face->edges.append( node->nitem.edge );
+            node->nitem.edge->face = face;
+        }
+    }
 
     //    // new nodes and new edges. edge.nedge will contain index of the new edges. edge.used will be != 0 if edge is kept
     //    TI old_nodes_size = _nb_nodes;
@@ -727,10 +819,16 @@ void ConvexPolyhedron3<Pc>::add_centroid_contrib( FunctionEnum::Unit, Pt &ctd, T
 
 template<class Pc>
 bool ConvexPolyhedron3<Pc>::contains( const Pt &pos ) const {
-    TODO;
-    //    for( const CutInfo &ci : cut_info )
-    //        if ( dot( pos - ci.cut_O, ci.cut_N ) >= 0 )
-    //            return false;
+    using std::pow;
+
+    for( const Face &face : faces ) {
+        if ( allow_ball_cut && face.round ) {
+            if ( norm_2_p2( pos - sphere_center ) > pow( sphere_radius, 2 ) )
+                return false;
+        } else if ( dot( pos - face.cut_O, face.cut_N ) > 0 )
+            return false;
+    }
+
     return true;
 }
 
@@ -782,34 +880,37 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum:
 
 template<class Pc>
 typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::boundary_measure( FunctionEnum::Unit ) const {
-    TODO;
+    using std::sqrt;
+    using std::pow;
+    using std::max;
+
     TF res;
-    //    if ( flat_surfaces.empty() ) {
-    //        res = 4 * M_PI * std::pow( std::max( TF( 0 ), sphere_radius ), 2 );
-    //    } else if ( round_surfaces.empty() ) {
-    //        res = 0;
-    //        for( const FlatSurface &fp : flat_surfaces )
-    //            res += area( fp );
-    //    } else {
-    //        if ( round_surfaces.size() == 1 ) {
-    //            res = area( round_surfaces[ 0 ] );
-    //        } else {
-    //            // we substract area of the hole from area of the full sphere
-    //            TF sa = 4 * M_PI * std::pow( sphere_radius, 2 );
-    //            res = sa * ( TF( 1 ) - nb_connections );
-    //            for( const RoundSurface &rp : round_surfaces )
-    //                res += area( rp );
-    //        }
+    if ( faces.empty() ) {
+        res = 4 * M_PI * pow( max( TF( 0 ), sphere_radius ), 2 );
+    } else {
+        res = 0;
+        for( const Face &face : faces ) {
+            if ( allow_ball_cut && face.round ) {
+                // if ( round_surfaces.size() == 1 ) {
+                //     res = area( round_surfaces[ 0 ] );
+                // } else {
+                //     // we substract area of the hole from area of the full sphere
+                //     TF sa = 4 * M_PI * std::pow( sphere_radius, 2 );
+                //     res = sa * ( TF( 1 ) - nb_connections );
+                //     for( const RoundSurface &rp : round_surfaces )
+                //         res += area( rp );
+                // }
+                TODO;
+            } else
+                res += area( face );
+        }
+    }
 
-    //        for( const FlatSurface &fp : flat_surfaces )
-    //            res += area( fp );
-    //    }
-
-    //    for( const Hole &hole : holes ) {
-    //        TF s = dot( cut_info[ hole.cut_index ].cut_O - sphere_center, cut_info[ hole.cut_index ].cut_N );
-    //        TF r = std::sqrt( sphere_radius * sphere_radius - s * s );
-    //        res += M_PI * ( r * r - 2 * sphere_radius * ( sphere_radius - s ) );
-    //    }
+    for( const Hole &hole : holes ) {
+        TF s = dot( hole.cut_O - sphere_center, hole.cut_N );
+        TF r = sqrt( sphere_radius * sphere_radius - s * s );
+        res += M_PI * ( r * r - 2 * sphere_radius * ( sphere_radius - s ) );
+    }
     return res;
 }
 
@@ -1142,9 +1243,8 @@ template<class Pc> template<class V>
 void ConvexPolyhedron3<Pc>::display( V &vo, const typename V::CV &cell_data, bool filled, TF max_ratio_area_error, bool display_tangents ) const {
     vo.mutex.lock();
 
-    // full or empty sphere ?
+    // round surfaces
     if ( filled ) {
-        // round surfaces
         for_each_triangle_rf( [&]( Pt p0, Pt p1, Pt p2 ) {
             vo.add_polygon( { p0, p1, p2 }, cell_data );
         }, max_ratio_area_error, true );
@@ -1171,13 +1271,15 @@ void ConvexPolyhedron3<Pc>::display( V &vo, const typename V::CV &cell_data, boo
             //            vo.add_polygon( points, cell_data );
         }
     } else {
-        TODO;
-        //        for( TI i = 0; i < edges.size() / 2; ++i ) {
-        //            const Edge &edge = edges[ 2 * i ];
-        //            std::vector<Pt> points;
-        //            get_ap_edge_points( points, edge, 50, true );
-        //            vo.add_lines( points, cell_data );
-        //        }
+        for( const Face &face : faces ) {
+            for( const Edge &edge : face.edges ) {
+                if ( edge.n0 < edge.n1 ) {
+                    std::vector<Pt> points;
+                    get_ap_edge_points( points, edge, max_ratio_area_error > 2e-2 ? 50 : 500 );
+                    vo.add_lines( points, cell_data );
+                }
+            }
+        }
     }
 
     if ( display_tangents ) {

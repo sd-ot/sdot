@@ -33,11 +33,12 @@ struct Cp3Edge {
     Cp3Edge *next_in_cut;         ///<
     TI       op_count;            ///<
     Cp3Edge *sibling;             ///< same edge (maybe with a different orientation), but attached to an other face
+    Cp3Edge *nedge;               ///< new edge for current operation
     Face    *face;                ///< attached face
     Node    *n0;                  ///< index of 1st node
     Node    *n1;                  ///< index of 2nd node
 
-    // computed data (for          round edges)
+    // computed data (for round edges)
     Pt       tangent_0;           ///< tangent in n0
     Pt       tangent_1;           ///< tangent in n1
     TF       angle_1;             ///< angle of n1 (angle of n0 = 0)
