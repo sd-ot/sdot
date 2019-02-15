@@ -3,6 +3,10 @@
 #include "system/Stream.h"
 #include <cmath>
 
+namespace sdot {
+
+/**
+*/
 template<class TF>
 struct Point2 {
     /**/                             Point2         ( const TF *v ) : x( v[ 0 ] ), y( v[ 1 ] ) {}
@@ -134,3 +138,5 @@ template<class TF>
 inline TF transformation( const std::array<TF,4> &trans, TF val ) {
     return val;
 }
+
+} // namespace sdot

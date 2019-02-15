@@ -12,13 +12,16 @@ class PoolWithInactiveItems {
 public:
     /**/          PoolWithInactiveItems();
 
-    T            *get_item             ();
+    T            *new_item             ();
+    void          clear                ();
     void          free                 ( T *item );
+
+    std::size_t   size                 () const;
 
 private:
     T            *last_inactive;
-    T            *last_active;
     std::deque<T> content;
 };
 
 #include "PoolWithInactiveItems.tcc"
+

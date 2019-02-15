@@ -5,6 +5,8 @@
 #include <mutex>
 #include <deque>
 
+namespace sdot {
+
 /**
   Class for simplified (and not optimized) vtk output
 */
@@ -56,5 +58,7 @@ private:
     std::deque<Pt>          _points;
     std::deque<Li>          _lines;
 };
+
+} // namespace sdot
 
 #include "VtkOutput.tcc"

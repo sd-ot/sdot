@@ -3,6 +3,8 @@
 #include "Point3.h"
 #include <map>
 
+namespace sdot {
+
 /**
 */
 template<class TF>
@@ -130,3 +132,5 @@ private:
 
     std::vector<Mesh> _meshes;
 };
+
+} // namespace sdot

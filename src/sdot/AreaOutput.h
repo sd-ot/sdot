@@ -3,6 +3,8 @@
 #include "FunctionEnum.h"
 #include "Point3.h"
 
+namespace sdot {
+
 /**
 */
 template<class Fu,class TF>
@@ -34,3 +36,5 @@ public:
 
     TF   area;
 };
+
+} // namespace sdot

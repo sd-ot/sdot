@@ -3,15 +3,15 @@
 #include "catch_main.h"
 
 struct T {
-    int val;
     T  *prev_in_pool;
     T  *next_in_pool;
+    int val;
 };
 
 TEST_CASE( "PoolWithInactiveItems", "part_case" ) {
-    PoolWithInactiveItems<T> pool;
-    T *a = pool.get_item();
-    T *b = pool.get_item();
+    PoolWithInactiveItems<T,true> pool;
+    T *a = pool.new_item();
+    T *b = pool.new_item();
     a->val = 1;
     b->val = 2;
     CHECK( a != b );
@@ -19,9 +19,10 @@ TEST_CASE( "PoolWithInactiveItems", "part_case" ) {
     CHECK( b->val == 2 );
 
     pool.free( a );
-    T *c = pool.get_item();
+    T *c = pool.new_item();
     CHECK( c == a );
+
+    int cpt = 1;
+    for( T &i : pool )
+        CHECK( i.val == cpt++ );
 }
-
-
-

@@ -3,6 +3,8 @@
 #include "VtkOutput.h"
 #include <fstream>
 
+namespace sdot {
+
 template<int nb_cell_fields,class TF>
 VtkOutput<nb_cell_fields,TF>::VtkOutput( const CN &_cell_field_names ) : _cell_field_names( _cell_field_names ) {
 }
@@ -159,3 +161,5 @@ template<int nb_cell_fields,class TF>
 size_t VtkOutput<nb_cell_fields,TF>::_nb_vtk_cells() const {
     return _points.size() + _lines.size() + _polygons.size();
 }
+
+} // namespace sdot
