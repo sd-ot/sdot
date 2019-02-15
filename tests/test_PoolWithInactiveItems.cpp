@@ -5,6 +5,7 @@
 struct T {
     int val;
     T  *prev_in_pool;
+    T  *next_in_pool;
 };
 
 TEST_CASE( "PoolWithInactiveItems", "part_case" ) {
@@ -13,12 +14,13 @@ TEST_CASE( "PoolWithInactiveItems", "part_case" ) {
     T *b = pool.get_item();
     a->val = 1;
     b->val = 2;
-    P( a->val );
-    P( b->val );
+    CHECK( a != b );
+    CHECK( a->val == 1 );
+    CHECK( b->val == 2 );
 
     pool.free( a );
-    a = pool.get_item();
-    P( a->val );
+    T *c = pool.get_item();
+    CHECK( c == a );
 }
 
 

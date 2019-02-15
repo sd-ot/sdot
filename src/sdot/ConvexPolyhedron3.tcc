@@ -1,37 +1,20 @@
+#include "SubdividedIcosahedron.h"
 #include "ConvexPolyhedron3.h"
 #include "AreaOutput.h"
 #include "Point2.h"
 
-template<class Pc,class CI>
-ConvexPolyhedron3<Pc,CI>::ConvexPolyhedron3( const Tetra &tetra, CI cut_id ) {
+template<class Pc>
+ConvexPolyhedron3<Pc>::ConvexPolyhedron3( const Tetra &tetra, CI cut_id ) {
     clear( tetra, cut_id );
 }
 
-template<class Pc, class CI>
-ConvexPolyhedron3<Pc,CI>::ConvexPolyhedron3( const Box &box, CI cut_id ) {
+template<class Pc>
+ConvexPolyhedron3<Pc>::ConvexPolyhedron3( const Box &box, CI cut_id ) {
     clear( box, cut_id );
 }
 
-template<class Pc,class CI> template<class F>
-void ConvexPolyhedron3<Pc,CI>::NodeList::for_each_offset( const F &f ) const {
-    TN tn;
-    tn.offset = 0;
-    for( TI b = 0; ; ) {
-        TI n = b + TN::nb_glued_nodes;
-        if ( n >= nb_nodes ) {
-            for( ; b < nb_nodes; ++b, ++tn.offset )
-                f( tn );
-            break;
-        }
-        for( ; b < n; ++n, ++tn.offset )
-            f( tn );
-        tn.offset += ( TN::nb_items_in_pas - 1 ) * TN::nb_glued_nodes;
-        b = n;
-    }
-}
-
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::for_each_boundary_measure( FunctionEnum::Unit, const std::function<void(TF,CI)> &f ) const {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::Unit, const std::function<void(TF,CI)> &f ) const {
     // round parts
     if ( flat_surfaces.empty() ) {
         if ( sphere_radius >= 0 )
@@ -60,8 +43,8 @@ void ConvexPolyhedron3<Pc,CI>::for_each_boundary_measure( FunctionEnum::Unit, co
     }
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::write_to_stream(std::ostream &os) const {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::write_to_stream(std::ostream &os) const {
     os << "nodes: " << nodes          << "\n";
     os << "edges: " << edges          << "\n";
     os << "round: " << round_surfaces << "\n";
@@ -70,8 +53,8 @@ void ConvexPolyhedron3<Pc,CI>::write_to_stream(std::ostream &os) const {
     os << "holes: " << holes          << "\n";
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::ball_cut( Pt center, TF radius, CI cut_id ) {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::ball_cut( Pt center, TF radius, CI cut_id ) {
     TODO;
     //    sphere_center = center;
     //    sphere_radius = radius;
@@ -308,8 +291,8 @@ void ConvexPolyhedron3<Pc,CI>::ball_cut( Pt center, TF radius, CI cut_id ) {
     //        sphere_radius = 0;
 }
 
-template<class Pc,class CI> template<int no>
-void ConvexPolyhedron3<Pc,CI>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> normal_is_normalized ) {
+template<class Pc> template<int no>
+void ConvexPolyhedron3<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> normal_is_normalized ) {
     bool all_ko = true;
     bool all_ok = true;
     nodes.for_each_offset( [&]( TN n ) {
@@ -452,8 +435,8 @@ void ConvexPolyhedron3<Pc,CI>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no>
     remove_unused_cuts ();
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::clear( Pt englobing_center, TF englobing_radius, CI englobing_cut_id ) {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::clear( Pt englobing_center, TF englobing_radius, CI englobing_cut_id ) {
     round_surfaces.resize( 0 );
     flat_surfaces      .resize( 0 );
     edge_indices       .resize( 0 );
@@ -498,18 +481,18 @@ void ConvexPolyhedron3<Pc,CI>::clear( Pt englobing_center, TF englobing_radius, 
 }
 
 
-template<class Pc,class CI>
-typename ConvexPolyhedron3<Pc,CI>::Pt ConvexPolyhedron3<Pc,CI>::node_pos( TI num_node ) const {
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::node_pos( TI num_node ) const {
     return { pos[ num_node + 0 * nb_glued_nodes ], pos[ num_node + 1 * nb_glued_nodes ], pos[ num_node + 2 * nb_glued_nodes ] };
 }
 
-template<class Pc,class CI>
-typename ConvexPolyhedron3<Pc,CI>::TF ConvexPolyhedron3<Pc,CI>::node_sp( TI num_node ) const {
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::node_sp( TI num_node ) const {
     return pos[ num_node + 3 * nb_glued_nodes ];
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::clear( const Box &box, CI cut_id ) {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::clear( const Box &box, CI cut_id ) {
     round_surfaces.resize( 0 );
     flat_surfaces      .resize( 0 );
     edge_indices       .clear();
@@ -564,8 +547,8 @@ void ConvexPolyhedron3<Pc,CI>::clear( const Box &box, CI cut_id ) {
     add_face( e9 + 0, e6 + 1, ea + 1, e1 + 1 );
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::add_centroid_contrib( FunctionEnum::Unit, Pt &ctd, TF &mea ) const {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::add_centroid_contrib( FunctionEnum::Unit, Pt &ctd, TF &mea ) const {
     // base
     if ( flat_surfaces.empty() ) {
         TF vol = 4 * M_PI / 3 * std::pow( std::max( TF( 0 ), sphere_radius ), 3 );
@@ -609,16 +592,16 @@ void ConvexPolyhedron3<Pc,CI>::add_centroid_contrib( FunctionEnum::Unit, Pt &ctd
     }
 }
 
-template<class Pc, class CI>
-bool ConvexPolyhedron3<Pc,CI>::contains( const Pt &pos ) const {
+template<class Pc>
+bool ConvexPolyhedron3<Pc>::contains( const Pt &pos ) const {
     for( const CutInfo &ci : cut_info )
         if ( dot( pos - ci.cut_O, ci.cut_N ) >= 0 )
             return false;
     return true;
 }
 
-template<class Pc,class CI>
-typename ConvexPolyhedron3<Pc,CI>::Pt ConvexPolyhedron3<Pc,CI>::centroid( FunctionEnum::Unit ) const {
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::centroid( FunctionEnum::Unit ) const {
     Pt ctd = { 0, 0, 0 };
     TF mea = 0;
 
@@ -627,9 +610,9 @@ typename ConvexPolyhedron3<Pc,CI>::Pt ConvexPolyhedron3<Pc,CI>::centroid( Functi
     return mea ? ctd / mea : ctd;
 }
 
-template<class Pc,class CI>
+template<class Pc>
 
-typename Pc::TF ConvexPolyhedron3<Pc,CI>::measure( FunctionEnum::Unit ) const {
+typename Pc::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum::Unit ) const {
     TF res;
     if ( flat_surfaces.empty() ) {
         res = 4 * M_PI / 3 * std::pow( std::max( TF( 0 ), sphere_radius ), 3 );
@@ -661,8 +644,8 @@ typename Pc::TF ConvexPolyhedron3<Pc,CI>::measure( FunctionEnum::Unit ) const {
     return res;
 }
 
-template<class Pc,class CI>
-typename Pc::TF ConvexPolyhedron3<Pc,CI>::boundary_measure( FunctionEnum::Unit ) const {
+template<class Pc>
+typename Pc::TF ConvexPolyhedron3<Pc>::boundary_measure( FunctionEnum::Unit ) const {
     TF res;
     if ( flat_surfaces.empty() ) {
         res = 4 * M_PI * std::pow( std::max( TF( 0 ), sphere_radius ), 2 );
@@ -693,8 +676,8 @@ typename Pc::TF ConvexPolyhedron3<Pc,CI>::boundary_measure( FunctionEnum::Unit )
     return res;
 }
 
-template<class Pc,class CI> template<class Fu>
-typename ConvexPolyhedron3<Pc,CI>::Pt ConvexPolyhedron3<Pc,CI>::centroid_ap( const Fu &fu, TI n ) const {
+template<class Pc> template<class Fu>
+typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::centroid_ap( const Fu &fu, TI n ) const {
     auto rdm1 = []() {
         return 2.0 * rand() / ( RAND_MAX - 1.0 ) - 1.0;
     };
@@ -735,8 +718,8 @@ typename ConvexPolyhedron3<Pc,CI>::Pt ConvexPolyhedron3<Pc,CI>::centroid_ap( con
     return centroid / ( count + ( count == 0 ) );
 }
 
-template<class Pc,class CI> template<class Fu>
-typename Pc::TF ConvexPolyhedron3<Pc,CI>::measure_ap( const Fu &fu, TI n ) const {
+template<class Pc> template<class Fu>
+typename Pc::TF ConvexPolyhedron3<Pc>::measure_ap( const Fu &fu, TI n ) const {
     // width of the random distribution
     Pt sc = sphere_center;
     TF sr = sphere_radius;
@@ -771,27 +754,27 @@ typename Pc::TF ConvexPolyhedron3<Pc,CI>::measure_ap( const Fu &fu, TI n ) const
     return count * std::pow( 2 * sr, 3 ) / n;
 }
 
-template<class Pc,class CI> template<class Fu>
-typename Pc::TF ConvexPolyhedron3<Pc,CI>::boundary_measure_ap( const Fu &fu, TF max_ratio_area_error ) const {
+template<class Pc> template<class Fu>
+typename Pc::TF ConvexPolyhedron3<Pc>::boundary_measure_ap( const Fu &fu, TF max_ratio_area_error ) const {
     AreaOutput<Fu,TF> ao;
     display( ao, 0, true, max_ratio_area_error );
     return ao.area;
 }
 
-template<class Pc,class CI>
+template<class Pc>
 
-void ConvexPolyhedron3<Pc,CI>::add_round_surface(const std::vector<TI> &edges ) {
+void ConvexPolyhedron3<Pc>::add_round_surface(const std::vector<TI> &edges ) {
     round_surfaces.push_back( { edges } );
 }
 
-template<class Pc,class CI>
+template<class Pc>
 
-void ConvexPolyhedron3<Pc,CI>::add_flat_surface( std::pair<TI,TI> edge_indices_bounds, TI cut_index ) {
+void ConvexPolyhedron3<Pc>::add_flat_surface( std::pair<TI,TI> edge_indices_bounds, TI cut_index ) {
     flat_surfaces.push_back( { edge_indices_bounds.first, edge_indices_bounds.second, cut_index } );
 }
 
-template<class Pc,class CI>
-typename ConvexPolyhedron3<Pc,CI>::TI ConvexPolyhedron3<Pc,CI>::add_straight_edge( TI n0, TI n1, TI cut_index ) {
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::TI ConvexPolyhedron3<Pc>::add_straight_edge( TI n0, TI n1, TI cut_index ) {
     Edge edge;
     edge.n0        = n0;
     edge.n1        = n1;
@@ -812,8 +795,8 @@ typename ConvexPolyhedron3<Pc,CI>::TI ConvexPolyhedron3<Pc,CI>::add_straight_edg
     return res;
 }
 
-template<class Pc,class CI>
-std::pair<typename ConvexPolyhedron3<Pc,CI>::TI,typename ConvexPolyhedron3<Pc,CI>::TI> ConvexPolyhedron3<Pc,CI>::add_edge_indices( TI e0, TI e1, TI e2, TI e3 ) {
+template<class Pc>
+std::pair<typename ConvexPolyhedron3<Pc>::TI,typename ConvexPolyhedron3<Pc>::TI> ConvexPolyhedron3<Pc>::add_edge_indices( TI e0, TI e1, TI e2, TI e3 ) {
     TI beg = edge_indices.size();
     edge_indices.push_back( e0 );
     edge_indices.push_back( e1 );
@@ -822,8 +805,8 @@ std::pair<typename ConvexPolyhedron3<Pc,CI>::TI,typename ConvexPolyhedron3<Pc,CI
     return { beg, edge_indices.size() };
 }
 
-template<class Pc,class CI>
-std::pair<typename ConvexPolyhedron3<Pc,CI>::TI,typename ConvexPolyhedron3<Pc,CI>::TI> ConvexPolyhedron3<Pc,CI>::add_edge_indices( TI e0, TI e1, TI e2 ) {
+template<class Pc>
+std::pair<typename ConvexPolyhedron3<Pc>::TI,typename ConvexPolyhedron3<Pc>::TI> ConvexPolyhedron3<Pc>::add_edge_indices( TI e0, TI e1, TI e2 ) {
     TI beg = edge_indices.size();
     edge_indices.push_back( e0 );
     edge_indices.push_back( e1 );
@@ -831,8 +814,8 @@ std::pair<typename ConvexPolyhedron3<Pc,CI>::TI,typename ConvexPolyhedron3<Pc,CI
     return { beg, edge_indices.size() };
 }
 
-template<class Pc,class CI>
-typename ConvexPolyhedron3<Pc,CI>::TI ConvexPolyhedron3<Pc,CI>::add_round_edge( TI n0, TI n1, TI cut_index ) {
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::TI ConvexPolyhedron3<Pc>::add_round_edge( TI n0, TI n1, TI cut_index ) {
     Edge edge;
     edge.n0        = n0;
     edge.n1        = n1;
@@ -879,13 +862,13 @@ typename ConvexPolyhedron3<Pc,CI>::TI ConvexPolyhedron3<Pc,CI>::add_round_edge( 
     return res;
 }
 
-template<class Pc,class CI>
-typename Pc::TF ConvexPolyhedron3<Pc,CI>::angle( const Edge &edge, Pt p ) const {
+template<class Pc>
+typename Pc::TF ConvexPolyhedron3<Pc>::angle( const Edge &edge, Pt p ) const {
     return atan2p( dot( p - edge.center, edge.Y() ), dot( p - edge.center, edge.X ) );
 }
 
-template<class Pc,class CI>
-typename Pc::TF ConvexPolyhedron3<Pc,CI>::area( const RoundSurface &rp ) const {
+template<class Pc>
+typename Pc::TF ConvexPolyhedron3<Pc>::area( const RoundSurface &rp ) const {
     TF res = 2 * M_PI;
 
     auto kg = [&]( const Edge &edge ) {
@@ -901,8 +884,8 @@ typename Pc::TF ConvexPolyhedron3<Pc,CI>::area( const RoundSurface &rp ) const {
     return std::pow( sphere_radius, 2 ) * res;
 }
 
-template<class Pc,class CI>
-typename Pc::TF ConvexPolyhedron3<Pc,CI>::area( const FlatSurface &fs ) const {
+template<class Pc>
+typename Pc::TF ConvexPolyhedron3<Pc>::area( const FlatSurface &fs ) const {
     // area of straight triangles
     TF poly_area = 0;
     const Pt &normal = cut_info[ fs.cut_index ].cut_N;
@@ -941,8 +924,8 @@ typename Pc::TF ConvexPolyhedron3<Pc,CI>::area( const FlatSurface &fs ) const {
     return poly_area + caps_area;
 }
 
-//template<class Pc,class CI>
-//void ConvexPolyhedron3<Pc,CI>::_make_ext_round_faces() {
+//template<class Pc>
+//void ConvexPolyhedron3<Pc>::_make_ext_round_faces() {
 //    if ( part_round_surfaces.size() <= 1 )
 //        return;
 
@@ -984,8 +967,8 @@ typename Pc::TF ConvexPolyhedron3<Pc,CI>::area( const FlatSurface &fs ) const {
 //    //    ++nb_connections;
 //}
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::_get_centroid_rf( Pt &centroid, TF &area ) const {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::_get_centroid_rf( Pt &centroid, TF &area ) const {
     centroid = { 0, 0, 0 };
     area = 0;
     for_each_triangle_rf( [&]( Pt P0, Pt P1, Pt P2 ) {
@@ -995,8 +978,8 @@ void ConvexPolyhedron3<Pc,CI>::_get_centroid_rf( Pt &centroid, TF &area ) const 
     }, 1e-2, false );
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::_get_centroid( Pt &centroid, TF &area, const FlatSurface &fs ) const {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::_get_centroid( Pt &centroid, TF &area, const FlatSurface &fs ) const {
     centroid = { 0, 0, 0 };
     area = 0;
 
@@ -1042,8 +1025,8 @@ void ConvexPolyhedron3<Pc,CI>::_get_centroid( Pt &centroid, TF &area, const Flat
     }
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::remove_unused_nodes( TI old_nodes_size ) {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::remove_unused_nodes( TI old_nodes_size ) {
     using std::max;
 
     // old nodes (which may have been removed)
@@ -1078,8 +1061,8 @@ void ConvexPolyhedron3<Pc,CI>::remove_unused_nodes( TI old_nodes_size ) {
     _nb_nodes = node_index;
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::remove_unused_edges( TI old_edges_size, bool new_edges_are_round ) {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::remove_unused_edges( TI old_edges_size, bool new_edges_are_round ) {
     // mark used edges
     for( TI n = 0; n < old_edges_size; ++n )
         edges[ n ].nedge = 0;
@@ -1141,8 +1124,8 @@ void ConvexPolyhedron3<Pc,CI>::remove_unused_edges( TI old_edges_size, bool new_
     edges.resize( edge_index );
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::remove_unused_cuts() {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::remove_unused_cuts() {
     // mark used cuts
     for( CutInfo &ci : cut_info )
         ci.used = 0;
@@ -1182,8 +1165,8 @@ void ConvexPolyhedron3<Pc,CI>::remove_unused_cuts() {
     cut_info.resize( cut_index );
 }
 
-template<class Pc,class CI>
-typename ConvexPolyhedron3<Pc,CI>::TI ConvexPolyhedron3<Pc,CI>::_make_edge_cut( std::vector<Pt> &pts, std::map<std::pair<TI, ConvexPolyhedron3::TI>, TI> &edge_cuts, TI P0, TI P1, Pt PT ) {
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::TI ConvexPolyhedron3<Pc>::_make_edge_cut( std::vector<Pt> &pts, std::map<std::pair<TI, ConvexPolyhedron3::TI>, TI> &edge_cuts, TI P0, TI P1, Pt PT ) {
     if ( P0 > P1 )
         std::swap( P0, P1 );
     auto edid = std::make_pair( P0, P1 );
@@ -1199,8 +1182,8 @@ typename ConvexPolyhedron3<Pc,CI>::TI ConvexPolyhedron3<Pc,CI>::_make_edge_cut( 
     return res;
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::_get_connected_points( std::vector<bool> &connected, const std::vector<std::vector<ConvexPolyhedron3::TI> > &connected_points, ConvexPolyhedron3::TI index ) {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::_get_connected_points( std::vector<bool> &connected, const std::vector<std::vector<ConvexPolyhedron3::TI> > &connected_points, ConvexPolyhedron3::TI index ) {
     if ( connected[ index ] == false ) {
         connected[ index ] = true;
 
@@ -1209,8 +1192,8 @@ void ConvexPolyhedron3<Pc,CI>::_get_connected_points( std::vector<bool> &connect
     }
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::_get_connections_rec( TI num_connection, TI num_node ) {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::_get_connections_rec( TI num_connection, TI num_node ) {
     if ( num_connections[ num_node ] == num_connection )
         return;
     num_connections[ num_node ] = num_connection;
@@ -1219,8 +1202,8 @@ void ConvexPolyhedron3<Pc,CI>::_get_connections_rec( TI num_connection, TI num_n
         _get_connections_rec( num_connection, node_connectivity[ i ] );
 }
 
-template<class Pc,class CI>
-void ConvexPolyhedron3<Pc,CI>::get_edge_points( std::vector<Pt> &points, const Edge &edge, int nb_divs, bool end ) const {
+template<class Pc>
+void ConvexPolyhedron3<Pc>::get_edge_points( std::vector<Pt> &points, const Edge &edge, int nb_divs, bool end ) const {
     if ( edge.straight() ) {
         points.push_back( node_pos( edge.n0 ) );
         if ( end )
@@ -1231,8 +1214,8 @@ void ConvexPolyhedron3<Pc,CI>::get_edge_points( std::vector<Pt> &points, const E
     }
 }
 
-template<class Pc,class CI> template<class V>
-void ConvexPolyhedron3<Pc,CI>::display( V &vo, const typename V::CV &cell_data, bool filled, TF max_ratio_area_error, bool display_tangents ) const {
+template<class Pc> template<class V>
+void ConvexPolyhedron3<Pc>::display( V &vo, const typename V::CV &cell_data, bool filled, TF max_ratio_area_error, bool display_tangents ) const {
     vo.mutex.lock();
 
     // full or empty sphere ?
@@ -1285,8 +1268,8 @@ void ConvexPolyhedron3<Pc,CI>::display( V &vo, const typename V::CV &cell_data, 
     vo.mutex.unlock();
 }
 
-template<class Pc,class CI> template<class F>
-void ConvexPolyhedron3<Pc,CI>::for_each_triangle_rf( F &&func, TF max_ratio_area_error, bool remove_holes, std::mutex *m ) const {
+template<class Pc> template<class F>
+void ConvexPolyhedron3<Pc>::for_each_triangle_rf( F &&func, TF max_ratio_area_error, bool remove_holes, std::mutex *m ) const {
     if ( sphere_radius <= 0 )
         return;
 
@@ -1321,8 +1304,8 @@ void ConvexPolyhedron3<Pc,CI>::for_each_triangle_rf( F &&func, TF max_ratio_area
     if ( m ) m->unlock();
 }
 
-template<class Pc,class CI> template<class Triangle>
-void ConvexPolyhedron3<Pc,CI>::p_cut( std::vector<Triangle> &triangles, std::vector<Pt> &points, Pt cut_O, Pt cut_N ) {
+template<class Pc> template<class Triangle>
+void ConvexPolyhedron3<Pc>::p_cut( std::vector<Triangle> &triangles, std::vector<Pt> &points, Pt cut_O, Pt cut_N ) {
     std::vector<Triangle> new_triangles;
     std::map<std::pair<TI,TI>,TI> edge_cuts;
     for( const Triangle &triangle : triangles ) {

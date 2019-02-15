@@ -3,7 +3,9 @@
 #include <deque>
 
 /**
-  T is expected to contain a `T *prev_in_pool` attribute (to have lists of active and inactive items.
+  T is expected to contain
+  - a `T *prev_in_pool` attribute (to have lists of active and inactive items).
+  - a `T *next_in_pool` attribute (to have lists of active items).
 */
 template<class T>
 class PoolWithInactiveItems {
