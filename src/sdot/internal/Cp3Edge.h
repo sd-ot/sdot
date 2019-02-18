@@ -17,8 +17,6 @@ struct Cp3Edge {
     using    TI                   = typename Pc::TI; ///< size type
     using    Pt                   = Point3<TF>;      ///< 3D point
 
-    /**/     Cp3Edge              () : op_count( 0 ) {}
-
     void     write_to_stream      ( std::ostream &os ) const { os << "Edge(" << *n0 << "," << *n1 << ")"; }
 
     bool     straight             () const { return radius < 0; }

@@ -7,7 +7,9 @@
 #include <cmath>
 #include <set>
 
-#include "../system/Tick.h"
+#ifdef WANT_STAT
+#include "../system/Stat.h"
+#endif // WANT_STAT
 
 namespace sdot {
 
@@ -49,10 +51,12 @@ void SpZGrid<Pc>::update_box( const Pt *positions, const TF *weights, Box *box, 
 
     TMat M;
     TVec V;
-    for( TI r = 0; r < nb_coeffs_w_approx; ++r ) {
-        for( TI c = 0; c < nb_coeffs_w_approx; ++c )
-            M.coeffRef( r, c ) = 0;
-        V[ r ] = 0;
+    if ( degree_w_approx > 0 ) {
+        for( TI r = 0; r < nb_coeffs_w_approx; ++r ) {
+            for( TI c = 0; c < nb_coeffs_w_approx; ++c )
+                M.coeffRef( r, c ) = 0;
+            V[ r ] = 0;
+        }
     }
 
     // update limits + matrix coeffs
@@ -64,21 +68,23 @@ void SpZGrid<Pc>::update_box( const Pt *positions, const TF *weights, Box *box, 
         min_pt = min( min_pt, p );
         max_pt = max( max_pt, p );
 
-        std::array<TF,nb_coeffs_w_approx> coeffs;
-        coeffs[ 0 ] = 1;
-        if ( degree_w_approx >= 1 )
-            for( std::size_t d = 0; d < dim; ++d )
-                coeffs[ 1 + d ] = p[ d ];
-        if ( degree_w_approx >= 2 )
-            for( std::size_t d = 0; d < dim; ++d )
-                for( std::size_t e = 0; e <= d; ++e )
-                    coeffs[ 1 + dim + d * ( d + 1 ) / 2 + e ] = p[ d ] * p[ e ];
+        if ( degree_w_approx > 0 ) {
+            std::array<TF,nb_coeffs_w_approx> coeffs;
+            coeffs[ 0 ] = 1;
+            if ( degree_w_approx >= 1 )
+                for( std::size_t d = 0; d < dim; ++d )
+                    coeffs[ 1 + d ] = p[ d ];
+            if ( degree_w_approx >= 2 )
+                for( std::size_t d = 0; d < dim; ++d )
+                    for( std::size_t e = 0; e <= d; ++e )
+                        coeffs[ 1 + dim + d * ( d + 1 ) / 2 + e ] = p[ d ] * p[ e ];
 
-        TF val = weights[ i ];
-        for( TI r = 0; r < nb_coeffs_w_approx; ++r ) {
-            for( TI c = 0; c <= r; ++c )
-                M.coeffRef( r, c ) += coeffs[ r ] * coeffs[ c ];
-            V[ r ] += coeffs[ r ] * val;
+            TF val = weights[ i ];
+            for( TI r = 0; r < nb_coeffs_w_approx; ++r ) {
+                for( TI c = 0; c <= r; ++c )
+                    M.coeffRef( r, c ) += coeffs[ r ] * coeffs[ c ];
+                V[ r ] += coeffs[ r ] * val;
+            }
         }
     }
     box->min_pt = min_pt;
@@ -93,16 +99,19 @@ void SpZGrid<Pc>::update_box( const Pt *positions, const TF *weights, Box *box, 
     };
 
     // compute coeffs
-    for( TI c = 0; c < nb_coeffs_w_approx; ++c )
-        for( TI r = 0; r < c; ++r )
-            M.coeffRef( r, c ) = M.coeffRef( c, r );
-    TF ad = 1e-10 * M.diagonal().maxCoeff();
-    for( TI c = 0; c < nb_coeffs_w_approx; ++c )
-        M.coeffRef( c, c ) += ad;
+    if ( degree_w_approx > 0 ) {
+        for( TI c = 0; c < nb_coeffs_w_approx; ++c )
+            for( TI r = 0; r < c; ++r )
+                M.coeffRef( r, c ) = M.coeffRef( c, r );
+        TF ad = 1e-10 * M.diagonal().maxCoeff();
+        for( TI c = 0; c < nb_coeffs_w_approx; ++c )
+            M.coeffRef( c, c ) += ad;
 
-    Eigen::LLT<TMat> llt;
-    llt.compute( M );
-    V = llt.solve( V );
+
+        Eigen::LLT<TMat> llt;
+        llt.compute( M );
+        V = llt.solve( V );
+    }
 
     // update height + nb points in each sub box
     constexpr TI nb_ch = ( 1 << dim );
@@ -168,6 +177,11 @@ void SpZGrid<Pc>::update_box( const Pt *positions, const TF *weights, Box *box, 
             update_box( positions, weights, ch, beg, end, depth + 1 );
         }
     }
+    #ifdef WANT_STAT
+    else {
+        stat.add( "depth", depth );
+    }
+    #endif // WANT_STAT
 }
 
 template<class Pc>
@@ -364,19 +378,26 @@ bool SpZGrid<Pc>::can_be_evicted( CP &lc, Pt c0, TF w0, Box *box, int num_sym ) 
     Pt min_pt = sym( box->min_pt, num_sym );
     Pt max_pt = sym( box->max_pt, num_sym );
 
-    //    auto *node = lc.find_node_maximizing( [&]( TF &val, Pt p ) {
-    //        val = norm_2_p2( c0 - p ) - w0 - ( norm_2_p2( c1 - p ) - w_approx( box->coeffs_w_approx, inv_sym( c1, num_sym ) ) );
-    //        return val > 0;
-    //    } );
+    //
+    //    Pt min_cp = { + std::numeric_limits<TF>::max(), + std::numeric_limits<TF>::max(), + std::numeric_limits<TF>::max() };
+    //    Pt max_cp = { - std::numeric_limits<TF>::max(), - std::numeric_limits<TF>::max(), - std::numeric_limits<TF>::max() };
+    //    for( const auto &node : lc.nodes ) {
+    //        min_cp = min( min_cp, node.pos );
+    //        max_cp = max( max_cp, node.pos );
+    //    }
+    //    bool intersect = max_cp[ 0 ] >= min_pt[ 0 ] && max_cp[ 1 ] >= min_pt[ 1 ] && max_cp[ 2 ] >= min_pt[ 2 ] && min_cp[ 0 ] <= max_pt[ 0 ] && min_cp[ 1 ] <= max_pt[ 1 ] && min_cp[ 2 ] <= max_pt[ 2 ];
+    //    if ( intersect )
+    //        return false;
+    // stat.add( "eviction", can_be_evicted( lc, c0, w0, box, num_sym ) );
+    if ( dim == 3 && c0[ 0 ] >= min_pt[ 0 ] && c0[ 1 ] >= min_pt[ 1 ] && c0[ 2 ] >= min_pt[ 2 ] && c0[ 0 ] <= max_pt[ 0 ] && c0[ 1 ] <= max_pt[ 1 ] && c0[ 2 ] <= max_pt[ 2 ] )
+        return false;
 
-    for( TI num_p = 0; num_p < lc.nb_points(); ++num_p ) {
-        Pt p = lc.point( num_p );
-
-        Pt c1 = p;
+    for( const auto &node : lc.nodes ) {
+        Pt c1;
         for( int d = 0; d < dim; ++d )
-            c1[ d ] = min( max_pt[ d ], max( min_pt[ d ], c1[ d ] ) );
+            c1[ d ] = min( max_pt[ d ], max( min_pt[ d ], node.pos[ d ] ) );
 
-        if ( norm_2_p2( c0 - p ) - w0 > norm_2_p2( c1 - p ) - w_approx( box->coeffs_w_approx, inv_sym( c1, num_sym ) ) )
+        if ( norm_2_p2( c0 - node.pos ) - w0 > norm_2_p2( c1 - node.pos ) - w_approx( box->coeffs_w_approx, inv_sym( c1, num_sym ) ) )
             return false;
     }
 
@@ -406,6 +427,9 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
     auto make_lc_and_call_cb = [&]( std::set<std::size_t> &g_missing_ranks, std::vector<TI> &g_interrupted_num_diracs, int &err, std::size_t nb_jobs, int nb_threads, const TI *dirac_indices, TI nb_dirac_indices, int phase ) {
         std::vector<std::vector<TI>> interrupted_num_diracs( nb_threads );
         std::vector<std::set<std::size_t>> missing_ranks( nb_threads );
+        std::vector<CP> starting_lcs( nb_threads );
+        for( CP &cp : starting_lcs )
+            cp = starting_lc;
 
         thread_pool.execute( nb_jobs, [&]( std::size_t num_job, int num_thread ) {
             std::priority_queue<BoxDistAndNumSym> front;
@@ -421,7 +445,7 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
                     break;
 
                 // start of lc: cut with nodes in the same cell
-                lc = starting_lc;
+                lc = starting_lcs[ num_thread ];
 
                 // init of the front
                 if ( Box* ch = root->last_child ) {
@@ -431,8 +455,11 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
                 } else {
                     front.push( { root, 0.0f, -1 } );
                 }
-                for( std::size_t num_sym = 0; num_sym < translations.size(); ++num_sym )
-                    front.push( { root, root->dist_2( inv_sym( c0, num_sym ), w0 ), int( num_sym ) } );
+
+                if ( allow_translations ) {
+                    for( std::size_t num_sym = 0; num_sym < translations.size(); ++num_sym )
+                        front.push( { root, root->dist_2( inv_sym( c0, num_sym ), w0 ), int( num_sym ) } );
+                }
 
                 if ( allow_mpi ) {
                     for( const Neighbor &ng : neighbors ) {
@@ -445,10 +472,20 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
 
                 // recursive traversal
                 bool interrupted = false;
+                #ifdef WANT_STAT
+                double nb_seen_boxes = 0;
+                #endif // WANT_STAT
                 while ( ! front.empty() ) {
                     int num_sym = front.top().num_sym;
                     Box *box = front.top().box;
                     front.pop();
+
+                    #ifdef WANT_STAT
+                    ++nb_seen_boxes;
+                    stat.add( "eviction", can_be_evicted( lc, c0, w0, box, num_sym ) );
+                    if ( can_be_evicted( lc, c0, w0, box, num_sym ) )
+                        stat.add( "nb_nodes_during_pc", lc.nodes.size() );
+                    #endif // WANT_STAT
 
                     if ( can_be_evicted( lc, c0, w0, box, num_sym ) )
                         continue;
@@ -475,6 +512,10 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
                         break;
                     }
                 }
+                #ifdef WANT_STAT
+                stat.add( "nb_seen_boxes", nb_seen_boxes );
+                #endif // WANT_STAT
+
                 if ( allow_mpi && interrupted )
                     continue;
 

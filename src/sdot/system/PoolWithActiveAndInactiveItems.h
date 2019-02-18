@@ -18,21 +18,26 @@ public:
         T                   *current;
     };
 
+    /**/                     PoolWithActiveAndInactiveItems( const PoolWithActiveAndInactiveItems &that ) = delete;
+    /**/                     PoolWithActiveAndInactiveItems( PoolWithActiveAndInactiveItems &&that );
     /**/                     PoolWithActiveAndInactiveItems();
 
+    void                     operator=                     ( const PoolWithActiveAndInactiveItems &that ) = delete;
+    void                     operator=                     ( PoolWithActiveAndInactiveItems &&that );
+
     template                 <class OS>
-    void                     write_to_stream      ( OS &os, const char *sep = " " ) const { int cpt = 0; for( const T &val : *this ) os << ( cpt++ ? sep : "" ) << val; }
+    void                     write_to_stream               ( OS &os, const char *sep = " " ) const { int cpt = 0; for( const T &val : *this ) os << ( cpt++ ? sep : "" ) << val; }
 
     // modifications
-    T                       *new_item             ();
-    void                     clear                ();
-    void                     free                 ( T *item );
+    T                       *new_item                      ();
+    void                     clear                         ();
+    void                     free                          ( T *item );
 
     // information
-    bool                     empty                () const;
-    std::size_t              size                 () const;
-    Iterator                 begin                () const { return last_active; }
-    Iterator                 end                  () const { return nullptr; }
+    bool                     empty                         () const;
+    std::size_t              size                          () const;
+    Iterator                 begin                         () const { return last_active; }
+    Iterator                 end                           () const { return nullptr; }
 
 private:
     T                       *last_active;

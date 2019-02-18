@@ -25,7 +25,7 @@ void ConvexPolyhedronAssembly<Pc>::add_convex_polyhedron( const std::vector<Pt> 
     CP cp{ typename CP::Box{ min_pos - delta, max_pos + delta }, cut_id };
     for( std::size_t i = 0; i < positions.size(); ++i )
         cp.plane_cut( positions[ i ], normalized( normals[ i ] ), cut_id );
-    items.push_back( { cp, coeff } );
+    items.emplace_back( { std::move( cp ), coeff } );
 }
 
 template<class Pc>

@@ -1,5 +1,6 @@
 //// nsmake avoid_inc CGAL/
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Periodic_3_regular_triangulation_3.h>
 #include <CGAL/Regular_triangulation_3.h>
 #include "../src/sdot/system/Time.h"
 #include "set_up_diracs_3D.h"
@@ -17,7 +18,7 @@ using R = CGAL::Regular_triangulation_3<K>;
 
 int main( int argc, char **argv ) {
     using  TF = double;
-    using  Pt = Point3<TF>;
+    using  Pt = sdot::Point3<TF>;
 
     // options
     cxxopts::Options options( argv[ 0 ], "bench volume");
@@ -43,12 +44,40 @@ int main( int argc, char **argv ) {
 
     auto t1 = Time::get_time();
     double s = 0;
-    for( auto v = rt.all_edges_begin(); v != rt.all_edges_end(); ++v ) {
-        auto circulator = rt.incident_facets( *v ), done( circulator );
-        do {
-            double v = circulator->first->vertex( 0 )->point().point().x();
-            s += v;
-        } while( ++circulator != done );
+    for( auto v = rt.finite_vertices_begin(); v != rt.finite_vertices_end(); ++v ) {
+        std::list<R::Edge> edges;
+        rt.incident_edges( v, std::back_inserter( edges ) );
+
+        TF vol( 0 );
+        for(typename std::list<R::Edge>::iterator eit = edges.begin(); eit != edges.end(); ++eit) {
+          // compute the dual of the edge *eit but handle the translations
+          // with respect to the dual of v. That is why we cannot use one
+          // of the existing dual functions here.
+          R::Facet_circulator fstart = rt.incident_facets( *eit );
+          R::Facet_circulator fcit = fstart;
+          std::vector<R::Point_3> pts;
+          do {
+            // TODO: possible speed-up by caching the circumcenters
+            R::Point_3 dual_orig = fcit->first->weighted_circumcenter();
+            int idx = fcit->first->index(v);
+            int off = idx;
+            pts.push_back( dual_orig );
+            ++fcit;
+          } while(fcit != fstart);
+
+          R::Point_3 orig(0,0,0);
+          for(unsigned int i=1; i<pts.size()-1; i++)
+            vol += R::Tetrahedron(orig,pts[0],pts[i],pts[i+1]).volume();
+        }
+        s += vol;
+
+
+        //        s += rt.dual_volume();
+        //        auto circulator = rt.incident_facets( *v ), done( circulator );
+        //        do {
+        //            double v = circulator->first->vertex( 0 )->point().point().x();
+        //            s += v;
+        //        } while( ++circulator != done );
     }
     auto t2 = Time::get_time();
 

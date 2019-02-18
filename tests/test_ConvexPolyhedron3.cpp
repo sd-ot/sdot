@@ -6,29 +6,50 @@ using  Cp = sdot::ConvexPolyhedron3<Pc>;
 using  Pt = sdot::Point3<Pc::TF>;
 using  TF = Pc::TF;
 
-TEST_CASE( "ConvexPolyhedron3", "diam" ) {
-    Cp cs( Cp::Box{ { -5, -5, -5 }, { +5, +5, +5 } } );
-    for( double z : { -1, 0, 1 } )
-        for( double y : { -1, 0, 1 } )
-            for( double x : { -1, 0, 1 } )
-                if ( x || y || z )
-                    cs.plane_cut( normalized( Pt( { x, y, z } ) ), normalized( Pt( { x, y, z } ) ) );
+//TEST_CASE( "ConvexPolyhedron3 diam" ) {
+//    Cp cs( Cp::Box{ { -5, -5, -5 }, { +5, +5, +5 } } );
+//    for( double z : { -1, 0, 1 } )
+//        for( double y : { -1, 0, 1 } )
+//            for( double x : { -1, 0, 1 } )
+//                if ( x || y || z )
+//                    cs.plane_cut( normalized( Pt( { x, y, z } ) ), normalized( Pt( { x, y, z } ) ) );
 
-    CHECK_THAT( cs.boundary_measure(), WithinAbs<double>( 14.3319, 1e-4 ) );
-    CHECK_THAT( cs.measure         (), WithinAbs<double>( 4.77730, 1e-4 ) );
+//    CHECK_THAT( cs.boundary_measure(), WithinAbs<double>( 14.3319, 1e-4 ) );
+//    CHECK_THAT( cs.measure         (), WithinAbs<double>( 4.77730, 1e-4 ) );
 
-    CHECK( cs.contains( { 0, 0, 0 } ) == 1 );
-    CHECK( cs.contains( { 2, 0, 0 } ) == 0 );
+//    CHECK( cs.contains( { 0, 0, 0 } ) == 1 );
+//    CHECK( cs.contains( { 2, 0, 0 } ) == 0 );
+
+//    sdot::VtkOutput<1> vo( { "num" } );
+//    cs.display( vo, { 0 } );
+//    vo.save( "cut.vtk" );
+//}
+
+TEST_CASE( "ConvexPolyhedron3 case 0" ) {
+    Cp cs( Cp::Box{ { -1, -1, -1 }, { +2, +2, +2 } } );
+
+    cs.plane_cut( { 0.34872, 0.262794, 0.153211 }, { 0.0398865, 0.0627324, 0.158101    } );
+    cs.plane_cut( { 0.318117, 0.339231, 0.150134 }, { -0.0213192, 0.215606, 0.151946   } );
+    cs.plane_cut( { 0.1744, 0.344565, 0.0686284 }, { -0.308754, 0.226274, -0.0110651   } );
+    cs.plane_cut( { 0.242728, 0.316186, 0.101976 }, { -0.172098, 0.169516, 0.0556295   } );
+    cs.plane_cut( { 0.381645, 0.11733, 0.209552 }, { 0.105736, -0.228196, 0.270782     } );
+    cs.plane_cut( { 0.461335, 0.2059, 0.118646 }, { 0.265115, -0.0510557, 0.0889705    } );
+    cs.plane_cut( { 0.456633, 0.23792, 0.113275 }, { 0.255711, 0.0129848, 0.0782288    } );
+    cs.plane_cut( { 0.430609, 0.159536, 0.167329 }, { 0.203664, -0.143784, 0.186336    } );
+    cs.plane_cut( { 0.497829, 0.364343, 0.119064 }, { 0.338103, 0.265831, 0.089807     } );
+    cs.plane_cut( { 0.199342, 0.218042, 0.267791 }, { -0.258871, -0.0267729, 0.38726   } );
+    cs.plane_cut( { 0.215974, 0.178752, 0.284803 }, { -0.225606, -0.105353, 0.421283   } );
+    cs.plane_cut( { 0.23519, 0.419198, 0.0452308 }, { -0.187174, 0.375541, -0.0578604  } );
+    cs.plane_cut( { 0.23184, 0.375819, 0.0761966 }, { -0.193875, 0.288782, 0.00407117  } );
+    cs.plane_cut( { 0.246439, 0.48825, 0.0743454 }, { -0.164675, 0.513643, 0.000368831 } );
+    cs.plane_cut( { 0.390676, 0.459408, 0.0869005 } ,{ 0.123799, 0.455959, 0.0254791   } );
+    cs.plane_cut( { 0.609505, 0.29016, 0.0691661 }, {  0.561456, 0.117465, -0.00998965  } );
+    cs.plane_cut( { 0.578084, 0.281454, 0.131181 }, { 0.498614, 0.100051, 0.11404      } );
+
 
     sdot::VtkOutput<1> vo( { "num" } );
     cs.display( vo, { 0 } );
     vo.save( "cut.vtk" );
-
-    // operator=
-    Cp cp( Cp::Box{ { -5, -5, -5 }, { +5, +5, +5 } } );
-    cp = cs;
-
-    CHECK_THAT( cp.measure         (), WithinAbs<double>( 4.77730, 1e-4 ) );
 }
 
 //TEST( LaguerreCell_3D, only_sphere ) {

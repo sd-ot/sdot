@@ -73,7 +73,7 @@ int main( int argc, char **argv ) {
     }, bounds.englobing_convex_polyhedron(), positions.data(), weights.data(), weights.size() );
     auto t2 = Time::get_time();
 
-    TF vol;
+    TF vol = 0;
     for( TF v : volumes )
         vol += v;
     PMPI( weights.size() );

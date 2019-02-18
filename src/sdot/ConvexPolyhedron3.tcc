@@ -16,23 +16,39 @@ ConvexPolyhedron3<Pc>::ConvexPolyhedron3( const Box &box, CI cut_id ) : op_count
 }
 
 template<class Pc>
+ConvexPolyhedron3<Pc>::ConvexPolyhedron3( ConvexPolyhedron3 &&cp ) :
+    sphere_cut_id ( std::move( cp.sphere_cut_id  ) ),
+    sphere_center ( std::move( cp.sphere_center  ) ),
+    sphere_radius ( std::move( cp.sphere_radius  ) ),
+    faces         ( std::move( cp.faces          ) ),
+    holes         ( std::move( cp.holes          ) ),
+    edges         ( std::move( cp.edges          ) ),
+    nodes         ( std::move( cp.nodes          ) ),
+    nb_connections( std::move( cp.nb_connections ) ),
+    op_count      ( std::move( cp.op_count       ) ) {
+
+    cp.sphere_radius = -1;
+}
+
+template<class Pc>
 void ConvexPolyhedron3<Pc>::operator=( const ConvexPolyhedron3 &cp ) {
+    if ( this == &cp )
+        return;
     nb_connections = cp.nb_connections;
     sphere_cut_id  = cp.sphere_cut_id;
     sphere_center  = cp.sphere_center;
     sphere_radius  = cp.sphere_radius;
-    op_count       = cp.op_count;
+    op_count       = ++cp.op_count;
 
     faces.clear();
     holes.clear();
     edges.clear();
     nodes.clear();
 
-    ++op_count;
     auto new_node = [&]( Node *orig ) -> Node * {
-        if ( orig->op_count == op_count )
+        if ( orig->op_count == cp.op_count )
             return orig->nitem.node;
-        orig->op_count = op_count;
+        orig->op_count = cp.op_count;
 
         Node *node = add_node( orig->pos );
         orig->nitem.node = node;
@@ -40,10 +56,10 @@ void ConvexPolyhedron3<Pc>::operator=( const ConvexPolyhedron3 &cp ) {
     };
 
     auto new_edge = [&]( Edge &orig ) -> Edge * {
-        if ( orig.op_count == op_count )
+        if ( orig.op_count == cp.op_count )
             return orig.nedge;
-        orig.sibling->op_count = op_count;
-        orig.op_count = op_count;
+        orig.sibling->op_count = cp.op_count;
+        orig.op_count = cp.op_count;
 
         if ( orig.round() ) {
             TODO;
@@ -57,10 +73,12 @@ void ConvexPolyhedron3<Pc>::operator=( const ConvexPolyhedron3 &cp ) {
 
     for( const Face &orig : cp.faces ) {
         Face *face = faces.new_item();
-        face->cut_id = orig.cut_id;
-        face->cut_O  = orig.cut_O;
-        face->cut_N  = orig.cut_N;
-        face->round  = orig.round;
+        if ( allow_ball_cut)
+            face->round = orig.round;
+        face->op_count = 0;
+        face->cut_id   = orig.cut_id;
+        face->cut_O    = orig.cut_O;
+        face->cut_N    = orig.cut_N;
 
         face->edges.clear();
         for( Edge &edge : orig.edges ) {
@@ -76,6 +94,21 @@ void ConvexPolyhedron3<Pc>::operator=( const ConvexPolyhedron3 &cp ) {
         hole->cut_N  = orig.cut_N ;
         hole->cut_O  = orig.cut_O ;
     }
+}
+
+template<class Pc>
+void ConvexPolyhedron3<Pc>::operator=( ConvexPolyhedron3 &&cp ) {
+    sphere_cut_id  = std::move( cp.sphere_cut_id  );
+    sphere_center  = std::move( cp.sphere_center  );
+    sphere_radius  = std::move( cp.sphere_radius  );
+    faces          = std::move( cp.faces          );
+    holes          = std::move( cp.holes          );
+    edges          = std::move( cp.edges          );
+    nodes          = std::move( cp.nodes          );
+    nb_connections = std::move( cp.nb_connections );
+    op_count       = std::move( cp.op_count       );
+
+    cp.sphere_radius = -1;
 }
 
 template<class Pc>
@@ -397,6 +430,9 @@ void ConvexPolyhedron3<Pc>::mark_cut_faces_and_edges( MarkCutInfo &mci, Node *no
     node->op_count = op_count;
     mci.rem_nodes.append( node );
 
+    if ( keep_min_max_coords )
+        mci.mod_bounds |= node->resp_bound;
+
     for( Edge &edge : node->edges ) {
         if ( edge.op_count == op_count )
             continue;
@@ -454,6 +490,8 @@ void ConvexPolyhedron3<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
     // update totally or partially the exterior edges
     ++op_count;
     MarkCutInfo mci;
+    if ( keep_min_max_coords )
+        mci.mod_bounds = 0;
     mci.origin = origin;
     mci.normal = normal;
     mark_cut_faces_and_edges( mci, node, dot( node->pos - origin, normal ) );
@@ -519,136 +557,52 @@ void ConvexPolyhedron3<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
         Face *face = faces.new_item();
         if ( allow_ball_cut )
             face->round = false;
-        face->cut_id = cut_id;
-        face->cut_O  = origin;
-        face->cut_N  = normal;
+        face->op_count = 0;
+        face->cut_id   = cut_id;
+        face->cut_O    = origin;
+        face->cut_N    = normal;
 
         face->edges.clear();
         face->edges.append( last_created_node->nitem.edge );
         last_created_node->nitem.edge->face = face;
         for( Node *node = last_created_node->nitem.edge->n1; node != last_created_node; node = node->nitem.edge->n1 ) {
+            if ( node == node->nitem.edge->n1 ) {
+                for( const Face &face : faces )
+                    P( face.cut_O, face.cut_N );
+                P( origin, normal );
+                TODO;
+            }
             face->edges.append( node->nitem.edge );
             node->nitem.edge->face = face;
         }
+
+        if ( keep_min_max_coords && mci.mod_bounds ) {
+            if ( mci.mod_bounds &  1 ) min_coord[ 0 ] = + std::numeric_limits<TF>::max();
+            if ( mci.mod_bounds &  2 ) max_coord[ 0 ] = - std::numeric_limits<TF>::max();
+            if ( mci.mod_bounds &  4 ) min_coord[ 1 ] = + std::numeric_limits<TF>::max();
+            if ( mci.mod_bounds &  8 ) max_coord[ 1 ] = - std::numeric_limits<TF>::max();
+            if ( mci.mod_bounds & 16 ) min_coord[ 2 ] = + std::numeric_limits<TF>::max();
+            if ( mci.mod_bounds & 32 ) max_coord[ 2 ] = - std::numeric_limits<TF>::max();
+
+            std::array<Node *,6> resp_nodes;
+            for( const Edge &edge : face->edges ) {
+                const Pt &pos = edge.n0->pos;
+                if ( ( mci.mod_bounds &  1 ) && min_coord[ 0 ] > pos[ 0 ] ) { resp_nodes[ 0 ] = edge.n0; min_coord[ 0 ] = pos[ 0 ]; }
+                if ( ( mci.mod_bounds &  2 ) && max_coord[ 0 ] < pos[ 0 ] ) { resp_nodes[ 1 ] = edge.n0; max_coord[ 0 ] = pos[ 0 ]; }
+                if ( ( mci.mod_bounds &  4 ) && min_coord[ 1 ] > pos[ 1 ] ) { resp_nodes[ 2 ] = edge.n0; min_coord[ 1 ] = pos[ 1 ]; }
+                if ( ( mci.mod_bounds &  8 ) && max_coord[ 1 ] < pos[ 1 ] ) { resp_nodes[ 3 ] = edge.n0; max_coord[ 1 ] = pos[ 1 ]; }
+                if ( ( mci.mod_bounds & 16 ) && min_coord[ 2 ] > pos[ 2 ] ) { resp_nodes[ 4 ] = edge.n0; min_coord[ 2 ] = pos[ 2 ]; }
+                if ( ( mci.mod_bounds & 32 ) && max_coord[ 2 ] < pos[ 2 ] ) { resp_nodes[ 5 ] = edge.n0; max_coord[ 2 ] = pos[ 2 ]; }
+            }
+
+            if ( mci.mod_bounds &  1 ) resp_nodes[ 0 ]->resp_bound |=  1;
+            if ( mci.mod_bounds &  2 ) resp_nodes[ 1 ]->resp_bound |=  2;
+            if ( mci.mod_bounds &  4 ) resp_nodes[ 2 ]->resp_bound |=  4;
+            if ( mci.mod_bounds &  8 ) resp_nodes[ 3 ]->resp_bound |=  8;
+            if ( mci.mod_bounds & 16 ) resp_nodes[ 4 ]->resp_bound |= 16;
+            if ( mci.mod_bounds & 32 ) resp_nodes[ 5 ]->resp_bound |= 32;
+        }
     }
-
-    //    // new nodes and new edges. edge.nedge will contain index of the new edges. edge.used will be != 0 if edge is kept
-    //    TI old_nodes_size = _nb_nodes;
-    //    TI old_edges_size = edges.size();
-    //    edges.reserve( 2 * old_edges_size ); // we want to keep the references during the loop
-    //    reserve_nodes( _nb_nodes + old_edges_size );
-    //    for( TI num_edge = 0; num_edge < old_edges_size; num_edge += 2 ) {
-    //        Edge &edge_p0 = edges[ num_edge + 0 ];
-    //        Edge &edge_p1 = edges[ num_edge + 1 ];
-    //        Pt p0 = node_pos( edge_p0.n0 );
-    //        Pt p1 = node_pos( edge_p0.n1 );
-    //        TF s0 = node_sp( edge_p0.n0 );
-    //        TF s1 = node_sp( edge_p0.n1 );
-
-    //        if ( s0 < 0 ) {
-    //            if ( s1 < 0 ) {
-    //                edge_p0.used = 1;
-    //                edge_p1.used = 1;
-    //            } else {
-    //                TI nn = add_node( p0 - s0 / ( s1 - s0 ) * ( p1 - p0 ) );
-    //                edge_p0.nedge = add_straight_edge( edge_p0.n0, nn, edge_p0.cut_index );
-    //                edge_p1.nedge = edge_p0.nedge + 1;
-    //                edge_p0.used = 0;
-    //                edge_p1.used = 0;
-    //            }
-    //        } else {
-    //            if ( s1 < 0 ) {
-    //                TI nn = add_node( p0 + s0 / ( s0 - s1 ) * ( p1 - p0 ) );
-    //                edge_p0.nedge = add_straight_edge( nn, edge_p0.n1, edge_p0.cut_index );
-    //                edge_p1.nedge = edge_p0.nedge + 1;
-    //                edge_p0.used = 0;
-    //                edge_p1.used = 0;
-    //            } else {
-    //                edge_p0.used = 0;
-    //                edge_p1.used = 0;
-    //            }
-    //        }
-    //    }
-
-    //    // update existing surfaces
-    //    std::swap( edge_indices, old_edges_indices );
-    //    TI first_cut_edge = edges.size();
-    //    edge_indices.resize( 0 );
-    //    for( TI num_flat_surface = 0; num_flat_surface < flat_surfaces.size(); ++num_flat_surface ) {
-    //        FlatSurface &fs = flat_surfaces[ num_flat_surface ];
-    //        TI new_beg_in_edge_indices = edge_indices.size();
-    //        TI old_n1 = TI( -1 ), waiting_n0, waiting_ei = TI( -1 );
-
-    //        edges.reserve( edges.size() + 2 * ( fs.end_in_edge_indices - fs.beg_in_edge_indices ) );
-    //        for( TI num_in_edge_indices = fs.beg_in_edge_indices; num_in_edge_indices < fs.end_in_edge_indices; ++num_in_edge_indices ) {
-    //            TI    num_edge = old_edges_indices[ num_in_edge_indices ];
-    //            Edge &edge     = edges[ num_edge ];
-    //            TF    s0       = node_sp( edge.n0 );
-    //            TF    s1       = node_sp( edge.n1 );
-
-    //            if ( s0 < 0 ) {
-    //                if ( s1 < 0 ) {
-    //                    edge_indices.push_back( num_edge );
-    //                } else {
-    //                    edge_indices.push_back( edge.nedge );
-    //                    old_n1 = edges[ edge.nedge ].n1;
-    //                }
-    //            } else if ( s1 < 0 ) {
-    //                if ( old_n1 != TI( -1 ) )
-    //                    edge_indices.push_back( add_straight_edge( old_n1, edges[ edge.nedge ].n0, fs.cut_index ) );
-    //                else {
-    //                    waiting_n0 = edges[ edge.nedge ].n0;
-    //                    waiting_ei = edge_indices.size();
-    //                    edge_indices.push_back( 11700 );
-    //                }
-
-    //                edge_indices.push_back( edge.nedge );
-    //            }
-    //        }
-
-    //        // if no remaining edges, remove the surface
-    //        if ( new_beg_in_edge_indices == edge_indices.size() ) {
-    //            if ( num_flat_surface < flat_surfaces.size() - 1 )
-    //                fs = flat_surfaces[ flat_surfaces.size() - 1 ];
-    //            flat_surfaces.pop_back();
-    //            --num_flat_surface;
-    //        } else {
-    //            // need to close the loop ?
-    //            if ( waiting_ei != TI( -1 ) )
-    //                edge_indices[ waiting_ei ] = add_straight_edge( old_n1, waiting_n0, fs.cut_index );
-
-    //            fs.beg_in_edge_indices = new_beg_in_edge_indices;
-    //            fs.end_in_edge_indices = edge_indices.size();
-    //        }
-    //    }
-
-    //    // add a surface to cover the hole
-    //    if ( first_cut_edge < edges.size() ) {
-    //        FlatSurface fs;
-    //        fs.beg_in_edge_indices = edge_indices.size();
-    //        for( TI n = first_cut_edge + 1; n < edges.size(); n += 2 )
-    //            edge_indices.push_back( n );
-
-    //        TI old_n1 = edges[ edge_indices[ fs.beg_in_edge_indices ] ].n1;
-    //        for( TI n = fs.beg_in_edge_indices + 1; n < edge_indices.size(); ++n ) {
-    //            for( TI m = n; m < edge_indices.size(); ++m ) {
-    //                if ( edges[ edge_indices[ m ] ].n0 == old_n1 ) {
-    //                    std::swap( edge_indices[ n ], edge_indices[ m ] );
-    //                    old_n1 = edges[ edge_indices[ n ] ].n1;
-    //                    break;
-    //                }
-    //            }
-    //        }
-
-    //        fs.end_in_edge_indices = edge_indices.size();
-    //        fs.cut_index           = cut_index;
-    //        flat_surfaces.push_back( fs );
-    //    }
-
-    //    // remove unused items
-    //    remove_unused_edges( old_edges_size, false );
-    //    remove_unused_nodes( old_nodes_size );
-    //    remove_unused_cuts ();
 }
 
 template<class Pc>
@@ -695,11 +649,14 @@ void ConvexPolyhedron3<Pc>::clear( const Tetra &tetra, CI cut_id ) {
     //    add_face( e0 + 0, e4 + 1, e3 + 1 );
     //    add_face( e5 + 0, e4 + 0, e1 + 0 );
     //    add_face( e2 + 0, e3 + 0, e5 + 1 );
+    // if ( keep_min_max_coords )
+    //     update_min_max_coord();
 }
 
 template<class Pc>
 typename ConvexPolyhedron3<Pc>::Node *ConvexPolyhedron3<Pc>::add_node( Pt pos ) {
     Node *res = nodes.new_item();
+    res->op_count = 0;
     res->edges.clear();
     res->pos = pos;
     return res;
@@ -745,9 +702,10 @@ void ConvexPolyhedron3<Pc>::clear( const Box &box, CI cut_id ) {
         Face *face = faces.new_item();
         if ( allow_ball_cut )
             face->round = false;
-        face->cut_id = cut_id;
-        face->cut_N  = normalized( cross_prod( P0 - P1, P2 - P1 ) );
-        face->cut_O  = P0;
+        face->op_count = 0;
+        face->cut_id   = cut_id;
+        face->cut_N    = normalized( cross_prod( P0 - P1, P2 - P1 ) );
+        face->cut_O    = P0;
 
         face->edges.clear();
         face->edges.append( e0 );
@@ -769,6 +727,9 @@ void ConvexPolyhedron3<Pc>::clear( const Box &box, CI cut_id ) {
 
     add_face( eb.a, e4.b, e8.b, e3.b );
     add_face( e9.a, e6.b, ea.b, e1.b );
+
+    if ( keep_min_max_coords )
+        update_min_max_coord();
 }
 
 template<class Pc>
@@ -844,8 +805,7 @@ template<class Pc>
 typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum::Unit ) const {
     TF res;
     if ( faces.empty() ) {
-        if ( sphere_radius > 0 )
-            res = 4 * M_PI / 3 * std::pow( sphere_radius, 3 );
+        res = sphere_radius > 0 ? 4 * M_PI / 3 * std::pow( sphere_radius, 3 ) : 0;
     } else {
         res = 0;
         for( const Face &fp : faces ) {
@@ -886,7 +846,7 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::boundary_measure( Func
 
     TF res;
     if ( faces.empty() ) {
-        res = 4 * M_PI * pow( max( TF( 0 ), sphere_radius ), 2 );
+        res = sphere_radius > 0 ? 4 * M_PI * pow( sphere_radius, 2 ) : 0;
     } else {
         res = 0;
         for( const Face &face : faces ) {
@@ -1006,6 +966,33 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::boundary_measure_ap( c
 }
 
 template<class Pc>
+void ConvexPolyhedron3<Pc>::update_min_max_coord() {
+    for( int d = 0; d < dim; ++d ) {
+        min_coord[ d ] = + std::numeric_limits<TF>::max();
+        max_coord[ d ] = - std::numeric_limits<TF>::max();
+    }
+
+    std::array<Node *,6> resp_nodes;
+    for( Node &node : nodes ) {
+        TI num_resp = 0;
+        node.resp_bound = 0;
+        for( int d = 0; d < dim; ++d, num_resp += 2 ) {
+            if ( min_coord[ d ] > node.pos[ d ] ) {
+                resp_nodes[ num_resp + 0 ] = &node;
+                min_coord[ d ] = node.pos[ d ];
+            }
+            if ( max_coord[ d ] < node.pos[ d ] ) {
+                resp_nodes[ num_resp + 1 ] = &node;
+                max_coord[ d ] = node.pos[ d ];
+            }
+        }
+    }
+
+    for( TI num_resp = 0, flag = 1; num_resp < resp_nodes.size(); ++num_resp )
+        resp_nodes[ num_resp ]->resp_bound |= 1 << num_resp;
+}
+
+template<class Pc>
 typename ConvexPolyhedron3<Pc>::EdgePair ConvexPolyhedron3<Pc>::add_straight_edge( Node *n0, Node *n1 ) {
     Edge *a = edges.new_item();
     Edge *b = edges.new_item();
@@ -1016,13 +1003,15 @@ typename ConvexPolyhedron3<Pc>::EdgePair ConvexPolyhedron3<Pc>::add_straight_edg
     a->sibling = b;
     b->sibling = a;
 
-    a->radius  = -1;
-    a->n0      = n0;
-    a->n1      = n1;
+    a->op_count = 0;
+    a->radius   = -1;
+    a->n0       = n0;
+    a->n1       = n1;
 
-    b->radius  = -1;
-    b->n0      = n1;
-    b->n1      = n0;
+    b->op_count = 0;
+    b->radius   = -1;
+    b->n0       = n1;
+    b->n1       = n0;
 
     return { a, b };
 }

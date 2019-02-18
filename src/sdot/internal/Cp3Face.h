@@ -16,8 +16,6 @@ struct Cp3Face {
     using    CI             = typename Pc::CI; ///< cut info
     using    Pt             = Point3<TF>;      ///< 3D point
 
-    /**/     Cp3Face        () : op_count( 0 ) {}
-
     void     write_to_stream( std::ostream &os ) const { edges.write_to_stream( os << "Face(", ", " ); os << ")"; }
 
     Cp3Face *prev_in_pool;  ///<

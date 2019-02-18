@@ -1,8 +1,21 @@
 #include "PoolWithInactiveItems.h"
 
 template<class T>
+PoolWithInactiveItems<T>::PoolWithInactiveItems( PoolWithInactiveItems &&that ) : last_inactive( std::move( that.last_inactive ) ), content( std::move( that.content ) ) {
+    that.last_inactive = nullptr;
+}
+
+template<class T>
 PoolWithInactiveItems<T>::PoolWithInactiveItems() {
     last_inactive = nullptr;
+}
+
+template<class T>
+void PoolWithInactiveItems<T>::operator=( PoolWithInactiveItems &&that ) {
+    last_inactive = that.last_inactive;
+    that.last_inactive = nullptr;
+
+    content = std::move( that.content );
 }
 
 template<class T>

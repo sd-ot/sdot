@@ -8,11 +8,11 @@
 
 //// nsmake cpp_flag -march=native
 //// nsmake cpp_flag -ffast-math
-//// nsmake cpp_flag -O5
-//// nsmake lib_flag -O5
+//// nsmake cpp_flag -O3
+//// nsmake lib_flag -O3
 
 int main( int argc, char **argv ) {
-    struct Pc { enum { nb_bits_per_axis = 31, allow_ball_cut = 0, dim = 3 }; using TI = std::size_t; using TF = double; using CI = TI; };
+    struct Pc { enum { nb_bits_per_axis = 31, allow_ball_cut = 0, dim = 3, allow_translations = false }; using TI = std::size_t; using TF = double; using CI = TI; };
     using  Pt = sdot::Point3<Pc::TF>;
     using  TF = Pc::TF;
 
@@ -63,7 +63,7 @@ int main( int argc, char **argv ) {
     using Bounds = sdot::ConvexPolyhedronAssembly<Pc>;
     Bounds bounds;
     //    bounds.add_box( { - TF( periodic ), - TF( periodic ), - TF( periodic ) }, { 1 + TF( periodic ), 1 + TF( periodic ), 1 + TF( periodic ) } );
-    bounds.add_box( { - 2, - 2, - 2 }, { 1 + 2, 1 + 2, 1 + 2 } );
+    bounds.add_box( { 0, 0, 0 }, { 1, 1, 1 } );
 
     // volume
     std::vector<TF> volumes( weights.size(), TF( 0 ) );
@@ -71,21 +71,15 @@ int main( int argc, char **argv ) {
     grid.update( positions.data(), weights.data(), weights.size() );
     auto t1 = Time::get_time();
     grid.for_each_laguerre_cell( [&]( auto &lc, std::size_t num_dirac ) {
-        lc.plane_cut( { 0, 0, 0 }, { -1, 0, 0 } );
-        lc.plane_cut( { 0, 0, 0 }, { 0, -1, 0 } );
-        lc.plane_cut( { 0, 0, 0 }, { 0, 0, -1 } );
-        lc.plane_cut( { 1, 1, 1 }, { +1, 0, 0 } );
-        lc.plane_cut( { 1, 1, 1 }, { 0, +1, 0 } );
-        lc.plane_cut( { 1, 1, 1 }, { 0, 0, +1 } );
         volumes[ num_dirac ] = lc.measure();
     }, bounds.englobing_convex_polyhedron(), positions.data(), weights.data(), weights.size() );
     auto t2 = Time::get_time();
 
-    TF vol;
+    TF vol = 0;
     for( TF v : volumes )
         vol += v;
     PMPI( weights.size() );
-    PMPI_0( mpi->reduction( vol, [](double a, double b ) { return a + b; } ) );
+    PMPI_0( mpi->reduction( vol, []( double a, double b ) { return a + b; } ) );
     PMPI_0( Time::delta( t0, t1 ) );
     PMPI_0( Time::delta( t1, t2 ) );
     PMPI_0( Time::delta( t0, t2 ) );

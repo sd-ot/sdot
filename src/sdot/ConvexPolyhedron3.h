@@ -22,11 +22,19 @@ namespace sdot {
 template<class Pc>
 class ConvexPolyhedron3 {
 public:
+    static constexpr bool   keep_min_max_coords      = true;
     static constexpr bool   allow_ball_cut           = Pc::allow_ball_cut;
+    static constexpr int    dim                      = 3;
+
     using                   Node                     = Cp3Node<Pc>;
     using                   Edge                     = Cp3Edge<Pc>;
     using                   Face                     = Cp3Face<Pc>;
     using                   Hole                     = Cp3Hole<Pc>;
+
+    using                   FaceList                 = PoolWithActiveAndInactiveItems<Face>;
+    using                   HoleList                 = PoolWithActiveAndInactiveItems<Hole>;
+    using                   NodeList                 = PoolWithActiveAndInactiveItems<Node>;
+    using                   EdgeList                 = PoolWithInactiveItems<Edge>;
 
     using                   TF                       = typename Face::TF; ///< floating point type
     using                   TI                       = typename Face::TI; ///< index type
@@ -39,8 +47,11 @@ public:
     /// we start from a tetrahedron that includes the sphere defined by sphere_center and sphere_radius... but this sphere is not used
     /**/                    ConvexPolyhedron3        ( const Tetra &tetra, CI cut_id = {} );
     /**/                    ConvexPolyhedron3        ( const Box &box = { { 0, 0, 0 }, { 1, 1, 1 } }, CI cut_id = {} );
+    /**/                    ConvexPolyhedron3        ( const ConvexPolyhedron3 &cp ) = delete;
+    /**/                    ConvexPolyhedron3        ( ConvexPolyhedron3 &&cp );
 
     void                    operator=                ( const ConvexPolyhedron3 &cp );
+    void                    operator=                ( ConvexPolyhedron3 &&cp );
 
     // display
     void                    write_to_stream          ( std::ostream &os ) const;
@@ -82,17 +93,20 @@ public:
     CI                      sphere_cut_id;
     Pt                      sphere_center;
     TF                      sphere_radius;
+    Pt                      min_coord;
+    Pt                      max_coord;
+    FaceList                faces;
+    HoleList                holes;
+    EdgeList                edges;
+    NodeList                nodes;
 
 private:
-    using                   FaceList                 = PoolWithActiveAndInactiveItems<Face>;
-    using                   HoleList                 = PoolWithActiveAndInactiveItems<Hole>;
-    using                   EdgeList                 = PoolWithInactiveItems<Edge>;
-    using                   NodeList                 = PoolWithInactiveItems<Node>;
     struct                  EdgePair                 { Edge *a, *b; };
 
     struct                  MarkCutInfo              {
         struct              Gnic                     { template<class T> T *&operator()( T *e ) const { return e->next_in_cut; } };
 
+        TI                  mod_bounds;
         ListRef<Face,Gnic>  cut_faces;
         ListRef<Edge,Gnic>  cut_edges;
         ListRef<Edge,Gnic>  rem_edges;
@@ -102,6 +116,7 @@ private:
     };
 
     // internal modifications methods
+    void                    update_min_max_coord     ();
     EdgePair                add_straight_edge        ( Node *n0, Node *n1 );
     TI                      add_round_edge           ( Node *n0, Node *n1 );
     Node                   *add_node                 ( Pt pos );
@@ -123,11 +138,7 @@ private:
 
     // attributes
     TI                      nb_connections;          ///<
-    TI                      op_count;
-    FaceList                faces;
-    HoleList                holes;
-    EdgeList                edges;
-    NodeList                nodes;
+    mutable TI              op_count;
 };
 
 

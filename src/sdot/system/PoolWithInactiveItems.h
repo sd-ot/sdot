@@ -10,7 +10,12 @@
 template<class T>
 class PoolWithInactiveItems {
 public:
+    /**/          PoolWithInactiveItems( const PoolWithInactiveItems &that ) = delete;
+    /**/          PoolWithInactiveItems( PoolWithInactiveItems &&that );
     /**/          PoolWithInactiveItems();
+
+    void          operator=            ( const PoolWithInactiveItems &that ) = delete;
+    void          operator=            ( PoolWithInactiveItems &&that );
 
     T            *new_item             ();
     void          clear                ();

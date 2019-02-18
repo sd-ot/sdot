@@ -17,12 +17,12 @@ template<class Pc>
 class SpZGrid {
 public:
     // data from Pc
+    static constexpr bool   allow_translations    = Pc::allow_translations;
     static constexpr int    dim                   = Pc::dim;
     using                   TF                    = typename Pc::TF;
     using                   TI                    = typename Pc::TI;
 
     // parameters
-    static constexpr bool   allow_translations    = true;
     static constexpr int    degree_w_approx       = 0;
     static constexpr bool   allow_mpi             = true;
 
