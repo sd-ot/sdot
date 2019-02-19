@@ -204,7 +204,7 @@ std::string SpZGrid<Pc>::ext_info() const {
 }
 
 template<class Pc>
-std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *weights, std::vector<Box *> front, int max_depth ) {
+std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *weights, std::vector<Box *> front, TI max_depth ) {
     Hpipe::CbQueue cq;
     std::size_t num_in_front = 0;
     Hpipe::BinStream<Hpipe::CbQueue> bq( &cq );
@@ -268,8 +268,8 @@ typename SpZGrid<Pc>::Box* SpZGrid<Pc>::deserialize_rec( const std::vector<char>
         bq >> box->max_pt;
         bq >> box->depth;
 
-        reinterpret_cast<std::size_t&>( box->last_child ) = bq.read_unsigned();
-        reinterpret_cast<std::size_t&>( box->sibling    ) = bq.read_unsigned();
+        box->last_child_index = bq.read_unsigned();
+        box->sibling_index = bq.read_unsigned();
 
         std::size_t nb_ext_diracs = bq.read();
         box->ext_pwi.resize( nb_ext_diracs );
@@ -282,10 +282,10 @@ typename SpZGrid<Pc>::Box* SpZGrid<Pc>::deserialize_rec( const std::vector<char>
     }
 
     for( Box *box : new_boxes ) {
-        if ( auto l = reinterpret_cast<const std::size_t&>( box->last_child ) )
-            box->last_child = new_boxes[ l ];
-        if ( auto l = reinterpret_cast<const std::size_t&>( box->sibling    ) )
-            box->sibling    = new_boxes[ l ];
+        if ( box->last_child_index )
+            box->last_child = new_boxes[ box->last_child_index ];
+        if ( box->sibling_index )
+            box->sibling = new_boxes[ box->sibling_index ];
     }
 
     return new_boxes.size() ? new_boxes[ 0 ] : nullptr;
@@ -301,7 +301,7 @@ void SpZGrid<Pc>::initial_send( const Pt *positions, const TF *weights ) {
     // deserialize
     neighbors.clear();
     neighbors.reserve( mpi->size() );
-    for( std::size_t i = 0; i < dst.size(); ++i )
+    for( int i = 0; i < (int)dst.size(); ++i )
         if ( i != mpi->rank() )
             if ( Box *ext_root = deserialize_rec( dst[ i ], i ) )
                 neighbors.push_back( { i, ext_root } );
@@ -371,32 +371,95 @@ typename SpZGrid<Pc>::TF SpZGrid<Pc>::w_approx( const TA &c, Pt x ) const {
 };
 
 template<class Pc>
-bool SpZGrid<Pc>::can_be_evicted( CP &lc, Pt c0, TF w0, Box *box, int num_sym ) {
+bool SpZGrid<Pc>::can_be_evicted( CP &lc, Pt c0, TF w0, Box *box, int num_sym, std::vector<typename CP::Node *> &front ) {
+    using Node = typename CP::Node;
+    using std::pow;
     using std::min;
     using std::max;
 
     Pt min_pt = sym( box->min_pt, num_sym );
     Pt max_pt = sym( box->max_pt, num_sym );
 
-    //
-    //    Pt min_cp = { + std::numeric_limits<TF>::max(), + std::numeric_limits<TF>::max(), + std::numeric_limits<TF>::max() };
-    //    Pt max_cp = { - std::numeric_limits<TF>::max(), - std::numeric_limits<TF>::max(), - std::numeric_limits<TF>::max() };
-    //    for( const auto &node : lc.nodes ) {
-    //        min_cp = min( min_cp, node.pos );
-    //        max_cp = max( max_cp, node.pos );
-    //    }
-    //    bool intersect = max_cp[ 0 ] >= min_pt[ 0 ] && max_cp[ 1 ] >= min_pt[ 1 ] && max_cp[ 2 ] >= min_pt[ 2 ] && min_cp[ 0 ] <= max_pt[ 0 ] && min_cp[ 1 ] <= max_pt[ 1 ] && min_cp[ 2 ] <= max_pt[ 2 ];
-    //    if ( intersect )
+    if ( CP::keep_min_max_coords ) {
+        TF g_min = w0 - box->coeffs_w_approx[ 0 ];
+        for( int d = 0; d < dim; ++d ) {
+            TF d_min = std::numeric_limits<TF>::max();
+
+            //
+            TF mim = max( min_pt[ d ], lc.min_coord[ d ] );
+            TF mam = min( max_pt[ d ], lc.max_coord[ d ] );
+            if ( mam >= mim ) {
+                TF pmi = pow( c0[ d ] - mim, 2 );
+                TF pma = pow( c0[ d ] - mam, 2 );
+                d_min = - max( pmi, pma );
+            }
+
+            //
+            TF mil = lc.min_coord[ d ];
+            TF mal = min( min_pt[ d ], lc.max_coord[ d ] );
+            if ( mal >= mil ) {
+                TF di = c0[ d ] - min_pt[ d ];
+                d_min = min( d_min, pow( min_pt[ d ], 2 ) + 2 * di * ( di > 0 ? mil : mal ) - pow( c0[ d ], 2 ) );
+            }
+
+            //
+            TF mir = max( max_pt[ d ], lc.min_coord[ d ] );
+            TF mar = lc.max_coord[ d ];
+            if ( mar >= mir ) {
+                TF di = c0[ d ] - max_pt[ d ];
+                d_min = min( d_min, pow( max_pt[ d ], 2 ) + 2 * di * ( di > 0 ? mir : mar ) - pow( c0[ d ], 2 ) );
+            }
+
+            g_min += d_min;
+        }
+
+        return g_min > 0;
+    }
+
+    //    if ( dim == 3 && c0[ 0 ] >= min_pt[ 0 ] && c0[ 1 ] >= min_pt[ 1 ] && c0[ 2 ] >= min_pt[ 2 ] && c0[ 0 ] <= max_pt[ 0 ] && c0[ 1 ] <= max_pt[ 1 ] && c0[ 2 ] <= max_pt[ 2 ] )
     //        return false;
-    // stat.add( "eviction", can_be_evicted( lc, c0, w0, box, num_sym ) );
-    if ( dim == 3 && c0[ 0 ] >= min_pt[ 0 ] && c0[ 1 ] >= min_pt[ 1 ] && c0[ 2 ] >= min_pt[ 2 ] && c0[ 0 ] <= max_pt[ 0 ] && c0[ 1 ] <= max_pt[ 1 ] && c0[ 2 ] <= max_pt[ 2 ] )
-        return false;
+
+    //
+    if ( lc.nodes.empty() )
+        return true;
+
+    //    Node *node = &*lc.nodes.begin();
+    //    node->op_count = ++lc.op_count;
+
+    //    front.clear();
+    //    front.push_back( node );
+
+    //    while ( ! front.empty() ) {
+    //        Node *node = front.back();
+    //        front.pop_back();
+
+    //        // the current node may be invalid ?
+    //        Pt c1;
+    //        for( int d = 0; d < dim; ++d )
+    //            c1[ d ] = min( max_pt[ d ], max( min_pt[ d ], node->pos[ d ] ) );
+    //        if ( norm_2_p2( c0 - node->pos ) - w0 > norm_2_p2( c1 - node->pos ) - w_approx( box->coeffs_w_approx, inv_sym( c1, num_sym ) ) )
+    //            return false;
+
+    //        // we take a new node if it is able to improve the criterion for some x1 in box
+    //        for( const auto &edge : node->edges ) {
+    //            if ( edge.n1->op_count == lc.op_count )
+    //                continue;
+    //            edge.n1->op_count = lc.op_count;
+
+    //            TF dv = 0;
+    //            for( int d = 0; d < dim; ++d ) {
+    //                TF pi = node->pos[ d ] - edge.n1->pos[ d ];
+    //                dv += ( ( pi > 0 ? box->min_pt[ d ] : box->max_pt[ d ] ) - c0[ d ] ) * pi;
+    //            }
+    //            if ( dv < 0 )
+    //                front.push_back( edge.n1 );
+    //        }
+    //    }
 
     for( const auto &node : lc.nodes ) {
         Pt c1;
         for( int d = 0; d < dim; ++d )
             c1[ d ] = min( max_pt[ d ], max( min_pt[ d ], node.pos[ d ] ) );
-
         if ( norm_2_p2( c0 - node.pos ) - w0 > norm_2_p2( c1 - node.pos ) - w_approx( box->coeffs_w_approx, inv_sym( c1, num_sym ) ) )
             return false;
     }
@@ -433,6 +496,7 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
 
         thread_pool.execute( nb_jobs, [&]( std::size_t num_job, int num_thread ) {
             std::priority_queue<BoxDistAndNumSym> front;
+            std::vector<typename CP::Node *> front_node;
             CP lc;
 
             TI beg_num_in_ind = ( num_job + 0 ) * nb_dirac_indices / nb_jobs;
@@ -487,7 +551,7 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
                         stat.add( "nb_nodes_during_pc", lc.nodes.size() );
                     #endif // WANT_STAT
 
-                    if ( can_be_evicted( lc, c0, w0, box, num_sym ) )
+                    if ( can_be_evicted( lc, c0, w0, box, num_sym, front_node ) )
                         continue;
 
                     if ( Box* ch = box->last_child ) {
@@ -550,57 +614,59 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
         return err;
 
     //
-    for( int phase = 1; ; ++phase ) {
-        PMPI( interrupted_num_diracs.size() );
+    if ( allow_mpi && mpi->size() > 1 ) {
+        for( int phase = 1; ; ++phase ) {
+            PMPI( interrupted_num_diracs.size() );
 
-        // get the needs for each machine
-        std::vector<std::vector<int>> needs;
-        std::vector<int> v_missing_ranks( missing_ranks.begin(), missing_ranks.end() );
-        mpi->all_gather( needs, v_missing_ranks.data(), v_missing_ranks.size() );
+            // get the needs for each machine
+            std::vector<std::vector<int>> needs;
+            std::vector<int> v_missing_ranks( missing_ranks.begin(), missing_ranks.end() );
+            mpi->all_gather( needs, v_missing_ranks.data(), v_missing_ranks.size() );
 
-        // break if no need for more information ?
-        bool n = false;
-        for( auto &nv : needs ) {
-            if ( ! nv.empty() ) {
-                n = true;
-                break;
+            // break if no need for more information ?
+            bool n = false;
+            for( auto &nv : needs ) {
+                if ( ! nv.empty() ) {
+                    n = true;
+                    break;
+                }
             }
-        }
-        if ( n == false )
-            break;
-
-        // serialize the tree for each machine that has to send something
-        std::vector<char> serialized;
-        for( const std::vector<int> &pn : needs ) {
-            if ( std::find( pn.begin(), pn.end(), mpi->rank() ) != pn.end() ) {
-                serialized = serialize_rec( positions, weights, { root }, 100000 );
+            if ( n == false )
                 break;
+
+            // serialize the tree for each machine that has to send something
+            std::vector<char> serialized;
+            for( const std::vector<int> &pn : needs ) {
+                if ( std::find( pn.begin(), pn.end(), mpi->rank() ) != pn.end() ) {
+                    serialized = serialize_rec( positions, weights, { root }, 100000 );
+                    break;
+                }
             }
-        }
 
-        // selective send
-        std::vector<std::vector<char>> ext;
-        mpi->selective_send_and_recv( ext, needs, serialized );
+            // selective send
+            std::vector<std::vector<char>> ext;
+            mpi->selective_send_and_recv( ext, needs, serialized );
 
-        // update the neighbor info
-        for( std::size_t num_in_v_missing_rank = 0; num_in_v_missing_rank < v_missing_ranks.size(); ++num_in_v_missing_rank ) {
-            int missing_rank = v_missing_ranks[ num_in_v_missing_rank ];
-            if ( Box *box = deserialize_rec( ext[ num_in_v_missing_rank ], missing_rank ) ) {
-                for( Neighbor &ng : neighbors ) {
-                    if ( ng.mpi_rank == missing_rank ) {
-                        ng.root = box;
-                        break;
+            // update the neighbor info
+            for( std::size_t num_in_v_missing_rank = 0; num_in_v_missing_rank < v_missing_ranks.size(); ++num_in_v_missing_rank ) {
+                int missing_rank = v_missing_ranks[ num_in_v_missing_rank ];
+                if ( Box *box = deserialize_rec( ext[ num_in_v_missing_rank ], missing_rank ) ) {
+                    for( Neighbor &ng : neighbors ) {
+                        if ( ng.mpi_rank == missing_rank ) {
+                            ng.root = box;
+                            break;
+                        }
                     }
                 }
             }
-        }
 
-        // try to make the missing cells
-        missing_ranks.clear();
-        std::vector<TI> old_interrupted_num_diracs = std::move( interrupted_num_diracs );
-        make_lc_and_call_cb( missing_ranks, interrupted_num_diracs, err, nb_jobs, nb_threads, old_interrupted_num_diracs.data(), old_interrupted_num_diracs.size(), phase );
-        if ( err )
-            return err;
+            // try to make the missing cells
+            missing_ranks.clear();
+            std::vector<TI> old_interrupted_num_diracs = std::move( interrupted_num_diracs );
+            make_lc_and_call_cb( missing_ranks, interrupted_num_diracs, err, nb_jobs, nb_threads, old_interrupted_num_diracs.data(), old_interrupted_num_diracs.size(), phase );
+            if ( err )
+                return err;
+        }
     }
 
     return err;

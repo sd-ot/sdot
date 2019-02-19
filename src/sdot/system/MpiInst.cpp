@@ -78,7 +78,7 @@ void MpiInst::all_gather( std::vector<std::vector<char>> &dst, const char *src, 
     //
     int tot_count = 0;
     std::vector<int> recv_offsets( size() );
-    for( std::size_t i = 0; i < size(); ++i ) {
+    for( int i = 0; i < size(); ++i ) {
         recv_offsets[ i ] = tot_count;
         tot_count += recv_counts[ i ];
     }
@@ -86,7 +86,7 @@ void MpiInst::all_gather( std::vector<std::vector<char>> &dst, const char *src, 
     std::vector<char> recv( tot_count );
     MPI_Allgatherv( src, count, MPI_CHAR, recv.data(), recv_counts.data(), recv_offsets.data(), MPI_CHAR, MPI_COMM_WORLD );
 
-    for( std::size_t i = 0; i < size(); ++i )
+    for( int i = 0; i < size(); ++i )
         dst[ i ] = { recv.data() + recv_offsets[ i ], recv.data() + recv_offsets[ i ] + recv_counts[ i ] };
 }
 
@@ -101,7 +101,7 @@ void MpiInst::all_gather( std::vector<std::vector<int>> &dst, const int *src, st
     //
     int tot_count = 0;
     std::vector<int> recv_offsets( size() );
-    for( std::size_t i = 0; i < size(); ++i ) {
+    for( int i = 0; i < size(); ++i ) {
         recv_offsets[ i ] = tot_count;
         tot_count += recv_counts[ i ];
     }
@@ -109,7 +109,7 @@ void MpiInst::all_gather( std::vector<std::vector<int>> &dst, const int *src, st
     std::vector<int> recv( tot_count );
     MPI_Allgatherv( src, count, MPI_INT, recv.data(), recv_counts.data(), recv_offsets.data(), MPI_INT, MPI_COMM_WORLD );
 
-    for( std::size_t i = 0; i < size(); ++i )
+    for( int i = 0; i < size(); ++i )
         dst[ i ] = { recv.data() + recv_offsets[ i ], recv.data() + recv_offsets[ i ] + recv_counts[ i ] };
 }
 

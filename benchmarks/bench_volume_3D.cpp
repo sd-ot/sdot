@@ -8,8 +8,8 @@
 
 //// nsmake cpp_flag -march=native
 //// nsmake cpp_flag -ffast-math
-//// nsmake cpp_flag -O3
-//// nsmake lib_flag -O3
+//// nsmake cpp_flag -O4
+//// nsmake lib_flag -O4
 
 int main( int argc, char **argv ) {
     struct Pc { enum { nb_bits_per_axis = 31, allow_ball_cut = 0, dim = 3, allow_translations = false }; using TI = std::size_t; using TF = double; using CI = TI; };

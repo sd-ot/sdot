@@ -45,7 +45,7 @@ public:
     template<class V> void  display               ( V &vtk_output, TF z = 0 ) const; ///< for debug purpose
 
     // values used by update
-    int                     max_diracs_per_cell;
+    TI                      max_diracs_per_cell;
     int                     depth_initial_send;
     std::vector<Pt>         translations;         ///< symetries
 
@@ -61,6 +61,9 @@ private:
     struct                  Box {
         float               dist_2                ( Pt p, TF w ) const;
 
+        TI                  last_child_index;
+        TI                  sibling_index;
+
         CoeffsWApprox       coeffs_w_approx;
         TI                  beg_indices;          ///< only for local boxes
         TI                  end_indices;          ///< only for local boxes
@@ -73,18 +76,18 @@ private:
         int                 rank;
     };
     struct                  Neighbor {
-        std::size_t         mpi_rank;
+        int                 mpi_rank;
         Box*                root;
     };
 
     Box*                    deserialize_rec       ( const std::vector<char> &dst, int ext_rank );
-    std::vector<char>       serialize_rec         ( const Pt *positions, const TF *weights, std::vector<Box *> front, int max_depth );
+    std::vector<char>       serialize_rec         ( const Pt *positions, const TF *weights, std::vector<Box *> front, TI max_depth );
     void                    initial_send          ( const Pt *positions, const TF *weights );
     void                    update_box            ( const Pt *positions, const TF *weights, Box *box, TI beg_indices, TI end_indices, TI depth );
     static TI               nb_diracs             ( Box *box );
     std::string             ext_info              () const;
 
-    bool                    can_be_evicted        ( CP &lc, Pt c0, TF w0, Box *box, int num_sym );
+    bool                    can_be_evicted        ( CP &lc, Pt c0, TF w0, Box *box, int num_sym, std::vector<typename CP::Node *> &front );
 
     template<class TA> TF   w_approx              ( const TA &c, Pt x ) const;
     Pt                      inv_sym               ( Pt pt, int num_sym ) const { if ( allow_translations && num_sym >= 0 ) return pt - translations[ num_sym ]; return pt; };

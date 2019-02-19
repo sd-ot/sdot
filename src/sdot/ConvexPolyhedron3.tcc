@@ -17,17 +17,22 @@ ConvexPolyhedron3<Pc>::ConvexPolyhedron3( const Box &box, CI cut_id ) : op_count
 
 template<class Pc>
 ConvexPolyhedron3<Pc>::ConvexPolyhedron3( ConvexPolyhedron3 &&cp ) :
+    nb_connections( std::move( cp.nb_connections ) ),
     sphere_cut_id ( std::move( cp.sphere_cut_id  ) ),
     sphere_center ( std::move( cp.sphere_center  ) ),
     sphere_radius ( std::move( cp.sphere_radius  ) ),
+    op_count      ( std::move( cp.op_count       ) ),
     faces         ( std::move( cp.faces          ) ),
     holes         ( std::move( cp.holes          ) ),
     edges         ( std::move( cp.edges          ) ),
-    nodes         ( std::move( cp.nodes          ) ),
-    nb_connections( std::move( cp.nb_connections ) ),
-    op_count      ( std::move( cp.op_count       ) ) {
+    nodes         ( std::move( cp.nodes          ) ) {
 
     cp.sphere_radius = -1;
+
+    if ( keep_min_max_coords ) {
+        min_coord = cp.min_coord;
+        max_coord = cp.max_coord;
+    }
 }
 
 template<class Pc>
@@ -40,6 +45,11 @@ void ConvexPolyhedron3<Pc>::operator=( const ConvexPolyhedron3 &cp ) {
     sphere_radius  = cp.sphere_radius;
     op_count       = ++cp.op_count;
 
+    if ( keep_min_max_coords ) {
+        min_coord  = cp.min_coord;
+        max_coord  = cp.max_coord;
+    }
+
     faces.clear();
     holes.clear();
     edges.clear();
@@ -51,6 +61,8 @@ void ConvexPolyhedron3<Pc>::operator=( const ConvexPolyhedron3 &cp ) {
         orig->op_count = cp.op_count;
 
         Node *node = add_node( orig->pos );
+        if ( keep_min_max_coords )
+            node->resp_bound = orig->resp_bound;
         orig->nitem.node = node;
         return node;
     };
@@ -107,6 +119,11 @@ void ConvexPolyhedron3<Pc>::operator=( ConvexPolyhedron3 &&cp ) {
     nodes          = std::move( cp.nodes          );
     nb_connections = std::move( cp.nb_connections );
     op_count       = std::move( cp.op_count       );
+
+    if ( keep_min_max_coords ) {
+        min_coord  = cp.min_coord;
+        max_coord  = cp.max_coord;
+    }
 
     cp.sphere_radius = -1;
 }
@@ -460,6 +477,8 @@ void ConvexPolyhedron3<Pc>::mark_cut_faces_and_edges( MarkCutInfo &mci, Node *no
         } else {
             // add a new node
             Node *nn = add_node( node->pos - sp0 / ( sp1 - sp0 ) * ( edge.n1->pos - node->pos ) );
+            if ( keep_min_max_coords )
+                nn->resp_bound = 0;
             nn->op_count = op_count;
 
             mci.cut_edges.append( &edge );
@@ -577,30 +596,33 @@ void ConvexPolyhedron3<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
         }
 
         if ( keep_min_max_coords && mci.mod_bounds ) {
-            if ( mci.mod_bounds &  1 ) min_coord[ 0 ] = + std::numeric_limits<TF>::max();
-            if ( mci.mod_bounds &  2 ) max_coord[ 0 ] = - std::numeric_limits<TF>::max();
-            if ( mci.mod_bounds &  4 ) min_coord[ 1 ] = + std::numeric_limits<TF>::max();
-            if ( mci.mod_bounds &  8 ) max_coord[ 1 ] = - std::numeric_limits<TF>::max();
-            if ( mci.mod_bounds & 16 ) min_coord[ 2 ] = + std::numeric_limits<TF>::max();
-            if ( mci.mod_bounds & 32 ) max_coord[ 2 ] = - std::numeric_limits<TF>::max();
+            for( int d = 0; d < dim; ++d ) {
+                int mb0 = 1 << ( 2 * d + 0 );
+                if ( mci.mod_bounds & mb0 ) {
+                    min_coord[ d ] = + std::numeric_limits<TF>::max();
+                    Node *resp_nodes = nullptr;
+                    for( const Edge &edge : face->edges ) {
+                        if ( min_coord[ d ] > edge.n0->pos[ d ] ) {
+                            min_coord[ d ] = edge.n0->pos[ d ];
+                            resp_nodes = edge.n0;
+                        }
+                    }
+                    resp_nodes->resp_bound |= mb0;
+                }
 
-            std::array<Node *,6> resp_nodes;
-            for( const Edge &edge : face->edges ) {
-                const Pt &pos = edge.n0->pos;
-                if ( ( mci.mod_bounds &  1 ) && min_coord[ 0 ] > pos[ 0 ] ) { resp_nodes[ 0 ] = edge.n0; min_coord[ 0 ] = pos[ 0 ]; }
-                if ( ( mci.mod_bounds &  2 ) && max_coord[ 0 ] < pos[ 0 ] ) { resp_nodes[ 1 ] = edge.n0; max_coord[ 0 ] = pos[ 0 ]; }
-                if ( ( mci.mod_bounds &  4 ) && min_coord[ 1 ] > pos[ 1 ] ) { resp_nodes[ 2 ] = edge.n0; min_coord[ 1 ] = pos[ 1 ]; }
-                if ( ( mci.mod_bounds &  8 ) && max_coord[ 1 ] < pos[ 1 ] ) { resp_nodes[ 3 ] = edge.n0; max_coord[ 1 ] = pos[ 1 ]; }
-                if ( ( mci.mod_bounds & 16 ) && min_coord[ 2 ] > pos[ 2 ] ) { resp_nodes[ 4 ] = edge.n0; min_coord[ 2 ] = pos[ 2 ]; }
-                if ( ( mci.mod_bounds & 32 ) && max_coord[ 2 ] < pos[ 2 ] ) { resp_nodes[ 5 ] = edge.n0; max_coord[ 2 ] = pos[ 2 ]; }
+                int mb1 = 1 << ( 2 * d + 1 );
+                if ( mci.mod_bounds & mb1 ) {
+                    max_coord[ d ] = - std::numeric_limits<TF>::max();
+                    Node *resp_nodes = nullptr;
+                    for( const Edge &edge : face->edges ) {
+                        if ( max_coord[ d ] < edge.n0->pos[ d ] ) {
+                            max_coord[ d ] = edge.n0->pos[ d ];
+                            resp_nodes = edge.n0;
+                        }
+                    }
+                    resp_nodes->resp_bound |= mb1;
+                }
             }
-
-            if ( mci.mod_bounds &  1 ) resp_nodes[ 0 ]->resp_bound |=  1;
-            if ( mci.mod_bounds &  2 ) resp_nodes[ 1 ]->resp_bound |=  2;
-            if ( mci.mod_bounds &  4 ) resp_nodes[ 2 ]->resp_bound |=  4;
-            if ( mci.mod_bounds &  8 ) resp_nodes[ 3 ]->resp_bound |=  8;
-            if ( mci.mod_bounds & 16 ) resp_nodes[ 4 ]->resp_bound |= 16;
-            if ( mci.mod_bounds & 32 ) resp_nodes[ 5 ]->resp_bound |= 32;
         }
     }
 }
@@ -717,7 +739,7 @@ void ConvexPolyhedron3<Pc>::clear( const Box &box, CI cut_id ) {
         e1->face = face;
         e2->face = face;
         e3->face = face;
-   };
+    };
 
     add_face( e0.a, e1.a, e2.a, e3.a );
     add_face( e4.a, e5.a, e6.a, e7.a );
@@ -988,7 +1010,7 @@ void ConvexPolyhedron3<Pc>::update_min_max_coord() {
         }
     }
 
-    for( TI num_resp = 0, flag = 1; num_resp < resp_nodes.size(); ++num_resp )
+    for( TI num_resp = 0; num_resp < resp_nodes.size(); ++num_resp )
         resp_nodes[ num_resp ]->resp_bound |= 1 << num_resp;
 }
 
@@ -1248,6 +1270,7 @@ void ConvexPolyhedron3<Pc>::display( V &vo, const typename V::CV &cell_data, boo
 
         // hole planes
         for( const Hole &hole : holes ) {
+            (void)hole;
             TODO;
             //            TF s = dot( cut_info[ hole.cut_index ].cut_O - sphere_center, cut_info[ hole.cut_index ].cut_N );
             //            Pt O = sphere_center + s * cut_info[ hole.cut_index ].cut_N;

@@ -22,7 +22,7 @@ namespace sdot {
 template<class Pc>
 class ConvexPolyhedron3 {
 public:
-    static constexpr bool   keep_min_max_coords      = true;
+    static constexpr bool   keep_min_max_coords      = false;
     static constexpr bool   allow_ball_cut           = Pc::allow_ball_cut;
     static constexpr int    dim                      = 3;
 
@@ -90,11 +90,13 @@ public:
     Pt                      centroid_ap              ( TI n = 1e8 )                     const { return centroid_ap        ( FunctionEnum::Unit(), n                    ); } ///< centroid, computed with monte-carlo
     TF                      measure_ap               ( TI n = 1e8 )                     const { return measure_ap         ( FunctionEnum::Unit(), n                    ); } ///< volume, computed with monte-carlo
 
+    TI                      nb_connections;          ///<
     CI                      sphere_cut_id;
     Pt                      sphere_center;
     TF                      sphere_radius;
     Pt                      min_coord;
     Pt                      max_coord;
+    mutable TI              op_count;
     FaceList                faces;
     HoleList                holes;
     EdgeList                edges;
@@ -135,10 +137,6 @@ private:
     // helpers
     // void                 _make_ext_round_faces    ();
     void                    _get_centroid            ( Pt &centroid, TF &area, const Face &fs ) const;
-
-    // attributes
-    TI                      nb_connections;          ///<
-    mutable TI              op_count;
 };
 
 

@@ -42,7 +42,7 @@ void set_up_diracs( std::vector<Pt> &positions, std::vector<TF> &weights, std::s
         weights.resize( n );
         TF s = TF( 1 ) / mpi->size();
         TF b = s * mpi->rank();
-        for( TI i = 0; i < mpi->rank(); ++i )
+        for( int i = 0; i < mpi->rank(); ++i )
             rand();
         for( TI i = 0; i < n; ++i ) {
             positions[ i ] = { b + s * rand() / RAND_MAX, 1.0 * rand() / RAND_MAX, 1.0 * rand() / RAND_MAX };

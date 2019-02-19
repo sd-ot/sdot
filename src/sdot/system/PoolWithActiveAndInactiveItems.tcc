@@ -1,7 +1,7 @@
 #include "PoolWithActiveAndInactiveItems.h"
 
 template<class T>
-PoolWithActiveAndInactiveItems<T>::PoolWithActiveAndInactiveItems( PoolWithActiveAndInactiveItems &&that ) : pool( std::move( that.pool ) ), last_active( std::move( that.last_active ) ) {
+PoolWithActiveAndInactiveItems<T>::PoolWithActiveAndInactiveItems( PoolWithActiveAndInactiveItems &&that ) : last_active( std::move( that.last_active ) ), pool( std::move( that.pool ) ) {
     that.last_active = nullptr;
 }
 
