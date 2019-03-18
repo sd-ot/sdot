@@ -1,7 +1,7 @@
 #pragma once
 
-#include "FunctionEnum.h"
-#include "Point3.h"
+#include "../../Integration/FunctionEnum.h"
+#include "../../Geometry/Point3.h"
 
 namespace sdot {
 

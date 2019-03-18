@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Point3.h"
+#include "../../Geometry/Point3.h"
 
 namespace sdot {
 

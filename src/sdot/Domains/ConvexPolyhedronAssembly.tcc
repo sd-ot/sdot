@@ -1,4 +1,4 @@
-#include "../SpaceFunctions/Constant.h"
+#include "../Integration/SpaceFunctions/Constant.h"
 #include "ConvexPolyhedronAssembly.h"
 
 namespace sdot {
@@ -22,10 +22,14 @@ void ConvexPolyhedronAssembly<Pc>::add_convex_polyhedron( const std::vector<Pt> 
         delta[ d ] = max_pos[ d ] - min_pos[ d ];
     }
 
-    CP cp{ typename CP::Box{ min_pos - delta, max_pos + delta }, cut_id };
+    Item item;
+    item.coeff = coeff;
+
+    item.polyhedron = { typename CP::Box{ min_pos - delta, max_pos + delta }, cut_id };
     for( std::size_t i = 0; i < positions.size(); ++i )
-        cp.plane_cut( positions[ i ], normalized( normals[ i ] ), cut_id );
-    items.emplace_back( { std::move( cp ), coeff } );
+        item.polyhedron.plane_cut( positions[ i ], normalized( normals[ i ] ), cut_id );
+
+    items.push_back( std::move( item ) );
 }
 
 template<class Pc>
@@ -118,8 +122,9 @@ void ConvexPolyhedronAssembly<Pc>::for_each_intersection( CP &cp, const F &f ) c
     if ( items.size() == 1 )
         return f( cp, SpaceFunctions::Constant<TF>{ items[ 0 ].coeff } );
 
+    CP ccp;
     for( const Item &item : items ) {
-        CP ccp = item.polyhedron;
+        ccp = item.polyhedron;
         ccp.intersect_with( cp );
         f( ccp, SpaceFunctions::Constant<TF>{ item.coeff } );
     }

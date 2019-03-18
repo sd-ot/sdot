@@ -1,5 +1,5 @@
+#include "Internal/AreaOutput.h"
 #include "ConvexPolyhedron2.h"
-#include "AreaOutput.h"
 #include <immintrin.h>
 
 namespace sdot {

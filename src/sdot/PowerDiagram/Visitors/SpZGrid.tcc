@@ -1,6 +1,6 @@
-#include "../system/ThreadPool.h"
-#include "../system/BinStream.h"
-#include "../system/Mpi.h"
+#include "../../Support/ThreadPool.h"
+#include "../../Support/BinStream.h"
+#include "../../Support/Mpi.h"
 #include <eigen3/Eigen/Cholesky>
 #include "SpZGrid.h"
 #include <queue>
@@ -8,7 +8,7 @@
 #include <set>
 
 #ifdef WANT_STAT
-#include "../system/Stat.h"
+#include "../../Support/Stat.h"
 #endif // WANT_STAT
 
 namespace sdot {
@@ -19,7 +19,7 @@ SpZGrid<Pc>::SpZGrid( TI max_diracs_per_cell ) : max_diracs_per_cell( max_diracs
 }
 
 template<class Pc>
-void SpZGrid<Pc>::update( const Pt *positions, const TF *weights, TI nb_diracs, bool positions_have_changed, bool weights_have_changed ) {
+void SpZGrid<Pc>::update( const Pt *positions, const TF *weights, TI nb_diracs, bool positions_have_changed, bool weights_have_changed, bool clip_at_sqrt_weight ) {
     if ( positions_have_changed || weights_have_changed ) {
         dirac_indices.resize( nb_diracs );
         for( std::size_t i = 0; i < nb_diracs; ++i )
@@ -372,7 +372,7 @@ typename SpZGrid<Pc>::TF SpZGrid<Pc>::w_approx( const TA &c, Pt x ) const {
 
 template<class Pc>
 bool SpZGrid<Pc>::can_be_evicted( CP &lc, Pt c0, TF w0, Box *box, int num_sym, std::vector<typename CP::Node *> &front ) {
-    using Node = typename CP::Node;
+    // using Node = typename CP::Node;
     using std::pow;
     using std::min;
     using std::max;
@@ -420,8 +420,8 @@ bool SpZGrid<Pc>::can_be_evicted( CP &lc, Pt c0, TF w0, Box *box, int num_sym, s
     //        return false;
 
     //
-    if ( lc.nodes.empty() )
-        return true;
+    //    if ( lc.nodes.empty() )
+    //        return true;
 
     //    Node *node = &*lc.nodes.begin();
     //    node->op_count = ++lc.op_count;
@@ -456,6 +456,7 @@ bool SpZGrid<Pc>::can_be_evicted( CP &lc, Pt c0, TF w0, Box *box, int num_sym, s
     //        }
     //    }
 
+
     for( const auto &node : lc.nodes ) {
         Pt c1;
         for( int d = 0; d < dim; ++d )
@@ -463,8 +464,17 @@ bool SpZGrid<Pc>::can_be_evicted( CP &lc, Pt c0, TF w0, Box *box, int num_sym, s
         if ( norm_2_p2( c0 - node.pos ) - w0 > norm_2_p2( c1 - node.pos ) - w_approx( box->coeffs_w_approx, inv_sym( c1, num_sym ) ) )
             return false;
     }
-
     return true;
+
+    //    Pt dir = 0.5 * ( min_pt + max_pt ) - c0;
+    //    Node *node = lc.find_node_maximizing( [&]( TF &value, Pt pos ) {
+    //        value = dot( pos, dir );
+    //        return false;
+    //    }, false );
+    //    Pt c1;
+    //    for( int d = 0; d < dim; ++d )
+    //        c1[ d ] = min( max_pt[ d ], max( min_pt[ d ], node->pos[ d ] ) );
+    //    return norm_2_p2( c0 - node->pos ) - w0 <= norm_2_p2( c1 - node->pos ) - w_approx( box->coeffs_w_approx, inv_sym( c1, num_sym ) );
 }
 
 template<class Pc> template<int ball_cut>
@@ -512,7 +522,7 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
                 lc = starting_lcs[ num_thread ];
 
                 // init of the front
-                if ( Box* ch = root->last_child ) {
+                if ( Box *ch = root->last_child ) {
                     do {
                         front.push( { ch, ch->dist_2( c0, w0 ), -1 } );
                     } while (( ch = ch->sibling ));
@@ -538,6 +548,8 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
                 bool interrupted = false;
                 #ifdef WANT_STAT
                 double nb_seen_boxes = 0;
+                bool seen_containing_box = false;
+                bool used_another_box = false;
                 #endif // WANT_STAT
                 while ( ! front.empty() ) {
                     int num_sym = front.top().num_sym;
@@ -546,19 +558,27 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
 
                     #ifdef WANT_STAT
                     ++nb_seen_boxes;
-                    stat.add( "eviction", can_be_evicted( lc, c0, w0, box, num_sym ) );
-                    if ( can_be_evicted( lc, c0, w0, box, num_sym ) )
-                        stat.add( "nb_nodes_during_pc", lc.nodes.size() );
+                    // stat.add( "eviction", can_be_evicted( lc, c0, w0, box, num_sym ) );
+                    //                    if ( can_be_evicted( lc, c0, w0, box, num_sym ) )
+                    //                        stat.add( "nb_nodes_during_pc", lc.nodes.size() );
                     #endif // WANT_STAT
 
                     if ( can_be_evicted( lc, c0, w0, box, num_sym, front_node ) )
                         continue;
+
+                    #ifdef WANT_STAT
+                    if ( seen_containing_box )
+                        used_another_box = true;
+                    #endif // WANT_STAT
 
                     if ( Box* ch = box->last_child ) {
                         do {
                             front.push( { ch, float( ch->dist_2( inv_sym( c0, num_sym ), w0 ) ), num_sym } );
                         } while (( ch = ch->sibling ));
                     } else if ( box->beg_indices < box->end_indices ) {
+                        #ifdef WANT_STAT
+                        seen_containing_box = true;
+                        #endif // WANT_STAT
                         for( TI num_in_ind_1 = box->beg_indices; num_in_ind_1 < box->end_indices; ++num_in_ind_1 ) {
                             TI num_dirac_1 = this->dirac_indices[ num_in_ind_1 ];
                             if ( num_dirac_0 != num_dirac_1 )
@@ -578,6 +598,7 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
                 }
                 #ifdef WANT_STAT
                 stat.add( "nb_seen_boxes", nb_seen_boxes );
+                stat.add( "used_another_box", used_another_box );
                 #endif // WANT_STAT
 
                 if ( allow_mpi && interrupted )

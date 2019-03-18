@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../system/ListRef.h"
-#include "../Point3.h"
+#include "../../Support/ListRef.h"
+#include "../../Geometry/Point3.h"
 #include <ostream>
 
 namespace sdot {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../ConvexPolyhedron2.h"
-#include "../ConvexPolyhedron3.h"
+#include "../../Geometry/ConvexPolyhedron2.h"
+#include "../../Geometry/ConvexPolyhedron3.h"
 #include <functional>
 
 namespace sdot {
@@ -36,7 +36,7 @@ public:
     // methods
     /* ctor */              SpZGrid               ( TI max_diracs_per_cell = 11 );
 
-    void                    update                ( const Pt *positions, const TF *weights, TI nb_diracs, bool positions_have_changed = true, bool weights_have_changed = true );
+    void                    update                ( const Pt *positions, const TF *weights, TI nb_diracs, bool positions_have_changed = true, bool weights_have_changed = true, bool clip_at_sqrt_weight = false );
 
     int                     for_each_laguerre_cell( const std::function<void( CP &lc, TI num )> &f, const CP &starting_lc, const Pt *positions, const TF *weights, TI nb_diracs, bool stop_if_void_lc = false ); ///< starting_lc can be a polygonal bound
     int                     for_each_laguerre_cell( const std::function<void( CP &lc, TI num, int num_thread )> &f, const CP &starting_lc, const Pt *positions, const TF *weights, TI nb_diracs, bool stop_if_void_lc = false, bool ball_cut = false ); ///< version with num_thread

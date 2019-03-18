@@ -1,6 +1,6 @@
 #pragma once
 
-#include "system/Stream.h"
+#include "../Support/Stream.h"
 #include <cmath>
 
 namespace sdot {

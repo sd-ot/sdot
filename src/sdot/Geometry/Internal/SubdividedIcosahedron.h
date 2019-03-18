@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Point3.h"
+#include "../Point3.h"
 #include <map>
 
 namespace sdot {

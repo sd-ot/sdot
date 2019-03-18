@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SpaceFunctions/Constant.h"
-#include "FunctionEnum.h"
-#include "VtkOutput.h"
+#include "../Integration/SpaceFunctions/Constant.h"
+#include "../Integration/FunctionEnum.h"
+#include "../Display/VtkOutput.h"
 #include <functional>
 #include <algorithm>
 #include <bitset>

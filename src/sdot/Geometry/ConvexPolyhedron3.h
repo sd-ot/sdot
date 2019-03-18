@@ -1,10 +1,10 @@
 #pragma once
 
-#include "system/PoolWithActiveAndInactiveItems.h"
-#include "internal/Cp3Face.h"
-#include "internal/Cp3Hole.h"
-#include "FunctionEnum.h"
-#include "VtkOutput.h"
+#include "../Support/PoolWithActiveAndInactiveItems.h"
+#include "../Integration/FunctionEnum.h"
+#include "../Display/VtkOutput.h"
+#include "Internal/Cp3Face.h"
+#include "Internal/Cp3Hole.h"
 #include <functional>
 #include <algorithm>
 
@@ -58,6 +58,7 @@ public:
     template<class V> void  display                  ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false ) const;
 
     // modifications
+    void                    intersect_with           ( const ConvexPolyhedron3 &cp );
     template<int no> void   plane_cut                ( Pt origin, Pt normal, CI cut_id, N<no> normal_is_normalized ); ///< return true if effective cut
     void                    plane_cut                ( Pt origin, Pt normal, CI cut_id = {} ) { plane_cut( origin, normal, cut_id, N<1>() ); }
     void                    ball_cut                 ( Pt center, TF radius, CI cut_id = {} ); ///< beware: only one sphere cut is authorized, and it must be done after all the plane cuts.
@@ -66,7 +67,7 @@ public:
 
     // computations
     void                    for_each_boundary_measure( FunctionEnum::Unit, const std::function<void( TF area, CI id )> &f ) const;
-    template<class F> Node *find_node_maximizing     ( const F &f ) const; ///< f must return true to stop the search. It takes ( TF &value, Pt pos ) as parameters
+    template<class F> Node *find_node_maximizing     ( const F &f, bool return_node_only_if_true = true ) const; ///< f must return true to stop the search. It takes ( TF &value, Pt pos ) as parameters
     void                    add_centroid_contrib     ( FunctionEnum::Unit, Pt &ctd, TF &vol ) const;
     TF                      boundary_measure         ( FunctionEnum::Unit ) const;
     Pt                      centroid                 ( FunctionEnum::Unit ) const;
@@ -78,6 +79,8 @@ public:
     TF                      measure                  ()                   const { return measure             ( FunctionEnum::Unit()           ); }
 
     // tests
+    Pt                      min_position             () const;
+    Pt                      max_position             () const;
     bool                    contains                 ( const Pt &pos ) const;
     bool                    empty                    () const { return faces.empty() && ( allow_ball_cut == false || sphere_radius <= 0 ); }
 

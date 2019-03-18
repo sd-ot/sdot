@@ -1,6 +1,6 @@
-#include "SubdividedIcosahedron.h"
+#include "Internal/SubdividedIcosahedron.h"
+#include "Internal/AreaOutput.h"
 #include "ConvexPolyhedron3.h"
-#include "AreaOutput.h"
 #include "Point2.h"
 
 namespace sdot {
@@ -126,6 +126,31 @@ void ConvexPolyhedron3<Pc>::operator=( ConvexPolyhedron3 &&cp ) {
     }
 
     cp.sphere_radius = -1;
+}
+
+template<class Pc>
+void ConvexPolyhedron3<Pc>::intersect_with( const ConvexPolyhedron3 &cp ) {
+    //    ASSERT( sphere_radius <= 0, "TODO: intersect ball cutted with ball cutted convex polyhedron" );
+    //    if ( cp._nb_points ) {
+    //        bool has_sphere_cut = false;
+    //        for( TI i = 0; i < cp._nb_points; ++i ) {
+    //            if ( cp.arcs[ i ] )
+    //                has_sphere_cut = true;
+    //            else
+    //                plane_cut( cp.point( i ), cp.normal( i ), cp.cut_ids[ i ] );
+    //        }
+
+    //        if ( has_sphere_cut )
+    //            ball_cut( cp.sphere_center, cp.sphere_radius, cp.sphere_cut_id );
+    //    } else {
+    //        if ( cp.sphere_radius > 0 ) {
+    //            ball_cut( cp.sphere_center, cp.sphere_radius, cp.sphere_cut_id );
+    //        } else {
+    //            sphere_radius = -1;
+    //            _nb_points = 0;
+    //        }
+    //    }
+    TODO;
 }
 
 template<class Pc>
@@ -410,7 +435,7 @@ void ConvexPolyhedron3<Pc>::ball_cut( Pt center, TF radius, CI cut_id ) {
 
 
 template<class Pc> template<class F>
-typename ConvexPolyhedron3<Pc>::Node *ConvexPolyhedron3<Pc>::find_node_maximizing( const F &f ) const {
+typename ConvexPolyhedron3<Pc>::Node *ConvexPolyhedron3<Pc>::find_node_maximizing( const F &f, bool return_node_only_if_true ) const {
     Node *node = faces.begin()->edges.begin()->n0;
 
     TF value;
@@ -432,7 +457,7 @@ typename ConvexPolyhedron3<Pc>::Node *ConvexPolyhedron3<Pc>::find_node_maximizin
 
         // nothing to raise the value ?
         if ( node == best_node )
-            return nullptr;
+            return return_node_only_if_true ? nullptr : node;
 
         value = best_value;
         node = best_node;
@@ -813,6 +838,22 @@ bool ConvexPolyhedron3<Pc>::contains( const Pt &pos ) const {
     }
 
     return true;
+}
+
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::min_position() const {
+    Pt res{ + std::numeric_limits<TF>::max() };
+    for( const Node &node : nodes )
+        res = min( res, node.pos );
+    return res;
+}
+
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::max_position() const {
+    Pt res{ - std::numeric_limits<TF>::max() };
+    for( const Node &node : nodes )
+        res = max( res, node.pos );
+    return res;
 }
 
 template<class Pc>

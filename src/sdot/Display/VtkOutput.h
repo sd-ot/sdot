@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Point3.h"
-#include "Point2.h"
+#include "../Geometry/Point3.h"
+#include "../Geometry/Point2.h"
 #include <mutex>
 #include <deque>
 

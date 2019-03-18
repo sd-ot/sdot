@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Point2.h"
-#include "Point3.h"
+#include "../Support/N.h"
+#include <cmath>
 
 /**
 */

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../ConvexPolyhedron2.h"
-#include "../ConvexPolyhedron3.h"
+#include "../Geometry/ConvexPolyhedron2.h"
+#include "../Geometry/ConvexPolyhedron3.h"
 #include <mutex>
 
 namespace sdot {

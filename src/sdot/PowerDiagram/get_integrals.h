@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SpaceFunctions/Constant.h"
-#include "FunctionEnum.h"
+#include "../Integration/SpaceFunctions/Constant.h"
+#include "../Integration/FunctionEnum.h"
 #include <vector>
 
 namespace sdot {
@@ -14,7 +14,7 @@ void get_integrals( TF *res, Grid &grid, Bounds &bounds, const Pt *positions, co
     grid.for_each_laguerre_cell( [&]( auto &lc, auto num_dirac, int ) {
         TF measure = 0;
         bounds.for_each_intersection( lc, [&]( auto &cp, SpaceFunctions::Constant<TF> space_func ) {
-            measure += space_func.coeff * cp.integration( radial_func.func_for_final_cp_integration(), weights[ num_dirac ] );
+            measure += space_func.coeff * cp.measure( radial_func.func_for_final_cp_integration() ); // , weights[ num_dirac ]
         } );
         res[ num_dirac ] = measure;
     }, bounds.englobing_convex_polyhedron(), positions, weights, nb_diracs, false, radial_func.need_ball_cut() );
