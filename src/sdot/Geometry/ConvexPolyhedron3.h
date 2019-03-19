@@ -66,9 +66,9 @@ public:
     void                    clear                    ( const Box &box, CI cut_id = {} );
 
     // computations
-    void                    for_each_boundary_measure( FunctionEnum::ExpWmR2db<TF>, const std::function<void( TF area, CI id )> &f ) const;
-    void                    for_each_boundary_measure( FunctionEnum::Unit         , const std::function<void( TF area, CI id )> &f ) const;
-    void                    for_each_boundary_measure( FunctionEnum::R2           , const std::function<void( TF area, CI id )> &f ) const;
+    void                    for_each_boundary_measure( FunctionEnum::ExpWmR2db<TF>, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure( FunctionEnum::Unit         , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure( FunctionEnum::R2           , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
 
     template<class F> Node *find_node_maximizing     ( const F &f, bool return_node_only_if_true = true ) const; ///< f must return true to stop the search. It takes ( TF &value, Pt pos ) as parameters
 
@@ -84,6 +84,9 @@ public:
     TF                      measure                  ( FunctionEnum::R2           , TF weight = 0 ) const;
 
     template<class F> bool  all_pos                  ( const F &f ) const;
+
+    TF                      integration_der_wrt_weight( FunctionEnum::ExpWmR2db<TF>, TF weight ) const;
+    template<class FU> TF   integration_der_wrt_weight( FU, TF weight ) const;
 
     void                    add_centroid_contrib     ( Pt &ctd, TF &vol ) const { return add_centroid_contrib( ctd, vol, FunctionEnum::Unit(), SpaceFunctions::Constant<TF>{ 1.0 } ); }    
     TF                      boundary_measure         ()                   const { return boundary_measure    ( FunctionEnum::Unit()           ); }

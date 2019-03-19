@@ -1,9 +1,8 @@
 #pragma once
 
-#include "SpaceFunctions/Constant.h"
-#include "system/ThreadPool.h"
-#include "system/Assert.h"
-#include "FunctionEnum.h"
+#include "../Integration/SpaceFunctions/Constant.h"
+#include "../Integration/FunctionEnum.h"
+#include "../Support/ThreadPool.h"
 #include <algorithm>
 #include <vector>
 
@@ -47,7 +46,7 @@ int get_der_integrals_wrt_weights( std::vector<TI> &m_offsets, std::vector<TI> &
         TF d0_weight = weights[ num_dirac_0 ];
         bounds.for_each_intersection( lc, [&]( auto &cp, SpaceFunctions::Constant<TF> space_func ) {
             TF coeff = 0.5 * space_func.coeff;
-            v_values[ num_dirac_0 ] += space_func.coeff * cp.integration( radial_func.func_for_final_cp_integration(), d0_weight );
+            v_values[ num_dirac_0 ] += space_func.coeff * cp.measure( radial_func.func_for_final_cp_integration(), d0_weight );
             cp.for_each_boundary_measure( radial_func.func_for_final_cp_integration(), [&]( TF boundary_measure, TI num_dirac_1 ) {
                 if ( num_dirac_1 == TI( -1 ) )
                     return;
