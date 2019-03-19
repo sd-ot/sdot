@@ -180,6 +180,8 @@ void ConvexPolyhedron2<Pc,CI>::set_cut_ids( CI cut_id ) {
 
 template<class Pc,class CI>
 void ConvexPolyhedron2<Pc,CI>::ball_cut( Pt center, TF radius, CI cut_id ) {
+    ASSERT( allow_ball_cut, "..." );
+
     using std::sqrt;
     using std::pow;
     using std::max;
@@ -203,7 +205,7 @@ void ConvexPolyhedron2<Pc,CI>::ball_cut( Pt center, TF radius, CI cut_id ) {
 
     // distances
     bool all_inside = true;
-    alignas( 64 ) AF distances;
+    AF distances;
     for( std::size_t i = 0; i < _nb_points; ++i ) {
         auto px = points[ 0 ][ i ];
         auto py = points[ 1 ][ i ];
