@@ -66,14 +66,26 @@ public:
     void                    clear                    ( const Box &box, CI cut_id = {} );
 
     // computations
-    void                    for_each_boundary_measure( FunctionEnum::Unit, const std::function<void( TF area, CI id )> &f ) const;
+    void                    for_each_boundary_measure( FunctionEnum::ExpWmR2db<TF>, const std::function<void( TF area, CI id )> &f ) const;
+    void                    for_each_boundary_measure( FunctionEnum::Unit         , const std::function<void( TF area, CI id )> &f ) const;
+    void                    for_each_boundary_measure( FunctionEnum::R2           , const std::function<void( TF area, CI id )> &f ) const;
+
     template<class F> Node *find_node_maximizing     ( const F &f, bool return_node_only_if_true = true ) const; ///< f must return true to stop the search. It takes ( TF &value, Pt pos ) as parameters
-    void                    add_centroid_contrib     ( FunctionEnum::Unit, Pt &ctd, TF &vol ) const;
+
     TF                      boundary_measure         ( FunctionEnum::Unit ) const;
     Pt                      centroid                 ( FunctionEnum::Unit ) const;
-    TF                      measure                  ( FunctionEnum::Unit ) const;
 
-    void                    add_centroid_contrib     ( Pt &ctd, TF &vol ) const { return add_centroid_contrib( FunctionEnum::Unit(), ctd, vol ); }
+    void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::ExpWmR2db<TF>, SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
+    void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::Unit         , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
+    void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::R2           , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
+
+    TF                      measure                  ( FunctionEnum::ExpWmR2db<TF>, TF weight = 0 ) const;
+    TF                      measure                  ( FunctionEnum::Unit         , TF weight = 0 ) const;
+    TF                      measure                  ( FunctionEnum::R2           , TF weight = 0 ) const;
+
+    template<class F> bool  all_pos                  ( const F &f ) const;
+
+    void                    add_centroid_contrib     ( Pt &ctd, TF &vol ) const { return add_centroid_contrib( ctd, vol, FunctionEnum::Unit(), SpaceFunctions::Constant<TF>{ 1.0 } ); }    
     TF                      boundary_measure         ()                   const { return boundary_measure    ( FunctionEnum::Unit()           ); }
     Pt                      centroid                 ()                   const { return centroid            ( FunctionEnum::Unit()           ); }
     TF                      measure                  ()                   const { return measure             ( FunctionEnum::Unit()           ); }
@@ -139,7 +151,8 @@ private:
 
     // helpers
     // void                 _make_ext_round_faces    ();
-    void                    _get_centroid            ( Pt &centroid, TF &area, const Face &fs ) const;
+    void                    _get_centroid_planar     ( Pt &centroid, TF &area, const Face &fs ) const;
+    void                    _get_centroid_round      ( Pt &centroid, TF &area, const Face &fs ) const;
 };
 
 

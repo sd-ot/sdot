@@ -65,12 +65,13 @@ const typename ConvexPolyhedronAssembly<Pc>::CP& ConvexPolyhedronAssembly<Pc>::e
             for( std::size_t d = 0; d < dim; ++d ) {
                 min_pos[ d ] = + std::numeric_limits<TF>::max();
                 max_pos[ d ] = - std::numeric_limits<TF>::max();
-                for( const Item &item : items ) {
-                    min_pos[ d ] = min( min_pos[ d ], item.polyhedron.find_node_maximizing( [&]( TF &val, Pt pos ) { val = - pos[ d ]; return false; } )->pos[ d ] );
-                    max_pos[ d ] = max( max_pos[ d ], item.polyhedron.find_node_maximizing( [&]( TF &val, Pt pos ) { val = + pos[ d ]; return false; } )->pos[ d ] );
-                }
-                delta[ d ] = max_pos[ d ] - min_pos[ d ];
             }
+            for( const Item &item : items ) {
+                min_pos = min( min_pos, item.polyhedron.min_position() );
+                max_pos = max( max_pos, item.polyhedron.max_position() );
+            }
+            for( std::size_t d = 0; d < dim; ++d )
+                delta[ d ] = max_pos[ d ] - min_pos[ d ];
 
             englobing_polyheron = typename CP::Box{ min_pos - delta, max_pos + delta };
         }

@@ -69,6 +69,14 @@ template<class FU> typename ConvexPolyhedron2<Pc,CI>::TF ConvexPolyhedron2<Pc,CI
     return 0;
 }
 
+template<class Pc,class CI> template<class F>
+bool ConvexPolyhedron2<Pc,CI>::all_pos( const F &f ) const {
+    for( size_t i = 0; i < _nb_points; ++i )
+        if ( f( point( i ) ) == false )
+            return false;
+    return true;
+}
+
 template<class Pc,class CI>
 void ConvexPolyhedron2<Pc,CI>::for_each_boundary_measure( FunctionEnum::ExpWmR2db<TF> e, const std::function<void(TF,CI)> &f, TF weight ) const {
     using std::sqrt;

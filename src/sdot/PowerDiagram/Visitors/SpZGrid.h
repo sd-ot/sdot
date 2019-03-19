@@ -87,7 +87,8 @@ private:
     static TI               nb_diracs             ( Box *box );
     std::string             ext_info              () const;
 
-    bool                    can_be_evicted        ( CP &lc, Pt c0, TF w0, Box *box, int num_sym, std::vector<typename CP::Node *> &front );
+    template                <class Node>
+    bool                    can_be_evicted        ( CP &lc, Pt c0, TF w0, Box *box, int num_sym, std::vector<Node *> &front );
 
     template<class TA> TF   w_approx              ( const TA &c, Pt x ) const;
     Pt                      inv_sym               ( Pt pt, int num_sym ) const { if ( allow_translations && num_sym >= 0 ) return pt - translations[ num_sym ]; return pt; };

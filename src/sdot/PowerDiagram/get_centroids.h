@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SpaceFunctions/Constant.h"
-#include "system/Assert.h"
-#include "FunctionEnum.h"
+#include "../Integration/SpaceFunctions/Constant.h"
+#include "../Integration/FunctionEnum.h"
+#include "../Support/Assert.h"
 #include <vector>
 
 namespace sdot {

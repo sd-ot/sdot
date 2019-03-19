@@ -21,7 +21,9 @@ namespace sdot {
 template<class Pc,class CI=std::size_t>
 class ConvexPolyhedron2 {
 public:
+    static constexpr bool     keep_min_max_coords       = false;
     static constexpr bool     allow_ball_cut            = Pc::allow_ball_cut;
+    using                     Node                      = std::size_t;
     using                     TI                        = typename Pc::TI; ///< index type
     using                     TF                        = typename Pc::TF; ///< index type
     using                     Pt                        = Point2<TF>;  ///< 3D point
@@ -59,8 +61,9 @@ public:
     Pt                        min_position              () const;
     Pt                        max_position              () const;
     void                      display_asy               ( std::ostream &os, const std::string &draw_info = "", const std::string &fill_info = "", bool fill = false, bool avoid_bounds = false, bool want_line = true ) const; ///< ouput asymptote format
-    template<class V> void    display                   ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false ) const;
     std::size_t               nb_points                 () const { return _nb_points; }
+    template<class V> void    display                   ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false ) const;
+    template<class F> bool    all_pos                   ( const F &f ) const;
     Pt                        normal                    ( std::size_t n ) const { return { normals[ 0 ][ n ], normals[ 1 ][ n ] }; }
     Pt                        point                     ( std::size_t n ) const { return { points[ 0 ][ n ], points[ 1 ][ n ] }; }
     bool                      empty                     () const { return _nb_points == 0 && sphere_radius <= 0; }
@@ -84,7 +87,7 @@ public:
     void                      add_centroid_contrib      ( Pt &ctd, TF &vol ) const;
 
     TF                        boundary_measure          ( FunctionEnum::ExpWmR2db<TF> ) const;
-    TF                        boundary_measure          ( FunctionEnum::Unit           ) const;
+    TF                        boundary_measure          ( FunctionEnum::Unit          ) const;
     TF                        boundary_measure          () const;
 
     template<class FU> Pt     centroid                  ( const FU &f, TF w = 0 ) const;
@@ -110,7 +113,7 @@ public:
     TF                        measure_ap                ( TF max_ratio_area_error = 1e-4 ) const; ///<
 
     // attributes
-    alignas(64) AF            normals[ 2 ];
+    AF                        normals[ 2 ];
     AF                        points[ 2 ];
     AC                        cut_ids;
     AB                        arcs;
@@ -118,6 +121,9 @@ public:
     Pt                        sphere_center;
     TF                        sphere_radius;
     CI                        sphere_cut_id;
+
+    Pt                        min_coord;
+    Pt                        max_coord;
 
 private:
     enum                      CutType                   { LINE = 0, ARC = 1 };

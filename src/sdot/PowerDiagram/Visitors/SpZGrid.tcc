@@ -370,9 +370,8 @@ typename SpZGrid<Pc>::TF SpZGrid<Pc>::w_approx( const TA &c, Pt x ) const {
     return res;
 };
 
-template<class Pc>
-bool SpZGrid<Pc>::can_be_evicted( CP &lc, Pt c0, TF w0, Box *box, int num_sym, std::vector<typename CP::Node *> &front ) {
-    // using Node = typename CP::Node;
+template<class Pc> template<class Node>
+bool SpZGrid<Pc>::can_be_evicted( CP &lc, Pt c0, TF w0, Box *box, int num_sym, std::vector<Node *> &front ) {
     using std::pow;
     using std::min;
     using std::max;
@@ -456,15 +455,12 @@ bool SpZGrid<Pc>::can_be_evicted( CP &lc, Pt c0, TF w0, Box *box, int num_sym, s
     //        }
     //    }
 
-
-    for( const auto &node : lc.nodes ) {
+    return lc.all_pos( [&]( Pt pos ) {
         Pt c1;
         for( int d = 0; d < dim; ++d )
-            c1[ d ] = min( max_pt[ d ], max( min_pt[ d ], node.pos[ d ] ) );
-        if ( norm_2_p2( c0 - node.pos ) - w0 > norm_2_p2( c1 - node.pos ) - w_approx( box->coeffs_w_approx, inv_sym( c1, num_sym ) ) )
-            return false;
-    }
-    return true;
+            c1[ d ] = min( max_pt[ d ], max( min_pt[ d ], pos[ d ] ) );
+        return norm_2_p2( c0 - pos ) - w0 <= norm_2_p2( c1 - pos ) - w_approx( box->coeffs_w_approx, inv_sym( c1, num_sym ) );
+    } );
 
     //    Pt dir = 0.5 * ( min_pt + max_pt ) - c0;
     //    Node *node = lc.find_node_maximizing( [&]( TF &value, Pt pos ) {
@@ -506,7 +502,8 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
 
         thread_pool.execute( nb_jobs, [&]( std::size_t num_job, int num_thread ) {
             std::priority_queue<BoxDistAndNumSym> front;
-            std::vector<typename CP::Node *> front_node;
+            using Node = typename CP::Node;
+            std::vector<Node *> front_node;
             CP lc;
 
             TI beg_num_in_ind = ( num_job + 0 ) * nb_dirac_indices / nb_jobs;

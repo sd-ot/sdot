@@ -128,6 +128,14 @@ void ConvexPolyhedron3<Pc>::operator=( ConvexPolyhedron3 &&cp ) {
     cp.sphere_radius = -1;
 }
 
+template<class Pc> template<class F>
+bool ConvexPolyhedron3<Pc>::all_pos( const F &f ) const {
+    for( const Node &node : nodes )
+        if ( f( node.pos ) == false )
+            return false;
+    return true;
+}
+
 template<class Pc>
 void ConvexPolyhedron3<Pc>::intersect_with( const ConvexPolyhedron3 &cp ) {
     //    ASSERT( sphere_radius <= 0, "TODO: intersect ball cutted with ball cutted convex polyhedron" );
@@ -151,6 +159,10 @@ void ConvexPolyhedron3<Pc>::intersect_with( const ConvexPolyhedron3 &cp ) {
     //        }
     //    }
     TODO;
+}
+
+template<class Pc>
+void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::ExpWmR2db<TF>, const std::function<void(TF,CI)> &f ) const {
 }
 
 template<class Pc>
@@ -182,6 +194,10 @@ void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::Unit, const
     //        f( - 2 * M_PI * sphere_radius * ( sphere_radius - s ), sphere_cut_id );
     //        f( M_PI * r * r, hole.cut_id );
     //    }
+}
+
+template<class Pc>
+void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::R2, const std::function<void(TF,CI)> &f ) const {
 }
 
 template<class Pc>
@@ -780,49 +796,55 @@ void ConvexPolyhedron3<Pc>::clear( const Box &box, CI cut_id ) {
 }
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::add_centroid_contrib( FunctionEnum::Unit, Pt &ctd, TF &mea ) const {
+void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::ExpWmR2db<TF>, SpaceFunctions::Constant<TF> sf, TF weight ) const {
     TODO;
-    //    // base
-    //    if ( flat_surfaces.empty() ) {
-    //        TF vol = 4 * M_PI / 3 * std::pow( std::max( TF( 0 ), sphere_radius ), 3 );
-    //        ctd += vol * sphere_center;
-    //        mea += vol;
-    //    } else {
-    //        // center of the pyramids
-    //        Pt sc = sphere_radius < 0 ? cut_info[ flat_surfaces[ 0 ].cut_index ].cut_O : sphere_center;
+}
 
-    //        // round surfaces
-    //        if ( ! round_surfaces.empty() ) {
-    //            Pt s_ctd;
-    //            TF s_mea;
-    //            _get_centroid_rf( s_ctd, s_mea );
-    //            TF vol = sphere_radius * s_mea / 3;
-    //            ctd += vol * ( sc + TF( 3 ) / 4 * ( s_ctd / s_mea - sc ) );
-    //            mea += vol;
-    //        }
+template<class Pc>
+void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::Unit, SpaceFunctions::Constant<TF> sf, TF weight ) const {
+    // base
+    if ( faces.empty() ) {
+        TF vol = sf.coeff * 4 * M_PI / 3 * std::pow( std::max( TF( 0 ), sphere_radius ), 3 );
+        ctd += vol * sphere_center;
+        mea += vol;
+    } else {
+        Pt sc = sphere_radius < 0 ? faces.begin()->cut_O : sphere_center;
+        for( const Face &face : faces ) {
+            if ( allow_ball_cut && face.round ) {
+                TODO;
+                // Pt s_ctd;
+                // TF s_mea;
+                // _get_centroid_rf( s_ctd, s_mea );
+                // TF vol = sphere_radius * s_mea / 3;
+                // ctd += vol * ( sc + TF( 3 ) / 4 * ( s_ctd / s_mea - sc ) );
+                // mea += vol;
+            } else {
+                Pt s_ctd;
+                TF s_mea;
+                _get_centroid_planar( s_ctd, s_mea, face );
+                if ( s_mea ) {
+                    TF sgd = dot( face.cut_O - sc, face.cut_N );
+                    TF vol = sf.coeff * sgd * s_mea / 3;
+                    ctd += vol * ( sc + TF( 3 ) / 4 * ( s_ctd / s_mea - sc ) );
+                    mea += vol;
+                }
+            }
+        }
+    }
 
-    //        // flat surfaces
-    //        for( const FlatSurface &fp : flat_surfaces ) {
-    //            TF sgd = dot( cut_info[ fp.cut_index ].cut_O - sc, cut_info[ fp.cut_index ].cut_N );
-    //            Pt s_ctd;
-    //            TF s_mea;
-    //            _get_centroid( s_ctd, s_mea, fp );
-    //            if ( s_mea ) {
-    //                TF vol = sgd * s_mea / 3;
-    //                ctd += vol * ( sc + TF( 3 ) / 4 * ( s_ctd / s_mea - sc ) );
-    //                mea += vol;
-    //            }
-    //        }
-    //    }
+    // holes
+    for( const Hole &hole : holes ) {
+        TF h = sphere_radius - dot( hole.cut_O - sphere_center, hole.cut_N );
+        TF c = 3 * std::pow( 2 * sphere_radius - h, 2 ) / ( 4 * ( 3 * sphere_radius - h ) );
+        TF v = sf.coeff * M_PI / 3 * h * h * ( 3 * sphere_radius - h );
+        ctd -= v * ( sphere_center + c * hole.cut_N );
+        mea -= v;
+    }
+}
 
-    //    // holes
-    //    for( const Hole &hole : holes ) {
-    //        TF h = sphere_radius - dot( cut_info[ hole.cut_index ].cut_O - sphere_center, cut_info[ hole.cut_index ].cut_N );
-    //        TF c = 3 * std::pow( 2 * sphere_radius - h, 2 ) / ( 4 * ( 3 * sphere_radius - h ) );
-    //        TF v = M_PI / 3 * h * h * ( 3 * sphere_radius - h );
-    //        ctd -= v * ( sphere_center + c * cut_info[ hole.cut_index ].cut_N );
-    //        mea -= v;
-    //    }
+template<class Pc>
+void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::R2, SpaceFunctions::Constant<TF> sf, TF weight ) const {
+    TODO;
 }
 
 template<class Pc>
@@ -865,7 +887,13 @@ typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::centroid( FunctionEnum
 }
 
 template<class Pc>
-typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum::Unit ) const {
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum::ExpWmR2db<TF>, TF weight ) const {
+    TODO;
+    return 0;
+}
+
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum::Unit, TF weight ) const {
     TF res;
     if ( faces.empty() ) {
         res = sphere_radius > 0 ? 4 * M_PI / 3 * std::pow( sphere_radius, 3 ) : 0;
@@ -899,6 +927,12 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum:
     }
 
     return res;
+}
+
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum::R2, TF weight ) const {
+    TODO;
+    return 0;
 }
 
 template<class Pc>
@@ -1234,7 +1268,7 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::area( const Face &fs )
 //}
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::_get_centroid( Pt &centroid, TF &area, const Face &fs ) const {
+void ConvexPolyhedron3<Pc>::_get_centroid_round( Pt &centroid, TF &area, const Face &fs ) const {
     TODO;
 
     // round
@@ -1245,51 +1279,59 @@ void ConvexPolyhedron3<Pc>::_get_centroid( Pt &centroid, TF &area, const Face &f
     //        centroid += a / 3 * ( P0 + P1 + P2 );
     //        area += a;
     //    }, 1e-2, false );
+}
 
-    // planar
-    //    centroid = { 0, 0, 0 };
-    //    area = 0;
+template<class Pc>
+void ConvexPolyhedron3<Pc>::_get_centroid_planar( Pt &centroid, TF &area, const Face &fs ) const {
+    using std::sqrt;
+    using std::max;
+    using std::pow;
+    using std::sin;
+    using std::cos;
 
-    //    // straight triangles
-    //    const Pt &normal = cut_info[ fs.cut_index ].cut_N;
-    //    const Edge &e0 = edges[ edge_indices[ fs.beg_in_edge_indices ] ];
-    //    for( TI i = fs.beg_in_edge_indices + 1; i < fs.end_in_edge_indices; ++i ) {
-    //        const Edge &e1 = edges[ edge_indices[ i ] ];
-    //        Pt P0 = node_pos( e0.n0 );
-    //        Pt P1 = node_pos( e1.n0 );
-    //        Pt P2 = node_pos( e1.n1 );
+    centroid = { 0, 0, 0 };
+    area = 0;
 
-    //        TF a = dot( cross_prod( P2 - P0, P1 - P0 ), normal ) / 2;
-    //        centroid += a / 3 * ( P0 + P1 + P2 );
-    //        area += a;
-    //    }
+    // straight triangles
+    const Pt &normal = fs.cut_N;
+    auto edge_iter = fs.edges.begin();
+    const Edge &e0 = *edge_iter;
+    while( ++edge_iter != fs.edges.end() ) {
+        const Edge &e1 = *edge_iter;
+        Pt P0 = e0.n0->pos;
+        Pt P1 = e1.n0->pos;
+        Pt P2 = e1.n1->pos;
 
-    //    // circular caps
-    //    for( TI i = fs.beg_in_edge_indices; i < fs.end_in_edge_indices; ++i ) {
-    //        const Edge &edge = edges[ edge_indices[ i ] ];
-    //        if ( edge.round() ) {
-    //            const Pt &Pi = node_pos( edge.n0 );
-    //            const Pt &Pj = node_pos( edge.n1 );
+        TF a = dot( cross_prod( P2 - P0, P1 - P0 ), normal ) / 2;
+        centroid += a / 3 * ( P0 + P1 + P2 );
+        area += a;
+    }
 
-    //            TF Ri = edge.radius;
-    //            TF d0 = norm_2( Pj - Pi ) / 2;
-    //            TF d1 = sqrt( std::max( TF( 0 ), std::pow( Ri, 2 ) - std::pow( d0, 2 ) ) );
-    //            TF a1 = edge.angle_1;
-    //            TF ta = d1 * d0; // triangle area
-    //            Pt tc = ta / 3 * ( edge.center + Pi + Pj ); // triangle centroid * area
-    //            TF pa = a1 / 2 * std::pow( Ri, 2 ); // pie area
-    //            Pt pc = pa * edge.center + 2.0 / 3.0 * std::pow( edge.radius, 3 ) * std::sin( a1 / 2 ) *
-    //                    ( std::cos( a1 / 2 ) * edge.X + std::sin( a1 / 2 ) * edge.Y() ); // pie centroid * area
+    // circular caps
+    for( const Edge &edge : fs.edges ) {
+        if ( edge.round() ) {
+            const Pt &Pi = edge.n0->pos;
+            const Pt &Pj = edge.n1->pos;
 
-    //            if ( a1 < M_PI ) {
-    //                centroid += pc - tc;
-    //                area += pa - ta;
-    //            } else {
-    //                centroid += pc + tc;
-    //                area += pa + ta;
-    //            }
-    //        }
-    //    }
+            TF Ri = edge.radius;
+            TF d0 = norm_2( Pj - Pi ) / 2;
+            TF d1 = sqrt( max( TF( 0 ), pow( Ri, 2 ) - pow( d0, 2 ) ) );
+            TF a1 = edge.angle_1;
+            TF ta = d1 * d0; // triangle area
+            Pt tc = ta / 3 * ( edge.center + Pi + Pj ); // triangle centroid * area
+            TF pa = a1 / 2 * pow( Ri, 2 ); // pie area
+            Pt pc = pa * edge.center + 2.0 / 3.0 * pow( edge.radius, 3 ) * sin( a1 / 2 ) *
+                    ( cos( a1 / 2 ) * edge.X() + sin( a1 / 2 ) * edge.Y() ); // pie centroid * area
+
+            if ( a1 < M_PI ) {
+                centroid += pc - tc;
+                area += pa - ta;
+            } else {
+                centroid += pc + tc;
+                area += pa + ta;
+            }
+        }
+    }
 }
 template<class Pc> template<class V>
 void ConvexPolyhedron3<Pc>::display( V &vo, const typename V::CV &cell_data, bool filled, TF max_ratio_area_error, bool display_tangents ) const {

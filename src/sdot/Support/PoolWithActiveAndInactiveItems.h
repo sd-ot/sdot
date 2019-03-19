@@ -36,6 +36,7 @@ public:
     // information
     bool                     empty                         () const;
     std::size_t              size                          () const;
+
     Iterator                 begin                         () const { return last_active; }
     Iterator                 end                           () const { return nullptr; }
 
