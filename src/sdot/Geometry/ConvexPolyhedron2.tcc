@@ -1,6 +1,8 @@
 #include "Internal/AreaOutput.h"
 #include "ConvexPolyhedron2.h"
 #include <immintrin.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 namespace sdot {
 

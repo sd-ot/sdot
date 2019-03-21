@@ -2,6 +2,7 @@
 
 #include "TypeConfig.h"
 #include <string.h>
+#include <algorithm>
 #include <string>
 
 namespace Hpipe {
@@ -27,7 +28,7 @@ public:
     bool       operator==     ( const char *that ) const { return size() == strlen( that ) && strncmp( (const char *)beg, that, size() ) == 0; }
     
     // error
-    operator   bool           () const { return not error(); }
+    operator   bool           () const { return ! error(); }
     bool       error          () const { return end == 0; } ///< works after at least a first read (and before free or clear)
     bool       ack_error      () { beg = 0; end = 0; return false; } ///< set error flag to true, and return false
 
@@ -44,7 +45,7 @@ public:
     PI8        read_byte      () { return *( beg++ ); }
     const PI8 *ptr            () const { return beg; }
 
-    void       set_ptr        ( const PI8 *ptr ) { if ( ptr >= beg and ptr <= end ) beg = ptr; else ack_error(); }
+    void       set_ptr        ( const PI8 *ptr ) { if ( ptr >= beg && ptr <= end ) beg = ptr; else ack_error(); }
 
     // checkings for readers that save a signal (that will give error() != 0) if not ok. To be done before each read.
     bool       ack_read_byte  () { return beg < end ? true : ack_error(); } ///< return true if ok to read a byte. Else, set end to 0 (to signal an error) and return false.
@@ -53,7 +54,7 @@ public:
     // display
     void       write_to_stream( std::ostream &os ) const;
 
-    bool       equal          ( const PI8 *ptr, ST len ) const { return end - beg == len and bcmp( beg, ptr, len ) == 0; }
+    bool       equal          ( const PI8 *ptr, ST len ) const { return end - beg == len && strncmp( (const char *)beg, (const char *)ptr, len ) == 0; }
     bool       equal          ( const char *ptr ) const { return equal( (const PI8 *)ptr, strlen( ptr ) ); }
 
 protected:

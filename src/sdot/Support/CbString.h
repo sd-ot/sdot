@@ -48,7 +48,7 @@ public:
 
     void operator=( CbString &&cs ) { dec_ref_buffs(); beg = cs.beg; off = cs.off; end = cs.end; cs.off = cs.end; }
 
-    explicit operator bool() const { return not empty(); }
+    explicit operator bool() const { return ! empty(); }
 
     void free();
 
@@ -90,7 +90,7 @@ public:
     CbString read_line( char sep = '\n', bool skip_void_lines = true );
 
     CbString &skip_some   ( PT size );
-    CbString &skip_some_sr( ssize_t &size );
+    CbString &skip_some_sr( std::ptrdiff_t &size );
     CbString &skip_byte   () { read_byte(); return *this; }
 
     const PI8 *ptr() const { return beg->data + off; }
@@ -188,7 +188,7 @@ protected:
             // use first buff
             const Buffer *b = beg, *n = b->next; // `n` and `e` must be computed now
             PT e = end - b->used;                // because op() may delete `beg`
-            if ( not op( b, off, b->used ) )
+            if ( ! op( b, off, b->used ) )
                 return false;
 
             if ( n ) {
@@ -198,14 +198,14 @@ protected:
                         return op( n, 0, e );
                     e -= n->used;
                     b = n->next;
-                    if ( not op( n, 0, n->used ) )
+                    if ( ! op( n, 0, n->used ) )
                         return false;
 
                     if ( e <= b->used )
                         return op( b, 0, e );
                     e -= b->used;
                     n = b->next;
-                    if ( not op( b, 0, b->used ) )
+                    if ( ! op( b, 0, b->used ) )
                         return false;
                 }
             }

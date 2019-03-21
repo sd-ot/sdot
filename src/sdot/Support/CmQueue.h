@@ -13,7 +13,7 @@ public:
     CmQueue( void *beg, void *max ) : CmQueue( beg, beg, max ) {}
 
     // error
-    operator bool() const { return not error(); }
+    operator bool() const { return ! error(); }
     bool error() const { return beg > max; } ///< works after at least a first read (and before free or clear)
     bool ack_error() { beg = max + 1; end = beg; return false; } ///< set error flag to true, and return false
 

@@ -28,11 +28,11 @@ public:
 
     // error
     // operator bool() const { return not error(); }
-    bool error() const { return not end; } ///< works after at least a first read (and before free or clear): if no error, `end` is not cleared
+    bool error() const { return ! end; } ///< works after at least a first read (and before free or clear): if no error, `end` is not cleared
     bool ack_error() { free(); end = 0; return false; } ///< set error flag to true, and return false
 
     // size
-    bool empty() const { return not beg; }
+    bool empty() const { return ! beg; }
     PT   size () const { PT res = 0; for( Buffer *b = beg; b; b = b->next ) res += b->used; return res - off; }
     PT   nbuf () const { PT res = 0; for( Buffer *b = beg; b; b = b->next ) ++res; return res; }
     void clear(); ///< set size( 0 ), and tries to keep the first Buffer if not shared
@@ -47,12 +47,12 @@ public:
     void write_some( CbQueue &&cq );
 
     void write_byte( PI8 val ) {
-        if ( not beg ) init_beg(); else if ( not end->room() ) end = Buffer::New( Buffer::default_size, end );
+        if ( ! beg ) init_beg(); else if ( ! end->room() ) end = Buffer::New( Buffer::default_size, end );
         end->data[ end->used++ ] = val;
     }
 
     void write_byte_wo_beg_test( PI8 val ) { ///< can be used after a first write( len != 0 ) or a first write_byte
-        if ( not end->room() ) end = Buffer::New( Buffer::default_size, end );
+        if ( ! end->room() ) end = Buffer::New( Buffer::default_size, end );
         end->data[ end->used++ ] = val;
     }
 
@@ -75,13 +75,13 @@ public:
     void *ptr( PT offset );
     const PI8 *ptr() const { return beg->data + off; }
 
-    void new_buff( PT size = Buffer::default_size ) { if ( not beg ) init_beg(); else end = Buffer::New( size, end ); } ///< should not be called manually (expected for test purpose)
+    void new_buff( PT size = Buffer::default_size ) { if ( ! beg ) init_beg(); else end = Buffer::New( size, end ); } ///< should not be called manually (expected for test purpose)
     CbQueue splitted( PT n ) const; ///< for test purpose. Make a newCbQueue with a copy of the content, splitted by chunks of size n
 
     // readers. Beware there are no checks in these methods
     void read_some( void *data, PT size );
     void skip_some( PT size );
-    void skip_some_sr( ssize_t &size );
+    void skip_some_sr( std::ptrdiff_t &size );
 
     PI8 read_byte() {
         PI8 res = beg->data[ off++ ];
@@ -96,7 +96,7 @@ public:
 
     // checkings for readers that save a signal (that will give error() != 0) if not ok. To be done before each read.
     bool ack_read_byte() { ///< return true if ok to read a byte. Else, set end to 0 (to signal an error) and return false.
-        if ( not beg )
+        if ( ! beg )
             return ack_error();
         return true;
     }
@@ -140,10 +140,10 @@ public:
         visitor( [ & ]( const Buffer *b, PT bd, PT ed ) { // buf_writer, &off_writer, &acc_pos, &cur_pos, &avoid, &positions, &sizes
             // TODO: optimize
             for( ; bd < ed; ++bd, ++acc_pos ) {
-                if ( cur_pos < positions.size() and acc_pos == positions[ cur_pos ] )
+                if ( cur_pos < positions.size() && acc_pos == positions[ cur_pos ] )
                     avoid = sizes[ cur_pos++ ];
 
-                if ( not avoid ) {
+                if ( ! avoid ) {
                     buf_writer->data[ off_writer++ ] = b->data[ bd ];
                     if ( off_writer >= buf_writer->used ) {
                         buf_writer = buf_writer->next;
@@ -183,19 +183,19 @@ protected:
         if ( const Buffer *b = beg ) {
             // first buff
             const Buffer *n = b->next;
-            if ( not op( b, off, b->used ) )
+            if ( ! op( b, off, b->used ) )
                 return false;
 
             // next ones, 2x unrolled
             while ( n ) {
                 b = n->next;
-                if ( not op( n, 0, n->used ) )
+                if ( ! op( n, 0, n->used ) )
                     return false;
-                if ( not b )
+                if ( ! b )
                     break;
 
                 n = b->next;
-                if ( not op( b, 0, b->used ) )
+                if ( ! op( b, 0, b->used ) )
                     return false;
             }
         }

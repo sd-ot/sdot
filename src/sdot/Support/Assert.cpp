@@ -13,7 +13,7 @@ void abort_or_throw() {
 }
 
 bool __disp_and_abort_if_not_cond__( bool cond, const char *txt, ... ) {
-    if ( not cond ) {
+    if ( ! cond ) {
         va_list argp;
         va_start( argp, txt );
         vfprintf( stderr, txt, argp );

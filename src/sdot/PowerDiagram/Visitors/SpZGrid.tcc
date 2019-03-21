@@ -1,7 +1,7 @@
 #include "../../Support/ThreadPool.h"
 #include "../../Support/BinStream.h"
 #include "../../Support/Mpi.h"
-#include <eigen3/Eigen/Cholesky>
+#include <Eigen/Cholesky>
 #include "SpZGrid.h"
 #include <queue>
 #include <cmath>
