@@ -64,7 +64,7 @@ public:
     // display
     operator std::string() const;
 
-    explicit operator bool() const { return not empty(); }
+    explicit operator bool() const { return ! empty(); }
 
     //
     void data_visitor( std::function<void(const PI8 *,const PI8 *)> func ) const { ///< op must return true to continue to read
@@ -137,7 +137,7 @@ public:
             // use first buff
             const Buffer *b = beg, *n = b->next; // `n` and `e` must be computed now
             PT e = end - b->used;                // because op() may delete `beg`
-            if ( not op( b, off, b->used ) )
+            if ( ! op( b, off, b->used ) )
                 return false;
 
             if ( n ) {
@@ -147,14 +147,14 @@ public:
                         return op( n, 0, e );
                     e -= n->used;
                     b = n->next;
-                    if ( not op( n, 0, n->used ) )
+                    if ( ! op( n, 0, n->used ) )
                         return false;
 
                     if ( e <= b->used )
                         return op( b, 0, e );
                     e -= b->used;
                     n = b->next;
-                    if ( not op( b, 0, b->used ) )
+                    if ( ! op( b, 0, b->used ) )
                         return false;
                 }
             }

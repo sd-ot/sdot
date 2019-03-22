@@ -13,13 +13,13 @@
 namespace Hpipe {
 
 /**
-  To read or write from/to CmQueue, CbString, CmString, ...
+  To read || write from/to CmQueue, CbString, CmString, ...
 */
 template<class TB=CbQueue>
 struct BinStream {
     BinStream( TB *buf ) : buf( buf ) {}
 
-    operator bool() const { return not buf->error(); }
+    operator bool() const { return ! buf->error(); }
     bool error() const { return buf->error(); }
     bool empty() const { return buf->empty(); }
     ST size() const { return buf->size(); }
@@ -262,13 +262,13 @@ struct BinStream {
 
     // generic readers
     void read_some( void *ptr, ST len ) {
-        if ( not buf->ack_read_some( len ) )
+        if ( ! buf->ack_read_some( len ) )
             return;
         return buf->read_some( ptr, len );
     }
 
     PI8 read_byte() {
-        if ( not buf->ack_read_byte() )
+        if ( ! buf->ack_read_byte() )
             return 0;
         return buf->read_byte();
     }
@@ -291,7 +291,7 @@ struct BinStream {
     // unsigned int readers
     template<class T>
     void read_unsigned( T &res ) {
-        if ( not buf->ack_read_byte() )
+        if ( ! buf->ack_read_byte() )
             return;
         res = buf->read_byte();
         if ( res < 128 )
@@ -300,7 +300,7 @@ struct BinStream {
         res -= 128;
         int shift = 7;
         while ( true ) {
-            if ( not buf->ack_read_byte() )
+            if ( ! buf->ack_read_byte() )
                 return;
             T v = buf->read_byte();
             if ( v < 128 ) {
@@ -313,14 +313,14 @@ struct BinStream {
     }
 
     void read_unsigned( PI8 &res ) {
-        if ( not buf->ack_read_byte() )
+        if ( ! buf->ack_read_byte() )
             return;
         res = buf->read_byte();
     }
 
     template<class T>
     void read_unsigned( T &res, ST &l ) { ///< --l each time a char is read
-        if ( not buf->ack_read_byte() )
+        if ( ! buf->ack_read_byte() )
             return;
         res = buf->read_byte(); --l;
         if ( res < 128 )
@@ -329,7 +329,7 @@ struct BinStream {
         res -= 128;
         int shift = 7;
         while ( true ) {
-            if ( not buf->ack_read_byte() )
+            if ( ! buf->ack_read_byte() )
                 return;
             T v = buf->read_byte(); --l;
             if ( v < 128 ) {
@@ -344,7 +344,7 @@ struct BinStream {
     // signed int readers
     template<class T>
     void read_signed( T &res ) {
-        if ( not buf->ack_read_byte() )
+        if ( ! buf->ack_read_byte() )
             return;
         res = buf->read_byte();
 
@@ -358,7 +358,7 @@ struct BinStream {
             res = 64 - res;
             int shift = 6;
             while ( true ) {
-                if ( not buf->ack_read_byte() )
+                if ( ! buf->ack_read_byte() )
                     return;
                 T v = buf->read_byte();
                 if ( v < 128 ) {
@@ -376,7 +376,7 @@ struct BinStream {
         res -= 64;
         int shift = 6;
         while ( true ) {
-            if ( not buf->ack_read_byte() )
+            if ( ! buf->ack_read_byte() )
                 return;
             T v = buf->read_byte();
             if ( v < 128 ) {
@@ -390,7 +390,7 @@ struct BinStream {
 
     template<class T>
     void read_signed( T &res, ST &l ) {
-        if ( not buf->ack_read_byte() )
+        if ( ! buf->ack_read_byte() )
             return;
         res = buf->read_byte(); --l;
 
@@ -404,7 +404,7 @@ struct BinStream {
             res = 64 - res;
             int shift = 6;
             while ( true ) {
-                if ( not buf->ack_read_byte() )
+                if ( ! buf->ack_read_byte() )
                     return;
                 T v = buf->read_byte(); --l;
                 if ( v < 128 ) {
@@ -422,7 +422,7 @@ struct BinStream {
         res -= 64;
         int shift = 6;
         while ( true ) {
-            if ( not buf->ack_read_byte() )
+            if ( ! buf->ack_read_byte() )
                 return;
             T v = buf->read_byte();  --l;
             if ( v < 128 ) {
@@ -473,7 +473,7 @@ struct BinStream {
             buf->ack_error();
             return {};
         }
-        if ( not buf->ack_read_some( size ) )
+        if ( ! buf->ack_read_some( size ) )
             return CbString();
         CbString res( *buf, 0, size );
         skip_some( size );
@@ -482,7 +482,7 @@ struct BinStream {
 
     CbString read_CbString() {
         PI64 size = read();
-        if ( error() or not buf->ack_read_some( size ) )
+        if ( error() || ! buf->ack_read_some( size ) )
             return CbString();
         CbString res( *buf, 0, size );
         skip_some( size );
@@ -497,7 +497,7 @@ struct BinStream {
             buf->ack_error();
             return {};
         }
-        if ( not buf->ack_read_some( size ) )
+        if ( ! buf->ack_read_some( size ) )
             return {};
         std::string res;
         res.resize( size );
@@ -507,7 +507,7 @@ struct BinStream {
 
     std::string read_String() {
         PI64 size = read();
-        if ( error() or not buf->ack_read_some( size ) )
+        if ( error() || ! buf->ack_read_some( size ) )
             return {};
         std::string res;
         res.resize( size );
@@ -515,19 +515,19 @@ struct BinStream {
         return res;
     }
 
-    //    DaSi read_DaSi() { ///< works only for CmQueue, CmString or similar (assumes that the data won't be freed)
+    //    DaSi read_DaSi() { ///< works only for CmQueue, CmString || similar (assumes that the data won't be freed)
     //        DaSi res;
     //        res.size = read();
-    //        if ( error() or not buf->ack_read_some( res.size ) )
+    //        if ( error() || ! buf->ack_read_some( res.size ) )
     //            return { nullptr, 0 };
     //        res.data = (const char *)buf->ptr();
     //        skip_some( res.size );
     //        return res;
     //    }
 
-    CmString read_CmString() { ///< works only for CmQueue, CmString or similar (assumes that the data won't be freed)
+    CmString read_CmString() { ///< works only for CmQueue, CmString || similar (assumes that the data won't be freed)
         PT size = read();
-        if ( error() or not buf->ack_read_some( size ) )
+        if ( error() || ! buf->ack_read_some( size ) )
             return { (const void *)0, (const void *)0 };
         const PI8 *data = buf->ptr();
         skip_some( size );

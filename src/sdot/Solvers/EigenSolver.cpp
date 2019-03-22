@@ -1,5 +1,5 @@
-#include <Eigen/SparseCholesky>
-#include <Eigen/Eigenvalues>
+#include <eigen3/Eigen/SparseCholesky>
+#include <eigen3/Eigen/Eigenvalues>
 #include "system/Stream.h"
 #include "EigenSolver.h"
 

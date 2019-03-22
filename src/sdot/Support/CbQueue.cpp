@@ -176,7 +176,7 @@ void CbQueue::write_some( CbQueue &&cq ) {
 //}
 
 void CbQueue::insert_some( PT pos, const void *data, PT size ) {
-    if ( off or pos ) {
+    if ( off || pos ) {
         TODO;
     }
     // simple case: we want to insert stuff at the beginning of the first block
@@ -277,7 +277,7 @@ void CbQueue::skip_some( PT size ) {
     } );
 }
 
-void CbQueue::skip_some_sr( ssize_t &size ) {
+void CbQueue::skip_some_sr( std::ptrdiff_t &size ) {
     if ( size <= 0 )
         return;
     visitor( [ this, &size ]( const Buffer *b, PT bd, PT ed ) {

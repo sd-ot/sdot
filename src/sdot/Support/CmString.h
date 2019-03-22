@@ -3,6 +3,7 @@
 #include "TypeConfig.h"
 #include <algorithm>
 #include <string.h>
+#include <algorithm>
 #include <string>
 
 namespace Hpipe {
@@ -28,7 +29,7 @@ public:
     bool       operator==     ( const char *that ) const { return size() == strlen( that ) && strncmp( (const char *)beg, that, size() ) == 0; }
     
     // error
-    operator   bool           () const { return not error(); }
+    operator   bool           () const { return ! error(); }
     bool       error          () const { return end == 0; } ///< works after at least a first read (and before free or clear)
     bool       ack_error      () { beg = 0; end = 0; return false; } ///< set error flag to true, and return false
 
@@ -54,7 +55,7 @@ public:
     // display
     void       write_to_stream( std::ostream &os ) const;
 
-    bool       equal          ( const PI8 *ptr, ST len ) const { return end - beg == len && bcmp( beg, ptr, len ) == 0; }
+    bool       equal          ( const PI8 *ptr, ST len ) const { return end - beg == len && strncmp( (const char *)beg, (const char *)ptr, len ) == 0; }
     bool       equal          ( const char *ptr ) const { return equal( (const PI8 *)ptr, strlen( ptr ) ); }
 
 protected:
