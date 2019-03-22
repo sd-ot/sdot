@@ -1,5 +1,5 @@
 #include "ThreadPool.h"
-#include "Stream.h"
+#include <ostream>
 
 //// nsmake lib_name pthread
 

@@ -6,7 +6,7 @@
 #include <amgcl/make_solver.hpp>
 #include <amgcl/amg.hpp>
 
-#include "system/Stream.h"
+// #include "system/Stream.h"
 #include "AmgclSolver.h"
 
 //// nsmake cpp_flag -march=native

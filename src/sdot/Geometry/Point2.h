@@ -1,6 +1,8 @@
 #pragma once
 
-#include "../Support/Stream.h"
+// #include "../Support/Stream.h"
+#include <ostream>
+#include <array>
 #include <cmath>
 
 namespace sdot {

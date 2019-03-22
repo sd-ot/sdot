@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Stream.h"
 #include <functional>
+#include "MyPrint.h"
+#include <vector>
 
 /**
   Allows to use mpi semantic even if mpi is not loaded.

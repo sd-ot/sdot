@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Stream.h"
+// #include <ostream>
 #include "Assert.h"
+#include <array>
 
 /// shortcut for 1D arrays
 template<class T,int dim>

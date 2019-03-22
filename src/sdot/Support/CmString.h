@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TypeConfig.h"
+#include <algorithm>
 #include <string.h>
 #include <string>
 
@@ -44,7 +45,7 @@ public:
     PI8        read_byte      () { return *( beg++ ); }
     const PI8 *ptr            () const { return beg; }
 
-    void       set_ptr        ( const PI8 *ptr ) { if ( ptr >= beg and ptr <= end ) beg = ptr; else ack_error(); }
+    void       set_ptr        ( const PI8 *ptr ) { if ( ptr >= beg && ptr <= end ) beg = ptr; else ack_error(); }
 
     // checkings for readers that save a signal (that will give error() != 0) if not ok. To be done before each read.
     bool       ack_read_byte  () { return beg < end ? true : ack_error(); } ///< return true if ok to read a byte. Else, set end to 0 (to signal an error) and return false.
@@ -53,7 +54,7 @@ public:
     // display
     void       write_to_stream( std::ostream &os ) const;
 
-    bool       equal          ( const PI8 *ptr, ST len ) const { return end - beg == len and bcmp( beg, ptr, len ) == 0; }
+    bool       equal          ( const PI8 *ptr, ST len ) const { return end - beg == len && bcmp( beg, ptr, len ) == 0; }
     bool       equal          ( const char *ptr ) const { return equal( (const PI8 *)ptr, strlen( ptr ) ); }
 
 protected:

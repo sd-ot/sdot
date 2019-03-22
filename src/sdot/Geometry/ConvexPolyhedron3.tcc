@@ -629,9 +629,9 @@ void ConvexPolyhedron3<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
         last_created_node->nitem.edge->face = face;
         for( Node *node = last_created_node->nitem.edge->n1; node != last_created_node; node = node->nitem.edge->n1 ) {
             if ( node == node->nitem.edge->n1 ) {
-                for( const Face &face : faces )
-                    P( face.cut_O, face.cut_N );
-                P( origin, normal );
+                //                 for( const Face &face : faces )
+                //                     P( face.cut_O, face.cut_N );
+                //                 P( origin, normal );
                 TODO;
             }
             face->edges.append( node->nitem.edge );

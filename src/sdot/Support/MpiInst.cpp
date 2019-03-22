@@ -1,5 +1,4 @@
 #include "Assert.h"
-#include "Stream.h"
 #include "S.h"
 #include "MpiInst.h"
 

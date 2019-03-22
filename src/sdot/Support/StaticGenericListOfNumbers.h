@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Stream.h"
+#include <ostream>
+#include <vector>
+#include <array>
 #include "N.h"
 
 template<class PT>

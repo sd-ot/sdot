@@ -84,7 +84,7 @@ CbQueue::operator std::string() const {
 }
 
 void CbQueue::write_some( const void *data, PT size ) {
-    if ( not size )
+    if ( ! size )
         return;
 
     if ( beg ) {
@@ -150,7 +150,7 @@ void CbQueue::write_some( CbQueue &&cq ) {
         cq.beg = n;
     }
 
-    if ( not beg ) {
+    if ( ! beg ) {
         beg = cq.beg;
         off = 0;
     } else {
@@ -165,7 +165,7 @@ void CbQueue::write_some( CbQueue &&cq ) {
 //void CbQueue::add_buff( IKnowWhatIDo, Buffer *buff, unsigned offset_in_buff ) {
 //    write_some( buff->data + offset_in_buff, buff->used - offset_in_buff ); // TODO: optimize
 //    //    ++buff->cpt_use;
-//    //    if ( not beg ) {
+//    //    if ( ! beg ) {
 //    //        beg = buff;
 //    //        end = buff;
 //    //        off = 0;
@@ -184,7 +184,7 @@ void CbQueue::insert_some( PT pos, const void *data, PT size ) {
     memcpy( b->data, data, size );
     b->used = size;
 
-    if ( not beg ) end = b;
+    if ( ! beg ) end = b;
     b->next = beg;
     beg = b;
 }
@@ -196,7 +196,7 @@ void *CbQueue::write_cont( const void *data, PT size ) {
 }
 
 void *CbQueue::make_room( PT size ) {
-    if ( not beg ) {
+    if ( ! beg ) {
         beg = Buffer::New( std::max( PT( Buffer::default_size ), size ) );
         end = beg;
         off = 0;
@@ -213,7 +213,7 @@ void CbQueue::sub_used( PT size ) {
 }
 
 void *CbQueue::ptr( PT offset ) {
-    if ( not beg )
+    if ( ! beg )
         return 0;
 
     // beg buffer

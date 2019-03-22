@@ -17,12 +17,12 @@
 
 #include <string.h>
 #include <cstdlib>
+#include <ostream>
 #include <hdf5.h>
 #include <map>
 
 #include "TensorOrder.h"
 #include "EnableIf.h"
-#include "Stream.h"
 #include "GenIO.h"
 
 template<class T> struct H5_type {};

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "TypeTransId.h"
-#include "Stream.h"
+#include <ostream>
 #include "Assert.h"
 #include "Tail.h"
 #include <vector>

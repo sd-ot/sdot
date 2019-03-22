@@ -2,9 +2,9 @@
 
 #include "TypeTransId.h"
 #include "TypeTransId.h"
-#include "Stream.h"
 #include "Assert.h"
 #include "Tail.h"
+#include <ostream>
 #include <vector>
 #include <tuple>
 
