@@ -204,20 +204,23 @@ struct BinStream {
     static ST size_needed_for( SI64 val ) { return size_needed_for_signed( val ); }
 
     // simplified writers
-    BinStream &operator<<( Bool val ) { return write_byte( val ); }
+    template<class T>
+    BinStream &operator<<( const T              &s     ) { s.write_to( *this ); return *this; }
 
-    BinStream &operator<<( PI8  val ) { return write_unsigned( val ); }
-    BinStream &operator<<( PI16 val ) { return write_unsigned( val ); }
-    BinStream &operator<<( PI32 val ) { return write_unsigned( val ); }
-    BinStream &operator<<( PI64 val ) { return write_unsigned( val ); }
+    BinStream &operator<<( const Bool           &val   ) { return write_byte( val ); }
 
-    BinStream &operator<<( SI8  val ) { return write_signed( val ); }
-    BinStream &operator<<( SI16 val ) { return write_signed( val ); }
-    BinStream &operator<<( SI32 val ) { return write_signed( val ); }
-    BinStream &operator<<( SI64 val ) { return write_signed( val ); }
+    BinStream &operator<<( const PI8            &val   ) { return write_unsigned( val ); }
+    BinStream &operator<<( const PI16           &val   ) { return write_unsigned( val ); }
+    BinStream &operator<<( const PI32           &val   ) { return write_unsigned( val ); }
+    BinStream &operator<<( const unsigned long  &val   ) { return write_unsigned( val ); } /// hum
 
-    BinStream &operator<<( FP32 val ) { return write_some( &val, sizeof( FP32 ) ); }
-    BinStream &operator<<( FP64 val ) { return write_some( &val, sizeof( FP64 ) ); }
+    BinStream &operator<<( const SI8            &val   ) { return write_signed( val ); }
+    BinStream &operator<<( const SI16           &val   ) { return write_signed( val ); }
+    BinStream &operator<<( const SI32           &val   ) { return write_signed( val ); }
+    BinStream &operator<<( const SI64           &val   ) { return write_signed( val ); }
+
+    BinStream &operator<<( const FP32           &val   ) { return write_some( &val, sizeof( FP32 ) ); }
+    BinStream &operator<<( const FP64           &val   ) { return write_some( &val, sizeof( FP64 ) ); }
 
     BinStream &operator<<( const char           *c_str ) { ST s = strlen( c_str ); write_unsigned( s ); return write_some( c_str, s ); }
     BinStream &operator<<( const std::string    &str   ) { write_unsigned( str.size() ); return write_some( str.data(), str.size() ); }
@@ -232,9 +235,6 @@ struct BinStream {
 
     template<class T,std::size_t size>
     BinStream &operator<<( const std::array<T,size> &s ) { for( const T &v : s ) operator<<( v ); return *this; }
-
-    template<class T>
-    BinStream &operator<<( const T              &s     ) { s.write_to( *this ); return *this; }
 
     // skip (data we don't want to read)
     BinStream &skip_some( PT len ) {
@@ -597,7 +597,7 @@ struct BinStream {
         operator PI8           () { return b->read_unsigned(); }
         operator PI16          () { return b->read_unsigned(); }
         operator PI32          () { return b->read_unsigned(); }
-        operator PI64          () { return b->read_unsigned(); }
+        operator unsigned long () { return b->read_unsigned(); }
 
         operator SI8           () { return b->read_signed(); }
         operator SI16          () { return b->read_signed(); }

@@ -235,7 +235,7 @@ CbQueue CbQueue::splitted( PT n ) const {
     std::string data = *this;
     for( PT i = 0; i < data.size(); i += n ) {
         res.new_buff( n );
-        res.write_some( &data[ 0 ] + i, std::min( i + n, data.size() ) - i );
+        res.write_some( &data[ 0 ] + i, std::min( i + n, (PT)data.size() ) - i );
     }
     return res;
 }
