@@ -51,6 +51,7 @@ public:
 
 private:
     using                   CoeffsWApprox         = std::array<TF,nb_coeffs_w_approx>;
+    using                   TFIsStd               = N<std::is_same<TF,double>::value>;
 
     struct                  PWI {
         TI                  num_dirac;
@@ -80,8 +81,10 @@ private:
         Box*                root;
     };
 
-    Box*                    deserialize_rec       ( const std::vector<char> &dst, int ext_rank );
-    std::vector<char>       serialize_rec         ( const Pt *positions, const TF *weights, std::vector<Box *> front, TI max_depth );
+    Box*                    deserialize_rec       ( const std::vector<char> &dst, int ext_rank, N<0> );
+    Box*                    deserialize_rec       ( const std::vector<char> &dst, int ext_rank, N<1> );
+    std::vector<char>       serialize_rec         ( const Pt *positions, const TF *weights, std::vector<Box *> front, TI max_depth, N<0> );
+    std::vector<char>       serialize_rec         ( const Pt *positions, const TF *weights, std::vector<Box *> front, TI max_depth, N<1> );
     void                    initial_send          ( const Pt *positions, const TF *weights );
     void                    update_box            ( const Pt *positions, const TF *weights, Box *box, TI beg_indices, TI end_indices, TI depth );
     static TI               nb_diracs             ( Box *box );

@@ -2,6 +2,7 @@
 
 #include "../Geometry/Point3.h"
 #include "../Geometry/Point2.h"
+#include <vector>
 #include <mutex>
 #include <deque>
 

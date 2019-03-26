@@ -1197,10 +1197,10 @@ void ConvexPolyhedron2<Pc,CI>::_centroid_arc( Pt &ctd, TF &mea, Pt p0, Pt p1, TF
     TF d1 = sqrt( max( TF( 0 ), pow( sphere_radius, 2 ) - d0 * d0 ) );
 
     TF tri_area = d1 * d0;
-    Pt tri_bary = TF( 1 ) / 3 * ( p0 + p1 );
+    Pt tri_bary = TF( TF( 1 ) / 3 ) * ( p0 + p1 );
 
     TF pie_area = pow( sphere_radius, 2 ) * ( a1 - a0 ) / 2;
-    Pt pie_mbar = TF( 2 ) / 3 * pow( sphere_radius, 3 ) * sin( ( a1 - a0 ) / 2 ) *
+    Pt pie_mbar = TF( TF( 2 ) / 3 * pow( sphere_radius, 3 ) * sin( ( a1 - a0 ) / 2 ) ) *
             Pt{ cos( ( a1 + a0 ) / 2 ), sin( ( a1 + a0 ) / 2 ) };
 
     TF lea;

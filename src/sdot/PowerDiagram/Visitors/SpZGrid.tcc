@@ -204,7 +204,13 @@ std::string SpZGrid<Pc>::ext_info() const {
 }
 
 template<class Pc>
-std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *weights, std::vector<Box *> front, TI max_depth ) {
+std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *weights, std::vector<Box *> front, TI max_depth, N<0> ) {
+    TODO;
+    return {};
+}
+
+template<class Pc>
+std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *weights, std::vector<Box *> front, TI max_depth, N<1> ) {
     Hpipe::CbQueue cq;
     std::size_t num_in_front = 0;
     Hpipe::BinStream<Hpipe::CbQueue> bq( &cq );
@@ -247,7 +253,13 @@ std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *wei
 }
 
 template<class Pc>
-typename SpZGrid<Pc>::Box* SpZGrid<Pc>::deserialize_rec( const std::vector<char> &dst, int ext_rank ) {
+typename SpZGrid<Pc>::Box* SpZGrid<Pc>::deserialize_rec( const std::vector<char> &dst, int ext_rank, N<0> ) {
+    TODO;
+    return 0;
+}
+
+template<class Pc>
+typename SpZGrid<Pc>::Box* SpZGrid<Pc>::deserialize_rec( const std::vector<char> &dst, int ext_rank, N<1> ) {
     Hpipe::CmString cm( dst.data(), dst.size() );
     Hpipe::BinStream<Hpipe::CmString> bq( &cm );
 
@@ -293,18 +305,21 @@ typename SpZGrid<Pc>::Box* SpZGrid<Pc>::deserialize_rec( const std::vector<char>
 
 template<class Pc>
 void SpZGrid<Pc>::initial_send( const Pt *positions, const TF *weights ) {
-    // send a serialized shallow repr of the grid
-    std::vector<std::vector<char>> dst;
-    std::vector<char> src = serialize_rec( positions, weights, { root }, depth_initial_send );
-    mpi->all_gather( dst, src.data(), src.size() );
-
-    // deserialize
     neighbors.clear();
-    neighbors.reserve( mpi->size() );
-    for( int i = 0; i < (int)dst.size(); ++i )
-        if ( i != mpi->rank() )
-            if ( Box *ext_root = deserialize_rec( dst[ i ], i ) )
-                neighbors.push_back( { i, ext_root } );
+
+    // send a serialized shallow repr of the grid
+    if ( mpi->size() > 1 ) {
+        std::vector<std::vector<char>> dst;
+        std::vector<char> src = serialize_rec( positions, weights, { root }, depth_initial_send, TFIsStd() );
+        mpi->all_gather( dst, src.data(), src.size() );
+
+        // deserialize
+        neighbors.reserve( mpi->size() );
+        for( int i = 0; i < (int)dst.size(); ++i )
+            if ( i != mpi->rank() )
+                if ( Box *ext_root = deserialize_rec( dst[ i ], i, TFIsStd() ) )
+                    neighbors.push_back( { i, ext_root } );
+    }
 }
 
 template<class Pc> template<class V>
@@ -656,7 +671,7 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
             std::vector<char> serialized;
             for( const std::vector<int> &pn : needs ) {
                 if ( std::find( pn.begin(), pn.end(), mpi->rank() ) != pn.end() ) {
-                    serialized = serialize_rec( positions, weights, { root }, 100000 );
+                    serialized = serialize_rec( positions, weights, { root }, 100000, TFIsStd() );
                     break;
                 }
             }
@@ -668,7 +683,7 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
             // update the neighbor info
             for( std::size_t num_in_v_missing_rank = 0; num_in_v_missing_rank < v_missing_ranks.size(); ++num_in_v_missing_rank ) {
                 int missing_rank = v_missing_ranks[ num_in_v_missing_rank ];
-                if ( Box *box = deserialize_rec( ext[ num_in_v_missing_rank ], missing_rank ) ) {
+                if ( Box *box = deserialize_rec( ext[ num_in_v_missing_rank ], missing_rank, TFIsStd() ) ) {
                     for( Neighbor &ng : neighbors ) {
                         if ( ng.mpi_rank == missing_rank ) {
                             ng.root = box;

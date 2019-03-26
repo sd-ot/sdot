@@ -3,6 +3,7 @@
 #include "../Integration/SpaceFunctions/Constant.h"
 #include "../Integration/FunctionEnum.h"
 #include "../Support/ThreadPool.h"
+#include "../Support/Assert.h"
 #include <algorithm>
 #include <vector>
 
@@ -31,9 +32,8 @@ int get_der_integrals_wrt_weights( std::vector<TI> &m_offsets, std::vector<TI> &
     std::vector<DataPerThread> data_per_threads( nb_threads, nb_diracs / nb_threads );
     std::vector<std::pair<int,TI>> pos_in_loc_matrices( nb_diracs ); // num dirac => num_thread, num sub row
 
-    v_values.resize( nb_diracs );
-    for( TF &v : v_values )
-        v = 0;
+    v_values.clear();
+    v_values.resize( nb_diracs, 0 );
 
     int err = grid.for_each_laguerre_cell( [&]( auto &lc, std::size_t num_dirac_0, int num_thread ) {
         DataPerThread &dpt = data_per_threads[ num_thread ];
