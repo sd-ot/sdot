@@ -82,56 +82,85 @@ bool ConvexPolyhedron2<Pc,CI>::all_pos( const F &f ) const {
     return true;
 }
 
+template<class Pc,class CI> template<class RF>
+void ConvexPolyhedron2<Pc,CI>::for_each_boundary_measure( RF rf, const std::function<void( TF, CI )> &f, TF weight ) const {
+    for_each_boundary_item( rf, [&]( const BoundaryItem &boundary_item ) {
+        f( boundary_item.measure, boundary_item.id );
+    }, weight );
+}
+
 template<class Pc,class CI>
-void ConvexPolyhedron2<Pc,CI>::for_each_boundary_measure( FunctionEnum::ExpWmR2db<TF> e, const std::function<void(TF,CI)> &f, TF weight ) const {
+void ConvexPolyhedron2<Pc,CI>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF> e, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
     using std::sqrt;
     using std::erf;
     using std::exp;
     using std::pow;
 
     if ( _nb_points == 0 ) {
-        if ( sphere_radius >= 0 )
-            f( 2 * M_PI * sphere_radius * exp( ( weight - pow( sphere_radius, 2 ) ) / e.eps ), sphere_cut_id );
+        if ( sphere_radius >= 0 ) {
+            BoundaryItem item;
+            item.id = sphere_cut_id;
+            item.measure = 2 * M_PI * sphere_radius * exp( ( weight - pow( sphere_radius, 2 ) ) / e.eps );
+            f( item );
+        }
         return;
     }
 
     for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+        BoundaryItem item;
+        item.id = cut_ids[ i0 ];
+        item.points[ 0 ] = point( i0 );
+        item.points[ 1 ] = point( i1 );
+
         if ( allow_ball_cut && arcs[ i0 ] ) {
             TF c = exp( ( weight - pow( sphere_radius, 2 ) ) / e.eps );
-            f( _arc_length( point( i0 ), point( i1 ) ) * c, cut_ids[ i0 ] );
+            item.measure = _arc_length( point( i0 ), point( i1 ) ) * c;
+            f( item );
         } else {
             // Integrate[ Exp[ ( w - (bx+dx*u)*(bx+dx*u) - (by+dy*u)*(by+dy*u) ) / eps ], { u, 0, 1 } ]
             Pt P0 = point( i0 ) - sphere_center, P1 = point( i1 ) - sphere_center;
             if ( TF d2 = norm_2_p2( P1 - P0 ) ) {
                 TF d1 = sqrt( d2 ), e5 = sqrt( e.eps );
                 TF c = sqrt( M_PI ) * e5 / 2 * ( 1 ) * exp( ( weight - pow( P1.x * P0.y - P0.x * P1.y, 2 ) / d2 ) / e.eps ) / d1 * (
-                            erf( ( P1.x * ( P1.x - P0.x ) + P1.y * ( P1.y - P0.y ) ) / e5 / d1 ) -
-                            erf( ( P0.x * ( P1.x - P0.x ) + P0.y * ( P1.y - P0.y ) ) / e5 / d1 )
-                            );
-                f( d1 * c, cut_ids[ i0 ] );
+                   erf( ( P1.x * ( P1.x - P0.x ) + P1.y * ( P1.y - P0.y ) ) / e5 / d1 ) -
+                   erf( ( P0.x * ( P1.x - P0.x ) + P0.y * ( P1.y - P0.y ) ) / e5 / d1 )
+                );
+                item.measure = d1 * c;
+                f( item );
             }
         }
     }
 }
 
 template<class Pc,class CI>
-void ConvexPolyhedron2<Pc,CI>::for_each_boundary_measure( FunctionEnum::R2, const std::function<void(TF,CI)> &f, TF weight ) const {
+void ConvexPolyhedron2<Pc,CI>::for_each_boundary_item( FunctionEnum::R2, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
     TODO;
 }
 
 template<class Pc,class CI>
-void ConvexPolyhedron2<Pc,CI>::for_each_boundary_measure( FunctionEnum::Unit, const std::function<void(TF,CI)> &f, TF weight ) const {
+void ConvexPolyhedron2<Pc,CI>::for_each_boundary_item( FunctionEnum::Unit, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
     if ( _nb_points == 0 ) {
-        if ( sphere_radius >= 0 )
-            f( 2 * M_PI * sphere_radius, sphere_cut_id );
+        if ( sphere_radius >= 0 ) {
+            BoundaryItem item;
+            item.id = sphere_cut_id;
+            item.measure = 2 * M_PI * sphere_radius;
+            f( item );
+        }
         return;
     }
 
     for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+        BoundaryItem item;
+        item.id = cut_ids[ i0 ];
+        item.points[ 0 ] = point( i0 );
+        item.points[ 1 ] = point( i1 );
+
         if ( allow_ball_cut && arcs[ i0 ] )
-            f( _arc_length( point( i0 ), point( i1 ) ), cut_ids[ i0 ] );
+            item.measure = _arc_length( point( i0 ), point( i1 ) );
         else
-            f( norm_2( point( i1 ) - point( i0 ) ), cut_ids[ i0 ] );
+            item.measure = norm_2( point( i1 ) - point( i0 ) );
+
+        f( item );
     }
 }
 

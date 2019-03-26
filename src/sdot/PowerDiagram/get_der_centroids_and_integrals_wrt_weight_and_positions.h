@@ -16,7 +16,8 @@ namespace sdot {
 */
 template<class TI,class TF,class Grid,class Bounds,class Pt,class Func>
 int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m_offsets, std::vector<TI> &m_columns, std::vector<TF> &m_values, std::vector<TF> &v_values, Grid &grid, Bounds &bounds, const Pt *positions, const TF *weights, std::size_t nb_diracs, Func radial_func, bool stop_if_void = true ) {
-    constexpr std::size_t nupd = 1 + Grid::dim; // nb unknowns per dirac
+    constexpr std::size_t dim = Grid::dim;
+    constexpr std::size_t nupd = 1 + dim; // nb unknowns per dirac
     using TM = std::array<TF,nupd*nupd>;
 
     struct DataPerThread {
@@ -60,7 +61,10 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
             cp.add_centroid_contrib( centroid, mass, radial_func.func_for_final_cp_integration(), space_func, d0_weight );
 
             TF coeff = 0.5 * space_func.coeff;
-            cp.for_each_boundary_measure( radial_func.func_for_final_cp_integration(), [&]( TF boundary_measure, TI num_dirac_1 ) {
+            cp.for_each_boundary_item( radial_func.func_for_final_cp_integration(), [&]( auto boundary_item ) {
+                auto boundary_measure = boundary_item.measure;
+                auto num_dirac_1 = boundary_item.id;
+
                 if ( num_dirac_1 == TI( -1 ) )
                     return;
                 if ( num_dirac_0 == num_dirac_1 ) {
@@ -74,13 +78,27 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
                     TF dist = norm_2( d0_center - d1_center );
                     TF b_der = coeff * boundary_measure / dist;
 
+                    // area / weight
                     TM der_1;
                     for( auto &v : der_1 )
                         v = TF( 0 );
-                    der_1.back() = - b_der;
+                    der_0[ nupd * dim + dim ] += b_der;
+                    der_1[ nupd * dim + dim ] = - b_der;
+
+                    // area / positions
+                    for( std::size_t d = 0; d < dim; ++d ) {
+                        TF a = boundary_item.points[ 0 ][ d ] - d0_center[ d ];
+                        TF b = boundary_item.points[ 1 ][ d ] - d0_center[ d ];
+                        der_0[ nupd * dim + d ] += coeff * boundary_measure * ( a + b ) / dist;
+                    }
+                    // area / positions
+                    for( std::size_t d = 0; d < dim; ++d ) {
+                        TF a = d1_center[ d ] - boundary_item.points[ 0 ][ d ];
+                        TF b = d1_center[ d ] - boundary_item.points[ 1 ][ d ];
+                        der_1[ nupd * dim + d ] += coeff * boundary_measure * ( a + b ) / dist;
+                    }
 
                     dpt.row_items.emplace_back( m_num_dirac_1, der_1 );
-                    der_0.back() += b_der;
                 }
             }, weights[ num_dirac_0 ] );
 
@@ -89,9 +107,9 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
         dpt.row_items.emplace_back( num_dirac_0, der_0 );
         std::sort( dpt.row_items.begin(), dpt.row_items.end() );
 
-        for( std::size_t d = 0; d < Grid::dim; ++d )
+        for( std::size_t d = 0; d < dim; ++d )
             v_values[ nupd * num_dirac_0 + d ] = mass ? centroid[ d ] / mass : TF( 0 );
-        v_values[ nupd * num_dirac_0 + Grid::dim ] = mass;
+        v_values[ nupd * num_dirac_0 + dim ] = mass;
 
 
         // save them in local sub matrix

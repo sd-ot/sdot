@@ -38,6 +38,7 @@ public:
 
     // types for the ctor
     struct                    EnglobingSimplex          { Pt p; TF r; };
+    struct                    BoundaryItem              { std::array<Pt,2> points; TF measure; CI id; };
     struct                    Box                       { Pt p0, p1; };
 
     /// we start from a triangle that includes the circle defined by englobing_center and englobing_radius (but this sphere is not used, it's just here to construct a triangle)
@@ -47,9 +48,11 @@ public:
     /**/                      ConvexPolyhedron2         ();
 
     // traversal
-    void                      for_each_boundary_measure ( FunctionEnum::ExpWmR2db<TF>, const std::function<void( TF boundary_measure, CI id )> &f, TF weight = 0 ) const;
-    void                      for_each_boundary_measure ( FunctionEnum::Unit         , const std::function<void( TF boundary_measure, CI id )> &f, TF weight = 0 ) const;
-    void                      for_each_boundary_measure ( FunctionEnum::R2           , const std::function<void( TF boundary_measure, CI id )> &f, TF weight = 0 ) const;
+    template<class RF> void   for_each_boundary_measure ( RF rf, const std::function<void( TF boundary_measure, CI id )> &f, TF weight = 0 ) const;
+
+    void                      for_each_boundary_item    ( FunctionEnum::ExpWmR2db<TF>, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const;
+    void                      for_each_boundary_item    ( FunctionEnum::Unit         , const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const;
+    void                      for_each_boundary_item    ( FunctionEnum::R2           , const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const;
 
     void                      for_each_approx_seg       ( const std::function<void( Pt )> &f, TF max_ratio_area_error = 1e-1 ) const; ///<
     void                      for_each_simplex          ( const std::function<void( CI num_0, CI num_1 )> &f ) const;
