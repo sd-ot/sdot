@@ -78,24 +78,41 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
                     TF dist = norm_2( d0_center - d1_center );
                     TF b_der = coeff * boundary_measure / dist;
 
-                    // area / weight
+                    // d weight
                     TM der_1;
                     for( auto &v : der_1 )
                         v = TF( 0 );
                     der_0[ nupd * dim + dim ] += b_der;
                     der_1[ nupd * dim + dim ] = - b_der;
 
-                    // area / positions
+                    Pt T = TF( 0.5 ) * ( boundary_item.points[ 0 ] + boundary_item.points[ 1 ] );
+                    for( std::size_t e = 0; e < dim; ++e ) {
+                        der_0[ nupd * e + dim ] += b_der * T[ e ];
+                        der_1[ nupd * e + dim ] = - b_der * T[ e ];
+                    }
+
+                    // d positions
                     for( std::size_t d = 0; d < dim; ++d ) {
                         TF a = boundary_item.points[ 0 ][ d ] - d0_center[ d ];
                         TF b = boundary_item.points[ 1 ][ d ] - d0_center[ d ];
-                        der_0[ nupd * dim + d ] += coeff * boundary_measure * ( a + b ) / dist;
+                        TF m = coeff * boundary_measure * ( a + b ) / dist;
+                        der_0[ nupd * dim + d ] += m;
+
+                        TF p = ( a + 2 * b ) / ( 3 * ( a + b ) );
+                        Pt T = TF( 1 - p ) * boundary_item.points[ 0 ] + p * boundary_item.points[ 1 ];
+                        for( std::size_t e = 0; e < dim; ++e )
+                            der_0[ nupd * e + d ] += m * T[ e ];
                     }
-                    // area / positions
                     for( std::size_t d = 0; d < dim; ++d ) {
                         TF a = d1_center[ d ] - boundary_item.points[ 0 ][ d ];
                         TF b = d1_center[ d ] - boundary_item.points[ 1 ][ d ];
-                        der_1[ nupd * dim + d ] += coeff * boundary_measure * ( a + b ) / dist;
+                        TF m = coeff * boundary_measure * ( a + b ) / dist;
+                        der_1[ nupd * dim + d ] = m;
+
+                        TF p = ( a + 2 * b ) / ( 3 * ( a + b ) );
+                        Pt T = TF( 1 - p ) * boundary_item.points[ 0 ] + p * boundary_item.points[ 1 ];
+                        for( std::size_t e = 0; e < dim; ++e )
+                            der_1[ nupd * e + d ] = m * T[ e ];
                     }
 
                     dpt.row_items.emplace_back( m_num_dirac_1, der_1 );
@@ -111,6 +128,11 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
             v_values[ nupd * num_dirac_0 + d ] = mass ? centroid[ d ] / mass : TF( 0 );
         v_values[ nupd * num_dirac_0 + dim ] = mass;
 
+        // mass / centroid correction for the der centroids
+        for( auto &v : dpt.row_items )
+            for( std::size_t r = 0; r < dim; ++r )
+                for( std::size_t c = 0; c <= dim; ++c )
+                    v.second[ nupd * r + c ] = ( v.second[ nupd * r + c ] - v.second[ nupd * dim + c ] * v_values[ nupd * num_dirac_0 + r ] ) / ( mass + ( mass == 1 ) );
 
         // save them in local sub matrix
         dpt.offsets.push_back( dpt.columns.size() );

@@ -24,8 +24,14 @@ void test( typename Pc::TF epsilon ) {
 
     const std::size_t nd = Pc::dim + 1;
 
-    std::vector<Pt> ref_positions{ Pt{ 0.25, 0.1 }, Pt{ 0.75, 0.9 } };
-    std::vector<TF> ref_weights{ 1.0, 1.1 };
+    //    std::vector<Pt> ref_positions{ Pt{ 0.25, 0.1 }, Pt{ 0.75, 0.9 } };
+    //    std::vector<TF> ref_weights{ 1.0, 1.1 };
+    std::vector<Pt> ref_positions;
+    std::vector<TF> ref_weights;
+    for( std::size_t i = 0; i < 10; ++i ) {
+        ref_positions.push_back( Pt{ TF( 1.0 * rand() / RAND_MAX ), TF( 1.0 * rand() / RAND_MAX ) } );
+        ref_weights.push_back( TF( 1.0 + 0.1 * rand() / RAND_MAX ) );
+    }
 
     Bounds bounds;
     bounds.add_box( { 0, 0 }, { 1, 1 }, 1.0, -1 );
@@ -70,9 +76,9 @@ void test( typename Pc::TF epsilon ) {
 
     }
 
-    for( std::size_t r = 0; r < nd * ref_weights.size(); ++r )
-        P( derivatives_ap[ r ] );
-    P( values_ap );
+    //    for( std::size_t r = 0; r < nd * ref_weights.size(); ++r )
+    //        P( derivatives_ap[ r ] );
+    //    P( values_ap );
 
     std::vector<TI> m_offsets;
     std::vector<TI> m_columns;
@@ -88,9 +94,17 @@ void test( typename Pc::TF epsilon ) {
         for( std::size_t k = m_offsets[ r ]; k < m_offsets[ r + 1 ]; ++k )
             derivatives_ex[ r ][ m_columns[ k ] ] = m_values[ k ];
 
+    //    for( std::size_t r = 0; r < nd * ref_weights.size(); ++r )
+    //        P( derivatives_ex[ r ] );
+    //    P( v_values );
+
+    TF err = 0;
     for( std::size_t r = 0; r < nd * ref_weights.size(); ++r )
-        P( derivatives_ex[ r ] );
-    P( v_values );
+        for( std::size_t c = 0; c < nd * ref_weights.size(); ++c )
+            err = max( err, abs( derivatives_ex[ r ][ c ] - derivatives_ap[ r ][ c ] ) );
+    for( std::size_t r = 0; r < nd * ref_weights.size(); ++r )
+        err = max( err, abs( v_values[ r ] - values_ap[ r ] ) );
+    P( err );
 
     //    VtkOutput<1,TF> vo( { "num" } );
     //    display_vtk( vo, grid, bounds, positions.data(), weights.data(), weights.size() );
