@@ -100,7 +100,7 @@ void ConvexPolyhedron2<Pc,CI>::for_each_boundary_item( FunctionEnum::ExpWmR2db<T
         if ( sphere_radius >= 0 ) {
             BoundaryItem item;
             item.id = sphere_cut_id;
-            item.measure = 2 * M_PI * sphere_radius * exp( ( weight - pow( sphere_radius, 2 ) ) / e.eps );
+            item.measure = 2 * pi() * sphere_radius * exp( ( weight - pow( sphere_radius, 2 ) ) / e.eps );
             f( item );
         }
         return;
@@ -121,7 +121,7 @@ void ConvexPolyhedron2<Pc,CI>::for_each_boundary_item( FunctionEnum::ExpWmR2db<T
             Pt P0 = point( i0 ) - sphere_center, P1 = point( i1 ) - sphere_center;
             if ( TF d2 = norm_2_p2( P1 - P0 ) ) {
                 TF d1 = sqrt( d2 ), e5 = sqrt( e.eps );
-                TF c = sqrt( M_PI ) * e5 / 2 * ( 1 ) * exp( ( weight - pow( P1.x * P0.y - P0.x * P1.y, 2 ) / d2 ) / e.eps ) / d1 * (
+                TF c = sqrt( pi() ) * e5 / 2 * ( 1 ) * exp( ( weight - pow( P1.x * P0.y - P0.x * P1.y, 2 ) / d2 ) / e.eps ) / d1 * (
                    erf( ( P1.x * ( P1.x - P0.x ) + P1.y * ( P1.y - P0.y ) ) / e5 / d1 ) -
                    erf( ( P0.x * ( P1.x - P0.x ) + P0.y * ( P1.y - P0.y ) ) / e5 / d1 )
                 );
@@ -143,7 +143,7 @@ void ConvexPolyhedron2<Pc,CI>::for_each_boundary_item( FunctionEnum::Unit, const
         if ( sphere_radius >= 0 ) {
             BoundaryItem item;
             item.id = sphere_cut_id;
-            item.measure = 2 * M_PI * sphere_radius;
+            item.measure = 2 * pi() * sphere_radius;
             f( item );
         }
         return;
@@ -160,7 +160,7 @@ void ConvexPolyhedron2<Pc,CI>::for_each_boundary_item( FunctionEnum::Unit, const
             item.a0 = atan2( point( i0 ).y - sphere_center.y, point( i0 ).x - sphere_center.x );
             item.a1 = atan2( point( i1 ).y - sphere_center.y, point( i1 ).x - sphere_center.x );
             if ( item.a1 < item.a0 )
-                item.a1 += 2 * M_PI;
+                item.a1 += 2 * pi();
             item.measure = ( item.a1 - item.a0 ) * sphere_radius;
         } else {
             item.measure = norm_2( point( i1 ) - point( i0 ) );
@@ -739,7 +739,7 @@ void ConvexPolyhedron2<Pc,CI>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionE
     //        TF a0 = atan2( P0.y, P0.x );
     //        TF a1 = atan2( P1.y, P1.x );
     //        if ( a1 < a0 )
-    //            a1 += 2 * M_PI;
+    //            a1 += 2 * pi();
     //        return ( a1 - a0 ) * 0.5 * pow( _sphere_radius, 2 );
     //    };
 
@@ -750,7 +750,7 @@ void ConvexPolyhedron2<Pc,CI>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionE
     //    TF lea = 0;
     //    if ( _cuts.empty() ) {
     //        if ( _sphere_radius > 0 )
-    //            lea = 2 * M_PI * 0.5 * pow( _sphere_radius, 2 );
+    //            lea = 2 * pi() * 0.5 * pow( _sphere_radius, 2 );
     //    } else {
     //        for( size_t i1 = 0, i0 = _cuts.size() - 1; i1 < _cuts.size(); i0 = i1++ ) {
     //            if ( _cuts[ i0 ].seg_type == SegType::arc )
@@ -775,7 +775,7 @@ void ConvexPolyhedron2<Pc,CI>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionE
     //        TF a0 = atan2( P0.y, P0.x );
     //        TF a1 = atan2( P1.y, P1.x );
     //        if ( a1 < a0 )
-    //            a1 += 2 * M_PI;
+    //            a1 += 2 * pi();
     //        TF c = ( 0.5 ) * pow( _sphere_radius, 3 );
     //        return { c * ( sin( a1 ) - sin( a0 ) ) ,
     //                 c * ( cos( a0 ) - cos( a1 ) ) };
@@ -796,7 +796,7 @@ void ConvexPolyhedron2<Pc,CI>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionE
     // hand coded version
     if ( _nb_points == 0 ) {
         if ( sphere_radius >= 0 ) {
-            TF lea = M_PI * pow( sphere_radius, 2 ) * sf.coeff;
+            TF lea = pi() * pow( sphere_radius, 2 ) * sf.coeff;
             ctd += lea * sphere_center;
             mea += lea;
         }
@@ -876,7 +876,7 @@ void ConvexPolyhedron2<Pc,CI>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionE
     //        TF a0 = atan2( P0.y, P0.x );
     //        TF a1 = atan2( P1.y, P1.x );
     //        if ( a1 < a0 )
-    //            a1 += 2 * M_PI;
+    //            a1 += 2 * pi();
     //        return ( a1 - a0 ) * 0.25 * pow( _sphere_radius, 4 );
     //    };
 
@@ -899,7 +899,7 @@ void ConvexPolyhedron2<Pc,CI>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionE
     //    TF lea = 0;
     //    if ( _cuts.empty() ) {
     //        if ( _sphere_radius > 0 )
-    //            lea = 2 * M_PI * 0.25 * pow( _sphere_radius, 4 );
+    //            lea = 2 * pi() * 0.25 * pow( _sphere_radius, 4 );
     //    } else {
     //        for( size_t i1 = 0, i0 = _cuts.size() - 1; i1 < _cuts.size(); i0 = i1++ ) {
     //            if ( _cuts[ i0 ].seg_type == SegType::arc )
@@ -924,7 +924,7 @@ void ConvexPolyhedron2<Pc,CI>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionE
     //        TF a0 = atan2( P0.y, P0.x );
     //        TF a1 = atan2( P1.y, P1.x );
     //        if ( a1 < a0 )
-    //            a1 += 2 * M_PI;
+    //            a1 += 2 * pi();
     //        TF c = ( 0.25 ) * pow( _sphere_radius, 5 );
     //        r_x += c * ( sin( a1 ) - sin( a0 ) );
     //        r_y += c * ( cos( a0 ) - cos( a1 ) );
@@ -1024,7 +1024,7 @@ template<class Pc,class CI>
 typename Pc::TF ConvexPolyhedron2<Pc,CI>::boundary_measure() const {
     using std::pow;
     if ( _nb_points == 0 )
-        return sphere_radius >= 0 ? 2 * M_PI * sphere_radius : TF( 0 );
+        return sphere_radius >= 0 ? 2 * pi() * sphere_radius : TF( 0 );
 
     TF res = 0;
     for( std::size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
@@ -1040,7 +1040,7 @@ template<class Pc,class CI>
 typename Pc::TF ConvexPolyhedron2<Pc,CI>::integration( FunctionEnum::Unit, TF w ) const {
     //    // nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function Unit --end-log-scale 100 --precision 1e-10 -r 100 -l 100
     //    if ( _cuts.empty() )
-    //        return _sphere_radius > 0 ? 2 * M_PI * 0.5 * pow( _sphere_radius, 2 ) : 0;
+    //        return _sphere_radius > 0 ? 2 * pi() * 0.5 * pow( _sphere_radius, 2 ) : 0;
 
     //    auto arc_val = []( PT P0, PT P1 ) {
     //        using std::atan2;
@@ -1048,7 +1048,7 @@ typename Pc::TF ConvexPolyhedron2<Pc,CI>::integration( FunctionEnum::Unit, TF w 
     //        TF a0 = atan2( P0.y, P0.x );
     //        TF a1 = atan2( P1.y, P1.x );
     //        if ( a1 < a0 )
-    //            a1 += 2 * M_PI;
+    //            a1 += 2 * pi();
     //        return ( a1 - a0 ) * 0.5 * pow( dot( P0, P0 ), 1 );
     //    };
 
@@ -1067,7 +1067,7 @@ typename Pc::TF ConvexPolyhedron2<Pc,CI>::integration( FunctionEnum::Unit, TF w 
 
     // hand coded version:
     if ( _nb_points == 0 )
-        return sphere_radius > 0 ? TF( M_PI ) * pow( sphere_radius, 2 ) : TF( 0 );
+        return sphere_radius > 0 ? TF( pi() ) * pow( sphere_radius, 2 ) : TF( 0 );
 
     // triangles
     TF res = 0;
@@ -1098,7 +1098,7 @@ typename Pc::TF ConvexPolyhedron2<Pc,CI>::integration( FunctionEnum::R2, TF w ) 
 
     //    // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function R2 --end-log-scale 100 --precision 1e-10 -r 100 -l 100
     //    if ( _cuts.empty() )
-    //        return _sphere_radius > 0 ? 2 * M_PI * 0.25 * pow( _sphere_radius, 4 ) : 0;
+    //        return _sphere_radius > 0 ? 2 * pi() * 0.25 * pow( _sphere_radius, 4 ) : 0;
 
     //    auto arc_val = []( PT P0, PT P1 ) {
     //        using std::atan2;
@@ -1106,7 +1106,7 @@ typename Pc::TF ConvexPolyhedron2<Pc,CI>::integration( FunctionEnum::R2, TF w ) 
     //        TF a0 = atan2( P0.y, P0.x );
     //        TF a1 = atan2( P1.y, P1.x );
     //        if ( a1 < a0 )
-    //            a1 += 2 * M_PI;
+    //            a1 += 2 * pi();
     //        return ( a1 - a0 ) * 0.25 * pow( dot( P0, P0 ), 2 );
     //    };
 
@@ -1227,7 +1227,7 @@ void ConvexPolyhedron2<Pc,CI>::_centroid_arc( Pt &ctd, TF &mea, Pt p0, Pt p1, TF
     TF a0 = atan2( p0.y, p0.x );
     TF a1 = atan2( p1.y, p1.x );
     if ( a1 < a0 )
-        a1 += 2 * M_PI;
+        a1 += 2 * pi();
 
     TF d0 = norm_2( p0 - p1 ) / 2;
     TF d1 = sqrt( max( TF( 0 ), pow( sphere_radius, 2 ) - d0 * d0 ) );
@@ -1240,7 +1240,7 @@ void ConvexPolyhedron2<Pc,CI>::_centroid_arc( Pt &ctd, TF &mea, Pt p0, Pt p1, TF
             Pt{ cos( ( a1 + a0 ) / 2 ), sin( ( a1 + a0 ) / 2 ) };
 
     TF lea;
-    if ( a1 - a0 > M_PI ) {
+    if ( a1 - a0 > pi() ) {
         ctd += coeff * ( pie_mbar + tri_area * tri_bary );
         lea = ( pie_area + tri_area ) * coeff;
     } else {
@@ -1273,7 +1273,7 @@ typename Pc::TF ConvexPolyhedron2<Pc,CI>::_arc_length( Pt p0, Pt p1 ) const {
     TF a0 = atan2( p0.y - sphere_center.y, p0.x - sphere_center.x );
     TF a1 = atan2( p1.y - sphere_center.y, p1.x - sphere_center.x );
     if ( a1 < a0 )
-        a1 += 2 * M_PI;
+        a1 += 2 * pi();
     return ( a1 - a0 ) * sphere_radius;
 }
 
@@ -1287,12 +1287,12 @@ typename Pc::TF ConvexPolyhedron2<Pc,CI>::_arc_area( Pt p0, Pt p1 ) const {
     TF a0 = atan2( p0.y - sphere_center.y, p0.x - sphere_center.x );
     TF a1 = atan2( p1.y - sphere_center.y, p1.x - sphere_center.x );
     if ( a1 < a0 )
-        a1 += 2 * M_PI;
+        a1 += 2 * pi();
     TF d0 = norm_2( p0 - p1 ) / 2;
     TF d1 = sqrt( max( TF( 0 ), pow( sphere_radius, 2 ) - d0 * d0 ) );
     TF rs = pow( sphere_radius, 2 ) * ( a1 - a0 ) / 2;
 
-    if ( a1 - a0 > M_PI )
+    if ( a1 - a0 > pi() )
         rs += d1 * d0;
     else
         rs -= d1 * d0;
@@ -1320,7 +1320,7 @@ void ConvexPolyhedron2<Pc,CI>::display_asy( std::ostream &os, const std::string 
                     TF a0 = atan2( p0.y - sphere_center.y, p0.x - sphere_center.x );
                     TF a1 = atan2( p1.y - sphere_center.y, p1.x - sphere_center.x );
                     if ( a1 < a0 )
-                        a1 += 2 * M_PI;
+                        a1 += 2 * pi();
 
                     size_t n = 10;
                     for( size_t i = 0; i < n; ++i ) {
@@ -1417,8 +1417,8 @@ void ConvexPolyhedron2<Pc,CI>::for_each_approx_seg( const std::function<void( Pt
             size_t n = 20;
             for( size_t i = 0; i <= n; ++i ) {
                 f( {
-                    sphere_center.x + sphere_radius * cos( 2 * M_PI * i / n ),
-                    sphere_center.y + sphere_radius * sin( 2 * M_PI * i / n )
+                    sphere_center.x + sphere_radius * cos( 2 * pi() * i / n ),
+                    sphere_center.y + sphere_radius * sin( 2 * pi() * i / n )
                 } );
             }
         }
@@ -1437,7 +1437,7 @@ void ConvexPolyhedron2<Pc,CI>::for_each_approx_seg( const std::function<void( Pt
             TF a0 = atan2( p0.y - sphere_center.y, p0.x - sphere_center.x );
             TF a1 = atan2( p1.y - sphere_center.y, p1.x - sphere_center.x );
             if ( a1 < a0 )
-                a1 += 2 * M_PI;
+                a1 += 2 * pi();
             size_t n = 20; // TODO
             for( size_t i = 0; i < n; ++i ) {
                 TF ai = a0 + ( a1 - a0 ) * i / n;
@@ -1892,7 +1892,7 @@ void ConvexPolyhedron2<Pc,CI>::_r_centroid_integration( TF &r_x, TF &r_y, const 
         TF a0 = atan2( P0.y, P0.x );
         TF a1 = atan2( P1.y, P1.x );
         if ( a1 < a0 )
-            a1 += 2 * M_PI;
+            a1 += 2 * pi();
         r_x += c * ( sin( a1 ) - sin( a0 ) );
         r_y += c * ( cos( a0 ) - cos( a1 ) );
     };
@@ -2272,7 +2272,7 @@ typename Pc::TF ConvexPolyhedron2<Pc,CI>::_r_polynomials_integration( const Coef
         TF a0 = atan2( P0.y, P0.x );
         TF a1 = atan2( P1.y, P1.x );
         if ( a1 < a0 )
-            a1 += 2 * M_PI;
+            a1 += 2 * pi();
         return ( a1 - a0 ) * res;
     };
 
@@ -2281,7 +2281,7 @@ typename Pc::TF ConvexPolyhedron2<Pc,CI>::_r_polynomials_integration( const Coef
         const auto &poly_coeffs = coeffs[ cut_index_r( r2 ) ].second;
         for( std::size_t d = 0; d < poly_coeffs.size(); ++d )
             res += poly_coeffs[ d ] * pow( r2, d + 1 );
-        return 2 * M_PI * res;
+        return 2 * pi() * res;
     }
 
     TF res = 0;

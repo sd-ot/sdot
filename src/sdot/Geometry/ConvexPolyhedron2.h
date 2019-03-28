@@ -114,8 +114,8 @@ public:
     template<class Fu> TF     integration_ap            ( const Fu &func, std::size_t n = 1e6 ) const;
     template<class Fu> Pt     centroid_ap               ( const Fu &func, std::size_t n = 1e6 ) const; ///<
     TF                        measure_ap                ( TF max_ratio_area_error = 1e-4 ) const; ///<
+    static TF                 pi                        () { if ( std::is_same<TF,double>::value ) return M_PI; using std::atan; return 4 * atan( TF( 1 ) ); }
 
-    // attributes
     AF                        normals[ 2 ];
     AF                        points[ 2 ];
     AC                        cut_ids;
@@ -128,6 +128,7 @@ public:
     Pt                        min_coord;
     Pt                        max_coord;
 
+
 private:
     enum                      CutType                   { LINE = 0, ARC = 1 };
     struct                    Cut                       { int cut_type; CI cut_id; Pt normal; Pt point; };
@@ -136,6 +137,7 @@ private:
     void                      _centroid_arc             ( Pt &ctd, TF &mea, Pt p0, Pt p1, TF coeff ) const;
     TF                        _arc_length               ( Pt p0, Pt p1 ) const;
     TF                        _arc_area                 ( Pt p0, Pt p1 ) const;
+
 
     std::size_t               _nb_points;
     std::vector<Cut>          _tmp_cuts;

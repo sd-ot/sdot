@@ -97,20 +97,20 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
 
                         // centroid / position
                         if ( boundary_item.a0 != boundary_item.a1 ) {
-                            der_0[ nupd * 0 + 0 ] += mx * ( d0_center.x + TF( 0.5 ) * R * (
+                            der_0[ nupd * 0 + 0 ] += mx * ( d0_center.x + TF( 1 ) / 2 * R * (
                                 ( boundary_item.a1 + sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
                                 ( boundary_item.a0 + sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
                             ) / ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) );
-                            der_0[ nupd * 0 + 1 ] += my * ( d0_center.x + TF( 0.25 ) * R * (
+                            der_0[ nupd * 0 + 1 ] += my * ( d0_center.x + TF( 1 ) / 4 * R * (
                                 cos( 2 * boundary_item.a0 ) -
                                 cos( 2 * boundary_item.a1 )
                             ) / ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) );
 
-                            der_0[ nupd * 1 + 0 ] += mx * ( d0_center.y + TF( 0.25 ) * R * (
+                            der_0[ nupd * 1 + 0 ] += mx * ( d0_center.y + TF( 1 ) / 4 * R * (
                                 cos( 2 * boundary_item.a0 ) -
                                 cos( 2 * boundary_item.a1 )
                             ) / ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) );
-                            der_0[ nupd * 1 + 1 ] += my * ( d0_center.y + TF( 0.5 ) * R * (
+                            der_0[ nupd * 1 + 1 ] += my * ( d0_center.y + TF( 1 ) / 2 * R * (
                                 ( boundary_item.a1 - sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
                                 ( boundary_item.a0 - sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
                             ) / ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) );
