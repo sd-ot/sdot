@@ -236,7 +236,7 @@ std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *wei
 
         // if leaf, send the diracs
         if ( box->last_child == nullptr ) {
-            bq << box->end_indices - box->beg_indices;
+            bq.write_unsigned( box->end_indices - box->beg_indices );
             for( TI num_ind = box->beg_indices; num_ind < box->end_indices; ++num_ind ) {
                 TI num_dirac = dirac_indices[ num_ind ];
                 bq << positions[ num_dirac ];
