@@ -7,6 +7,9 @@
 #include <algorithm>
 #include <bitset>
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 namespace sdot {
 
 /**

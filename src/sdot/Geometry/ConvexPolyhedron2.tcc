@@ -4,9 +4,6 @@
 #include <immintrin.h>
 #include <iomanip>
 
-#define _USE_MATH_DEFINES
-#include <math.h>
-
 namespace sdot {
 
 template<class Pc,class CI>
