@@ -223,16 +223,16 @@ std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *wei
         bq.write_unsigned( box->depth );
 
         if ( box->depth < max_depth && box->last_child ) {
-            bq << front.size();
+            bq.write_unsigned( front.size() );
             front.push_back( box->last_child );
         } else
-            bq << 0u;
+            bq.write_unsigned( 0u );
 
         if ( box->sibling ) {
-            bq << front.size();
+            bq.write_unsigned( front.size() );
             front.push_back( box->sibling );
         } else
-            bq << 0u;
+            bq.write_unsigned( 0u );
 
         // if leaf, send the diracs
         if ( box->last_child == nullptr ) {
@@ -241,10 +241,10 @@ std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *wei
                 TI num_dirac = dirac_indices[ num_ind ];
                 bq << positions[ num_dirac ];
                 bq << weights[ num_dirac ];
-                bq << num_dirac;
+                bq.write_unsigned( num_dirac );
             }
         } else
-            bq << 0u;
+            bq.write_unsigned( 0u );
     }
 
     std::vector<char> src( cq.size() );
