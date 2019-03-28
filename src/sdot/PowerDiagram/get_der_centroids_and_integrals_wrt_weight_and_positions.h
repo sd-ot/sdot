@@ -19,6 +19,9 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
     constexpr std::size_t dim = Grid::dim;
     constexpr std::size_t nupd = 1 + dim; // nb unknowns per dirac
     using TM = std::array<TF,nupd*nupd>;
+    using std::sqrt;
+    using std::sin;
+    using std::cos;
 
     struct DataPerThread {
         DataPerThread( std::size_t approx_nb_diracs ) {
@@ -68,7 +71,59 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
                 if ( num_dirac_1 == TI( -1 ) )
                     return;
                 if ( num_dirac_0 == num_dirac_1 ) {
-                    der_0.back() += coeff * boundary_measure / sqrt( d0_weight );
+                    // measure / weight
+                    TF R = sqrt( d0_weight );
+                    TF m = coeff * boundary_measure / R;
+                    der_0.back() += m;
+
+                    if ( dim == 2 ) {
+                        // centroid / position
+                        Pt T = d0_center;
+                        if ( boundary_item.a0 != boundary_item.a1 ) {
+                            T.x += R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) / ( boundary_item.a1 - boundary_item.a0 );
+                            T.y += R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) / ( boundary_item.a1 - boundary_item.a0 );
+                        } else {
+                            T.x += R * cos( boundary_item.a0 );
+                            T.y += R * sin( boundary_item.a0 );
+                        }
+                        for( std::size_t e = 0; e < dim; ++e )
+                            der_0[ nupd * e + dim ] += m * T[ e ];
+
+                        // measure / position
+                        TF mx = space_func.coeff * R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) );
+                        TF my = space_func.coeff * R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) );
+                        der_0[ nupd * dim + 0 ] += mx;
+                        der_0[ nupd * dim + 1 ] += my;
+
+                        // centroid / position
+                        if ( boundary_item.a0 != boundary_item.a1 ) {
+                            der_0[ nupd * 0 + 0 ] += mx * ( d0_center.x + TF( 0.5 ) * R * (
+                                ( boundary_item.a1 + sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
+                                ( boundary_item.a0 + sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
+                            ) / ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) );
+                            der_0[ nupd * 0 + 1 ] += my * ( d0_center.x + TF( 0.25 ) * R * (
+                                cos( 2 * boundary_item.a0 ) -
+                                cos( 2 * boundary_item.a1 )
+                            ) / ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) );
+
+                            der_0[ nupd * 1 + 0 ] += mx * ( d0_center.y + TF( 0.25 ) * R * (
+                                cos( 2 * boundary_item.a0 ) -
+                                cos( 2 * boundary_item.a1 )
+                            ) / ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) );
+                            der_0[ nupd * 1 + 1 ] += my * ( d0_center.y + TF( 0.5 ) * R * (
+                                ( boundary_item.a1 - sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
+                                ( boundary_item.a0 - sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
+                            ) / ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) );
+                        } else {
+                            der_0[ nupd * 0 + 0 ] += mx * ( d0_center.x + R * cos( boundary_item.a0 ) );
+                            der_0[ nupd * 0 + 1 ] += my * ( d0_center.x + R * cos( boundary_item.a0 ) );
+
+                            der_0[ nupd * 1 + 0 ] += mx * ( d0_center.y + R * sin( boundary_item.a0 ) );
+                            der_0[ nupd * 1 + 1 ] += my * ( d0_center.y + R * sin( boundary_item.a0 ) );
+                        }
+                    } else {
+                        TODO;
+                    }
                 } else {
                     TI m_num_dirac_1 = num_dirac_1 % nb_diracs;
                     Pt d1_center = positions[ m_num_dirac_1 ];

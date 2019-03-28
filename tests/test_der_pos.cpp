@@ -14,8 +14,8 @@
 //// nsmake lib_name mpfr
 using namespace sdot;
 
-template<class Pc>
-void test( typename Pc::TF epsilon ) {
+template<class Pc,class Rf>
+void test( typename Pc::TF epsilon, Rf radial_func ) {
     using Bounds = ConvexPolyhedronAssembly<Pc>;
     using Grid = SpZGrid<Pc>;
     using TF = typename Pc::TF;
@@ -24,14 +24,14 @@ void test( typename Pc::TF epsilon ) {
 
     const std::size_t nd = Pc::dim + 1;
 
-    //    std::vector<Pt> ref_positions{ Pt{ 0.25, 0.1 }, Pt{ 0.75, 0.9 } };
-    //    std::vector<TF> ref_weights{ 1.0, 1.1 };
-    std::vector<Pt> ref_positions;
-    std::vector<TF> ref_weights;
-    for( std::size_t i = 0; i < 10; ++i ) {
-        ref_positions.push_back( Pt{ TF( 1.0 * rand() / RAND_MAX ), TF( 1.0 * rand() / RAND_MAX ) } );
-        ref_weights.push_back( TF( 1.0 + 0.1 * rand() / RAND_MAX ) );
-    }
+    std::vector<Pt> ref_positions{ Pt{ 0.25, 0.1 }/*, Pt{ 0.75, 0.9 }*/ };
+    std::vector<TF> ref_weights{ 0.125/*, 0.12*/ };
+    //    std::vector<Pt> ref_positions;
+    //    std::vector<TF> ref_weights;
+    //    for( std::size_t i = 0; i < 10; ++i ) {
+    //        ref_positions.push_back( Pt{ TF( 1.0 * rand() / RAND_MAX ), TF( 1.0 * rand() / RAND_MAX ) } );
+    //        ref_weights.push_back( TF( 1.0 + 0.1 * rand() / RAND_MAX ) );
+    //    }
 
     Bounds bounds;
     bounds.add_box( { 0, 0 }, { 1, 1 }, 1.0, -1 );
@@ -42,7 +42,7 @@ void test( typename Pc::TF epsilon ) {
     std::vector<Pt> ref_centroids( ref_weights.size() );
     std::vector<TF> ref_integrals( ref_weights.size() );
     std::vector<TF> values_ap( nd * ref_weights.size() );
-    get_centroids( grid, bounds, ref_positions.data(), ref_weights.data(), ref_weights.size(), [&]( auto c, auto m, auto n ) {
+    get_centroids( grid, bounds, ref_positions.data(), ref_weights.data(), ref_weights.size(), radial_func, [&]( auto c, auto m, auto n ) {
         ref_integrals[ n ] = m;
         ref_centroids[ n ] = c;
 
@@ -63,7 +63,7 @@ void test( typename Pc::TF epsilon ) {
 
         std::vector<TF> new_integrals( ref_weights.size() );
         std::vector<Pt> new_centroids( ref_weights.size() );
-        get_centroids( grid, bounds, new_positions.data(), new_weights.data(), new_weights.size(), [&]( auto c, auto m, auto n ) {
+        get_centroids( grid, bounds, new_positions.data(), new_weights.data(), new_weights.size(), radial_func, [&]( auto c, auto m, auto n ) {
             new_integrals[ n ] = m;
             new_centroids[ n ] = c;
         } );
@@ -76,15 +76,15 @@ void test( typename Pc::TF epsilon ) {
 
     }
 
-    //    for( std::size_t r = 0; r < nd * ref_weights.size(); ++r )
-    //        P( derivatives_ap[ r ] );
-    //    P( values_ap );
+    for( std::size_t r = 0; r < nd * ref_weights.size(); ++r )
+        P( derivatives_ap[ r ] );
+    P( values_ap );
 
     std::vector<TI> m_offsets;
     std::vector<TI> m_columns;
     std::vector<TF> m_values;
     std::vector<TF> v_values;
-    get_der_centroids_and_integrals_wrt_weight_and_positions( m_offsets, m_columns, m_values, v_values, grid, bounds, ref_positions.data(), ref_weights.data(), ref_weights.size() );
+    get_der_centroids_and_integrals_wrt_weight_and_positions( m_offsets, m_columns, m_values, v_values, grid, bounds, ref_positions.data(), ref_weights.data(), ref_weights.size(), radial_func );
 
     // ex
     std::vector<std::vector<TF>> derivatives_ex( nd * ref_weights.size() );
@@ -94,9 +94,9 @@ void test( typename Pc::TF epsilon ) {
         for( std::size_t k = m_offsets[ r ]; k < m_offsets[ r + 1 ]; ++k )
             derivatives_ex[ r ][ m_columns[ k ] ] = m_values[ k ];
 
-    //    for( std::size_t r = 0; r < nd * ref_weights.size(); ++r )
-    //        P( derivatives_ex[ r ] );
-    //    P( v_values );
+    for( std::size_t r = 0; r < nd * ref_weights.size(); ++r )
+        P( derivatives_ex[ r ] );
+    P( v_values );
 
     TF err = 0;
     for( std::size_t r = 0; r < nd * ref_weights.size(); ++r )
@@ -106,12 +106,13 @@ void test( typename Pc::TF epsilon ) {
         err = max( err, abs( v_values[ r ] - values_ap[ r ] ) );
     P( err );
 
-    //    VtkOutput<1,TF> vo( { "num" } );
-    //    display_vtk( vo, grid, bounds, positions.data(), weights.data(), weights.size() );
-    //    vo.save( "lc.vtk" );
+    VtkOutput<1,TF> vo( { "num" } );
+    display_vtk( vo, grid, bounds, ref_positions.data(), ref_weights.data(), ref_weights.size(), radial_func );
+    vo.save( "lc.vtk" );
 }
 
 int main() {
-    struct Pc { enum { dim = 2, allow_ball_cut = 0, allow_translations = 0 }; using TI = std::size_t; using TF = boost::multiprecision::mpfr_float_100; };
-    test<Pc>( 1e-50 );
+    struct Pc { enum { dim = 2, allow_ball_cut = 1, allow_translations = 0 }; using TI = std::size_t; using TF = boost::multiprecision::mpfr_float_100; };
+    // test<Pc>( 1e-50, FunctionEnum::Unit() );
+    test<Pc>( 1e-50, FunctionEnum::InBallW05() );
 }

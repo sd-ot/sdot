@@ -38,7 +38,7 @@ public:
 
     // types for the ctor
     struct                    EnglobingSimplex          { Pt p; TF r; };
-    struct                    BoundaryItem              { std::array<Pt,2> points; TF measure; CI id; };
+    struct                    BoundaryItem              { std::array<Pt,2> points; TF measure, a0, a1; CI id; };
     struct                    Box                       { Pt p0, p1; };
 
     /// we start from a triangle that includes the circle defined by englobing_center and englobing_radius (but this sphere is not used, it's just here to construct a triangle)

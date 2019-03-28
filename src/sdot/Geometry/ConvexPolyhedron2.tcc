@@ -155,10 +155,16 @@ void ConvexPolyhedron2<Pc,CI>::for_each_boundary_item( FunctionEnum::Unit, const
         item.points[ 0 ] = point( i0 );
         item.points[ 1 ] = point( i1 );
 
-        if ( allow_ball_cut && arcs[ i0 ] )
-            item.measure = _arc_length( point( i0 ), point( i1 ) );
-        else
+        if ( allow_ball_cut && arcs[ i0 ] ) {
+            using std::atan2;
+            item.a0 = atan2( point( i0 ).y - sphere_center.y, point( i0 ).x - sphere_center.x );
+            item.a1 = atan2( point( i1 ).y - sphere_center.y, point( i1 ).x - sphere_center.x );
+            if ( item.a1 < item.a0 )
+                item.a1 += 2 * M_PI;
+            item.measure = ( item.a1 - item.a0 ) * sphere_radius;
+        } else {
             item.measure = norm_2( point( i1 ) - point( i0 ) );
+        }
 
         f( item );
     }
