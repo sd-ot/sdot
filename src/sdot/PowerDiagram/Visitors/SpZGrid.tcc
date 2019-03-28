@@ -220,7 +220,7 @@ std::vector<char> SpZGrid<Pc>::serialize_rec( const Pt *positions, const TF *wei
         bq << box->coeffs_w_approx;
         bq << box->min_pt;
         bq << box->max_pt;
-        bq << box->depth;
+        bq.write_unsigned( box->depth );
 
         if ( box->depth < max_depth && box->last_child ) {
             bq << front.size();
