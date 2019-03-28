@@ -7,8 +7,6 @@
 #include <algorithm>
 #include <vector>
 
-// #include "../Support/Stream.h"
-
 namespace sdot {
 
 /**
@@ -91,52 +89,35 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
                         }
 
                         // centroid / weight
-                        Pt T = d0_center;
+                        Pt T = m * d0_center;
                         if ( boundary_item.a0 < boundary_item.a1 ) {
-                            if ( boundary_item.a0 != boundary_item.a1 ) {
-                                T.x += R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) / ( boundary_item.a1 - boundary_item.a0 );
-                                T.y += R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) / ( boundary_item.a1 - boundary_item.a0 );
-                            } else {
-                                T.x += R * cos( boundary_item.a0 );
-                                T.y += R * sin( boundary_item.a0 );
-                            }
+                            T.x += coeff * R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) );
+                            T.y += coeff * R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) );
                         }
                         for( std::size_t e = 0; e < dim; ++e )
-                            der_0[ nupd * e + dim ] += m * T[ e ];
+                            der_0[ nupd * e + dim ] += T[ e ];
 
                         // centroid / position
                         if ( boundary_item.a0 < boundary_item.a1 ) {
-                            if ( boundary_item.a0 != boundary_item.a1 ) {
-                                der_0[ nupd * 0 + 0 ] += mx * ( d0_center.x + TF( 1 ) / 2 * R * (
-                                    ( boundary_item.a1 + sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
-                                    ( boundary_item.a0 + sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
-                                ) / ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) );
-                                der_0[ nupd * 0 + 1 ] += my * ( d0_center.x + TF( 1 ) / 4 * R * (
-                                    cos( 2 * boundary_item.a0 ) -
-                                    cos( 2 * boundary_item.a1 )
-                                ) / ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) );
+                            der_0[ nupd * 0 + 0 ] += mx * d0_center.x + space_func.coeff * R * R / 2 * (
+                                ( boundary_item.a1 + sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
+                                ( boundary_item.a0 + sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
+                            );
+                            der_0[ nupd * 0 + 1 ] += my * d0_center.x + space_func.coeff * R * R / 4 * (
+                                cos( 2 * boundary_item.a0 ) - cos( 2 * boundary_item.a1 )
+                            );
 
-                                der_0[ nupd * 1 + 0 ] += mx * ( d0_center.y + TF( 1 ) / 4 * R * (
-                                    cos( 2 * boundary_item.a0 ) -
-                                    cos( 2 * boundary_item.a1 )
-                                ) / ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) );
-                                der_0[ nupd * 1 + 1 ] += my * ( d0_center.y + TF( 1 ) / 2 * R * (
-                                    ( boundary_item.a1 - sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
-                                    ( boundary_item.a0 - sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
-                                ) / ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) );
-                            } else {
-                                der_0[ nupd * 0 + 0 ] += mx * ( d0_center.x + R * cos( boundary_item.a0 ) );
-                                der_0[ nupd * 0 + 1 ] += my * ( d0_center.x + R * cos( boundary_item.a0 ) );
-
-                                der_0[ nupd * 1 + 0 ] += mx * ( d0_center.y + R * sin( boundary_item.a0 ) );
-                                der_0[ nupd * 1 + 1 ] += my * ( d0_center.y + R * sin( boundary_item.a0 ) );
-                            }
+                            der_0[ nupd * 1 + 0 ] += mx * d0_center.y + space_func.coeff * R * R / 4 * (
+                                cos( 2 * boundary_item.a0 ) - cos( 2 * boundary_item.a1 )
+                            );
+                            der_0[ nupd * 1 + 1 ] += my * d0_center.y + space_func.coeff * R * R / 2 * (
+                                ( boundary_item.a1 - sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
+                                ( boundary_item.a0 - sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
+                            );
                         } else {
-                            der_0[ nupd * 0 + 0 ] += /*mx * */d0_center.x;
-                            der_0[ nupd * 0 + 1 ] += /*my * */d0_center.x;
-
-                            der_0[ nupd * 1 + 0 ] += /*mx * */d0_center.y;
-                            der_0[ nupd * 1 + 1 ] += /*my * */d0_center.y;
+                            TF c = space_func.coeff * cp.pi() * R * R;
+                            der_0[ nupd * 0 + 0 ] += c;
+                            der_0[ nupd * 1 + 1 ] += c;
                         }
                     } else {
                         TODO;
