@@ -283,7 +283,7 @@ typename SpZGrid<Pc>::Box* SpZGrid<Pc>::deserialize_rec( const std::vector<char>
         box->last_child_index = bq.read_unsigned();
         box->sibling_index = bq.read_unsigned();
 
-        std::size_t nb_ext_diracs = bq.read();
+        std::size_t nb_ext_diracs = bq.read_unsigned();
         box->ext_pwi.resize( nb_ext_diracs );
         for( TI num_ext_dirac = 0; num_ext_dirac < nb_ext_diracs; ++num_ext_dirac ) {
             PWI &pwi = box->ext_pwi[ num_ext_dirac ];

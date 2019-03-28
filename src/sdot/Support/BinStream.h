@@ -597,7 +597,7 @@ struct BinStream {
         operator PI8           () { return b->read_unsigned(); }
         operator PI16          () { return b->read_unsigned(); }
         operator PI32          () { return b->read_unsigned(); }
-        operator unsigned long () { return b->read_unsigned(); }
+        operator PI64          () { return b->read_unsigned(); }
 
         operator SI8           () { return b->read_signed(); }
         operator SI16          () { return b->read_signed(); }
