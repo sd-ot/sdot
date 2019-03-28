@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Support/PoolWithActiveAndInactiveItems.h"
+#include "../Integration/SpaceFunctions/Constant.h"
 #include "../Integration/FunctionEnum.h"
 #include "../Display/VtkOutput.h"
 #include "Internal/Cp3Face.h"
@@ -41,6 +42,8 @@ public:
     using                   CI                       = typename Face::TI; ///< cut info
     using                   Pt                       = typename Face::Pt; ///< point
 
+    struct                  BoundaryItem             {};
+
     struct                  Tetra                    { Pt p0, p1, p2, p3; };
     struct                  Box                      { Pt p0, p1; };
 
@@ -57,6 +60,9 @@ public:
     void                    write_to_stream          ( std::ostream &os ) const;
     template<class V> void  display                  ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false ) const;
 
+    //
+    int                     is_a_ball                () const { return faces.empty() ? ( sphere_radius > 0 ? 1 : -1 ) : 0; } // 0 is not a ball. -1 if void, 1 if not void
+
     // modifications
     void                    intersect_with           ( const ConvexPolyhedron3 &cp );
     template<int no> void   plane_cut                ( Pt origin, Pt normal, CI cut_id, N<no> normal_is_normalized ); ///< return true if effective cut
@@ -69,6 +75,10 @@ public:
     void                    for_each_boundary_measure( FunctionEnum::ExpWmR2db<TF>, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
     void                    for_each_boundary_measure( FunctionEnum::Unit         , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
     void                    for_each_boundary_measure( FunctionEnum::R2           , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+
+    template<class F> void  for_each_boundary_item   ( FunctionEnum::ExpWmR2db<TF>, const F &f, TF weight = 0 ) const;
+    template<class F> void  for_each_boundary_item   ( FunctionEnum::Unit         , const F &f, TF weight = 0 ) const;
+    template<class F> void  for_each_boundary_item   ( FunctionEnum::R2           , const F &f, TF weight = 0 ) const;
 
     template<class F> Node *find_node_maximizing     ( const F &f, bool return_node_only_if_true = true ) const; ///< f must return true to stop the search. It takes ( TF &value, Pt pos ) as parameters
 

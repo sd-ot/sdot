@@ -101,6 +101,8 @@ void ConvexPolyhedron2<Pc,CI>::for_each_boundary_item( FunctionEnum::ExpWmR2db<T
             BoundaryItem item;
             item.id = sphere_cut_id;
             item.measure = 2 * pi() * sphere_radius * exp( ( weight - pow( sphere_radius, 2 ) ) / e.eps );
+            item.a0 = 1;
+            item.a1 = 0;
             f( item );
         }
         return;
@@ -144,6 +146,8 @@ void ConvexPolyhedron2<Pc,CI>::for_each_boundary_item( FunctionEnum::Unit, const
             BoundaryItem item;
             item.id = sphere_cut_id;
             item.measure = 2 * pi() * sphere_radius;
+            item.a0 = 1;
+            item.a1 = 0;
             f( item );
         }
         return;

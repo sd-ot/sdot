@@ -64,6 +64,7 @@ public:
     Pt                        min_position              () const;
     Pt                        max_position              () const;
     void                      display_asy               ( std::ostream &os, const std::string &draw_info = "", const std::string &fill_info = "", bool fill = false, bool avoid_bounds = false, bool want_line = true ) const; ///< ouput asymptote format
+    int                       is_a_ball                 () const { return _nb_points ? 0 : ( sphere_radius > 0 ? 1 : -1 ); } // 0 is not a ball. -1 if void, 1 if not void
     std::size_t               nb_points                 () const { return _nb_points; }
     template<class V> void    display                   ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false ) const;
     template<class F> bool    all_pos                   ( const F &f ) const;

@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <vector>
 
+#include "../Support/Stream.h"
+
 namespace sdot {
 
 /**
@@ -68,8 +70,11 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
                 auto boundary_measure = boundary_item.measure;
                 auto num_dirac_1 = boundary_item.id;
 
+                // intersection with the boundary -----------
                 if ( num_dirac_1 == TI( -1 ) )
                     return;
+
+                // ball cut ---------------------------------
                 if ( num_dirac_0 == num_dirac_1 ) {
                     // measure / weight
                     TF R = sqrt( d0_weight );
@@ -77,101 +82,116 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
                     der_0.back() += m;
 
                     if ( dim == 2 ) {
-                        // centroid / position
+                        // measure / position
+                        TF mx = space_func.coeff * R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) );
+                        TF my = space_func.coeff * R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) );
+                        if ( boundary_item.a0 < boundary_item.a1 ) {
+                            der_0[ nupd * dim + 0 ] += mx;
+                            der_0[ nupd * dim + 1 ] += my;
+                        }
+
+                        // centroid / weight
                         Pt T = d0_center;
-                        if ( boundary_item.a0 != boundary_item.a1 ) {
-                            T.x += R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) / ( boundary_item.a1 - boundary_item.a0 );
-                            T.y += R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) / ( boundary_item.a1 - boundary_item.a0 );
-                        } else {
-                            T.x += R * cos( boundary_item.a0 );
-                            T.y += R * sin( boundary_item.a0 );
+                        if ( boundary_item.a0 < boundary_item.a1 ) {
+                            if ( boundary_item.a0 != boundary_item.a1 ) {
+                                T.x += R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) / ( boundary_item.a1 - boundary_item.a0 );
+                                T.y += R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) / ( boundary_item.a1 - boundary_item.a0 );
+                            } else {
+                                T.x += R * cos( boundary_item.a0 );
+                                T.y += R * sin( boundary_item.a0 );
+                            }
                         }
                         for( std::size_t e = 0; e < dim; ++e )
                             der_0[ nupd * e + dim ] += m * T[ e ];
 
-                        // measure / position
-                        TF mx = space_func.coeff * R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) );
-                        TF my = space_func.coeff * R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) );
-                        der_0[ nupd * dim + 0 ] += mx;
-                        der_0[ nupd * dim + 1 ] += my;
-
                         // centroid / position
-                        if ( boundary_item.a0 != boundary_item.a1 ) {
-                            der_0[ nupd * 0 + 0 ] += mx * ( d0_center.x + TF( 1 ) / 2 * R * (
-                                ( boundary_item.a1 + sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
-                                ( boundary_item.a0 + sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
-                            ) / ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) );
-                            der_0[ nupd * 0 + 1 ] += my * ( d0_center.x + TF( 1 ) / 4 * R * (
-                                cos( 2 * boundary_item.a0 ) -
-                                cos( 2 * boundary_item.a1 )
-                            ) / ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) );
+                        if ( boundary_item.a0 < boundary_item.a1 ) {
+                            if ( boundary_item.a0 != boundary_item.a1 ) {
+                                der_0[ nupd * 0 + 0 ] += mx * ( d0_center.x + TF( 1 ) / 2 * R * (
+                                    ( boundary_item.a1 + sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
+                                    ( boundary_item.a0 + sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
+                                ) / ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) );
+                                der_0[ nupd * 0 + 1 ] += my * ( d0_center.x + TF( 1 ) / 4 * R * (
+                                    cos( 2 * boundary_item.a0 ) -
+                                    cos( 2 * boundary_item.a1 )
+                                ) / ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) );
 
-                            der_0[ nupd * 1 + 0 ] += mx * ( d0_center.y + TF( 1 ) / 4 * R * (
-                                cos( 2 * boundary_item.a0 ) -
-                                cos( 2 * boundary_item.a1 )
-                            ) / ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) );
-                            der_0[ nupd * 1 + 1 ] += my * ( d0_center.y + TF( 1 ) / 2 * R * (
-                                ( boundary_item.a1 - sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
-                                ( boundary_item.a0 - sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
-                            ) / ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) );
+                                der_0[ nupd * 1 + 0 ] += mx * ( d0_center.y + TF( 1 ) / 4 * R * (
+                                    cos( 2 * boundary_item.a0 ) -
+                                    cos( 2 * boundary_item.a1 )
+                                ) / ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) ) );
+                                der_0[ nupd * 1 + 1 ] += my * ( d0_center.y + TF( 1 ) / 2 * R * (
+                                    ( boundary_item.a1 - sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
+                                    ( boundary_item.a0 - sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
+                                ) / ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) ) );
+                            } else {
+                                der_0[ nupd * 0 + 0 ] += mx * ( d0_center.x + R * cos( boundary_item.a0 ) );
+                                der_0[ nupd * 0 + 1 ] += my * ( d0_center.x + R * cos( boundary_item.a0 ) );
+
+                                der_0[ nupd * 1 + 0 ] += mx * ( d0_center.y + R * sin( boundary_item.a0 ) );
+                                der_0[ nupd * 1 + 1 ] += my * ( d0_center.y + R * sin( boundary_item.a0 ) );
+                            }
                         } else {
-                            der_0[ nupd * 0 + 0 ] += mx * ( d0_center.x + R * cos( boundary_item.a0 ) );
-                            der_0[ nupd * 0 + 1 ] += my * ( d0_center.x + R * cos( boundary_item.a0 ) );
+                            der_0[ nupd * 0 + 0 ] += /*mx * */d0_center.x;
+                            der_0[ nupd * 0 + 1 ] += /*my * */d0_center.x;
 
-                            der_0[ nupd * 1 + 0 ] += mx * ( d0_center.y + R * sin( boundary_item.a0 ) );
-                            der_0[ nupd * 1 + 1 ] += my * ( d0_center.y + R * sin( boundary_item.a0 ) );
+                            der_0[ nupd * 1 + 0 ] += /*mx * */d0_center.y;
+                            der_0[ nupd * 1 + 1 ] += /*my * */d0_center.y;
                         }
                     } else {
                         TODO;
                     }
-                } else {
-                    TI m_num_dirac_1 = num_dirac_1 % nb_diracs;
-                    Pt d1_center = positions[ m_num_dirac_1 ];
-                    if ( std::size_t nu = num_dirac_1 / nb_diracs )
-                        TODO; // d1_center = transformation( _tranformations[ nu - 1 ], d1_center );
 
-                    TF dist = norm_2( d0_center - d1_center );
-                    TF b_der = coeff * boundary_measure / dist;
-
-                    // d weight
-                    TM der_1;
-                    for( auto &v : der_1 )
-                        v = TF( 0 );
-                    der_0[ nupd * dim + dim ] += b_der;
-                    der_1[ nupd * dim + dim ] = - b_der;
-
-                    Pt T = TF( 0.5 ) * ( boundary_item.points[ 0 ] + boundary_item.points[ 1 ] );
-                    for( std::size_t e = 0; e < dim; ++e ) {
-                        der_0[ nupd * e + dim ] += b_der * T[ e ];
-                        der_1[ nupd * e + dim ] = - b_der * T[ e ];
-                    }
-
-                    // d positions
-                    for( std::size_t d = 0; d < dim; ++d ) {
-                        TF a = boundary_item.points[ 0 ][ d ] - d0_center[ d ];
-                        TF b = boundary_item.points[ 1 ][ d ] - d0_center[ d ];
-                        TF m = coeff * boundary_measure * ( a + b ) / dist;
-                        der_0[ nupd * dim + d ] += m;
-
-                        TF p = ( a + 2 * b ) / ( 3 * ( a + b ) );
-                        Pt T = TF( 1 - p ) * boundary_item.points[ 0 ] + p * boundary_item.points[ 1 ];
-                        for( std::size_t e = 0; e < dim; ++e )
-                            der_0[ nupd * e + d ] += m * T[ e ];
-                    }
-                    for( std::size_t d = 0; d < dim; ++d ) {
-                        TF a = d1_center[ d ] - boundary_item.points[ 0 ][ d ];
-                        TF b = d1_center[ d ] - boundary_item.points[ 1 ][ d ];
-                        TF m = coeff * boundary_measure * ( a + b ) / dist;
-                        der_1[ nupd * dim + d ] = m;
-
-                        TF p = ( a + 2 * b ) / ( 3 * ( a + b ) );
-                        Pt T = TF( 1 - p ) * boundary_item.points[ 0 ] + p * boundary_item.points[ 1 ];
-                        for( std::size_t e = 0; e < dim; ++e )
-                            der_1[ nupd * e + d ] = m * T[ e ];
-                    }
-
-                    dpt.row_items.emplace_back( m_num_dirac_1, der_1 );
+                    return;
                 }
+
+                // dirac / dirac cut ------------------------
+                TI m_num_dirac_1 = num_dirac_1 % nb_diracs;
+                Pt d1_center = positions[ m_num_dirac_1 ];
+                if ( std::size_t nu = num_dirac_1 / nb_diracs )
+                    TODO; // d1_center = transformation( _tranformations[ nu - 1 ], d1_center );
+
+                TF dist = norm_2( d0_center - d1_center );
+                TF b_der = coeff * boundary_measure / dist;
+
+                // d weight
+                TM der_1;
+                for( auto &v : der_1 )
+                    v = TF( 0 );
+                der_0[ nupd * dim + dim ] += b_der;
+                der_1[ nupd * dim + dim ] = - b_der;
+
+                Pt T = TF( 0.5 ) * ( boundary_item.points[ 0 ] + boundary_item.points[ 1 ] );
+                for( std::size_t e = 0; e < dim; ++e ) {
+                    der_0[ nupd * e + dim ] += b_der * T[ e ];
+                    der_1[ nupd * e + dim ] = - b_der * T[ e ];
+                }
+
+                // d positions
+                for( std::size_t d = 0; d < dim; ++d ) {
+                    TF a = boundary_item.points[ 0 ][ d ] - d0_center[ d ];
+                    TF b = boundary_item.points[ 1 ][ d ] - d0_center[ d ];
+                    TF m = coeff * boundary_measure * ( a + b ) / dist;
+                    der_0[ nupd * dim + d ] += m;
+
+                    TF p = ( a + 2 * b ) / ( 3 * ( a + b ) );
+                    Pt T = TF( 1 - p ) * boundary_item.points[ 0 ] + p * boundary_item.points[ 1 ];
+                    for( std::size_t e = 0; e < dim; ++e )
+                        der_0[ nupd * e + d ] += m * T[ e ];
+                }
+                for( std::size_t d = 0; d < dim; ++d ) {
+                    TF a = d1_center[ d ] - boundary_item.points[ 0 ][ d ];
+                    TF b = d1_center[ d ] - boundary_item.points[ 1 ][ d ];
+                    TF m = coeff * boundary_measure * ( a + b ) / dist;
+                    der_1[ nupd * dim + d ] = m;
+
+                    TF p = ( a + 2 * b ) / ( 3 * ( a + b ) );
+                    Pt T = TF( 1 - p ) * boundary_item.points[ 0 ] + p * boundary_item.points[ 1 ];
+                    for( std::size_t e = 0; e < dim; ++e )
+                        der_1[ nupd * e + d ] = m * T[ e ];
+                }
+
+                dpt.row_items.emplace_back( m_num_dirac_1, der_1 );
             }, weights[ num_dirac_0 ] );
 
             der_0.back() += cp.integration_der_wrt_weight( radial_func.func_for_final_cp_integration(), d0_weight );

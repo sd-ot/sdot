@@ -202,6 +202,21 @@ void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::R2, const s
     TODO;
 }
 
+template<class Pc> template<class Fu>
+void ConvexPolyhedron3<Pc>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF>, const Fu &f, TF weight ) const {
+    TODO;
+}
+
+template<class Pc> template<class Fu>
+void ConvexPolyhedron3<Pc>::for_each_boundary_item( FunctionEnum::Unit, const Fu &f, TF weight ) const {
+    TODO;
+}
+
+template<class Pc> template<class Fu>
+void ConvexPolyhedron3<Pc>::for_each_boundary_item( FunctionEnum::R2, const Fu &f, TF weight ) const {
+    TODO;
+}
+
 template<class Pc>
 void ConvexPolyhedron3<Pc>::write_to_stream(std::ostream &os) const {
     TODO;
