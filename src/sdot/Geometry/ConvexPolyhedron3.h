@@ -9,6 +9,9 @@
 #include <functional>
 #include <algorithm>
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 namespace sdot {
 
 /**
@@ -108,6 +111,7 @@ public:
     Pt                      max_position             () const;
     bool                    contains                 ( const Pt &pos ) const;
     bool                    empty                    () const { return faces.empty() && ( allow_ball_cut == false || sphere_radius <= 0 ); }
+    static TF               pi                       () { if ( std::is_same<TF,double>::value ) return M_PI; using std::atan; return 4 * atan( TF( 1 ) ); }
 
     // approximate computations
     template<class Fu> TF   boundary_measure_ap      ( const Fu &fu, TF max_ratio_area_error = 1e-4 ) const; ///< area from a triangulation of the surface

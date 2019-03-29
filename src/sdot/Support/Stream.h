@@ -3,6 +3,7 @@
 #include "TensorOrder.h"
 #include "TypeConfig.h"
 #include "EnableIf.h"
+#include "MyPrint.h"
 #include "N.h"
 #include "S.h"
 #include <iostream>

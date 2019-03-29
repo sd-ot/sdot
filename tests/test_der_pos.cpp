@@ -28,12 +28,16 @@ void test( typename Pc::TF epsilon, Rf radial_func ) {
     //    std::vector<TF> ref_weights{ 0.225, 0.32 };
     //        std::vector<Pt> ref_positions{ Pt{ 0.5, 0.5 } };
     //        std::vector<TF> ref_weights{ 0.2 };
-    std::vector<Pt> ref_positions;
-    std::vector<TF> ref_weights;
-    for( std::size_t i = 0; i < 20; ++i ) {
-        ref_positions.push_back( Pt{ TF( 1.0 * rand() / RAND_MAX ), TF( 1.0 * rand() / RAND_MAX ) } );
-        ref_weights.push_back( TF( 0.005 + 0.005 * rand() / RAND_MAX ) );
-    }
+    //    std::vector<Pt> ref_positions;
+    //    std::vector<TF> ref_weights;
+    //    for( std::size_t i = 0; i < 20; ++i ) {
+    //        ref_positions.push_back( Pt{ TF( 1.0 * rand() / RAND_MAX ), TF( 1.0 * rand() / RAND_MAX ) } );
+    //        ref_weights.push_back( TF( 0.005 + 0.005 * rand() / RAND_MAX ) );
+    //    }
+
+    std::vector<Pt> ref_positions{ Pt{ 0.125, 0.125}, Pt{ 0.375, 0.125}, Pt{ 0.125, 0.375}, Pt{ 0.375, 0.375} };
+    std::vector<TF> ref_weights{ 0.02490201, 0.02289457, 0.02289457, 0.02162449 };
+
 
     Bounds bounds;
     bounds.add_box( { 0, 0 }, { 1, 1 }, 1.0, -1 );
