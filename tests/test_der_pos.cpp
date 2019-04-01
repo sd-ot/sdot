@@ -15,29 +15,13 @@
 using namespace sdot;
 
 template<class Pc,class Rf>
-void test( typename Pc::TF epsilon, Rf radial_func ) {
+void test( typename Pc::TF epsilon, Rf radial_func, std::vector<Point2<typename Pc::TF>> ref_positions, std::vector<typename Pc::TF> ref_weights ) {
+    const std::size_t nd = Pc::dim + 1;
     using Bounds = ConvexPolyhedronAssembly<Pc>;
     using Grid = SpZGrid<Pc>;
     using TF = typename Pc::TF;
     using TI = typename Pc::TI;
     using Pt = Point2<TF>;
-
-    const std::size_t nd = Pc::dim + 1;
-
-    //    std::vector<Pt> ref_positions{ Pt{ 0.25, 0.1 }, Pt{ 0.75, 0.9 } };
-    //    std::vector<TF> ref_weights{ 0.225, 0.32 };
-    //        std::vector<Pt> ref_positions{ Pt{ 0.5, 0.5 } };
-    //        std::vector<TF> ref_weights{ 0.2 };
-    //    std::vector<Pt> ref_positions;
-    //    std::vector<TF> ref_weights;
-    //    for( std::size_t i = 0; i < 20; ++i ) {
-    //        ref_positions.push_back( Pt{ TF( 1.0 * rand() / RAND_MAX ), TF( 1.0 * rand() / RAND_MAX ) } );
-    //        ref_weights.push_back( TF( 0.005 + 0.005 * rand() / RAND_MAX ) );
-    //    }
-
-    std::vector<Pt> ref_positions{ Pt{ 0.125, 0.125}, Pt{ 0.375, 0.125}, Pt{ 0.125, 0.375}, Pt{ 0.375, 0.375} };
-    std::vector<TF> ref_weights{ 0.02490201, 0.02289457, 0.02289457, 0.02162449 };
-
 
     Bounds bounds;
     bounds.add_box( { 0, 0 }, { 1, 1 }, 1.0, -1 );
@@ -119,6 +103,41 @@ void test( typename Pc::TF epsilon, Rf radial_func ) {
 
 int main() {
     struct Pc { enum { dim = 2, allow_ball_cut = 1, allow_translations = 0 }; using TI = std::size_t; using TF = boost::multiprecision::mpfr_float_100; };
-    // test<Pc>( 1e-50, FunctionEnum::Unit() );
-    test<Pc>( 1e-50, FunctionEnum::InBallW05() );
+    using TF = typename Pc::TF;
+    using Pt = Point2<TF>;
+    TF epsilon = 1e-50;
+
+
+    //    std::vector<Pt> ref_positions{ Pt{ 0.25, 0.1 }, Pt{ 0.75, 0.9 } };
+    //    std::vector<TF> ref_weights{ 0.225, 0.32 };
+    //        std::vector<Pt> ref_positions{ Pt{ 0.5, 0.5 } };
+    //        std::vector<TF> ref_weights{ 0.2 };
+    //    std::vector<Pt> ref_positions;
+    //    std::vector<TF> ref_weights;
+    //    for( std::size_t i = 0; i < 20; ++i ) {
+    //        ref_positions.push_back( Pt{ TF( 1.0 * rand() / RAND_MAX ), TF( 1.0 * rand() / RAND_MAX ) } );
+    //        ref_weights.push_back( TF( 0.005 + 0.005 * rand() / RAND_MAX ) );
+    //    }
+
+    //    test<Pc>( epsilon, FunctionEnum::InBallW05(), { Pt{ 0.125, 0.125}, Pt{ 0.375, 0.125}, Pt{ 0.125, 0.375}, Pt{ 0.375, 0.375} }, { 0.02490201, 0.02289457, 0.02289457, 0.02162449 } );
+
+    std::vector<Pt> ref_positions{
+        Pt{ 0.05, 0.05 }, Pt{ 0.13, 0.05 }, Pt{ 0.21, 0.05 }, Pt{ 0.29, 0.05 }, Pt{ 0.37, 0.05 },
+        Pt{ 0.45, 0.05 }, Pt{ 0.05, 0.13 }, Pt{ 0.13, 0.13 }, Pt{ 0.21, 0.13 }, Pt{ 0.29, 0.13 },
+        Pt{ 0.37, 0.13 }, Pt{ 0.45, 0.13 }, Pt{ 0.05, 0.21 }, Pt{ 0.13, 0.21 }, Pt{ 0.21, 0.21 },
+        Pt{ 0.29, 0.21 }, Pt{ 0.37, 0.21 }, Pt{ 0.45, 0.21 }, Pt{ 0.05, 0.29 }, Pt{ 0.13, 0.29 },
+        Pt{ 0.21, 0.29 }, Pt{ 0.29, 0.29 }, Pt{ 0.37, 0.29 }, Pt{ 0.45, 0.29 }, Pt{ 0.05, 0.37 },
+        Pt{ 0.13, 0.37 }, Pt{ 0.21, 0.37 }, Pt{ 0.29, 0.37 }, Pt{ 0.37, 0.37 }, Pt{ 0.45, 0.37 },
+        Pt{ 0.05, 0.45 }, Pt{ 0.13, 0.45 }, Pt{ 0.21, 0.45 }, Pt{ 0.29, 0.45 }, Pt{ 0.37, 0.45 },
+        Pt{ 0.45, 0.45 }
+    };
+    std::vector<TF> ref_weights{
+        0.00314773, 0.00393608, 0.00428933, 0.0042071 , 0.00371394, 0.00284918,
+        0.00393608, 0.0048636 , 0.00525743, 0.00514763, 0.00452475, 0.00332225,
+        0.00428933, 0.00525743, 0.00566234, 0.0055339 , 0.00484392, 0.0034862 ,
+        0.0042071 , 0.00514763, 0.0055339 , 0.00541476, 0.00476184, 0.00345417,
+        0.00371394, 0.00452475, 0.00484392, 0.00476184, 0.00426395, 0.00322731,
+        0.00284918, 0.00332225, 0.0034862 , 0.00345417, 0.00322731, 0.00270565
+    };
+    test<Pc>( epsilon, FunctionEnum::InBallW05(), ref_positions, ref_weights );
 }
