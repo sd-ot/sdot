@@ -60,6 +60,7 @@ public:
     void                    operator=                ( ConvexPolyhedron3 &&cp );
 
     // display
+    void                    display_html_canvas      ( std::ostream &os, TF weight ) const;
     void                    write_to_stream          ( std::ostream &os ) const;
     template<class V> void  display                  ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false ) const;
 
@@ -84,6 +85,7 @@ public:
     template<class F> void  for_each_boundary_item   ( FunctionEnum::R2           , const F &f, TF weight = 0 ) const;
 
     template<class F> Node *find_node_maximizing     ( const F &f, bool return_node_only_if_true = true ) const; ///< f must return true to stop the search. It takes ( TF &value, Pt pos ) as parameters
+    void                    for_each_node             ( const std::function<void( Pt v )> &f ) const;
 
     TF                      boundary_measure         ( FunctionEnum::Unit ) const;
     Pt                      centroid                 ( FunctionEnum::Unit ) const;

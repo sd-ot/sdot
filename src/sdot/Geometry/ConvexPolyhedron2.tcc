@@ -1300,6 +1300,40 @@ typename Pc::TF ConvexPolyhedron2<Pc,CI>::_arc_area( Pt p0, Pt p1 ) const {
     return rs;
 }
 
+template<class Pc,class CI>
+void ConvexPolyhedron2<Pc,CI>::display_html_canvas( std::ostream &os, TF weight ) const {
+    if ( nb_points() == 0 )
+        return;
+
+    os << "\n";
+    for( TI i = 0; i < _nb_points; ++i ) {
+        Pt p0 = point( i );
+        if ( arcs[ i ] ) {
+            Pt p1 = point( ( i + 1 ) % _nb_points );
+            TF a0 = atan2( p0.y - sphere_center.y, p0.x - sphere_center.x );
+            TF a1 = atan2( p1.y - sphere_center.y, p1.x - sphere_center.x );
+            if ( a1 < a0 )
+                a1 += 2 * pi();
+
+            os << "arc(...)";
+            //            size_t n = 10;
+            //            for( size_t i = 0; i < n; ++i ) {
+            //                TF ai = a0 + ( a1 - a0 ) * i / n;
+            //                os.precision( 16 );
+            //                os << "(" << sphere_center.x + sphere_radius * cos( ai ) << "," << sphere_center.y + sphere_radius * sin( ai ) << ")..";
+            //            }
+        } else {
+            os.precision( 16 );
+            os << ( i ? "path.lineTo(" : "path.moveTo(" ) << p0[ 0 ] << "," << p0[ 1 ] << ");\n";
+            //            bool last_line_avoided = avoid_bounds && cut_ids[ i ] == TI( -1 ) && fill == false;
+            //            has_avoided_line |= last_line_avoided;
+        }
+    }
+
+    Pt p0 = point( 0 );
+    os << "path.lineTo(" << p0[ 0 ] << "," << p0[ 1 ] << ");\n";
+}
+
 template<class Pc, class CI>
 void ConvexPolyhedron2<Pc,CI>::display_asy( std::ostream &os, const std::string &draw_info, const std::string &fill_info, bool want_fill, bool avoid_bounds, bool want_line ) const {
     using std::atan2;

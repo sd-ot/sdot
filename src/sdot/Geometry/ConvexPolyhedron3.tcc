@@ -229,6 +229,11 @@ void ConvexPolyhedron3<Pc>::write_to_stream(std::ostream &os) const {
 }
 
 template<class Pc>
+void ConvexPolyhedron3<Pc>::display_html_canvas( std::ostream &os, TF weight ) const {
+    os << "TODO !\n";
+}
+
+template<class Pc>
 void ConvexPolyhedron3<Pc>::ball_cut( Pt center, TF radius, CI cut_id ) {
     TODO;
     //    sphere_center = center;
@@ -466,6 +471,10 @@ void ConvexPolyhedron3<Pc>::ball_cut( Pt center, TF radius, CI cut_id ) {
     //        sphere_radius = 0;
 }
 
+template<class Pc>
+void ConvexPolyhedron3<Pc>::for_each_node( const std::function<void( Pt v )> &f ) const {
+    TODO;
+}
 
 template<class Pc> template<class F>
 typename ConvexPolyhedron3<Pc>::Node *ConvexPolyhedron3<Pc>::find_node_maximizing( const F &f, bool return_node_only_if_true ) const {

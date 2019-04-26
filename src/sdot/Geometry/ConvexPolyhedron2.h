@@ -63,6 +63,7 @@ public:
     void                      for_each_node             ( const std::function<void( Pt v )> &f ) const;
 
     // information
+    void                      display_html_canvas       ( std::ostream &os, TF weight ) const;
     void                      write_to_stream           ( std::ostream &os ) const;
     Pt                        min_position              () const;
     Pt                        max_position              () const;
