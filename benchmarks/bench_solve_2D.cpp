@@ -13,7 +13,7 @@
 // // nsmake lib_name mpfr
 
 int main( int argc, char **argv ) {
-    struct Pc { enum { nb_bits_per_axis = 31, allow_ball_cut = 0, dim = 2 }; using TI = std::size_t; using TF = double; }; // boost::multiprecision::mpfr_float_100
+    struct Pc { enum { nb_bits_per_axis = 31, allow_ball_cut = 0, dim = 2, allow_translations = true }; using TI = std::size_t; using TF = double; }; // boost::multiprecision::mpfr_float_100
     using  Pt = Point2<Pc::TF>;
     using  TF = Pc::TF;
 

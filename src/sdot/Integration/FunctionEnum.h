@@ -5,6 +5,7 @@
 
 /**
 */
+namespace sdot {
 namespace FunctionEnum {
 
 template<class TS>
@@ -107,4 +108,5 @@ struct InBallW05 {
     void span_for_viz( const TF&, TS ) const {}
 };
 
+}
 }

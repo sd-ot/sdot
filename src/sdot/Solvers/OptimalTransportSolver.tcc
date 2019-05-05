@@ -1,22 +1,31 @@
-#include "get_der_integrals_wrt_weights.h"
+#include "../PowerDiagram/get_der_integrals_wrt_weights.h"
+#include "../PowerDiagram/get_centroids.h"
 #include "OptimalTransportSolver.h"
 // #include "traversal_cgal.h"
-#include "get_integrals.h"
+#include "../PowerDiagram/get_integrals.h"
+#include "../Display/VtkOutput.h"
 //#include "AmgclSolver.h"
 #include "EigenSolver.h"
-#include "system/Tick.h"
-#include "system/Mpi.h"
-#include "VtkOutput.h"
+#include "../Support/Stream.h"
+#include "../Support/Tick.h"
+#include "../Support/Mpi.h"
 
 namespace sdot {
 
 template<class Grid, class Bounds>
-OptimalTransportSolver<Grid, Bounds>::OptimalTransportSolver(Grid *grid, Bounds *bounds) : bounds( *bounds ), grid( *grid ) {
+OptimalTransportSolver<Grid, Bounds>::OptimalTransportSolver( Grid *grid, Bounds *bounds ) : bounds( *bounds ), grid( *grid ) {
     max_nb_iter = 150;
 }
 
-template<class Grid, class Bounds>
-void OptimalTransportSolver<Grid, Bounds>::solve( const Pt *positions, TF *weights, TI nb_diracs ) {
+template<class Grid, class Bounds> template<class RadialFunc>
+void OptimalTransportSolver<Grid, Bounds>::get_centroids( Pt *centroids, const Pt *positions, TF *weights, TI nb_diracs, RadialFunc rf ) {
+    sdot::get_centroids( grid, bounds, positions, weights, nb_diracs, rf, [&]( auto c, auto m, auto n ) {
+        centroids[ n ] = c;
+    } );
+}
+
+template<class Grid, class Bounds> template<class RadialFunc>
+void OptimalTransportSolver<Grid, Bounds>::solve( const Pt *positions, TF *weights, TI nb_diracs, TF *masses, RadialFunc rf ) {
     using std::max;
     using std::abs;
 
@@ -49,9 +58,9 @@ void OptimalTransportSolver<Grid, Bounds>::solve( const Pt *positions, TF *weigh
 
         // der
         t0 = Tick::get_time();
-        int error = get_der_integrals_wrt_weights( m_offsets, m_columns, m_values, v_values, grid, bounds, positions, weights, nb_diracs );
+        int error = get_der_integrals_wrt_weights( m_offsets, m_columns, m_values, v_values, grid, bounds, positions, weights, nb_diracs, rf );
         auto t0_der = Tick::elapsed_since( t0 );
-        if ( m_values.size() )
+        if ( m_values.size() && rf.need_ball_cut() == 0 )
             m_values[ 0 ] *= 2;
 
         //        if ( mpi->size() == 1 ) {
@@ -74,13 +83,17 @@ void OptimalTransportSolver<Grid, Bounds>::solve( const Pt *positions, TF *weigh
 
         timings_der.push_back( t0_der );
 
-        TF vol = 0;
-        for( std::size_t i = 0; i < nb_diracs; ++i )
-            vol += v_values[ i ];
-        PMPI_0( mpi->reduction( vol, [&]( double a, double b ) { return a + b; } ) );
+        //        TF vol = 0;
+        //        for( std::size_t i = 0; i < nb_diracs; ++i )
+        //            vol += v_values[ i ];
+        //        PMPI_0( mpi->reduction( vol, [&]( double a, double b ) { return a + b; } ) );
 
         if ( max_nb_iter == 1 )
             break;
+
+        // target
+        for( std::size_t i = 0; i < nb_diracs; ++i )
+            v_values[ i ] -= masses[ i ];
 
         // solve
         EigenSolver es;
@@ -100,18 +113,21 @@ void OptimalTransportSolver<Grid, Bounds>::solve( const Pt *positions, TF *weigh
             break;
     }
 
-    P( timings_grid  );
-    P( timings_der   );
-    P( timings_cgal  );
-    P( timings_solve );
+    //    P( timings_grid  );
+    //    P( timings_der   );
+    //    P( timings_cgal  );
+    //    P( timings_solve );
 }
 
-template<class Grid, class Bounds> template<class VO>
-void OptimalTransportSolver<Grid,Bounds>::display( VO &vtk_output, const Pt *positions, const TF *weights, TI nb_diracs ) {
+template<class Grid, class Bounds> template<class VO,class RF>
+void OptimalTransportSolver<Grid,Bounds>::display( VO &vtk_output, const Pt *positions, const TF *weights, TI nb_diracs, RF rf ) {
     grid.update( positions, weights, nb_diracs );
-    grid.for_each_laguerre_cell( [&]( auto &lc, std::size_t num_dirac_0 ) {
+    grid.for_each_laguerre_cell( [&]( auto &lc, std::size_t num_dirac_0, int ) {
+        //        domain.bounds.for_each_intersection( lc, [&]( auto &cp, auto space_func ) {
+        //            cp.display( vtk_output, { ptr_weights[ num_dirac_0 ], TF( num_dirac_0 ) } );
+        //        } );
         lc.display( vtk_output, { weights[ num_dirac_0 ], TF( num_dirac_0 ) } );
-    }, bounds.englobing_convex_polyhedron(), positions, weights, nb_diracs );
+    }, bounds.englobing_convex_polyhedron(), positions, weights, nb_diracs, false, rf.need_ball_cut() );
 }
 
 template<class Grid, class Bounds> template<class VO>
