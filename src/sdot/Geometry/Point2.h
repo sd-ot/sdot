@@ -1,3 +1,4 @@
+
 #pragma once
 
 // #include "../Support/Stream.h"
@@ -85,6 +86,11 @@ inline Point2<TF> operator-( Point2<TF> a ) {
 template<class TF>
 inline Point2<TF> operator*( TF m, Point2<TF> p ) {
     return { m * p.x, m * p.y };
+}
+
+template<class TF>
+inline Point2<TF> operator*( Point2<TF> a, Point2<TF> b ) {
+    return { a.x * b.x, a.y * b.y };
 }
 
 template<class TF>

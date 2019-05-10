@@ -1302,6 +1302,10 @@ typename Pc::TF ConvexPolyhedron2<Pc,CI>::_arc_area( Pt p0, Pt p1 ) const {
 
 template<class Pc,class CI>
 void ConvexPolyhedron2<Pc,CI>::display_html_canvas( std::ostream &os, TF weight ) const {
+    using std::atan2;
+    using std::cos;
+    using std::sin;
+
     if ( nb_points() == 0 )
         return;
 
@@ -1315,13 +1319,12 @@ void ConvexPolyhedron2<Pc,CI>::display_html_canvas( std::ostream &os, TF weight 
             if ( a1 < a0 )
                 a1 += 2 * pi();
 
-            os << "arc(...)";
-            //            size_t n = 10;
-            //            for( size_t i = 0; i < n; ++i ) {
-            //                TF ai = a0 + ( a1 - a0 ) * i / n;
-            //                os.precision( 16 );
-            //                os << "(" << sphere_center.x + sphere_radius * cos( ai ) << "," << sphere_center.y + sphere_radius * sin( ai ) << ")..";
-            //            }
+            size_t n = 10;
+            for( size_t j = 0; j < n; ++j ) {
+                TF aj = a0 + ( a1 - a0 ) * j / n;
+                os.precision( 16 );
+                os << ( i + j ? "path.lineTo(" : "path.moveTo(" ) << sphere_center.x + sphere_radius * cos( aj ) << "," << sphere_center.y + sphere_radius * sin( aj ) << ");\n";
+            }
         } else {
             os.precision( 16 );
             os << ( i ? "path.lineTo(" : "path.moveTo(" ) << p0[ 0 ] << "," << p0[ 1 ] << ");\n";

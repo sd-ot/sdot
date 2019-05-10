@@ -87,6 +87,11 @@ inline Point3<TF> operator*( TF m, Point3<TF> p ) {
 }
 
 template<class TF>
+inline Point3<TF> operator*( Point3<TF> a, Point3<TF> b ) {
+    return { a.x * b.x, a.y * b.y, a.z * b.z };
+}
+
+template<class TF>
 inline Point3<TF> operator/( Point3<TF> p, TF d ) {
     return { p.x / d, p.y / d, p.z / d };
 }
