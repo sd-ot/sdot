@@ -1,13 +1,13 @@
 #include "../Integration/SpaceFunctions/Constant.h"
 #include "../Support/CrossProdOfRanges.h"
-#include "../Support/Stream.h"
 #include "ScaledImage.h"
 
+#include "../Support/Stream.h"
 
 namespace sdot {
 
 template<class Pc>
-ScaledImage<Pc>::ScaledImage( Pt min_pt, Pt max_pt, const TF *data, std::array<TI,dim> sizes ) : min_pt( min_pt ), max_pt( max_pt ), sizes( sizes ), data( data ) {
+ScaledImage<Pc>::ScaledImage( Pt min_pt, Pt max_pt, const TF *data, std::array<TI,dim> sizes ) : min_pt( min_pt ), max_pt( max_pt ), sizes( sizes ), data( data, data + nb_pixels() ) {
     englobing_polyheron = typename CP::Box{ min_pt, max_pt };
 }
 
@@ -27,6 +27,14 @@ typename ScaledImage<Pc>::Pt ScaledImage<Pc>::max_position() const {
 }
 
 template<class Pc>
+typename ScaledImage<Pc>::TI ScaledImage<Pc>::nb_pixels() const {
+    TI res = 1;
+    for( std::size_t i = 0; i < dim; ++i )
+        res *= sizes[ i ];
+    return res;
+}
+
+template<class Pc>
 typename ScaledImage<Pc>::TF ScaledImage<Pc>::measure() const {
     TF res = 1;
     for( std::size_t i = 0; i < dim; ++i )
@@ -42,14 +50,11 @@ typename ScaledImage<Pc>::TF ScaledImage<Pc>::coeff_at( const Pt &pos ) const {
 }
 
 template<class Pc> template<class F>
-void ScaledImage<Pc>::for_each_intersection( CP2 &cp, const F &f ) const {
+void ScaledImage<Pc>::for_each_intersection( CP &cp, const F &f ) const {
     using std::min;
     using std::max;
 
-    TI nb_pix = 1;
-    for( std::size_t d = 0; d < dim; ++d )
-        nb_pix *= sizes[ d ];
-    if ( nb_pix == 1 )
+    if ( nb_pixels() == 1 )
         return f( cp, SpaceFunctions::Constant<TF>{ data[ 0 ] } );
 
 
@@ -67,13 +72,18 @@ void ScaledImage<Pc>::for_each_intersection( CP2 &cp, const F &f ) const {
         ps[ d ] = ( max_pt[ d ] - min_pt[ d ] ) / sizes[ d ];
     }
 
+    //    for( std::size_t d = 0; d < dim; ++d ) {
+    //        min_i[ d ] = 0;
+    //        max_i[ d ] = sizes[ d ];
+    //    }
+
     //
     CP ccp;
     CrossProdOfRanges<TI,dim> cr( min_i, max_i );
     cr.for_each( [&]( auto p ) {
         Pt pf;
-        TI num_pix = 0, acc = 1;
-        for( std::size_t d = 0; d < dim; ++d ) {
+        TI num_pix = 0;
+        for( std::size_t d = 0, acc = 1; d < dim; ++d ) {
             num_pix += acc * p[ d ];
             acc *= sizes[ d ];
             pf[ d ] = p[ d ];

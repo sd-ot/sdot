@@ -25,12 +25,12 @@ public:
 
     // info
     const CP&              englobing_convex_polyhedron() const;
-    template<class F> void for_each_intersection      ( CP2 &cp, const F &f ) const; ///< f( ConvexPolyhedron, SpaceFunction )
-    template<class F> void for_each_intersection      ( CP3 &cp, const F &f ) const; ///< f( ConvexPolyhedron, SpaceFunction )
+    template<class F> void for_each_intersection      ( CP &cp, const F &f ) const; ///< f( ConvexPolyhedron, SpaceFunction )
     template<class V> void display_boundaries         ( V &vtk_output ) const;
     template<class V> void display_coeffs             ( V &vtk_output ) const;
     Pt                     min_position               () const;
     Pt                     max_position               () const;
+    TI                     nb_pixels                  () const;
     TF                     measure                    () const;
 
     TF                     coeff_at                   ( const Pt &pos ) const;
@@ -41,7 +41,7 @@ private:
     Pt                     min_pt;
     Pt                     max_pt;
     std::array<TI,dim>     sizes;
-    const TF*              data;
+    std::vector<TF>        data;
 };
 
 } // namespace sdot

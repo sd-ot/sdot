@@ -59,6 +59,9 @@ ConvexPolyhedron2<Pc,CI>::ConvexPolyhedron2( const ConvexPolyhedron2 &that ) {
     sphere_center = that.sphere_center;
     sphere_radius = that.sphere_radius;
     sphere_cut_id = that.sphere_cut_id;
+
+    min_coord = that.min_coord;
+    max_coord = that.max_coord;
 }
 
 template<class Pc,class CI>

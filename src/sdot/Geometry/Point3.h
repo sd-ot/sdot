@@ -72,8 +72,18 @@ inline Point3<TF> operator+( Point3<TF> a, Point3<TF> b ) {
 }
 
 template<class TF>
+inline Point3<TF> operator+( Point3<TF> a, TF b ) {
+    return { a.x + b, a.y + b, a.z + b };
+}
+
+template<class TF>
 inline Point3<TF> operator-( Point3<TF> a, Point3<TF> b ) {
     return { a.x - b.x, a.y - b.y, a.z - b.z };
+}
+
+template<class TF>
+inline Point3<TF> operator-( Point3<TF> a, TF b ) {
+    return { a.x - b, a.y - b, a.z - b };
 }
 
 template<class TF>
