@@ -19,6 +19,10 @@ template<class Pc,class CI>
 ConvexPolyhedron2<Pc,CI>::ConvexPolyhedron2( const Box &box, CI cut_id ) {
     sphere_center = TF( 0.5 ) * ( box.p0 + box.p1 );
     sphere_radius = -1;
+    sphere_cut_id = -1;
+
+    min_coord = box.p0;
+    max_coord = box.p1;
 
     //
     _nb_points = 4;

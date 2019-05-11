@@ -73,7 +73,7 @@ const typename ConvexPolyhedronAssembly<Pc>::CP& ConvexPolyhedronAssembly<Pc>::e
             for( std::size_t d = 0; d < dim; ++d )
                 delta[ d ] = max_pos[ d ] - min_pos[ d ];
 
-            englobing_polyheron = typename CP::Box{ min_pos - delta, max_pos + delta };
+            englobing_polyheron = { typename CP::Box{ min_pos - delta, max_pos + delta }, typename Pc::CI( -1 ) };
         }
         mutex.unlock();
     }

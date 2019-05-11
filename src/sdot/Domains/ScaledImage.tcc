@@ -72,11 +72,6 @@ void ScaledImage<Pc>::for_each_intersection( CP &cp, const F &f ) const {
         ps[ d ] = ( max_pt[ d ] - min_pt[ d ] ) / sizes[ d ];
     }
 
-    //    for( std::size_t d = 0; d < dim; ++d ) {
-    //        min_i[ d ] = 0;
-    //        max_i[ d ] = sizes[ d ];
-    //    }
-
     //
     CP ccp;
     CrossProdOfRanges<TI,dim> cr( min_i, max_i );
@@ -89,10 +84,10 @@ void ScaledImage<Pc>::for_each_intersection( CP &cp, const F &f ) const {
             pf[ d ] = p[ d ];
         }
 
-        ccp = typename CP::Box{
+        ccp = { typename CP::Box{
             min_pt + ps * ( pf + TF( 0 ) ),
             min_pt + ps * ( pf + TF( 1 ) )
-        };
+        }, typename Pc::CI(-1 ) };
         ccp.intersect_with( cp );
 
         f( ccp, SpaceFunctions::Constant<TF>{ data[ num_pix ] } );
