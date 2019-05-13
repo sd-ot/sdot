@@ -44,9 +44,15 @@ typename ScaledImage<Pc>::TF ScaledImage<Pc>::measure() const {
 
 template<class Pc>
 typename ScaledImage<Pc>::TF ScaledImage<Pc>::coeff_at( const Pt &pos ) const {
-    TF res = 0;
-    TODO;
-    return res;
+    TI index = 0;
+    for( std::size_t d = 0, acc = 1; d < dim; ++d ) {
+        TI p = ( pos[ d ] - min_pt[ d ] ) * sizes[ d ] / ( max_pt[ d ] - min_pt[ d ] );
+        if ( p < 0 || p >= sizes[ d ] )
+            return 0;
+        index += acc * p;
+        acc *= sizes[ d ];
+    }
+    return data[ index ];
 }
 
 template<class Pc> template<class F>
