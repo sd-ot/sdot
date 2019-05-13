@@ -199,7 +199,7 @@ typename ConvexPolyhedron2<Pc,CI>::Pt ConvexPolyhedron2<Pc,CI>::min_position() c
     Pt res{ + std::numeric_limits<TF>::max(), + std::numeric_limits<TF>::max() };
     for( std::size_t i = 0; i < _nb_points; ++i ) {
         if ( arcs[ i ] )
-            TODO;
+            res = min( res, sphere_center - sphere_radius );
         else
             res = min( res, point( i ) );
     }
@@ -211,7 +211,7 @@ typename ConvexPolyhedron2<Pc,CI>::Pt ConvexPolyhedron2<Pc,CI>::max_position() c
     Pt res{ - std::numeric_limits<TF>::max(), - std::numeric_limits<TF>::max() };
     for( std::size_t i = 0; i < _nb_points; ++i ) {
         if ( arcs[ i ] )
-            TODO;
+            res = max( res, sphere_center + sphere_radius );
         else
             res = max( res, point( i ) );
     }
