@@ -1,7 +1,5 @@
 #include "Internal/AreaOutput.h"
 #include "ConvexPolyhedron2.h"
-// #include <popcntintrin.h>
-#include <immintrin.h>
 #include <iomanip>
 
 namespace sdot {
@@ -406,7 +404,8 @@ bool ConvexPolyhedron2<Pc,CI>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no>
         return false;
 
     // all outside ?
-    std::size_t nb_outside = _mm_popcnt_u64( outside );
+    const std::bitset<64> outside_bits( outside );
+    std::size_t nb_outside = outside_bits.count();
     if ( nb_outside == _nb_points ) {
         _nb_points = 0;
         return false;

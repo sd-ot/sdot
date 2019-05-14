@@ -6,7 +6,6 @@
 #include "../Display/VtkOutput.h"
 //#include "AmgclSolver.h"
 #include "EigenSolver.h"
-// #include "../Support/Stream.h"
 #include "../Support/Tick.h"
 #include "../Support/Mpi.h"
 
