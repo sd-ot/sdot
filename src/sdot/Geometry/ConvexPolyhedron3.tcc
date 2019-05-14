@@ -229,7 +229,7 @@ void ConvexPolyhedron3<Pc>::write_to_stream(std::ostream &os) const {
 }
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::display_html_canvas( std::ostream &os, TF weight ) const {
+void ConvexPolyhedron3<Pc>::display_html_canvas( std::ostream &os, TF weight, bool ext ) const {
     os << "TODO !\n";
 }
 

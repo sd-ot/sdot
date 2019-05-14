@@ -60,7 +60,7 @@ public:
     void                    operator=                ( ConvexPolyhedron3 &&cp );
 
     // display
-    void                    display_html_canvas      ( std::ostream &os, TF weight ) const;
+    void                    display_html_canvas      ( std::ostream &os, TF weight, bool ext = false ) const;
     void                    write_to_stream          ( std::ostream &os ) const;
     template<class V> void  display                  ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false ) const;
 

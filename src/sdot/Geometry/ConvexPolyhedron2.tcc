@@ -1308,7 +1308,7 @@ typename Pc::TF ConvexPolyhedron2<Pc,CI>::_arc_area( Pt p0, Pt p1 ) const {
 }
 
 template<class Pc,class CI>
-void ConvexPolyhedron2<Pc,CI>::display_html_canvas( std::ostream &os, TF weight ) const {
+void ConvexPolyhedron2<Pc,CI>::display_html_canvas( std::ostream &os, TF weight, bool ext ) const {
     using std::atan2;
     using std::cos;
     using std::sin;
@@ -1317,31 +1317,30 @@ void ConvexPolyhedron2<Pc,CI>::display_html_canvas( std::ostream &os, TF weight 
         return;
 
     os << "\n";
+    std::string path = ext ? "path_ext" : "path_int";
     for( TI i = 0; i < _nb_points; ++i ) {
-        Pt p0 = point( i );
+        if ( ( cut_ids[ i ] == -1ul ) ^ ext )
+            continue;
+        Pt p0 = point( i ), p1 = point( ( i + 1 ) % nb_points() );
         if ( arcs[ i ] ) {
-            Pt p1 = point( ( i + 1 ) % _nb_points );
             TF a0 = atan2( p0.y - sphere_center.y, p0.x - sphere_center.x );
             TF a1 = atan2( p1.y - sphere_center.y, p1.x - sphere_center.x );
             if ( a1 < a0 )
                 a1 += 2 * pi();
 
             size_t n = 10;
-            for( size_t j = 0; j < n; ++j ) {
+            os.precision( 16 );
+            os << path << ".moveTo(" << sphere_center.x + sphere_radius * cos( a0 ) << "," << sphere_center.y + sphere_radius * sin( a0 ) << ");\n";
+            for( size_t j = 1; j <= n; ++j ) {
                 TF aj = a0 + ( a1 - a0 ) * j / n;
-                os.precision( 16 );
-                os << ( i + j ? "path.lineTo(" : "path.moveTo(" ) << sphere_center.x + sphere_radius * cos( aj ) << "," << sphere_center.y + sphere_radius * sin( aj ) << ");\n";
+                os << path << ".lineTo(" << sphere_center.x + sphere_radius * cos( aj ) << "," << sphere_center.y + sphere_radius * sin( aj ) << ");\n";
             }
         } else {
             os.precision( 16 );
-            os << ( i ? "path.lineTo(" : "path.moveTo(" ) << p0[ 0 ] << "," << p0[ 1 ] << ");\n";
-            //            bool last_line_avoided = avoid_bounds && cut_ids[ i ] == TI( -1 ) && fill == false;
-            //            has_avoided_line |= last_line_avoided;
+            os << path << ".moveTo(" << p0[ 0 ] << "," << p0[ 1 ] << ");\n";
+            os << path << ".lineTo(" << p1[ 0 ] << "," << p1[ 1 ] << ");\n";
         }
     }
-
-    Pt p0 = point( 0 );
-    os << "path.lineTo(" << p0[ 0 ] << "," << p0[ 1 ] << ");\n";
 }
 
 template<class Pc, class CI>
