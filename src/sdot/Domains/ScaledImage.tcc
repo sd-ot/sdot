@@ -2,8 +2,6 @@
 #include "../Support/CrossProdOfRanges.h"
 #include "ScaledImage.h"
 
-#include "../Support/Stream.h"
-
 namespace sdot {
 
 template<class Pc>
