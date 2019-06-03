@@ -61,7 +61,6 @@ void ScaledImage<Pc>::for_each_intersection( CP &cp, const F &f ) const {
     if ( nb_pixels() == 1 )
         return f( cp, SpaceFunctions::Constant<TF>{ data[ 0 ] } );
 
-
     // find min_y, max_y
     Pt ps;
     std::array<TI,dim> min_i;

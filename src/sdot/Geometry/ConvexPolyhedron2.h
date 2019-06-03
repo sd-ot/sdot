@@ -21,7 +21,7 @@ namespace sdot {
 
   Beware: ball_cuts must be done AFTER the plane_cuts.
 */
-template<class Pc,class CI=std::size_t>
+template<class Pc>
 class ConvexPolyhedron2 {
 public:
     static constexpr bool     keep_min_max_coords       = false;
@@ -30,6 +30,7 @@ public:
     using                     TI                        = typename Pc::TI; ///< index type
     using                     TF                        = typename Pc::TF; ///< index type
     using                     Pt                        = Point2<TF>;  ///< 3D point
+    using                     CI                        = typename Pc::CI; ///< cut info
 
     //
     static constexpr bool     store_the_normals         = true;
