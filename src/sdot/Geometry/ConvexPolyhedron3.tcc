@@ -3,6 +3,10 @@
 #include "ConvexPolyhedron3.h"
 #include "Point2.h"
 
+#ifdef PD_WANT_STAT
+#include "../Support/Stat.h"
+#endif
+
 namespace sdot {
 
 template<class Pc>
@@ -168,7 +172,6 @@ void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::ExpWmR2db<T
 
 template<class Pc>
 void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::Unit, const std::function<void(TF,CI)> &f, TF weight ) const {
-    TODO;
     //    // round parts
     //    if ( flat_surfaces.empty() ) {
     //        if ( sphere_radius >= 0 )
@@ -184,9 +187,9 @@ void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::Unit, const
     //        f( ar, sphere_cut_id );
     //    }
 
-    //    // flat parts
-    //    for( const FlatSurface &fp : flat_surfaces )
-    //        f( area( fp ), fp.cut_id );
+    // flat parts
+    for( const Face &fp : faces )
+        f( area( fp ), fp.cut_id );
 
     //    // holes
     //    for( const Hole &hole : holes ) {
@@ -582,6 +585,10 @@ void ConvexPolyhedron3<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
     mci.normal = normal;
     mark_cut_faces_and_edges( mci, node, dot( node->pos - origin, normal ) );
 
+    #ifdef PD_WANT_STAT
+    stat.add_for_dist( "nb outside during cut", mci.rem_nodes.size() );
+    #endif
+
     // remove all the exterior nodes
     for( Node &node : mci.rem_nodes )
         nodes.free( &node );
@@ -886,6 +893,22 @@ bool ConvexPolyhedron3<Pc>::contains( const Pt &pos ) const {
     }
 
     return true;
+}
+
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::distance( const Pt &pos, bool count_domain_boundaries ) const {
+    using std::pow;
+    using std::max;
+
+    TF res = - std::numeric_limits<TF>::max();
+    for( const Face &face : faces ) {
+        if ( allow_ball_cut && face.round )
+            res = max( res, norm_2_p2( pos - sphere_center ) - pow( sphere_radius, 2 ) );
+        else if ( count_domain_boundaries || face.cut_id != -1ul )
+            res = dot( pos - face.cut_O, face.cut_N );
+    }
+
+    return res;
 }
 
 template<class Pc>
@@ -1235,7 +1258,7 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::area( const Face &fs )
     // area of circular caps
     TF caps_area = 0;
     if ( allow_ball_cut ) {
-        TODO;
+        //        TODO;
         //        for( TI num_in_edge_indices = fs.beg_in_edge_indices; num_in_edge_indices < fs.end_in_edge_indices; ++num_in_edge_indices ) {
         //            const Edge &edge = edges[ edge_indices[ num_in_edge_indices ] ];
         //            if ( edge.round() ) {

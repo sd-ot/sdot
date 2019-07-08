@@ -28,6 +28,11 @@ int get_der_integrals_wrt_weights( std::vector<TI> &m_offsets, std::vector<TI> &
         std::vector<TF>               values;
     };
 
+    #ifdef PD_WANT_STAT
+    ++stat.num_phase;
+    #endif
+
+
     int nb_threads = thread_pool.nb_threads();
     std::vector<DataPerThread> data_per_threads( nb_threads, nb_diracs / nb_threads );
     std::vector<std::pair<int,TI>> pos_in_loc_matrices( nb_diracs ); // num dirac => num_thread, num sub row

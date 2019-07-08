@@ -66,6 +66,7 @@ public:
 
     //
     int                     is_a_ball                () const { return faces.empty() ? ( sphere_radius > 0 ? 1 : -1 ) : 0; } // 0 is not a ball. -1 if void, 1 if not void
+    TI                      nb_points                () const { return nodes.size(); }
 
     // modifications
     void                    intersect_with           ( const ConvexPolyhedron3 &cp );
@@ -85,7 +86,7 @@ public:
     template<class F> void  for_each_boundary_item   ( FunctionEnum::R2           , const F &f, TF weight = 0 ) const;
 
     template<class F> Node *find_node_maximizing     ( const F &f, bool return_node_only_if_true = true ) const; ///< f must return true to stop the search. It takes ( TF &value, Pt pos ) as parameters
-    void                    for_each_node             ( const std::function<void( Pt v )> &f ) const;
+    void                    for_each_node            ( const std::function<void( Pt v )> &f ) const;
 
     TF                      boundary_measure         ( FunctionEnum::Unit ) const;
     Pt                      centroid                 ( FunctionEnum::Unit ) const;
@@ -112,6 +113,7 @@ public:
     Pt                      min_position             () const;
     Pt                      max_position             () const;
     bool                    contains                 ( const Pt &pos ) const;
+    TF                      distance                 ( const Pt &pos, bool count_domain_boundaries = false ) const; // signed distance to the boundaries (<0 means inside)
     bool                    empty                    () const { return faces.empty() && ( allow_ball_cut == false || sphere_radius <= 0 ); }
     static TF               pi                       () { if ( std::is_same<TF,double>::value ) return M_PI; using std::atan; return 4 * atan( TF( 1 ) ); }
 

@@ -87,6 +87,7 @@ public:
 
     // tests
     bool                      is_a_cutting_plane        ( Pt origin, Pt normal ) const;
+    TF                        distance                  ( const Pt &pos, bool count_domain_boundaries = false ) const; // signed distance to the boundaries (<0 means inside)
     bool                      contains                  ( const Pt &pos ) const;
 
     // computations

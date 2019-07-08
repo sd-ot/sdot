@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include "UN.h"
 
 /**
   GetNext must return a reference on the pointer (allowing modifications)
@@ -22,6 +23,7 @@ public:
     /**/          ListRef        () : first_item( nullptr ), last_item( nullptr ) {}
 
     void          write_to_stream( std::ostream &os, const char *sep = " " ) const { int cpt = 0; for( const T &val : *this ) os << ( cpt++ ? sep : "" ) << val; }
+    std::size_t   size           () const { std::size_t res = 0; for ( T &_ : *this ){ UN(_); ++res; } return res; }
     Iterator      begin          () const { return first_item; }
     Iterator      end            () const { return nullptr; }
 

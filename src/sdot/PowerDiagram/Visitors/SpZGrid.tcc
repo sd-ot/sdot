@@ -505,6 +505,17 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
         Pt V = c1 - c0;
         TF n = norm_2_p2( V );
         TF x = TF( 0.5 ) + TF( 0.5 ) * ( w0 - w1 ) / n;
+
+        #ifdef PD_WANT_STAT
+        stat.add_for_dist( "nb nodes before cut", lc.nb_points() );
+
+        static std::ofstream fout( "cuts.txt" );
+        static std::mutex mut;
+        mut.lock();
+        fout << stat.num_phase << " " << c0 << " " << c0 + x * V << " " << V << "\n";
+        mut.unlock();
+        #endif
+
         lc.plane_cut( c0 + x * V, V, i1, N<0>() );
     };
 

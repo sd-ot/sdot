@@ -2,6 +2,10 @@
 #include "ConvexPolyhedron2.h"
 #include <iomanip>
 
+#ifdef PD_WANT_STAT
+#include "../Support/Stat.h"
+#endif
+
 namespace sdot {
 
 template<class Pc>
@@ -400,16 +404,24 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
     }
 
     // all inside ?
-    if ( outside == 0 )
+    if ( outside == 0 ) {
+        #ifdef PD_WANT_STAT
+        stat.add_for_dist( "nb outside during cut", 0 );
+        #endif
         return false;
+    }
 
     // all outside ?
     const std::bitset<64> outside_bits( outside );
     std::size_t nb_outside = outside_bits.count();
+    #ifdef PD_WANT_STAT
+    stat.add_for_dist( "nb outside during cut", nb_outside );
+    #endif
     if ( nb_outside == _nb_points ) {
         _nb_points = 0;
         return false;
     }
+
 
     //
     if ( normal_is_normalized.val == 0 ) {
@@ -710,6 +722,16 @@ bool ConvexPolyhedron2<Pc>::contains( const Pt &pos ) const {
         if ( dot( pos - point( i ), normal( i ) ) > 0 )
             return false;
     return true;
+}
+
+template<class Pc>
+typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::distance( const Pt &pos, bool count_domain_boundaries ) const {
+    using std::max;
+    TF res = - std::numeric_limits<TF>::max();
+    for( TI i = 0; i < _nb_points; ++i )
+        if ( count_domain_boundaries || cut_ids[ i ] != -1ul )
+            res = max( res, dot( pos - point( i ), normal( i ) ) );
+    return res;
 }
 
 template<class Pc>
