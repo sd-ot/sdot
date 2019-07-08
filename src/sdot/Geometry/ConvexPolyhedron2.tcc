@@ -1432,6 +1432,11 @@ void ConvexPolyhedron2<Pc>::intersect_with( const ConvexPolyhedron2 &cp ) {
 
         if ( has_sphere_cut )
             ball_cut( cp.sphere_center, cp.sphere_radius, cp.sphere_cut_id );
+        else {
+            sphere_center = cp.sphere_center;
+            sphere_radius = cp.sphere_radius;
+            sphere_cut_id = cp.sphere_cut_id;
+        }
     } else {
         if ( cp.sphere_radius > 0 ) {
             ball_cut( cp.sphere_center, cp.sphere_radius, cp.sphere_cut_id );
