@@ -32,8 +32,8 @@ void get_image_integrals( TF *res, Grid &grid, Bounds &bounds, const Pt *positio
 
             // find min_y, max_y
             Pt ps;
-            std::array<TI,dim> min_i;
-            std::array<TI,dim> max_i;
+            std::array<TI,Grid::dim> min_i;
+            std::array<TI,Grid::dim> max_i;
             Pt min_pos = cp.min_position();
             Pt max_pos = cp.max_position();
             for( std::size_t d = 0; d < dim; ++d ) {
@@ -47,7 +47,7 @@ void get_image_integrals( TF *res, Grid &grid, Bounds &bounds, const Pt *positio
 
             // for each pixel
             CP ccp;
-            CrossProdOfRanges<std::size_t,dim> cr( min_i, max_i );
+            CrossProdOfRanges<std::size_t,Grid::dim> cr( min_i, max_i );
             cr.for_each( [&]( auto p ) {
                 Pt pf;
                 TI off_pix = 0;
