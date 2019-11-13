@@ -1422,15 +1422,10 @@ template<class Pc>
 void ConvexPolyhedron2<Pc>::intersect_with( const ConvexPolyhedron2 &cp ) {
     ASSERT( sphere_radius <= 0, "TODO: intersect ball cutted with ball cutted convex polyhedron" );
     if ( cp._nb_points ) {
-        bool has_sphere_cut = false;
-        for( TI i = 0; i < cp._nb_points; ++i ) {
-            if ( cp.arcs[ i ] )
-                has_sphere_cut = true;
-            else
-                plane_cut( cp.point( i ), cp.normal( i ), cp.cut_ids[ i ] );
-        }
+        for( TI i = 0; i < cp._nb_points; ++i )
+            plane_cut( cp.point( i ), cp.normal( i ), cp.cut_ids[ i ] );
 
-        if ( has_sphere_cut )
+        if ( cp.sphere_radius > 0 )
             ball_cut( cp.sphere_center, cp.sphere_radius, cp.sphere_cut_id );
         else {
             sphere_center = cp.sphere_center;
