@@ -20,3 +20,4 @@ hugo/
 vtk/
 *.pdf
 results/
+*.user
