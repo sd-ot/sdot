@@ -18,6 +18,11 @@ ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::~ZGridDiracSetStd() {
 }
 
 template<class Arch,class T,class S,int dim,class ItemPerDirac>
+S ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::nb_diracs_for_mem( std::size_t mem ) {
+    return mem / ( ( dim + 1 ) * sizeof( T ) + sizeof( ItemPerDirac ) );
+}
+
+template<class Arch,class T,class S,int dim,class ItemPerDirac>
 ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac> *ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::New( S size ) {
     S rese = ceil( size, alf ), rb = ceil( sizeof( ZGridDiracSetStd ), alb ) + ( dim + 1 ) * rese * sizeof( T ) + rese + sizeof( S );
 

@@ -77,6 +77,43 @@ TZ zcoords_for( std::array<const T *,3> positions, S num, Pt min_point, T inv_st
     return res;
 }
 
+template<class TZ,int nb_bits_per_axis,class T,class S,class Pt>
+TZ zcoords_for_bounded( std::array<const T *,1> positions, S num, Pt min_point, Pt max_point, T inv_step_length ) {
+    using std::min;
+    using std::max;
+    return TZ( inv_step_length * ( max( min_point[ 0 ], min( max_point[ 0 ], positions[ 0 ][ num ] ) ) - min_point[ 0 ] ) );
+}
+
+template<class TZ,int nb_bits_per_axis,class T,class S,class Pt>
+TZ zcoords_for_bounded( std::array<const T *,2> positions, S num, Pt min_point, Pt max_point, T inv_step_length ) {
+    using std::min;
+    using std::max;
+    TZ x = TZ( inv_step_length * ( max( min_point[ 0 ], min( max_point[ 0 ], positions[ 0 ][ num ] ) ) - min_point[ 0 ] ) );
+    TZ y = TZ( inv_step_length * ( max( min_point[ 1 ], min( max_point[ 1 ], positions[ 1 ][ num ] ) ) - min_point[ 1 ] ) );
+
+    TZ res = 0;
+    for( int o = 0; o < nb_bits_per_axis; o += 8 )
+        res |= TZ( morton_256_2D_x_32[ ( x >> o ) & 0xFF ] |
+                   morton_256_2D_y_32[ ( y >> o ) & 0xFF ] ) << 2 * o;
+    return res;
+}
+
+template<class TZ,int nb_bits_per_axis,class T,class S,class Pt>
+TZ zcoords_for_bounded( std::array<const T *,3> positions, S num, Pt min_point, Pt max_point, T inv_step_length ) {
+    using std::min;
+    using std::max;
+    TZ x = TZ( inv_step_length * ( max( min_point[ 0 ], min( max_point[ 0 ], positions[ 0 ][ num ] ) ) - min_point[ 0 ] ) );
+    TZ y = TZ( inv_step_length * ( max( min_point[ 1 ], min( max_point[ 1 ], positions[ 1 ][ num ] ) ) - min_point[ 1 ] ) );
+    TZ z = TZ( inv_step_length * ( max( min_point[ 2 ], min( max_point[ 2 ], positions[ 2 ][ num ] ) ) - min_point[ 2 ] ) );
+
+    TZ res = 0;
+    for( int o = 0; o < nb_bits_per_axis; o += 8 )
+        res |= TZ( morton_256_3D_x_32[ ( x >> o ) & 0xFF ] |
+                   morton_256_3D_y_32[ ( y >> o ) & 0xFF ] |
+                   morton_256_3D_z_32[ ( z >> o ) & 0xFF ] ) << 3 * o;
+    return res;
+}
+
 //#ifdef __AVX512F__
 //template<int nb_bits_per_axis,class Pt>
 //void make_znodes( std::uint64_t *zcoords, std::uint64_t *indices, std::array<const double *,2> positions, std::size_t nb_diracs, Pt min_point, double inv_step_length ) {

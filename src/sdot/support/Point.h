@@ -182,6 +182,14 @@ inline TF max( Point<TF,dim> p ) {
 }
 
 template<class TF,int dim>
+inline TF has_nan( Point<TF,dim> p ) {
+    for( int i = 0; i < dim; ++i )
+        if ( std::isnan( p[ i ] ) )
+            return true;
+    return false;
+}
+
+template<class TF,int dim>
 inline Point<TF,dim> normalized( Point<TF,dim> p, TF a = 1e-40 ) {
     return p / ( norm_2( p ) + a );
 }

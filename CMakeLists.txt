@@ -93,17 +93,6 @@ function( comp_for_profiles )
     add_custom_target( gen ${gen_commands} echo )
 endfunction()
 
-
-# [COMMAND command2 [args2...] ...]
-# [DEPENDS depend depend depend ... ]
-# [BYPRODUCTS [files...]]
-# [WORKING_DIRECTORY dir]
-# [COMMENT comment]
-# [JOB_POOL job_pool]
-# [VERBATIM] [USES_TERMINAL]
-# [COMMAND_EXPAND_LISTS]
-# [SOURCES src1 [src2...]]
-
 # profiles
 set( scalar_types FP64      )
 set( size_types   U64       )

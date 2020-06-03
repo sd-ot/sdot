@@ -13,6 +13,10 @@ static ZGridDiracSetStdFactory<ARCH,TF,ST,DIM,Void> zdssf;
 ZGrid::ZGrid( ZGridDiracSetFactory<TF,ST> *dirac_set_factory ) {
     if ( ! dirac_set_factory ) dirac_set_factory = &zdssf;
     this->dirac_set_factory = dirac_set_factory;
+
+    available_memory = 16e9;
+
+    // max_dirac_per_sst = dirac_set_factory->nb_diracs_for_mem( 1e9 /* 1 Go */ );
 }
 
 ZGrid::~ZGrid() {
@@ -27,24 +31,34 @@ void ZGrid::get_dimensions( const std::function<void( const ZGrid::CbConstruct &
     using std::min;
     using std::max;
 
+    // we need
+
+    // Le but premier est de répartir les diracs dans les machines, les out_of_core et commencer à mettre dans des sous-structures.
+    nb_diracs = 0;
+    if ( has_nan( update_parms.hist_min_point ) || has_nan( update_parms.hist_max_point ) ) {
+
+    }
+
     // reset
     all_ptrs_survive_the_call = true;
     ptrs_of_previous_call.clear();
     hist_inv_step_length = 0;
-    nb_diracs = 0;
+    hist_is_done = false;
     hist.clear();
 
     // if user has provided incl_min_point and incl_max_point
     bool can_make_hist = true;
-    for( TF v : update_parms.incl_min_point )
+    for( TF v : update_parms.hist_min_point )
         can_make_hist &= v != - std::numeric_limits<TF>::max();
-    for( TF v : update_parms.incl_max_point )
+    for( TF v : update_parms.hist_max_point )
         can_make_hist &= v != + std::numeric_limits<TF>::max();
     if ( can_make_hist ) {
         TF hist_grid_length = 0;
         for( std::size_t d = 0; d < dim; ++d )
-            hist_grid_length = max( hist_grid_length, update_parms.incl_max_point[ d ] - update_parms.incl_min_point[ d ] );
+            hist_grid_length = max( hist_grid_length, update_parms.hist_max_point[ d ] - update_parms.hist_min_point[ d ] );
         hist_inv_step_length = ( TZ( 1 ) << nb_bits_per_axis ) / ( hist_grid_length * ( 1 + std::numeric_limits<TF>::epsilon() ) );
+        hist_min_point = update_parms.hist_min_point;
+        hist_max_point = update_parms.hist_max_point;
     }
 
     // traversal
@@ -78,7 +92,7 @@ void ZGrid::get_dimensions( const std::function<void( const ZGrid::CbConstruct &
 
             // TODO: same thing in parallel
             for( ST num_dirac = 0; num_dirac < nb_diracs; ++num_dirac ) {
-                TZ zcoords = zcoords_for<TZ,nb_bits_per_axis>( coords, num_dirac, update_parms.incl_min_point, hist_inv_step_length );
+                TZ zcoords = zcoords_for_bounded<TZ,nb_bits_per_axis>( coords, num_dirac, hist_min_point, hist_max_point, hist_inv_step_length );
                 ++hist[ TF( zcoords ) * hist.size() / max_zcoords ];
             }
         }
@@ -94,12 +108,10 @@ void ZGrid::get_dimensions( const std::function<void( const ZGrid::CbConstruct &
 
     step_length = grid_length / ( TZ( 1 ) << nb_bits_per_axis );
     inv_step_length = TF( 1 ) / step_length;
-
-    P( hist );
 }
 
 void ZGrid::make_the_cells( const std::function<void(const ZGrid::CbConstruct &)> &f, const UpdateParms &update_parms ) {
-    // historique si pas fait
+    // qi
     if (  ) {
 
     }
