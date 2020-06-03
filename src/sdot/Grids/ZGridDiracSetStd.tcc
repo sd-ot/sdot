@@ -4,62 +4,62 @@
 
 namespace sdot {
 
-template<class ItemPerDirac>
-ZGridDiracSetStd<ItemPerDirac>::~ZGridDiracSetStd() {
-    ST *data = ids();
-    for( ST i = _size; i--; )
-        data[ i ].~ST();
+template<class Arch,class T,class S,int dim,class ItemPerDirac>
+ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::~ZGridDiracSetStd() {
+    S *data = ids();
+    for( S i = _size; i--; )
+        data[ i ].~S();
 
-    for( ST d = DIM + 1; d--; ) {
-        TF *data = coords( d );
-        for( ST i = _size; i--; )
-            data[ i ].~TF();
+    for( S d = dim + 1; d--; ) {
+        T *data = coords( d );
+        for( S i = _size; i--; )
+            data[ i ].~T();
     }
 }
 
-template<class ItemPerDirac>
-ZGridDiracSetStd<ItemPerDirac> *ZGridDiracSetStd<ItemPerDirac>::New( ST size ) {
-    ST rese = ceil( size, alf ), rb = ceil( sizeof( ZGridDiracSetStd ), alb ) + ( DIM + 1 ) * rese * sizeof( TF ) + rese + sizeof( ST );
+template<class Arch,class T,class S,int dim,class ItemPerDirac>
+ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac> *ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::New( S size ) {
+    S rese = ceil( size, alf ), rb = ceil( sizeof( ZGridDiracSetStd ), alb ) + ( dim + 1 ) * rese * sizeof( T ) + rese + sizeof( S );
 
-    ZGridDiracSetStd *res = new ( aligned_alloc( alf * sizeof( TF ), rb ) ) ZGridDiracSetStd;
+    ZGridDiracSetStd *res = new ( aligned_alloc( alf * sizeof( T ), rb ) ) ZGridDiracSetStd;
     res->_rese = rese;
     res->_size = size;
 
-    for( ST d = 0; d < DIM + 1; ++d ) {
-        TF *data = res->coords( d );
-        for( ST i = 0; i < size; ++i )
-            new ( data + i ) TF;
+    for( S d = 0; d < dim + 1; ++d ) {
+        T *data = res->coords( d );
+        for( S i = 0; i < size; ++i )
+            new ( data + i ) T;
     }
 
-    ST *data = res->ids();
-    for( ST i = 0; i < size; ++i )
-        new ( data + i ) ST;
+    S *data = res->ids();
+    for( S i = 0; i < size; ++i )
+        new ( data + i ) S;
 
     return res;
 }
 
-template<class ItemPerDirac>
-void ZGridDiracSetStd<ItemPerDirac>::get_base_data( TF **coords, TF *&weights, ST *&ids ) {
-    for( ST dim = 0; dim < DIM; ++dim )
-        coords[ dim ] = this->coords( dim );
-    weights = this->coords( DIM );
+template<class Arch,class T,class S,int dim,class ItemPerDirac>
+void ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::get_base_data( T **coords, T *&weights, S *&ids ) {
+    for( S d = 0; d < dim; ++d )
+        coords[ d ] = this->coords( d );
+    weights = this->coords( dim );
     ids = this->ids();
 }
 
-template<class ItemPerDirac>
-ST ZGridDiracSetStd<ItemPerDirac>::size() {
+template<class Arch,class T,class S,int dim,class ItemPerDirac>
+S ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::size() {
     return _size;
 }
 
-template<class ItemPerDirac>
-TF* ZGridDiracSetStd<ItemPerDirac>::coords( int dim ) {
+template<class Arch,class T,class S,int dim,class ItemPerDirac>
+T* ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::coords( int d ) {
     char *p = reinterpret_cast<char *>( this ) + ceil( sizeof( ZGridDiracSetStd ), alb );
-    return reinterpret_cast<TF *>( p ) + dim * _rese;
+    return reinterpret_cast<T *>( p ) + d * _rese;
 }
 
-template<class ItemPerDirac>
-ST* ZGridDiracSetStd<ItemPerDirac>::ids() {
-    return reinterpret_cast<ST *>( coords( DIM + 1 ) );
+template<class Arch,class T,class S,int dim,class ItemPerDirac>
+S* ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::ids() {
+    return reinterpret_cast<S *>( coords( dim + 1 ) );
 }
 
 }

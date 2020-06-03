@@ -12,6 +12,14 @@ add_executable( gen_plane_cut_procs
     src/sdot/support/OptParm.cpp
 )
 
+# common libraries
+add_library( sdot_common
+    src/sdot/Grids/internal/ZCoords.cpp
+    src/sdot/support/VtkOutput.cpp
+)
+
+
+#
 function( comp_profile scalar_type size_type arch )
     set( profile ${scalar_type}_${size_type}_${arch} )
     message( "Compiling for: " ${profile} )
@@ -43,10 +51,10 @@ function( comp_profile scalar_type size_type arch )
     # library 
     add_library( sdot_${profile}
         src/sdot/ConvexPolyhedron/ConvexPolyhedron2.cpp
-        src/sdot/support/VtkOutput.cpp
     )
     target_compile_definitions( sdot_${profile} PRIVATE PROFILE=${profile} TF=${scalar_type} ST=${size_type} ARCH=${arch} )
     target_compile_options( sdot_${profile} PRIVATE ${opt_flags} )
+    target_link_libraries( sdot_${profile} sdot_common )
 
     foreach( dim IN ITEMS 2 3 )
         add_library( sdot_${profile}_${dim}D
@@ -54,6 +62,7 @@ function( comp_profile scalar_type size_type arch )
         )
         target_compile_definitions( sdot_${profile}_${dim}D PRIVATE PROFILE=${profile} TF=${scalar_type} ST=${size_type} ARCH=${arch} DIM=${dim} )
         target_compile_options( sdot_${profile}_${dim}D PRIVATE ${opt_flags} )
+        target_link_libraries( sdot_${profile}_${dim}D sdot_${profile} )
     endforeach()
 
     # test
@@ -62,14 +71,14 @@ function( comp_profile scalar_type size_type arch )
         tests/test_Grid2.cpp
     )
     target_compile_definitions( test_${profile} PRIVATE PROFILE=${profile} TF=${scalar_type} ST=${size_type} ARCH=${arch} )
-    target_link_libraries( test_${profile} sdot_${profile} sdot_${profile}_2D sdot_${profile}_3D gtest )
+    target_link_libraries( test_${profile} sdot_${profile}_2D sdot_${profile}_3D gtest )
     add_test( test_${profile} test_${profile} )
 
     # bench
     add_executable( bench_${profile} tests/bench_ConvexPolyhedron2.cpp )
     target_compile_definitions( bench_${profile} PRIVATE PROFILE=${profile} TF=${scalar_type} ST=${size_type} ARCH=${arch} )
     target_compile_options( bench_${profile} PRIVATE ${opt_flags} )
-    target_link_libraries( bench_${profile} sdot_${profile} )
+    target_link_libraries( bench_${profile} sdot_${profile}_2D sdot_${profile}_3D )
 endfunction()
 
 function( comp_for_profiles )

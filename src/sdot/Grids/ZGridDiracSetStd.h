@@ -7,24 +7,24 @@ namespace sdot {
 
 /**
 */
-template<class ItemPerDirac>
-class ZGridDiracSetStd : public ZGridDiracSet {
+template<class Arch,class T,class S,int dim,class ItemPerDirac>
+class ZGridDiracSetStd : public ZGridDiracSet<T,S> {
 public:
-    static constexpr ST      alf             = SimdAlig<ARCH,TF>::value;
-    static constexpr ST      alb             = alf * sizeof( TF );
+    static constexpr S       alf             = SimdAlig<Arch,T>::value;
+    static constexpr S       alb             = alf * sizeof( T );
 
     virtual                 ~ZGridDiracSetStd();
 
-    static ZGridDiracSetStd* New             ( ST size );
+    static ZGridDiracSetStd* New             ( S size );
 
-    virtual void             get_base_data   ( TF **coords, TF *&weights, ST *&ids ) override;
-    virtual ST               size            () override;
+    virtual void             get_base_data   ( T **coords, T *&weights, S *&ids ) override;
+    virtual S                size            () override;
 
-    TF*                      coords          ( int dim );
-    ST*                      ids             ();
+    T*                       coords          ( int d );
+    S*                       ids             ();
 
-    ST                       _size;
-    ST                       _rese;
+    S                        _size;
+    S                        _rese;
     // ... followed by coords, weight and id data
 };
 

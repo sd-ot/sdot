@@ -7,10 +7,10 @@ namespace sdot {
 
 /**
 */
-template<class ContentByDirac>
-class ZGridDiracSetStdFactory : public ZGridDiracSetFactory {
+template<class Arch,class T,class S,int dim,class ContentByDirac>
+class ZGridDiracSetStdFactory : public ZGridDiracSetFactory<T,S> {
 public:
-    virtual ZGridDiracSet *New( ST size ) const override { return ZGridDiracSetStd<ContentByDirac>::New( size ); }
+    virtual ZGridDiracSet<T,S> *New( ST size ) const override { return ZGridDiracSetStd<Arch,T,S,dim,ContentByDirac>::New( size ); }
 };
 
 }

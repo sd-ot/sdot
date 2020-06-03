@@ -11,7 +11,7 @@ using namespace sdot;
 TEST( ZGrid, RegularCuts ) {
     std::vector<TF> xs, ys, ws;
     std::vector<ST> is;
-    for( ST i = 0; i < 10; ++i ) {
+    for( ST i = 0; i < 400; ++i ) {
         xs.push_back( 1.0 * rand() / RAND_MAX );
         ys.push_back( 1.0 * rand() / RAND_MAX );
         ws.push_back( 1.0 );
@@ -22,5 +22,5 @@ TEST( ZGrid, RegularCuts ) {
     ZGrid zgrid;
     zgrid.update( [&]( const ZGrid::CbConstruct &cb ) {
         cb( { xs.data(), ys.data() }, ws.data(), is.data(), xs.size(), true );
-    } );
+    }, { .incl_min_point = { 0, 0 }, .incl_max_point = { 1, 1 } } );
  }

@@ -1,17 +1,16 @@
 #pragma once
 
-#include "../support/type_config.h"
-
 namespace sdot {
 
 /**
 */
+template<class T,class S>
 class ZGridDiracSet {
 public:
     virtual     ~ZGridDiracSet() {}
 
-    virtual void get_base_data( TF **coords, TF *&weights, ST *&ids ) = 0;
-    virtual ST   size         () = 0;
+    virtual void get_base_data( T **coords, T *&weights, S *&ids ) = 0;
+    virtual S    size         () = 0;
 };
 
 }
