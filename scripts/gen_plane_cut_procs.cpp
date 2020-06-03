@@ -19,7 +19,6 @@ int main( int argc, char **argv ) {
             continue;
         }
 
-        //  FP64 ---type U64 --arch
         if ( arg == "--scalar-type" ) {
             scalar_type = argv[ ++n ];
             continue;

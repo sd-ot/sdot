@@ -2,6 +2,16 @@ cmake_minimum_required( VERSION 3.10 )
 include( scripts/cmake/gtest.cmake )
 project( sdot )
 
+# code generation
+add_executable( gen_plane_cut_procs
+    scripts/gen_plane_cut_procs.cpp
+    scripts/internal/GenPlaneCutProc.cpp
+    scripts/internal/SimdGen.cpp
+    scripts/internal/SimdGenOp.cpp
+    scripts/internal/PlaneCutProcPlan.cpp
+    src/sdot/support/OptParm.cpp
+)
+
 function( comp_profile scalar_type size_type arch )
     set( profile ${scalar_type}_${size_type}_${arch} )
     message( "Compiling for: " ${profile} )
@@ -21,10 +31,14 @@ function( comp_profile scalar_type size_type arch )
     endif()
 
     if( arch EQUAL NOARCH )
-        set( cpu_flags  )
+        set( cpu_flags )
     endif()
 
     set( opt_flags -fno-stack-protector -march=native -O3 )
+
+    # generation
+    list( APPEND gen_commands echo ${CMAKE_BINARY_DIR}/gen_plane_cut_procs --scalar-type ${scalar_type} --size-type ${size_type} --arch ${arch} --out ${CMAKE_SOURCE_DIR}/src/sdot/ConvexPolyhedron/internal/ConvexPolyhedron2_plane_cut_lt8_${profile} --op  ${CMAKE_SOURCE_DIR}/src/sdot/ConvexPolyhedron/internal/ConvexPolyhedron2_plane_cut_lt8_${profile}.params && )
+    set( gen_commands ${gen_commands} PARENT_SCOPE )
 
     # library 
     add_library( sdot_${profile}
@@ -66,10 +80,11 @@ function( comp_for_profiles )
             endforeach()
         endforeach()
     endforeach()
+
+    add_custom_target( gen ${gen_commands} echo )
 endfunction()
 
-add_custom_target( gen [command1 [args1...]]
-)
+
 # [COMMAND command2 [args2...] ...]
 # [DEPENDS depend depend depend ... ]
 # [BYPRODUCTS [files...]]
@@ -80,20 +95,10 @@ add_custom_target( gen [command1 [args1...]]
 # [COMMAND_EXPAND_LISTS]
 # [SOURCES src1 [src2...]]
 
-# code generation
-add_executable( gen_plane_cut_procs
-    scripts/gen_plane_cut_procs.cpp
-    scripts/internal/GenPlaneCutProc.cpp
-    scripts/internal/SimdGen.cpp
-    scripts/internal/SimdGenOp.cpp
-    scripts/internal/PlaneCutProcPlan.cpp
-    src/sdot/support/OptParm.cpp
-)
-
 # profiles
-set( scalar_types FP64 )
-set( size_types U64 )
-set( archs SSE2 AVX2 )
+set( scalar_types FP64      )
+set( size_types   U64       )
+set( archs        SSE2 AVX2 )
 
 comp_for_profiles()
 
