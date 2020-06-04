@@ -1,9 +1,13 @@
 #pragma once
 
+#include <limits>
 #include <cmath>
 
 namespace sdot {
 
+/*
+  The first traversal of each update can be avoided if approx_nb_diracs, hist_min_point and hist_max_point are defined.
+*/
 template<class T,class S,int d>
 struct ZGridUpdateParms {
     using  Pt                         = Point<T,d>;

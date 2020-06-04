@@ -1,3 +1,4 @@
+#include <boost/multiprecision/cpp_int.hpp>
 #include "ZGridDiracSetStdFactory.h"
 #include "internal/ZCoords.h"
 #include "../support/Void.h"
@@ -7,7 +8,6 @@
 
 namespace sdot {
 
-//template<class Arch,class T,class S,int dim,class ContentByDirac>
 static ZGridDiracSetStdFactory<ARCH,TF,ST,DIM,Void> zdssf;
 
 ZGrid::ZGrid( ZGridDiracSetFactory<TF,ST> *dirac_set_factory ) {
@@ -23,100 +23,82 @@ ZGrid::~ZGrid() {
 }
 
 void ZGrid::update( const std::function<void( const sdot::ZGrid::CbConstruct & )> &f, const UpdateParms &update_parms ) {
-    get_dimensions( f, update_parms );
-    make_the_cells( f, update_parms );
-}
-
-void ZGrid::get_dimensions( const std::function<void( const ZGrid::CbConstruct &)> &f, const UpdateParms &update_parms ) {
-    using std::min;
     using std::max;
 
-    // we need
+    // min_point, max_point
+    ST approx_nb_diracs = 0;
+    if ( has_nan( update_parms.hist_min_point ) || has_nan( update_parms.hist_max_point ) || update_parms.approx_nb_diracs == 0 ) {
+        get_min_and_max_pts( f, update_parms, approx_nb_diracs );
+    } else {
+        approx_nb_diracs = update_parms.approx_nb_diracs;
+        min_point = update_parms.hist_min_point;
+        max_point = update_parms.hist_max_point;
 
-    // Le but premier est de répartir les diracs dans les machines, les out_of_core et commencer à mettre dans des sous-structures.
-    nb_diracs = 0;
-    if ( has_nan( update_parms.hist_min_point ) || has_nan( update_parms.hist_max_point ) ) {
-
+        grid_length = max( max_point - min_point ) * ( 1 + std::numeric_limits<TF>::epsilon() );
+        step_length = grid_length / ( TZ( 1 ) << nb_bits_per_axis );
+        inv_step_length = TF( 1 ) / step_length;
     }
 
-    // reset
-    all_ptrs_survive_the_call = true;
-    ptrs_of_previous_call.clear();
-    hist_inv_step_length = 0;
-    hist_is_done = false;
-    hist.clear();
+    // histogram
+    update_histogram( f, update_parms, approx_nb_diracs );
 
-    // if user has provided incl_min_point and incl_max_point
-    bool can_make_hist = true;
-    for( TF v : update_parms.hist_min_point )
-        can_make_hist &= v != - std::numeric_limits<TF>::max();
-    for( TF v : update_parms.hist_max_point )
-        can_make_hist &= v != + std::numeric_limits<TF>::max();
-    if ( can_make_hist ) {
-        TF hist_grid_length = 0;
-        for( std::size_t d = 0; d < dim; ++d )
-            hist_grid_length = max( hist_grid_length, update_parms.hist_max_point[ d ] - update_parms.hist_min_point[ d ] );
-        hist_inv_step_length = ( TZ( 1 ) << nb_bits_per_axis ) / ( hist_grid_length * ( 1 + std::numeric_limits<TF>::epsilon() ) );
-        hist_min_point = update_parms.hist_min_point;
-        hist_max_point = update_parms.hist_max_point;
-    }
+    // make the boxes
+    make_boxes_rec( f, update_parms );
+
+}
+
+void ZGrid::get_min_and_max_pts( const std::function<void( const ZGrid::CbConstruct &)> &f, const UpdateParms &/*update_parms*/, ST &nb_diracs ) {
+    using std::min;
+    using std::max;
 
     // traversal
     min_point = + std::numeric_limits<TF>::max();
     max_point = - std::numeric_limits<TF>::max();
-    ST approx_nb_diracs = update_parms.approx_nb_diracs;
-    f( [&]( std::array<const TF *,DIM> coords, const TF *weights, const ST *ids, ST nb_diracs, bool ptrs_survive_the_call ) {
-        if ( nb_diracs == 0 )
+    f( [&]( std::array<const TF *,DIM> coords, const TF */*weights*/, const ST */*ids*/, ST nb ) {
+        if ( nb == 0 )
             return;
 
         // TODO: same thing in parallel
         for( ST dim = 0; dim < DIM; ++dim ) {
-            for( ST num_dirac = 0; num_dirac < nb_diracs; ++num_dirac ) {
+            for( ST num_dirac = 0; num_dirac < nb; ++num_dirac ) {
                 min_point[ dim ] = min( min_point[ dim ], coords[ dim ][ num_dirac ] );
                 max_point[ dim ] = max( max_point[ dim ], coords[ dim ][ num_dirac ] );
             }
         }
 
-        // storage of ptrs if relevant
-        if ( ptrs_survive_the_call )
-            ptrs_of_previous_call.push_back( { coords, weights, ids, nb_diracs } );
-        else
-            all_ptrs_survive_the_call = false;
-
-        // histogram
-        if ( can_make_hist ) {
-            if ( approx_nb_diracs == 0 )
-                approx_nb_diracs = nb_diracs;
-            if ( hist.empty() )
-                hist.resize( approx_nb_diracs / 16 + 1, 0 );
-
-            // TODO: same thing in parallel
-            for( ST num_dirac = 0; num_dirac < nb_diracs; ++num_dirac ) {
-                TZ zcoords = zcoords_for_bounded<TZ,nb_bits_per_axis>( coords, num_dirac, hist_min_point, hist_max_point, hist_inv_step_length );
-                ++hist[ TF( zcoords ) * hist.size() / max_zcoords ];
-            }
-        }
-
-        this->nb_diracs += nb_diracs;
+        nb_diracs += nb;
     } );
 
     // grid size
-    grid_length = 0;
-    for( std::size_t d = 0; d < dim; ++d )
-        grid_length = max( grid_length, max_point[ d ] - min_point[ d ] );
-    grid_length *= 1 + std::numeric_limits<TF>::epsilon();
-
+    grid_length = max( max_point - min_point ) * ( 1 + std::numeric_limits<TF>::epsilon() );
     step_length = grid_length / ( TZ( 1 ) << nb_bits_per_axis );
     inv_step_length = TF( 1 ) / step_length;
 }
 
-void ZGrid::make_the_cells( const std::function<void(const ZGrid::CbConstruct &)> &f, const UpdateParms &update_parms ) {
-    // qi
-    if (  ) {
+void ZGrid::update_histogram( const std::function<void(const ZGrid::CbConstruct &)> &f, const UpdateParms &update_parms, ST approx_nb_diracs ) {
+    using std::min;
 
-    }
+    histogram.resize( 1 );
 
-    // construction des cellules
+    std::size_t base_size = min( available_memory / ( 2 * sizeof( SI ) ), std::size_t( approx_nb_diracs * update_parms.hist_ratio ) );
+    histogram[ 0 ].resize( pow_2_le( base_size ) );
+    for( SI &v : histogram[ 0 ] )
+        v = 0;
+
+    nb_diracs = 0;
+
+    f( [&]( std::array<const TF *,DIM> coords, const TF */*weights*/, const ST */*ids*/, ST nb_diracs ) {
+        // TODO: same thing in parallel
+        for( ST num_dirac = 0; num_dirac < nb_diracs; ++num_dirac ) {
+            TZ z = zcoords_for<TZ,nb_bits_per_axis>( coords, num_dirac, min_point, inv_step_length );
+
+            using namespace boost::multiprecision;
+            histogram[ 0 ][ std::size_t( int128_t( z ) * base_size / max_zcoords ) ]++;
+        }
+    } );
+}
+
+void ZGrid::make_boxes_rec( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms ) {
 }
 
 } // namespace sdot

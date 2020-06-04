@@ -17,26 +17,28 @@ class VtkOutput;
 */
 class ZGrid {
 public:
-    static constexpr ST          dim               = DIM;
-    using                        Pt                = Point<TF,dim>;
-    using                        UpdateParms       = ZGridUpdateParms<TF,ST,dim>;
-    using                        CbConstruct       = std::function<void( std::array<const TF *,DIM> coords, const TF *weights, const ST *ids, ST nb_diracs )>; ///<
+    static constexpr ST          dim                = DIM;
+    using                        Pt                 = Point<TF,dim>;
+    using                        UpdateParms        = ZGridUpdateParms<TF,ST,dim>;
+    using                        CbConstruct        = std::function<void( std::array<const TF *,DIM> coords, const TF *weights, const ST *ids, ST nb_diracs )>; ///<
 
-    /**/                         ZGrid             ( ZGridDiracSetFactory<TF,ST> *dirac_set_factory = nullptr );
-    /**/                        ~ZGrid             ();
+    /**/                         ZGrid              ( ZGridDiracSetFactory<TF,ST> *dirac_set_factory = nullptr );
+    /**/                        ~ZGrid              ();
 
-    void                         update            ( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms = {} );
+    void                         update             ( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms = {} );
 
-    ST                           available_memory; ///<
+    ST                           available_memory;  ///<
 
 private:
-    using                        TZ                = std::uint64_t; ///< zcoords
-    static constexpr TZ          nb_bits_per_axis  = 20;
-    static constexpr TZ          sizeof_zcoords    = ( dim * nb_bits_per_axis + 7 ) / 8; ///< nb meaningful bytes in z-coordinates
-    static constexpr TZ          max_zcoords       = TZ( 1 ) << dim * nb_bits_per_axis; ///<
+    using                        SI                 = std::int64_t;
+    using                        TZ                 = std::uint64_t; ///< zcoords
+    static constexpr TZ          nb_bits_per_axis   = 20;
+    static constexpr TZ          sizeof_zcoords     = ( dim * nb_bits_per_axis + 7 ) / 8; ///< nb meaningful bytes in z-coordinates
+    static constexpr TZ          max_zcoords        = TZ( 1 ) << dim * nb_bits_per_axis; ///<
 
-    void                         get_dimensions    ( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms );
-    void                         make_the_cells    ( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms );
+    void                         get_min_and_max_pts( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms, ST &nb_diracs );
+    void                         update_histogram   ( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms, ST approx_nb_diracs );
+    void                         make_boxes_rec     ( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms );
 
     ZGridDiracSetFactory<TF,ST>* dirac_set_factory;
     TF                           inv_step_length;
@@ -45,7 +47,7 @@ private:
     Pt                           min_point;
     Pt                           max_point;
     ST                           nb_diracs;
-    std::vector<std::vector<ST>> hist;             ///<
+    std::vector<std::vector<SI>> histogram;              ///< < 0 => next level of hist
 };
 
 } // namespace sdot

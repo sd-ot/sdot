@@ -30,4 +30,11 @@ T lcm( T a, U b ) {
     return a * b / gcd( a, b );
 }
 
+template<class T>
+T pow_2_le( T a ) {
+    for( T r = 1; ; r *= 2 )
+        if ( r >= a )
+            return r;
+}
+
 }

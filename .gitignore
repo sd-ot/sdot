@@ -16,7 +16,6 @@ callgrind.out*
 oprofile_data/
 tmp/
 data/
-hugo/
 vtk/
 *.pdf
 results/

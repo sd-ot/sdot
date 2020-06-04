@@ -21,6 +21,6 @@ TEST( ZGrid, RegularCuts ) {
 
     ZGrid zgrid;
     zgrid.update( [&]( const ZGrid::CbConstruct &cb ) {
-        cb( { xs.data(), ys.data() }, ws.data(), is.data(), xs.size(), true );
-    }, { .incl_min_point = { 0, 0 }, .incl_max_point = { 1, 1 } } );
+        cb( { xs.data(), ys.data() }, ws.data(), is.data(), xs.size() );
+    }, { .hist_min_point = { 0, 0 }, .hist_max_point = { 1, 1 } } );
  }
