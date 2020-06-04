@@ -32,8 +32,18 @@ Le tri semble difficile. L'idée pourrait être de faire un histogramme pour la 
 
 * min_max
 * histo au premier degré
-* 
+* reservation des boites intermédiaires et finales. Certaines boites finales pourraient être trop grosses.
+  La solution telle qu'écrit jusqu'à présent, c'est de refaire un passage:
+    * ... mais on verra plus tard
+* pour la zone en cours (z)
+  * remplissage des boites 
+  * tri optionnel dans les boites, min et max pts réels
+  * représentation synthétique des poids
+    Pb: ça serait bien d'avoir le choix du degré du polynôme
 
+Dans for_each_laguerre_cell, on veut récupérer la cellule de Laguerre, la pos, le poids et l'id du Dirac, mais aussi les données du gradient conjugué s'il y en a, ...
+  L'idée, c'est de mettre les données pos poids, id et autres au même endroit pour être capables de gérer le MPI et le out of core
+  Prop 1: 
 
 
 

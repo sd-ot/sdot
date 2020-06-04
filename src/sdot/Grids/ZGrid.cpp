@@ -2,6 +2,7 @@
 #include "ZGridDiracSetStdFactory.h"
 #include "internal/ZCoords.h"
 #include "../support/Void.h"
+#include "../support/TODO.h"
 #include "../support/P.h"
 #include "ZGrid.h"
 #define ZGrid SDOT_CONCAT_TOKEN_4( ZGrid_, DIM, _, PROFILE )
@@ -135,24 +136,6 @@ void ZGrid::make_the_boxes( const std::function<void( const CbConstruct & )> &f,
     make_the_boxes_rec( boxes, nb_boxes, h, m_2_h, end_h, 0, max_zcoords / base_size );
 }
 
-void ZGrid::fill_the_boxes( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms ) {
-    ST base_size = histograms[ 0 ].size() - 1;
-
-    f( [&]( std::array<const TF *,DIM> coords, const TF *weights, const ST *ids, ST nb_diracs ) {
-        // TODO: same thing in parallel
-        for( ST num_dirac = 0; num_dirac < nb_diracs; ++num_dirac ) {
-            TZ z = zcoords_for<TZ,nb_bits_per_axis>( coords, num_dirac, min_point, inv_step_length );
-
-            TF c[ dim ];
-            for( ST d = 0; d < dim; ++d )
-                c[ d ] = coords[ d ][ num_dirac ];
-
-            using namespace boost::multiprecision;
-            final_boxes[ 0 ][ z / ( max_zcoords / base_size ) ]->dirac_set->add_dirac( c, weights[ num_dirac ], ids[ num_dirac ] );
-        }
-    } );
-}
-
 void ZGrid::make_the_boxes_rec( Box **boxes, ST &nb_boxes, const std::vector<SI> &h, ST beg_h, ST end_h, ST off_h, ST mul_h ) {
     if ( end_h - beg_h == 0 )
         return;
@@ -168,6 +151,15 @@ void ZGrid::make_the_boxes_rec( Box **boxes, ST &nb_boxes, const std::vector<SI>
     box->beg_zcoord = off_h + beg_h * mul_h;
     box->end_zcoord = off_h + end_h * mul_h;
 
+    box->min_point = + std::numeric_limits<TF>::max();
+    box->max_point = - std::numeric_limits<TF>::max();
+
+    if ( w_bounds_order == 0 ) {
+        box->w_bound[ 0 ] = - std::numeric_limits<TF>::max();
+    } else {
+        TODO;
+    }
+
     // final box ?
     if ( h[ end_h ] - h[ beg_h ] <= SI( max_nb_diracs_per_cell ) || end_h - beg_h == 1 ) {
         box->dirac_set = dirac_set_factory->New( box_pool, nb_diracs_loc );
@@ -180,18 +172,76 @@ void ZGrid::make_the_boxes_rec( Box **boxes, ST &nb_boxes, const std::vector<SI>
     ST m_0_h = ST( beg_h + std::uint64_t( end_h - beg_h ) * 1 / 4 );
     ST m_1_h = ST( beg_h + std::uint64_t( end_h - beg_h ) * 2 / 4 );
     ST m_2_h = ST( beg_h + std::uint64_t( end_h - beg_h ) * 3 / 4 );
-    make_the_boxes_rec( box->boxes, box->nb_boxes, h, beg_h, m_0_h, off_h, mul_h );
-    make_the_boxes_rec( box->boxes, box->nb_boxes, h, m_0_h, m_1_h, off_h, mul_h );
-    make_the_boxes_rec( box->boxes, box->nb_boxes, h, m_1_h, m_2_h, off_h, mul_h );
-    make_the_boxes_rec( box->boxes, box->nb_boxes, h, m_2_h, end_h, off_h, mul_h );
+    make_the_boxes_rec( box->sub_boxes, box->nb_sub_boxes, h, beg_h, m_0_h, off_h, mul_h );
+    make_the_boxes_rec( box->sub_boxes, box->nb_sub_boxes, h, m_0_h, m_1_h, off_h, mul_h );
+    make_the_boxes_rec( box->sub_boxes, box->nb_sub_boxes, h, m_1_h, m_2_h, off_h, mul_h );
+    make_the_boxes_rec( box->sub_boxes, box->nb_sub_boxes, h, m_2_h, end_h, off_h, mul_h );
+}
+
+void ZGrid::fill_the_boxes( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms ) {
+    using std::max;
+
+    ST base_size = histograms[ 0 ].size() - 1;
+
+    // push diracs and update min and max points in final boxes
+    f( [&]( std::array<const TF *,DIM> coords, const TF *weights, const ST *ids, ST nb_diracs ) {
+        // TODO: same thing in parallel
+        for( ST num_dirac = 0; num_dirac < nb_diracs; ++num_dirac ) {
+            TZ z = zcoords_for<TZ,nb_bits_per_axis>( coords, num_dirac, min_point, inv_step_length );
+
+            Pt c;
+            for( ST d = 0; d < dim; ++d )
+                c[ d ] = coords[ d ][ num_dirac ];
+
+            Box *fb = final_boxes[ 0 ][ z / ( max_zcoords / base_size ) ];
+            fb->dirac_set->add_dirac( c.data, weights[ num_dirac ], ids[ num_dirac ] );
+            fb->min_point = min( fb->min_point, c );
+            fb->max_point = max( fb->max_point, c );
+
+            if ( w_bounds_order == 0 ) {
+                fb->w_bound[ 0 ] = max( fb->w_bound[ 0 ], weights[ num_dirac ] );
+            } else {
+                TODO;
+            }
+        }
+    } );
+
+    // update min and max points in non final boxes
+    for_each_box( [&]( Box *box ) {
+        if ( box->dirac_set )
+            return;
+        box->min_point = box->sub_boxes[ 0 ]->min_point;
+        box->max_point = box->sub_boxes[ 0 ]->max_point;
+        if ( w_bounds_order == 0 ) {
+            box->w_bound[ 0 ] = box->sub_boxes[ 0 ]->w_bound[ 0 ];
+        } else {
+            TODO;
+        }
+        for( ST i = 1; i < box->nb_sub_boxes; ++i ) {
+            box->min_point = min( box->min_point, box->sub_boxes[ i ]->min_point );
+            box->max_point = max( box->max_point, box->sub_boxes[ i ]->max_point );
+            if ( w_bounds_order == 0 ) {
+                box->w_bound[ 0 ] = max( box->w_bound[ 0 ], box->sub_boxes[ i ]->w_bound[ 0 ] );
+            } else {
+                TODO;
+            }
+        }
+    }, boxes, nb_boxes );
+}
+
+void ZGrid::for_each_box( const std::function<void( Box *)> &f, Box **boxes, ST nb_boxes ) {
+    for( ST i = 0; i < nb_boxes; ++i ) {
+        for_each_box( f, boxes[ i ]->sub_boxes, boxes[ i ]->nb_sub_boxes );
+        f( boxes[ i ] );
+    }
 }
 
 void ZGrid::write_box_to_stream( std::ostream &os, const Box *box, std::string sp ) const {
-    os << sp << "z: " << box->beg_zcoord << "->" << box->end_zcoord << "\n";
+    os << sp << "z: " << box->beg_zcoord << " -> " << box->end_zcoord << "; p: " << box->min_point << ", " << box->max_point << "\n";
     if ( box->dirac_set )
         box->dirac_set->write_to_stream( os, sp + "  " );
-    for( ST i = 0; i < box->nb_boxes; ++i )
-        write_box_to_stream( os, box->boxes[ i ], sp + "  " );
+    for( ST i = 0; i < box->nb_sub_boxes; ++i )
+        write_box_to_stream( os, box->sub_boxes[ i ], sp + "  " );
 }
 
 } // namespace sdot
