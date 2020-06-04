@@ -11,9 +11,6 @@ class VtkOutput;
 /**
   Pb: on voudrait stocker d'autres trucs dans les diracs.
 
-  Prop: on fait un
-
-  Une solution serait
 */
 class ZGrid {
 public:
@@ -37,7 +34,7 @@ private:
     using                        TZ                 = std::uint64_t; ///< zcoords
     static constexpr TZ          nb_bits_per_axis   = 20;
     static constexpr TZ          sizeof_zcoords     = ( dim * nb_bits_per_axis + 7 ) / 8; ///< nb meaningful bytes in z-coordinates
-    static constexpr TZ          max_zcoords        = TZ( 1 ) << dim * nb_bits_per_axis; ///<
+    enum {                        max_zcoords        = TZ( 1 ) << dim * nb_bits_per_axis }; ///<
 
     struct                       Box                { ZGridDiracSet<TF,ST> *dirac_set = nullptr; Box *boxes[ 2 << dim ]; ST nb_boxes = 0; Pt min_point, max_point; TZ beg_zcoord, end_zcoord; };
     using                        VecBoxPtr          = std::vector<Box *>;

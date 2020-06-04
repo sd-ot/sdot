@@ -30,7 +30,9 @@ Le tri semble difficile. L'idée pourrait être de faire un histogramme pour la 
 
   L'étape d'après consiste à diviser les sous-structures trop grosses. On peut les faire avec les données copiées
 
-
+* min_max
+* histo au premier degré
+* 
 
 
 

@@ -1,13 +1,12 @@
 #include "ZGridDiracSetStd.h"
 #include "../support/Math.h"
-#include "../support/TODO.h"
 #include <new>
 
 namespace sdot {
 
 template<class Arch,class T,class S,int dim,class ItemPerDirac>
 ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac> *ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::New( BumpPointerPool &pool, S size ) {
-    S rese = ceil( size, alf ), rb = ceil( sizeof( ZGridDiracSetStd ), alb ) + ( dim + 1 ) * rese * sizeof( T ) + rese + sizeof( S );
+    S rese = ceil( size, alf ), rb = ceil( sizeof( ZGridDiracSetStd ), alb ) + ( dim + 1 ) * rese * sizeof( T ) + rese * sizeof( S );
     ZGridDiracSetStd *res = new ( pool.allocate( rb, alb ) ) ZGridDiracSetStd;
     res->_rese = rese;
     res->_size = 0;
@@ -45,11 +44,11 @@ S ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::nb_diracs_for_mem( std::size_t me
 
 template<class Arch,class T,class S,int dim,class ItemPerDirac>
 void ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::write_to_stream( std::ostream &os, const std::string &sp ) const {
-    // os << sp << "size:" << _size << " rese:" << _rese;
     for( ST i = 0; i < _size; ++i ) {
         os << sp;
         for( ST d = 0; d < dim; ++d )
-            os << ( d ? " " : "" ) << coords( d )[ i ] << "\n";
+            os << ( d ? " " : "" ) << coords( d )[ i ];
+        os << "\n";
     }
 }
 
@@ -57,7 +56,7 @@ template<class Arch,class T,class S,int dim,class ItemPerDirac>
 void ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::get_base_data( T **coords, T *&weights, S *&ids ) {
     for( S d = 0; d < dim; ++d )
         coords[ d ] = this->coords( d );
-    weights = this->coords( dim );
+    weights = this->weights();
     ids = this->ids();
 }
 

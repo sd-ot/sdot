@@ -108,6 +108,7 @@ void ZGrid::update_histogram( const std::function<void(const ZGrid::CbConstruct 
 void ZGrid::make_the_boxes( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms ) {
     // accumulation
     std::vector<SI> &h = histograms[ 0 ];
+    ST base_size = h.size() - 1;
     for( ST acc = 0, ind = 0; ind < h.size(); ++ind ) {
         SI val = h[ ind ];
         h[ ind ] = acc;
@@ -128,18 +129,14 @@ void ZGrid::make_the_boxes( const std::function<void( const CbConstruct & )> &f,
     ST m_0_h = ST( beg_h + ( end_h - beg_h ) * 1 / 4 );
     ST m_1_h = ST( beg_h + ( end_h - beg_h ) * 2 / 4 );
     ST m_2_h = ST( beg_h + ( end_h - beg_h ) * 3 / 4 );
-    make_the_boxes_rec( boxes, nb_boxes, h, beg_h, m_0_h, 0, max_zcoords / ( h.size() - 1 ) );
-    make_the_boxes_rec( boxes, nb_boxes, h, m_0_h, m_1_h, 0, max_zcoords / ( h.size() - 1 ) );
-    make_the_boxes_rec( boxes, nb_boxes, h, m_1_h, m_2_h, 0, max_zcoords / ( h.size() - 1 ) );
-    make_the_boxes_rec( boxes, nb_boxes, h, m_2_h, end_h, 0, max_zcoords / ( h.size() - 1 ) );
+    make_the_boxes_rec( boxes, nb_boxes, h, beg_h, m_0_h, 0, max_zcoords / base_size );
+    make_the_boxes_rec( boxes, nb_boxes, h, m_0_h, m_1_h, 0, max_zcoords / base_size );
+    make_the_boxes_rec( boxes, nb_boxes, h, m_1_h, m_2_h, 0, max_zcoords / base_size );
+    make_the_boxes_rec( boxes, nb_boxes, h, m_2_h, end_h, 0, max_zcoords / base_size );
 }
 
 void ZGrid::fill_the_boxes( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms ) {
     ST base_size = histograms[ 0 ].size() - 1;
-    P( base_size );
-
-    for( auto f : final_boxes[ 0 ] )
-        P( f->dirac_set );
 
     f( [&]( std::array<const TF *,DIM> coords, const TF *weights, const ST *ids, ST nb_diracs ) {
         // TODO: same thing in parallel
@@ -151,7 +148,7 @@ void ZGrid::fill_the_boxes( const std::function<void( const CbConstruct & )> &f,
                 c[ d ] = coords[ d ][ num_dirac ];
 
             using namespace boost::multiprecision;
-            final_boxes[ 0 ][ std::size_t( int128_t( z ) / ( max_zcoords / base_size ) ) ]->dirac_set->add_dirac( c, weights[ num_dirac ], ids[ num_dirac ] );
+            final_boxes[ 0 ][ z / ( max_zcoords / base_size ) ]->dirac_set->add_dirac( c, weights[ num_dirac ], ids[ num_dirac ] );
         }
     } );
 }
