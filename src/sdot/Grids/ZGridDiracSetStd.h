@@ -21,9 +21,14 @@ public:
 
     virtual void             write_to_stream  ( std::ostream &os, const std::string &sp = {} ) const override;
     virtual void             get_base_data    ( T **coords, T *&weights, S *&ids ) override;
+    virtual void             add_dirac        ( const T *coords, T weight, S id ) override;
     virtual S                size             () override;
 
+    const T*                 weights          () const;
+    T*                       weights          ();
+    const T*                 coords           ( int d ) const;
     T*                       coords           ( int d );
+    const S*                 ids              () const;
     S*                       ids              ();
 
     S                        _size;

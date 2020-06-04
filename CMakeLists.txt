@@ -42,7 +42,7 @@ function( comp_profile scalar_type size_type arch )
         set( cpu_flags )
     endif()
 
-    set( opt_flags -fno-stack-protector -march=native -O3 )
+    set( opt_flags -fno-stack-protector -march=native -O3 -g3 )
 
     # generation
     list( APPEND gen_commands echo ${CMAKE_BINARY_DIR}/gen_plane_cut_procs --scalar-type ${scalar_type} --size-type ${size_type} --arch ${arch} --out ${CMAKE_SOURCE_DIR}/src/sdot/ConvexPolyhedron/internal/ConvexPolyhedron2_plane_cut_lt8_${profile} --op  ${CMAKE_SOURCE_DIR}/src/sdot/ConvexPolyhedron/internal/ConvexPolyhedron2_plane_cut_lt8_${profile}.params && )
