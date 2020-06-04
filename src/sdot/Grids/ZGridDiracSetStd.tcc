@@ -28,7 +28,7 @@ ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac> *ZGridDiracSetStd<Arch,T,S,dim,ItemP
 
     ZGridDiracSetStd *res = new ( pool.allocate( rb, alb ) ) ZGridDiracSetStd;
     res->_rese = rese;
-    res->_size = size;
+    res->_size = 0;
 
     for( S d = 0; d < dim + 1; ++d ) {
         T *data = res->coords( d );
@@ -45,7 +45,7 @@ ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac> *ZGridDiracSetStd<Arch,T,S,dim,ItemP
 
 template<class Arch,class T,class S,int dim,class ItemPerDirac>
 void ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::write_to_stream( std::ostream &os, const std::string &sp ) const {
-    os << sp << "proute";
+    os << sp << "size:" << _size << " rese:" << _rese;
 }
 
 template<class Arch,class T,class S,int dim,class ItemPerDirac>

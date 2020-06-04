@@ -117,7 +117,16 @@ void ZGrid::make_boxes( const std::function<void( const CbConstruct & )> &f, con
     //
     nb_boxes = 0;
     box_pool.clear();
-    make_boxes_rec( boxes, nb_boxes, h, 0, h.size() - 1, 0, max_zcoords / ( h.size() - 1 ) );
+
+    ST beg_h = 0;
+    ST end_h = h.size() - 1;
+    ST m_0_h = ST( beg_h + ( end_h - beg_h ) * 1 / 4 );
+    ST m_1_h = ST( beg_h + ( end_h - beg_h ) * 2 / 4 );
+    ST m_2_h = ST( beg_h + ( end_h - beg_h ) * 3 / 4 );
+    make_boxes_rec( boxes, nb_boxes, h, beg_h, m_0_h, 0, max_zcoords / ( h.size() - 1 ) );
+    make_boxes_rec( boxes, nb_boxes, h, m_0_h, m_1_h, 0, max_zcoords / ( h.size() - 1 ) );
+    make_boxes_rec( boxes, nb_boxes, h, m_1_h, m_2_h, 0, max_zcoords / ( h.size() - 1 ) );
+    make_boxes_rec( boxes, nb_boxes, h, m_2_h, end_h, 0, max_zcoords / ( h.size() - 1 ) );
 }
 
 void ZGrid::make_boxes_rec( Box **boxes, ST &nb_boxes, const std::vector<SI> &h, ST beg_h, ST end_h, ST off_h, ST mul_h ) {
@@ -152,10 +161,12 @@ void ZGrid::make_boxes_rec( Box **boxes, ST &nb_boxes, const std::vector<SI> &h,
 }
 
 void ZGrid::write_box_to_stream( std::ostream &os, const Box *box, std::string sp ) const {
-    os << sp << "z: " << box->beg_zcoord << "," << box->end_zcoord;
+    os << sp << "z: " << box->beg_zcoord << "->" << box->end_zcoord;
     if ( box->dirac_set )
         box->dirac_set->write_to_stream( os << "\n", sp + "  " );
     os << "\n";
+    for( ST i = 0; i < box->nb_boxes; ++i )
+        write_box_to_stream( os, box->boxes[ i ], sp + "  " );
 }
 
 } // namespace sdot

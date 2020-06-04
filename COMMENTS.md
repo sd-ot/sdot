@@ -29,3 +29,15 @@ Le tri semble difficile. L'idée pourrait être de faire un histogramme pour la 
   On peut ensuite refaire un passage pour envoyer les diracs aux machines. Lorsque les machines reçoivent des diracs, elles les collent dans les sous-structures correspondantes.
 
   L'étape d'après consiste à diviser les sous-structures trop grosses. On peut les faire avec les données copiées
+
+
+
+
+
+
+
+
+
+
+
+
