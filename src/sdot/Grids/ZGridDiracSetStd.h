@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../support/BumpPointerPool.h"
 #include "../support/SimdAlig.h"
 #include "ZGridDiracSet.h"
 
@@ -16,8 +17,9 @@ public:
     virtual                 ~ZGridDiracSetStd ();
 
     static S                 nb_diracs_for_mem( std::size_t mem );
-    static ZGridDiracSetStd* New              ( S size );
+    static ZGridDiracSetStd* New              ( BumpPointerPool &pool, S size );
 
+    virtual void             write_to_stream  ( std::ostream &os, const std::string &sp = {} ) const override;
     virtual void             get_base_data    ( T **coords, T *&weights, S *&ids ) override;
     virtual S                size             () override;
 

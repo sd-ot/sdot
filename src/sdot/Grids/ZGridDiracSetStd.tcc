@@ -23,10 +23,10 @@ S ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::nb_diracs_for_mem( std::size_t me
 }
 
 template<class Arch,class T,class S,int dim,class ItemPerDirac>
-ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac> *ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::New( S size ) {
+ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac> *ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::New( BumpPointerPool &pool, S size ) {
     S rese = ceil( size, alf ), rb = ceil( sizeof( ZGridDiracSetStd ), alb ) + ( dim + 1 ) * rese * sizeof( T ) + rese + sizeof( S );
 
-    ZGridDiracSetStd *res = new ( aligned_alloc( alf * sizeof( T ), rb ) ) ZGridDiracSetStd;
+    ZGridDiracSetStd *res = new ( pool.allocate( rb, alb ) ) ZGridDiracSetStd;
     res->_rese = rese;
     res->_size = size;
 
@@ -41,6 +41,11 @@ ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac> *ZGridDiracSetStd<Arch,T,S,dim,ItemP
         new ( data + i ) S;
 
     return res;
+}
+
+template<class Arch,class T,class S,int dim,class ItemPerDirac>
+void ZGridDiracSetStd<Arch,T,S,dim,ItemPerDirac>::write_to_stream( std::ostream &os, const std::string &sp ) const {
+    os << sp << "proute";
 }
 
 template<class Arch,class T,class S,int dim,class ItemPerDirac>

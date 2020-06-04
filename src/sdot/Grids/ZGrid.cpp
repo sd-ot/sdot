@@ -14,12 +14,19 @@ ZGrid::ZGrid( ZGridDiracSetFactory<TF,ST> *dirac_set_factory ) {
     if ( ! dirac_set_factory ) dirac_set_factory = &zdssf;
     this->dirac_set_factory = dirac_set_factory;
 
+    max_nb_diracs_per_cell = 30;
     available_memory = 16e9;
 
     // max_dirac_per_sst = dirac_set_factory->nb_diracs_for_mem( 1e9 /* 1 Go */ );
 }
 
 ZGrid::~ZGrid() {
+}
+
+void ZGrid::write_to_stream( std::ostream &os ) const {
+    os << "boxes:\n";
+    for( ST nb = 0; nb < nb_boxes; ++nb )
+        write_box_to_stream( os, boxes[ nb ], "  " );
 }
 
 void ZGrid::update( const std::function<void( const sdot::ZGrid::CbConstruct & )> &f, const UpdateParms &update_parms ) {
@@ -43,7 +50,7 @@ void ZGrid::update( const std::function<void( const sdot::ZGrid::CbConstruct & )
     update_histogram( f, update_parms, approx_nb_diracs );
 
     // make the boxes
-    make_boxes_rec( f, update_parms );
+    make_boxes( f, update_parms );
 
 }
 
@@ -78,11 +85,11 @@ void ZGrid::get_min_and_max_pts( const std::function<void( const ZGrid::CbConstr
 void ZGrid::update_histogram( const std::function<void(const ZGrid::CbConstruct &)> &f, const UpdateParms &update_parms, ST approx_nb_diracs ) {
     using std::min;
 
-    histogram.resize( 1 );
+    histograms.resize( 1 );
 
     std::size_t base_size = min( available_memory / ( 2 * sizeof( SI ) ), std::size_t( approx_nb_diracs * update_parms.hist_ratio ) );
-    histogram[ 0 ].resize( pow_2_le( base_size ) );
-    for( SI &v : histogram[ 0 ] )
+    histograms[ 0 ].resize( pow_2_le( base_size ) + 1 );
+    for( SI &v : histograms[ 0 ] )
         v = 0;
 
     nb_diracs = 0;
@@ -93,12 +100,62 @@ void ZGrid::update_histogram( const std::function<void(const ZGrid::CbConstruct 
             TZ z = zcoords_for<TZ,nb_bits_per_axis>( coords, num_dirac, min_point, inv_step_length );
 
             using namespace boost::multiprecision;
-            histogram[ 0 ][ std::size_t( int128_t( z ) * base_size / max_zcoords ) ]++;
+            histograms[ 0 ][ std::size_t( int128_t( z ) * base_size / max_zcoords ) ]++;
         }
     } );
 }
 
-void ZGrid::make_boxes_rec( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms ) {
+void ZGrid::make_boxes( const std::function<void( const CbConstruct & )> &f, const UpdateParms &update_parms ) {
+    // accumulation
+    std::vector<SI> &h = histograms[ 0 ];
+    for( ST acc = 0, ind = 0; ind < h.size(); ++ind ) {
+        SI val = h[ ind ];
+        h[ ind ] = acc;
+        acc += val;
+    }
+
+    //
+    nb_boxes = 0;
+    box_pool.clear();
+    make_boxes_rec( boxes, nb_boxes, h, 0, h.size() - 1, 0, max_zcoords / ( h.size() - 1 ) );
+}
+
+void ZGrid::make_boxes_rec( Box **boxes, ST &nb_boxes, const std::vector<SI> &h, ST beg_h, ST end_h, ST off_h, ST mul_h ) {
+    if ( end_h - beg_h == 0 )
+        return;
+
+    ST nb_diracs_loc = h[ end_h ] - h[ beg_h ];
+    if ( nb_diracs_loc == 0 )
+        return;
+
+    // we create a new box in any cases
+    Box *box = box_pool.create<Box>();
+    boxes[ nb_boxes++ ] = box;
+
+    box->beg_zcoord = off_h + beg_h * mul_h;
+    box->end_zcoord = off_h + end_h * mul_h;
+
+    // final box ?
+    if ( h[ end_h ] - h[ beg_h ] <= SI( max_nb_diracs_per_cell ) || end_h - beg_h == 1 ) {
+        box->dirac_set = dirac_set_factory->New( box_pool, nb_diracs_loc );
+        return;
+    }
+
+    // else, make sub boxes
+    ST m_0_h = ST( beg_h + std::uint64_t( end_h - beg_h ) * 1 / 4 );
+    ST m_1_h = ST( beg_h + std::uint64_t( end_h - beg_h ) * 2 / 4 );
+    ST m_2_h = ST( beg_h + std::uint64_t( end_h - beg_h ) * 3 / 4 );
+    make_boxes_rec( box->boxes, box->nb_boxes, h, beg_h, m_0_h, off_h, mul_h );
+    make_boxes_rec( box->boxes, box->nb_boxes, h, m_0_h, m_1_h, off_h, mul_h );
+    make_boxes_rec( box->boxes, box->nb_boxes, h, m_1_h, m_2_h, off_h, mul_h );
+    make_boxes_rec( box->boxes, box->nb_boxes, h, m_2_h, end_h, off_h, mul_h );
+}
+
+void ZGrid::write_box_to_stream( std::ostream &os, const Box *box, std::string sp ) const {
+    os << sp << "z: " << box->beg_zcoord << "," << box->end_zcoord;
+    if ( box->dirac_set )
+        box->dirac_set->write_to_stream( os << "\n", sp + "  " );
+    os << "\n";
 }
 
 } // namespace sdot
