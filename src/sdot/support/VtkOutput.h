@@ -1,49 +1,40 @@
 #pragma once
 
 #include "Point.h"
+#include <sstream>
 #include <vector>
-#include <deque>
 
-namespace sdot {
-
-/**
-  Class for simplified (and not optimized) vtk output
-*/
+/***/
 class VtkOutput {
 public:
-    using                    F                 = double;
-    using                    Pt                = Point<F,3>;
+    enum {          VtkPoint    = 1   };
+    enum {          VtkLine     = 4   };
+    enum {          VtkPoly     = 7   };
+    enum {          VtkTetra    = 10  };
 
-    /**/                     VtkOutput         ( const std::vector<std::string> &cell_fields_names = {} );
+    using           TF          = double;
+    using           TI          = std::size_t;
+    using           Pt          = Point<TF,3>;
 
-    //    void               add_arc           ( Pt center, PT A, PT B, PT tangent, const CV &cell_value = {}, unsigned n = 50 );
-    //    void               add_lines         ( const std::vector<P2> &p, const CV &cell_value = {} );
-    //    void               add_arrow         ( PT center, PT dir, const CV &cell_value = {} );
-    //    void               add_circle        ( PT center, PT normal, TF radius, const CV &cell_value = {}, unsigned n = 50 );
-    void                     add_polygon       ( const std::vector<Pt> &p, const std::vector<F> &cell_values = {} );
-    void                     add_lines         ( const std::vector<Pt> &p, const std::vector<F> &cell_values = {} );
-    void                     add_point         ( Pt p, const std::vector<F> &cell_values = {} );
+    /**/            VtkOutput   ();
 
-    void                     append            ( const VtkOutput &vo );
+    void            save        ( std::string filename ) const;
 
-    void                     save              ( std::string filename ) const;
-    void                     save              ( std::ostream &os ) const;
+    void            save        ( std::ostream &os ) const;
 
-private:
-    struct                   Field             { std::string name; std::vector<F> v_polygons, v_points, v_lines; };
+    void            add_triangle( std::array<Pt,3> pts );
+    void            add_polygon ( const std::vector<Pt> &pts );
+    void            add_pyramid ( std::array<Pt,5> pts );
+    void            add_wedge   ( std::array<Pt,6> pts );
+    void            add_tetra   ( std::array<Pt,4> pts );
+    void            add_hexa    ( std::array<Pt,8> pts );
+    void            add_quad    ( std::array<Pt,4> pts );
+    void            add_line    ( const std::vector<Pt> &pts );
 
-    struct                   Polygon           { std::vector<Pt> p; };
-    struct                   SinglePoint       { Pt              p; };
-    struct                   Line              { std::vector<Pt> p; };
+    void            add_item    ( const Pt *pts_data, TI pts_size, TI vtk_type );
 
-    std::size_t              _nb_vtk_cell_items() const;
-    std::size_t              _nb_vtk_points    () const;
-    std::size_t              _nb_vtk_cells     () const;
-
-    std::deque<SinglePoint>  single_points;
-    std::vector<Field>       cell_fields;
-    std::deque<Polygon>      polygons;
-    std::deque<Line>         lines;
+    std::vector<Pt> points;
+    std::vector<TI> cell_types;
+    std::vector<TI> cell_items;
 };
 
-} // namespace sdot

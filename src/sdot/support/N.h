@@ -1,13 +1,12 @@
 #pragma once
 
-namespace sdot {
-
 /**
   std::integral_constant
 */
 template<int n>
 struct N {
-    enum { val = n };
+    enum { value = n };
+
     operator int() const { return n; }
 
     template<class OS>
@@ -19,5 +18,3 @@ struct N {
         return {};
     }
 };
-
-} // namespace sdot

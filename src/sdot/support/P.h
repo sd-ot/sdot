@@ -2,6 +2,7 @@
 
 #include "generic_ostream_output.h"
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <mutex>
 
@@ -21,6 +22,20 @@ template<class OS,class... Args> void ___my_print( OS &os, const char* str, cons
     m.unlock();
 }
 
+template<class OS,class... Args> void ___my_print_repl( OS &os, std::string src, std::string dst, const Args &...args ) {
+    std::ostringstream  ss;
+    ___my_print( ss, args... );
+
+    std::string s = ss.str();
+    while ( true ) {
+        auto iter = s.find( src );
+        if ( iter == s.npos )
+            break;
+        s = s.substr( 0, iter ) + dst + s.substr( iter + src.size() );
+    }
+    os << s;
+}
+
 #ifndef P
     #define P( ... ) \
         ___my_print( std::cout, #__VA_ARGS__ " -> " , __VA_ARGS__ )
@@ -30,6 +45,8 @@ template<class OS,class... Args> void ___my_print( OS &os, const char* str, cons
         ___my_print( std::cerr, #__VA_ARGS__ " -> " , __VA_ARGS__ )
     #define PN( ... ) \
         ___my_print( std::cout, #__VA_ARGS__ " ->\n", __VA_ARGS__ )
+    #define PNR( SRC, DST, ... ) \
+        ___my_print_repl( std::cout, SRC, DST, #__VA_ARGS__ " ->\n", __VA_ARGS__ )
     // PRINT with file and line info
     #define PM( ... ) \
         ___my_print( std::cout, #__VA_ARGS__ " -> ", __VA_ARGS__, WithSep{""}, " (", __FILE__, ':', __LINE__, ')' )

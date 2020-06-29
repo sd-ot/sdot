@@ -3,6 +3,7 @@ update_files.sh
 *.kdev4
 build/
 ext/
+*.pyc
 *.vtk
 *.vtu
 *.so

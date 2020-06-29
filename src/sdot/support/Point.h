@@ -2,19 +2,22 @@
 #define SDOT_POINT_H
 
 #include <ostream>
-#include <array>
 #include <cmath>
 
-namespace sdot {
+#include "TensorOrder.h"
+#include "Math.h"
 
 /**
 */
-template<class TF,int dim>
+template<class TF_,int dim_>
 struct Point {
+    enum {                          dim            = dim_ };
+    using                           TF             = TF_;
+
     template<class TG>              Point          ( const Point<TG,dim> &p );
-    /**/                            Point          ( const TF *v );
-    /**/                            Point          ( TF x, TF y, TF z );
-    /**/                            Point          ( TF x, TF y );
+    template<class TG>              Point          ( const TG *v );
+    template<class TG>              Point          ( TG x, TG y, TG z );
+    template<class TG>              Point          ( TG x, TG y );
     /**/                            Point          ( TF x );
     /**/                            Point          ();
 
@@ -29,7 +32,17 @@ struct Point {
     const TF*                       begin          () const { return data; }
     const TF*                       end            () const { return data + dim; }
 
+    bool                            operator<      ( const Point &that ) const;
+
+    // modifiers
+    Point&                          operator*=     ( TF v ) { for( int i = 0; i < dim; ++i ) data[ i ] *= v; return *this; }
+
     TF                              data[ dim ];
+};
+
+template<class TF,int dim>
+struct TensorOrder<Point<TF,dim>> {
+    enum { value = TensorOrder<TF>::value + 1 };
 };
 
 template<class TF,int dim>
@@ -195,13 +208,26 @@ inline Point<TF,dim> normalized( Point<TF,dim> p, TF a = 1e-40 ) {
 }
 
 template<class TF>
+inline Point<TF,2> cross_prod( Point<TF,2> p ) {
+    return { - p[ 1 ], p[ 0 ] };
+}
+
+template<class TF>
 inline Point<TF,3> cross_prod( Point<TF,3> a, Point<TF,3> b ) {
     return { a[ 1 ] * b[ 2 ] - a[ 2 ] * b[ 1 ], a[ 2 ] * b[ 0 ] - a[ 0 ] * b[ 2 ], a[ 0 ] * b[ 1 ] - a[ 1 ] * b[ 0 ] };
 }
 
-template<class TF>
-Point<TF,2> rot90( Point<TF,2> p ) {
-    return { - p[ 1 ], p[ 0 ] };
+template<class TF,int dim>
+inline Point<TF,dim> cross_prod( const Point<TF,dim> *pts ) {
+    Point<TF,dim> res;
+    for( int d = 0; d < dim; ++d ) {
+        std::array<std::array<TF,dim-1>,dim-1> M;
+        for( int r = 0; r < dim - 1; ++r )
+            for( int c = 0; c < dim - 1; ++c )
+                M[ r ][ c ] = pts[ r ][ c + ( c >= d ) ];
+        res[ d ] = TF( d % 2 ? -1 : 1 ) * determinant( M );
+    }
+    return res;
 }
 
 template<class TF>
@@ -243,9 +269,6 @@ template<class TF>
 inline TF transformation( const std::array<TF,4> &/*trans*/, TF val ) {
     return val;
 }
-
-
-} // namespace sdot
 
 #include "Point.tcc"
 

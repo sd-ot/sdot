@@ -1,30 +1,29 @@
 #include "Point.h"
-
-namespace sdot {
+#include "Conv.h"
 
 template<class TF,int dim> template<class TG>
 Point<TF,dim>::Point( const Point<TG,dim> &p ) {
     for( int i = 0; i < dim; ++i )
-        data[ i ] = p.data[ i ];
+        data[ i ] = conv( p.data[ i ], S<TF>() );
 }
 
-template<class TF,int dim>
-Point<TF,dim>::Point( const TF *v ) {
+template<class TF,int dim> template<class TG>
+Point<TF,dim>::Point( const TG *v ) {
     for( int i = 0; i < dim; ++i )
-        data[ i ] = v[ i ];
+        data[ i ] = TF( v[ i ] );
 }
 
-template<class TF,int dim>
-Point<TF,dim>::Point( TF x, TF y, TF z ) {
-    data[ 0 ] = x;
-    data[ 1 ] = y;
-    data[ 2 ] = z;
+template<class TF,int dim> template<class TG>
+Point<TF,dim>::Point( TG x, TG y, TG z ) {
+    data[ 0 ] = TF( x );
+    data[ 1 ] = TF( y );
+    data[ 2 ] = TF( z );
 }
 
-template<class TF,int dim>
-Point<TF,dim>::Point( TF x, TF y ) {
-    data[ 0 ] = x;
-    data[ 1 ] = y;
+template<class TF,int dim> template<class TG>
+Point<TF,dim>::Point( TG x, TG y ) {
+    data[ 0 ] = TF( x );
+    data[ 1 ] = TF( y );
 }
 
 template<class TF,int dim>
@@ -52,4 +51,11 @@ void Point<TF,dim>::write_to( Bq &bq ) const {
         bq << data[ i ];
 }
 
-} // namespace sdot
+template<class TF,int dim>
+bool Point<TF,dim>::operator<( const Point &that ) const {
+    for( int i = 0; i < dim; ++i )
+        if ( data[ i ] != that.data[ i ] )
+            return data[ i ] < that.data[ i ];
+    return false;
+}
+

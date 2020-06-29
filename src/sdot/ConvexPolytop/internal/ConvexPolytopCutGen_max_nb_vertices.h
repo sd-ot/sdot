@@ -1,0 +1,9 @@
+if ( dim == 1 ) return 0;
+if ( dim == 2 ) return 4;
+if ( dim == 3 ) return 4;
+if ( dim == 4 ) return 0;
+if ( dim == 5 ) return 0;
+if ( dim == 6 ) return 0;
+if ( dim == 7 ) return 0;
+if ( dim == 8 ) return 0;
+if ( dim == 9 ) return 0;
