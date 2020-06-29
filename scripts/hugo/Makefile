@@ -3,7 +3,7 @@ NSMAKE = nsmake -g3 # --exec-with valgrind --cxx clang++
 
 all:
 	# nsmake run -g3 --exec-with "valgrind --leak-check=full" tests/test_VolumeAssembly.cpp
-	# ${NSMAKE} src/sdot/volume_assembly/generation/test_ConvexHull.cpp
+	# ${NSMAKE} run src/sdot/ConvexPolytop/internal/generation/test_ConvexHull.cpp
 	# ${NSMAKE} tests/test_Simd.cpp
 	# ${NSMAKE} tests/test_StructOfArrays.cpp
 	# ${NSMAKE} run tests/bench_ConvexPolytopSet.cpp

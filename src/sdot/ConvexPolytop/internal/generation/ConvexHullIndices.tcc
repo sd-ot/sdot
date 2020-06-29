@@ -201,7 +201,7 @@ bool ConvexHullIndices<dim,TF>::operator<( const ConvexHullIndices &that ) const
 }
 
 template<int dim,class TF>
-bool ConvexHullIndices<dim,TF>::is_a_permutation_of( const ConvexHullIndices &that, TI *perm ) const {
+bool ConvexHullIndices<dim,TF>::is_a_permutation_of( const std::vector<Pt> &that_pts, const ConvexHullIndices &that, TI *perm ) const {
     // true if a permutation of indices
     if ( nexts.size() != that.nexts.size() || sorted_sizes() != that.sorted_sizes() )
         return false;
@@ -219,7 +219,7 @@ bool ConvexHullIndices<dim,TF>::is_a_permutation_of( const ConvexHullIndices &th
     std::vector<std::set<TI>> possibilities( this_links.size(), base_set ); // nodes of this => nodes of that
 
     // test all "possible" permutations from this set of possibilities
-    return test_permutations( that, perm, this_links, that_links, possibilities );
+    return test_permutations( that_pts, that, perm, this_links, that_links, possibilities );
 }
 
 template<int dim,class TF>
@@ -238,7 +238,7 @@ typename ConvexHullIndices<dim,TF>::Sizes ConvexHullIndices<dim,TF>::sorted_size
 }
 
 template<int dim, class TF>
-bool ConvexHullIndices<dim,TF>::test_permutations( const ConvexHullIndices &that, TI *perm_this_to_that, const std::vector<std::set<TI>> &this_links, const std::vector<std::set<TI>> &that_links, const std::vector<std::set<TI>> &possibilities ) const {
+bool ConvexHullIndices<dim,TF>::test_permutations( const std::vector<Pt> &that_pts, const ConvexHullIndices &that, TI *perm_this_to_that, const std::vector<std::set<TI>> &this_links, const std::vector<std::set<TI>> &that_links, const std::vector<std::set<TI>> &possibilities ) const {
     // test if no remaining possibility, or if fully determined
     TI best_undetermined_node = 0;
     TI best_score = this_links.size() + 1;
@@ -257,6 +257,8 @@ bool ConvexHullIndices<dim,TF>::test_permutations( const ConvexHullIndices &that
 
         ConvexHullIndices this_mod = *this;
         this_mod.replace_inds( perm_this_to_that );
+        if ( this_mod.measure( that_pts ) < 0 )
+            return false;
         return ! ( this_mod < that || that < this_mod );
     }
 
@@ -286,7 +288,7 @@ bool ConvexHullIndices<dim,TF>::test_permutations( const ConvexHullIndices &that
             );
         }
 
-        if ( test_permutations( that, perm_this_to_that, this_links, that_links, new_possibilities ) )
+        if ( test_permutations( that_pts, that, perm_this_to_that, this_links, that_links, new_possibilities ) )
             return true;
     }
 

@@ -53,7 +53,7 @@ public:
 
     void                    replace_inds       ( const TI *repl );
 
-    bool                    is_a_permutation_of( const ConvexHullIndices &that, TI *perm_this_to_that ) const;
+    bool                    is_a_permutation_of( const std::vector<Pt> &that_pts, const ConvexHullIndices &that, TI *perm_this_to_that ) const;
     void                    write_to_stream    ( std::ostream &os, std::string sp = "" ) const;
     void                    get_links_rec      ( std::vector<std::set<TI>> &links ) const;
     Sizes                   sorted_sizes       () const;
@@ -68,7 +68,7 @@ public:
 private:
     using                   VTI                = std::vector<TI>;
 
-    bool                    test_permutations  ( const ConvexHullIndices &that, TI *perm, const std::vector<std::set<TI>> &this_links, const std::vector<std::set<TI>> &that_links, const std::vector<std::set<TI>> &possibilities ) const;
+    bool                    test_permutations  ( const std::vector<Pt> &that_pts, const ConvexHullIndices &that, TI *perm, const std::vector<std::set<TI>> &this_links, const std::vector<std::set<TI>> &that_links, const std::vector<std::set<TI>> &possibilities ) const;
     template<int d> VTI     ordered_pt_seq     ( N<d> ) const { return {}; }
     VTI                     ordered_pt_seq     ( N<2> ) const;
 };

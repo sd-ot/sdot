@@ -1,10 +1,5 @@
 #pragma once
 
-//#include "TypeInformation.h"
-//#include "TypeConfig.h"
-//#include "Assert.h"
-//#include "N.h"
-//#include "S.h"
 #include <array>
 #include <cmath>
 #include "N.h"

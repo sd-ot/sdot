@@ -10,12 +10,12 @@ int main() {
     using TI = Cp::TI;
     using TF = Cp::TF;
     using Pt = Cp::Pt;
-    TI nb_volumes = 24;
+    TI nb_volumes = 1; // 24;
 
     Cp cp;
     for( TI i = 0; i < nb_volumes; ++i ) {
         cp.add_shape( "3", { Pt{ 0, 0, int( i ) }, Pt{ 20, 0, int( i ) }, Pt{ 0, 20, int( i ) } }, 2 * i + 0 );
-        cp.add_shape( "4", { Pt{ 30, 0, int( i ) }, Pt{ 50, 0, int( i ) }, Pt{ 30, 20, int( i ) }, Pt{ 50, 20, int( i ) } }, 2 * i + 1 );
+        //cp.add_shape( "4", { Pt{ 30, 0, int( i ) }, Pt{ 50, 0, int( i ) }, Pt{ 30, 20, int( i ) }, Pt{ 50, 20, int( i ) } }, 2 * i + 1 );
     }
     PN( cp );
 
@@ -37,6 +37,8 @@ int main() {
     std::vector<TF> measures( 2 * nb_volumes );
     cp.get_measures( measures.data() );
     P( measures );
+    for( TI i = 0; i < nb_volumes; ++i )
+        P( measures[ i ] + measures[ nb_volumes + i ] );
 
     VtkOutput vo;
     cp.display_vtk( vo );

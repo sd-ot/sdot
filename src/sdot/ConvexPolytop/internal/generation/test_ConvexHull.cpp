@@ -1,4 +1,4 @@
-#include "../../support/P.h"
+#include "../../../support/P.h"
 #include "ConvexHull.h"
 
 //void test_1D() {
@@ -104,29 +104,44 @@
 //    vo.save( "out.vtk" );
 //}
 
-void test_intersection_3D() {
-    using Pt = ConvexHull<3>::Pt;
-    ConvexHull<3> ch( {
-        Pt{  0,  0,  0 },
-        Pt{ 10,  0,  0 },
-        Pt{  0, 10,  0 },
-        Pt{  0,  0, 10 },
-    } );
-    ConvexHull<3> dh( {
-         Pt{  7,  7,  7 },
-         Pt{  5, -2, -2 },
-         Pt{ -2,  5, -2 },
-         Pt{ -2, -2,  5 },
-    } );
+//void test_intersection_3D() {
+//    using Pt = ConvexHull<3>::Pt;
+//    ConvexHull<3> ch( {
+//        Pt{  0,  0,  0 },
+//        Pt{ 10,  0,  0 },
+//        Pt{  0, 10,  0 },
+//        Pt{  0,  0, 10 },
+//    } );
+//    ConvexHull<3> dh( {
+//         Pt{  7,  7,  7 },
+//         Pt{  5, -2, -2 },
+//         Pt{ -2,  5, -2 },
+//         Pt{ -2, -2,  5 },
+//    } );
 
-    ConvexHull<3> ih = ch.intersection( dh );
-    P( ih );
+//    ConvexHull<3> ih = ch.intersection( dh );
+//    P( ih );
 
-    VtkOutput vo;
-    ch.display_vtk( vo, Pt(  0, 0, 0 ) );
-    dh.display_vtk( vo, Pt(  0, 0, 0 ) );
-    ih.display_vtk( vo, Pt( 10, 0, 0 ) );
-    vo.save( "out.vtk" );
+//    VtkOutput vo;
+//    ch.display_vtk( vo, Pt(  0, 0, 0 ) );
+//    dh.display_vtk( vo, Pt(  0, 0, 0 ) );
+//    ih.display_vtk( vo, Pt( 10, 0, 0 ) );
+//    vo.save( "out.vtk" );
+//}
+
+void test_perm() {
+    using Ch = ConvexHull<2>;
+    using Pt = Ch::Pt;
+    using TI = Ch::TI;
+
+    std::vector<TI> perm( 4 );
+    std::vector<Pt> pts_a{ Pt{ 0, 0 }, Pt{ 1, 0 }, Pt{ 1, 1 }, Pt{ 0, 1 } };
+    std::vector<Pt> pts_b{ Pt{ 0, 0 }, Pt{ 0, 1 }, Pt{ 1, 1 }, Pt{ 1, 0 } };
+
+    Ch a( pts_a );
+    Ch b( pts_b );
+    P( a.is_a_permutation_of( b, perm.data() ) );
+    P( perm );
 }
 
 int main() {
@@ -136,5 +151,6 @@ int main() {
     //    test_3D_Pyramid();
     //    test_cut();
     //    test_intersection_2D();
-    test_intersection_3D();
+    //    test_intersection_3D();
+    test_perm();
 }

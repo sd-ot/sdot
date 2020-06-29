@@ -174,7 +174,7 @@ struct GenCuts {
                     part.num_ref_shape = num_ref_shape;
 
                     std::vector<TI> rpc_to_nch( nb_nodes );
-                    if ( ref_shapes[ num_ref_shape ].chi.is_a_permutation_of( part.ch.chi, rpc_to_nch.data() ) ) {
+                    if ( ref_shapes[ num_ref_shape ].is_a_permutation_of( part.ch, rpc_to_nch.data() ) ) {
                         part.num_nodes.clear();
                         for( TI num_in_nch : rpc_to_nch )
                             part.num_nodes.push_back( num_nodes[ num_in_nch ] );
@@ -351,6 +351,7 @@ struct GenCuts {
                 }
             }
         }
+        P( num_case, src_node_map );
 
         //
         OutputNodeList onl = make_base_output_node_list( src_node_map, comb );
@@ -500,7 +501,7 @@ void run_3D( GlobalSummary &gs, unsigned max_nb_nodes_2D = 4 ) {
 
 int main() {
     GlobalSummary gs;
-    run_2D( gs );
+    run_2D( gs, 4 );
     // run_3D( gs );
 
     write_nb_faces( gs );
