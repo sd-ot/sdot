@@ -6,8 +6,9 @@
 
 template<class TF,int nvi,int dim,class TI,class NodeData>
 RecursivePolytop<TF,nvi,dim,TI,NodeData> RecursivePolytop<TF,nvi,dim,TI,NodeData>::convex_hull( const std::vector<Node> &nodes, const std::vector<Pt> &prev_centers ) {
-    struct DFace { std::array<Pt,dim-1> dirs; Pt normal, orig; };
+    struct DFace { std::array<Point<TF,nvi>,nvi> dirs; Point<TF,nvi> normal, orig; };
     std::vector<DFace> dfaces;
+    RecursivePolytop res;
 
     // new center
     Pt center = TF( 0 );
@@ -15,18 +16,41 @@ RecursivePolytop<TF,nvi,dim,TI,NodeData> RecursivePolytop<TF,nvi,dim,TI,NodeData
         center += node.pos;
     center /= TF( nodes.size() );
 
-    // new center list
+    // => new center list
     std::vector<Pt> centers = prev_centers;
     centers.push_back( center );
 
+    // new base. Return is base is not large enough
+    std::vector<Pt> dirs;
+    for( TI i = 1; i < nodes.size(); ++i )
+        dirs.push_back( nodes[ i ].pos - nodes[ 0 ].pos );
+    std::vector<Pt> base = base_from( dirs );
+    ASSERT( base.size() <= nvi );
+    if ( base.size() < nvi )
+        return res;
+
+    // local_pos (local coords)
+    std::vector<Point<TF,nvi>> local_pos;
+    for( const Node &node : nodes ) {
+        std::array<std::array<TF,nvi>,nvi> M;
+        std::array<TF,nvi> V;
+        for( TI r = 0; r < nvi; ++r )
+            for( TI c = 0; c < nvi; ++c )
+                M[ r ][ c ] = dot( dirs[ r ], dirs[ c ] );
+        for( TI r = 0; r < nvi; ++r )
+            V[ r ] = dot( dirs[ r ], node.pos - center );
+
+        std::array<TF,nvi> X = solve( M, V );
+        local_pos.push_back( X.data() );
+    }
+
     // try each way to make a face
-    RecursivePolytop res;
-    for_each_comb<TI>( nodes.size(), nvi, [&]( std::vector<TI> num_nodes ) {
+    for_each_comb<TI>( nodes.size(), nvi, [&]( const std::vector<TI> &num_nodes ) {
         // make a face trial (to store it if it's new and relevant)
         DFace dface;
-        dface.orig = nodes[ num_nodes[ 0 ] ].pos;
+        dface.orig = local_pos[ num_nodes[ 0 ] ];
         for( TI d = 0; d < nvi - 1; ++d )
-            dface.dirs[ d ] = nodes[ num_nodes[ d + 1 ] ].pos - dface.orig;
+            dface.dirs[ d ] = local_pos[ num_nodes[ d + 1 ] ] - dface.orig;
 
         // get a normal
         dface.normal = cross_prod( dface.dirs.data() );
@@ -43,7 +67,7 @@ RecursivePolytop<TF,nvi,dim,TI,NodeData> RecursivePolytop<TF,nvi,dim,TI,NodeData
         bool has_out = false;
         for( TI op = 0; op < nodes.size(); ++op ) {
             if ( op != num_nodes[ 0 ] ) {
-                TF d = dot( nodes[ op ].pos - dface.orig, dface.normal );
+                TF d = dot( local_pos[ op ] - dface.orig, dface.normal );
                 has_ins |= d < 0;
                 has_out |= d > 0;
             }
@@ -55,10 +79,13 @@ RecursivePolytop<TF,nvi,dim,TI,NodeData> RecursivePolytop<TF,nvi,dim,TI,NodeData
         if ( has_out )
             dface.normal *= TF( -1 );
 
+        // register dface
+        dfaces.push_back( dface );
+
         // find all the points that belong to this face
         std::vector<Node> new_nodes;
         for( TI op = 0; op < nodes.size(); ++op )
-            if ( dot( nodes[ op ].pos - dface.orig, dface.normal ) == TF( 0 ) )
+            if ( dot( local_pos[ op ] - dface.orig, dface.normal ) == TF( 0 ) )
                 new_nodes.push_back( nodes[ op ] );
 
         // register nodes
@@ -70,7 +97,7 @@ RecursivePolytop<TF,nvi,dim,TI,NodeData> RecursivePolytop<TF,nvi,dim,TI,NodeData
         res.faces.push_back( Face::convex_hull( new_nodes, centers ) );
     } );
 
-    // sort all the faces
+    // sort
     std::sort( res.nodes.begin(), res.nodes.end() );
     std::sort( res.faces.begin(), res.faces.end() );
 

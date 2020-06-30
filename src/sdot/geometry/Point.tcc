@@ -286,7 +286,33 @@ Point<TF,dim> ortho_norm( Point<TF,dim> D, Point<TF,dim> N ) {
 }
 
 template<class TF,int dim>
-int rank( const std::vector<Point<TF,dim>> &pts ) {
+std::vector<Point<TF,dim>> base_from( const std::vector<Point<TF,dim>> &dirs ) {
+    std::vector<Point<TF,dim>> res;
+    StaticRange<1,dim+1>::for_each_cont( [&]( auto d ) {
+        // try to add a new dir
+        for( const Point<TF,dim> &pd : dirs ) {
+            std::array<std::array<TF,d.value>,d.value> M;
+            for( std::size_t r = 0; r < d.value; ++r )
+                for( std::size_t c = 0; c < d.value; ++c )
+                    M[ r ][ c ] = dot(
+                        r + 1 == d.value ? pd : res[ r ],
+                        c + 1 == d.value ? pd : res[ c ]
+                    );
+            if ( determinant( M ) ) {
+                res.push_back( pd );
+                return true;
+            }
+        }
+
+        return false;
+    } );
+
+    return res;
+}
+
+
+template<class TF,int dim>
+int rank_pts( const std::vector<Point<TF,dim>> &pts ) {
     int res = 0;
     std::vector<Point<TF,dim>> dirs;
     StaticRange<1,dim+1>::for_each_cont( [&]( auto d ) {
@@ -312,5 +338,3 @@ int rank( const std::vector<Point<TF,dim>> &pts ) {
 
     return res;
 }
-
-

@@ -40,35 +40,36 @@ struct Point {
 template<class TF,int dim> struct TensorOrder<Point<TF,dim>> { enum { value = TensorOrder<TF>::value + 1 }; };
 
 
-template<class TF,int dim> TF             norm_2_p2 ( Point<TF,dim> p );
-template<class TF,int dim> TF             norm_2    ( Point<TF,dim> p );
-template<class TF,int dim> TF             dot       ( Point<TF,dim> a, Point<TF,dim> b );
-template<class TF,int dim> Point<TF,dim> &operator+=( Point<TF,dim> &a, Point<TF,dim> b );
-template<class TF,int dim> Point<TF,dim> &operator-=( Point<TF,dim> &a, Point<TF,dim> b );
-template<class TF,int dim> Point<TF,dim> &operator/=( Point<TF,dim> &a, TF b );
-template<class TF,int dim> Point<TF,dim> &operator*=( Point<TF,dim> &a, TF b );
-template<class TF,int dim> Point<TF,dim>  operator+ ( Point<TF,dim> a, Point<TF,dim> b );
-template<class TF,int dim> Point<TF,dim>  operator+ ( Point<TF,dim> a, TF b );
-template<class TF,int dim> Point<TF,dim>  operator- ( Point<TF,dim> a, Point<TF,dim> b );
-template<class TF,int dim> Point<TF,dim>  operator- ( Point<TF,dim> a, TF b );
-template<class TF,int dim> Point<TF,dim>  operator- ( Point<TF,dim> a );
-template<class TF,int dim> Point<TF,dim>  operator* ( TF m, Point<TF,dim> p );
-template<class TF,int dim> Point<TF,dim>  operator* ( Point<TF,dim> a, Point<TF,dim> b );
-template<class TF,int dim> Point<TF,dim>  operator/ ( Point<TF,dim> p, TF d );
-template<class TF,int dim> Point<TF,dim>  operator/ ( Point<TF,dim> p, Point<TF,dim> d );
-template<class TF,int dim> bool           operator==( Point<TF,dim> p, Point<TF,dim> q );
-template<class TF,int dim> bool           operator!=( Point<TF,dim> p, Point<TF,dim> q );
-template<class TF,int dim> Point<TF,dim>  min       ( Point<TF,dim> p, Point<TF,dim> q );
-template<class TF,int dim> Point<TF,dim>  max       ( Point<TF,dim> p, Point<TF,dim> q );
-template<class TF,int dim> TF             max       ( Point<TF,dim> p );
-template<class TF,int dim> TF             has_nan   ( Point<TF,dim> p );
-template<class TF,int dim> Point<TF,dim>  normalized( Point<TF,dim> p, TF a = 1e-40 );
-template<class TF>         Point<TF,2>    cross_prod( Point<TF,2> p );
-template<class TF>         Point<TF,3>    cross_prod( Point<TF,3> a, Point<TF,3> b );
-template<class TF,int dim> Point<TF,dim>  cross_prod( const Point<TF,dim> *pts );
-template<class TF>         Point<TF,3>    ortho_rand( Point<TF,3> a );
-template<class TF,int dim> Point<TF,dim>  ortho_norm( Point<TF,dim> D, Point<TF,dim> N );
-template<class TF,int dim> int            rank      ( const std::vector<Point<TF,dim>> &pts );
+template<class TF,int dim> TF                         norm_2_p2 ( Point<TF,dim> p );
+template<class TF,int dim> TF                         norm_2    ( Point<TF,dim> p );
+template<class TF,int dim> TF                         dot       ( Point<TF,dim> a, Point<TF,dim> b );
+template<class TF,int dim> Point<TF,dim>&             operator+=( Point<TF,dim> &a, Point<TF,dim> b );
+template<class TF,int dim> Point<TF,dim>&             operator-=( Point<TF,dim> &a, Point<TF,dim> b );
+template<class TF,int dim> Point<TF,dim>&             operator/=( Point<TF,dim> &a, TF b );
+template<class TF,int dim> Point<TF,dim>&             operator*=( Point<TF,dim> &a, TF b );
+template<class TF,int dim> Point<TF,dim>              operator+ ( Point<TF,dim> a, Point<TF,dim> b );
+template<class TF,int dim> Point<TF,dim>              operator+ ( Point<TF,dim> a, TF b );
+template<class TF,int dim> Point<TF,dim>              operator- ( Point<TF,dim> a, Point<TF,dim> b );
+template<class TF,int dim> Point<TF,dim>              operator- ( Point<TF,dim> a, TF b );
+template<class TF,int dim> Point<TF,dim>              operator- ( Point<TF,dim> a );
+template<class TF,int dim> Point<TF,dim>              operator* ( TF m, Point<TF,dim> p );
+template<class TF,int dim> Point<TF,dim>              operator* ( Point<TF,dim> a, Point<TF,dim> b );
+template<class TF,int dim> Point<TF,dim>              operator/ ( Point<TF,dim> p, TF d );
+template<class TF,int dim> Point<TF,dim>              operator/ ( Point<TF,dim> p, Point<TF,dim> d );
+template<class TF,int dim> bool                       operator==( Point<TF,dim> p, Point<TF,dim> q );
+template<class TF,int dim> bool                       operator!=( Point<TF,dim> p, Point<TF,dim> q );
+template<class TF,int dim> Point<TF,dim>              min       ( Point<TF,dim> p, Point<TF,dim> q );
+template<class TF,int dim> Point<TF,dim>              max       ( Point<TF,dim> p, Point<TF,dim> q );
+template<class TF,int dim> TF                         max       ( Point<TF,dim> p );
+template<class TF,int dim> TF                         has_nan   ( Point<TF,dim> p );
+template<class TF,int dim> Point<TF,dim>              normalized( Point<TF,dim> p, TF a = 1e-40 );
+template<class TF>         Point<TF,2>                cross_prod( Point<TF,2> p );
+template<class TF>         Point<TF,3>                cross_prod( Point<TF,3> a, Point<TF,3> b );
+template<class TF,int dim> Point<TF,dim>              cross_prod( const Point<TF,dim> *pts );
+template<class TF>         Point<TF,3>                ortho_rand( Point<TF,3> a );
+template<class TF,int dim> Point<TF,dim>              ortho_norm( Point<TF,dim> D, Point<TF,dim> N );
+template<class TF,int dim> std::vector<Point<TF,dim>> base_from ( const std::vector<Point<TF,dim>> &dirs );
+template<class TF,int dim> int                        rank_pts  ( const std::vector<Point<TF,dim>> &dirs );
 
 #include "Point.tcc"
 
