@@ -1,5 +1,6 @@
 #include "../support/for_each_comb.h"
 #include "../support/ASSERT.h"
+#include "../support/P.h"
 #include "RecursivePolytop.h"
 #include <algorithm>
 
@@ -20,11 +21,11 @@ RecursivePolytop<TF,nvi,dim,TI,NodeData> RecursivePolytop<TF,nvi,dim,TI,NodeData
 
     // try each way to make a face
     RecursivePolytop res;
-    for_each_comb<TI>( nodes.size(), dim, [&]( std::vector<TI> num_nodes ) {
+    for_each_comb<TI>( nodes.size(), nvi, [&]( std::vector<TI> num_nodes ) {
         // make a face trial (to store it if it's new and relevant)
         DFace dface;
         dface.orig = nodes[ num_nodes[ 0 ] ].pos;
-        for( TI d = 0; d < dim - 1; ++d )
+        for( TI d = 0; d < nvi - 1; ++d )
             dface.dirs[ d ] = nodes[ num_nodes[ d + 1 ] ].pos - dface.orig;
 
         // get a normal
@@ -105,16 +106,14 @@ RecursivePolytop<TF,1,dim,TI,NodeData> RecursivePolytop<TF,1,dim,TI,NodeData>::c
 
 template<class TF,int nvi,int dim,class TI,class NodeData>
 void RecursivePolytop<TF,nvi,dim,TI,NodeData>::write_to_stream( std::ostream &os, std::string sp ) const {
-    os << sp << "+";
+    os << sp << "+ " << nodes;
     for( const Face &face : faces )
         face.write_to_stream( os, sp + "  " );
 }
 
 template<class TF,int dim,class TI,class NodeData>
 void RecursivePolytop<TF,1,dim,TI,NodeData>::write_to_stream( std::ostream &os, std::string sp ) const {
-    os << sp;
-    for( TI i = 0; i < nodes.size(); ++i )
-        os << ( i ? "; " : "" ) << nodes[ i ].pos << " " << nodes[ i ].data;
+    os << sp << "+ " << nodes;
 }
 
 template<class TF,int nvi,int dim,class TI,class NodeData>
@@ -126,3 +125,164 @@ template<class TF,int dim,class TI,class NodeData>
 bool RecursivePolytop<TF,1,dim,TI,NodeData>::operator<( const RecursivePolytop &that ) const {
     return nodes < that.nodes;
 }
+
+template<class TF,int nvi,int dim,class TI,class NodeData> template<class Fu>
+void RecursivePolytop<TF,nvi,dim,TI,NodeData>::for_each_faces_rec( const Fu &func) const {
+    func( *this );
+    for( const Face &face : faces )
+        face.for_each_faces_rec( func );
+}
+
+template<class TF,int dim,class TI,class NodeData> template<class Fu>
+void RecursivePolytop<TF,1,dim,TI,NodeData>::for_each_faces_rec( const Fu &func ) const {
+    func( *this );
+}
+
+template<class TF,int nvi,int dim,class TI,class NodeData> template<class Nd>
+bool RecursivePolytop<TF,nvi,dim,TI,NodeData>::valid_node_prop( const std::vector<Nd> &prop, std::vector<Pt> prev_centers, bool prev_centers_are_valid ) const {
+    // available_points
+    std::vector<Pt> available_points;
+    available_points.reserve( prop.size() );
+    for( const Node &node : nodes )
+        if ( node.data < prop.size() )
+            available_points.push_back( prop[ node.data ].pos );
+
+    // check rank
+    TI r = rank( available_points );
+    if ( r > nvi )
+        return false;
+    if ( available_points.size() == nodes.size() && r != nvi )
+        return false;
+
+    // check faces
+    if ( r < nvi )
+        prev_centers_are_valid = false;
+    if ( prev_centers_are_valid )
+        prev_centers.push_back( mean( available_points ) );
+    for( const Face &face : faces )
+        if ( ! face.valid_node_prop( prop, prev_centers, prev_centers_are_valid ) )
+            return false;
+    return true;
+}
+
+template<class TF,int dim,class TI,class NodeData> template<class Nd>
+bool RecursivePolytop<TF,1,dim,TI,NodeData>::valid_node_prop( const std::vector<Nd> &prop, const std::vector<Pt> &prev_centers, bool prev_centers_are_valid ) const {
+    // available_points
+    std::vector<Pt> available_points;
+    available_points.reserve( prop.size() );
+    for( const Node &node : nodes )
+        if ( node.data < prop.size() )
+            available_points.push_back( prop[ node.data ].pos );
+
+    if ( available_points.size() == 2 ) {
+        if ( available_points[ 0 ] == available_points[ 1 ] )
+            return false;
+
+        if ( prev_centers_are_valid ) {
+            // check measure is > 0
+            std::vector<Pt> dirs;
+            for( TI i = 1; i < prev_centers.size(); ++i )
+                dirs.push_back( prev_centers[ i ] - prev_centers[ i - 1 ] );
+            if ( prev_centers.size() )
+                dirs.push_back( available_points[ 0 ] - prev_centers.back() );
+            dirs.push_back( available_points[ 1 ] - available_points[ 0 ] );
+            if ( determinant( &dirs[ 0 ][ 0 ], N<dim>() ) <= 0 )
+                return false;
+        }
+    }
+
+    return true;
+}
+
+template<class TF,int nvi,int dim,class TI,class NodeData> template<class Vk>
+void RecursivePolytop<TF,nvi,dim,TI,NodeData>::display_vtk( Vk &vtk_output ) const {
+    for_each_faces_rec( [&]( const auto &face ) {
+        if ( face.nvi == 2 ) {
+            std::vector<typename Vk::Pt> pts( face.nodes.size() );
+            for( TI i = 0; i < face.nodes.size(); ++i ) {
+                for( TI d = 0; d < std::min( dim, 3 ); ++d )
+                    pts[ i ][ d ] = conv( face.nodes[ i ].pos[ d ], S<typename Vk::TF>() );
+                for( TI d = std::min( dim, 3 ); d < 3; ++d )
+                    pts[ i ][ d ] = 0;
+            }
+            vtk_output.add_polygon( pts );
+        }
+    } );
+}
+
+template<class TF,int nvi,int dim,class TI,class NodeData> template<class Nd>
+auto RecursivePolytop<TF,nvi,dim,TI,NodeData>::with_nodes( const std::vector<Nd> &new_nodes ) const {
+    using NewNodeData = typename std::decay<decltype( new_nodes[ 0 ].data )>::type;
+    RecursivePolytop<TF,nvi,dim,TI,NewNodeData> res;
+    for( const Node &node : nodes )
+        res.nodes.push_back( new_nodes[ node.data ] );
+    for( const Face &face : faces )
+        res.faces.push_back( face.with_nodes( new_nodes ) );
+    return res;
+}
+
+template<class TF,int dim,class TI,class NodeData> template<class Nd>
+auto RecursivePolytop<TF,1,dim,TI,NodeData>::with_nodes( const std::vector<Nd> &new_nodes ) const {
+    using NewNodeData = typename std::decay<decltype( new_nodes[ 0 ].data )>::type;
+    RecursivePolytop<TF,1,dim,TI,NewNodeData> res;
+    for( const Node &node : nodes )
+        res.nodes.push_back( new_nodes[ node.data ] );
+    return res;
+}
+
+template<class TF,int nvi,int dim,class TI,class NodeData>
+void RecursivePolytop<TF,nvi,dim,TI,NodeData>::plane_cut( std::vector<RecursivePolytop> &res, Pt orig, Pt normal ) const {
+    RecursivePolytop new_rp;
+    for( const Face &face : faces ) {
+        std::vector<Face> new_faces;
+        face.plane_cut( new_faces, orig, normal );
+
+        for( const Face &new_face : new_faces ) {
+            new_rp.faces.push_back( new_face );
+            for( const Node &new_node : new_face.nodes )
+                new_rp.nodes.push_back( new_node );
+        }
+    }
+
+    res.push_back( new_rp );
+}
+
+template<class TF,int dim,class TI,class NodeData>
+void RecursivePolytop<TF,1,dim,TI,NodeData>::plane_cut( std::vector<RecursivePolytop> &res, Pt orig, Pt normal ) const {
+    TF s0 = dot( nodes[ 0 ].pos - orig, normal );
+    TF s1 = dot( nodes[ 1 ].pos - orig, normal );
+    if ( s0 <= 0 && s1 <= 0 ) {
+        res.push_back( { { nodes[ 0 ], nodes[ 1 ] } } );
+    }
+    if ( s0 <= 0 && s1 > 0 ) {
+        Node n0{ nodes[ 0 ] };
+        Node n1{ nodes[ 0 ].pos + s0 / ( s0 - s1 ) * ( nodes[ 1 ].pos - nodes[ 0 ].pos ), nodes[ 1 ].data };
+        res.push_back( { { n0, n1 } } );
+    }
+    if ( s0 > 0 && s1 <= 0 ) {
+        Node n0{ nodes[ 0 ].pos + s0 / ( s0 - s1 ) * ( nodes[ 1 ].pos - nodes[ 0 ].pos ), nodes[ 1 ].data };
+        Node n1{ nodes[ 1 ] };
+        res.push_back( { { n0, n1 } } );
+    }
+}
+
+template<class TF,int nvi_,int dim,class TI,class NodeData>
+TF RecursivePolytop<TF,nvi_,dim,TI,NodeData>::measure( const std::vector<Pt> &prev_dirs, TF div ) const {
+    TF res = 0;
+    for( const Face &face : faces ) {
+        std::vector<Pt> new_dirs = prev_dirs;
+        new_dirs.push_back( face.nodes[ 0 ].pos - nodes[ 0 ].pos );
+        res += face.measure( new_dirs, div * TF( nvi_ ) );
+    }
+    return res;
+}
+
+
+template<class TF,int dim,class TI,class NodeData>
+TF RecursivePolytop<TF,1,dim,TI,NodeData>::measure( const std::vector<Pt> &prev_dirs, TF div ) const {
+    std::vector<Pt> new_dirs = prev_dirs;
+    new_dirs.push_back( nodes[ 1 ].pos - nodes[ 0 ].pos );
+    return determinant( &new_dirs[ 0 ][ 0 ], N<dim>() ) / div;
+}
+
+

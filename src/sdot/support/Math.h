@@ -92,3 +92,12 @@ bool colinear( const Pt &a, const Pt &b ) {
     return d * d == norm_2_p2( a ) * norm_2_p2( b );
 }
 
+template<class V>
+auto mean( const V &v ) -> typename std::decay<decltype( v[ 0 ] )>::type {
+    using T = typename std::decay<decltype( v[ 0 ] )>::type;
+    T res = v[ 0 ];
+    for( std::size_t i = 1; i < v.size(); ++i )
+        res += v[ i ];
+    return res / T( v.size() );
+}
+

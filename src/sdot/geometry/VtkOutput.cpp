@@ -9,7 +9,7 @@ void VtkOutput::save( std::string filename ) const {
     save( os );
 }
 
-void VtkOutput::save(std::ostream &os) const {
+void VtkOutput::save( std::ostream &os ) const {
     os << "# vtk DataFile Version 3.0\n";
     os << "vtk output\n";
     os << "ASCII\n";

@@ -10,6 +10,10 @@ int main() {
     gc.add_ref_shape( "3" );
     gc.add_ref_shape( "4" );
 
-    P( gc.ref_shapes );
+    for( const auto &rs : gc.ref_shapes ) {
+        gc.setup_cut_nodes_for( rs );
+        gc.setup_parts_from_cut_nodes();
+
+    }
 }
 
