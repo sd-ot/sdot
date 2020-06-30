@@ -25,25 +25,21 @@ void test_3D() {
     using Pt = Rp::Pt;
 
     Rp rp = Rp::convex_hull( {
-        Rp::Node{ {  0,  0,  0 }, 0 },
-        Rp::Node{ { 12,  0,  0 }, 1 },
-        Rp::Node{ {  0, 12,  0 }, 2 },
-        Rp::Node{ {  0,  0, 12 }, 3 },
-        Rp::Node{ { 12,  0, 12 }, 4 },
+        Rp::Node{ {  0,  0,  0 }, 0, {} },
+        Rp::Node{ { 12,  0,  0 }, 1, {} },
+        Rp::Node{ {  0, 12,  0 }, 2, {} },
+        Rp::Node{ {  0,  0, 12 }, 3, {} },
     } );
 
     P( rp );
     P( rp.measure() );
 
-    //    std::vector<Rp> nrps;
-    //    rp.plane_cut( nrps, Pt{ 4, 4, 4 }, Pt{ 1, 0, 0 } );
+    Rp nrp = rp.plane_cut( Pt{ 4, 4, 4 }, Pt{ 1, 0, 0 } );
+    P( nrp );
 
-    //    VtkOutput vo;
-    //    for( const Rp &nrp : nrps ) {
-    //        nrp.display_vtk( vo );
-    //        P( nrp );
-    //    }
-    //    vo.save( "out.vtk" );
+    VtkOutput vo;
+    nrp.display_vtk( vo );
+    vo.save( "out.vtk" );
 }
 
 int main() {

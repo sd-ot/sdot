@@ -3,6 +3,7 @@
 #include "../support/P.h"
 #include "RecursivePolytop.h"
 #include <algorithm>
+#include <map>
 
 template<class TF,int nvi,int dim,class TI,class NodeData>
 RecursivePolytop<TF,nvi,dim,TI,NodeData> RecursivePolytop<TF,nvi,dim,TI,NodeData>::convex_hull( const std::vector<Node> &nodes, const std::vector<Pt> &prev_centers ) {
@@ -36,9 +37,9 @@ RecursivePolytop<TF,nvi,dim,TI,NodeData> RecursivePolytop<TF,nvi,dim,TI,NodeData
         std::array<TF,nvi> V;
         for( TI r = 0; r < nvi; ++r )
             for( TI c = 0; c < nvi; ++c )
-                M[ r ][ c ] = dot( dirs[ r ], dirs[ c ] );
+                M[ r ][ c ] = dot( base[ r ], base[ c ] );
         for( TI r = 0; r < nvi; ++r )
-            V[ r ] = dot( dirs[ r ], node.pos - center );
+            V[ r ] = dot( base[ r ], node.pos - center );
 
         std::array<TF,nvi> X = solve( M, V );
         local_pos.push_back( X.data() );
@@ -221,18 +222,65 @@ bool RecursivePolytop<TF,1,dim,TI,NodeData>::valid_node_prop( const std::vector<
     return true;
 }
 
+template<class TF,int nvi,int dim,class TI,class NodeData>
+std::vector<typename RecursivePolytop<TF,nvi,dim,TI,NodeData>::VN> RecursivePolytop<TF,nvi,dim,TI,NodeData>::node_seq() const {
+    std::vector<Node> pts;
+    std::set<TI> seen;
+    auto start_new_seq = [&]() {
+        for( const Node &node : nodes ) {
+            if ( ! seen.count( node.id ) ) {
+                seen.insert( node.id );
+                pts = { node };
+                return true;
+            }
+        }
+        return false;
+    };
+
+    std::vector<std::vector<Node>> res;
+    if ( ! start_new_seq() )
+        return res;
+    while ( true ) {
+        for( TI num_edge = 0; ; ++num_edge ) {
+            if ( num_edge == faces.size() ) {
+                PE( "not a closed face" );
+                res.push_back( pts );
+                if ( start_new_seq() )
+                    break;
+                return res;
+            }
+
+            const auto &edge = faces[ num_edge ];
+            if ( edge.nodes[ 0 ].id == pts.back().id ) {
+                if ( edge.nodes[ 1 ].id == pts.front().id ) {
+                    res.push_back( pts );
+                    if ( start_new_seq() )
+                        break;
+                    return res;
+                }
+                pts.push_back( edge.nodes[ 1 ] );
+                seen.insert( edge.nodes[ 1 ].id );
+                break;
+            }
+
+        }
+    }
+}
+
 template<class TF,int nvi,int dim,class TI,class NodeData> template<class Vk>
 void RecursivePolytop<TF,nvi,dim,TI,NodeData>::display_vtk( Vk &vtk_output ) const {
     for_each_faces_rec( [&]( const auto &face ) {
-        if ( face.nvi == 2 ) {
-            std::vector<typename Vk::Pt> pts( face.nodes.size() );
-            for( TI i = 0; i < face.nodes.size(); ++i ) {
-                for( TI d = 0; d < std::min( dim, 3 ); ++d )
-                    pts[ i ][ d ] = conv( face.nodes[ i ].pos[ d ], S<typename Vk::TF>() );
-                for( TI d = std::min( dim, 3 ); d < 3; ++d )
-                    pts[ i ][ d ] = 0;
+        if constexpr ( face.nvi == 2 ) {
+            for( const std::vector<Node> &ns : face.node_seq() ) {
+                std::vector<typename Vk::Pt> pts( ns.size() );
+                for( TI i = 0; i < ns.size(); ++i ) {
+                    for( TI d = 0; d < std::min( dim, 3 ); ++d )
+                        pts[ i ][ d ] = conv( ns[ i ].pos[ d ], S<typename Vk::TF>() );
+                    for( TI d = std::min( dim, 3 ); d < 3; ++d )
+                        pts[ i ][ d ] = 0;
+                }
+                vtk_output.add_polygon( pts );
             }
-            vtk_output.add_polygon( pts );
         }
     } );
 }
@@ -258,39 +306,148 @@ auto RecursivePolytop<TF,1,dim,TI,NodeData>::with_nodes( const std::vector<Nd> &
 }
 
 template<class TF,int nvi,int dim,class TI,class NodeData>
-void RecursivePolytop<TF,nvi,dim,TI,NodeData>::plane_cut( std::vector<RecursivePolytop> &res, Pt orig, Pt normal ) const {
-    RecursivePolytop new_rp;
-    for( const Face &face : faces ) {
-        std::vector<Face> new_faces;
-        face.plane_cut( new_faces, orig, normal );
+TI RecursivePolytop<TF,nvi,dim,TI,NodeData>::max_id() const {
+    TI res = 0;
+    for( const Node &node : nodes )
+        res = std::max( res, node.id );
+    return res;
+}
 
-        for( const Face &new_face : new_faces ) {
-            new_rp.faces.push_back( new_face );
-            for( const Node &new_node : new_face.nodes )
-                new_rp.nodes.push_back( new_node );
-        }
-    }
-
-    res.push_back( new_rp );
+template<class TF,int nvi,int dim,class TI,class NodeData>
+RecursivePolytop<TF,nvi,dim,TI,NodeData> RecursivePolytop<TF,nvi,dim,TI,NodeData>::make_from( const std::vector<Face> &faces ) {
+    RecursivePolytop res;
+    res.faces = faces;
+    for( const Face &face : faces )
+        for( const Node &node : face.nodes )
+            if ( std::find_if( res.nodes.begin(), res.nodes.end(), [&]( const Node &n ) { return n.id == node.id; } ) == res.nodes.end() )
+                res.nodes.push_back( node );
+    return res;
 }
 
 template<class TF,int dim,class TI,class NodeData>
-void RecursivePolytop<TF,1,dim,TI,NodeData>::plane_cut( std::vector<RecursivePolytop> &res, Pt orig, Pt normal ) const {
+RecursivePolytop<TF,1,dim,TI,NodeData> RecursivePolytop<TF,1,dim,TI,NodeData>::make_from( const std::vector<Face> &faces ) {
+    RecursivePolytop res;
+    res.nodes = faces;
+    return res;
+}
+
+template<class TF,int nvi,int dim,class TI,class NodeData>
+std::vector<typename RecursivePolytop<TF,nvi,dim,TI,NodeData>::DN> RecursivePolytop<TF,nvi,dim,TI,NodeData>::non_closed_node_seq( const std::vector<Face> &faces ) {
+    std::deque<Node> pts;
+    std::set<TI> seen;
+    int dir;
+    auto start_new_seq = [&]() {
+        for( const Face &face : faces) {
+            for( const Node &node : face.nodes ) {
+                if ( ! seen.count( node.id ) ) {
+                    seen.insert( node.id );
+                    pts = { node };
+                    dir = 1;
+                    return true;
+                }
+            }
+        }
+        return false;
+    };
+
+    std::vector<std::deque<Node>> res;
+    if ( ! start_new_seq() )
+        return res;
+    while ( true ) {
+        for( TI num_edge = 0; ; ++num_edge ) {
+            if ( num_edge == faces.size() ) {
+                if ( dir > 0 ) {
+                    dir = 0;
+                    break;
+                }
+                res.push_back( pts );
+                if ( start_new_seq() )
+                    break;
+                return res;
+            }
+
+            const auto &edge = faces[ num_edge ];
+            if ( edge.nodes[ 1 - dir ].id == ( dir ? pts.back().id : pts.front().id ) ) {
+                if ( edge.nodes[ dir ].id == ( dir ? pts.front().id : pts.back().id ) ) { // in a loop ?
+                    if ( start_new_seq() )
+                        break;
+                    return res;
+                }
+                if ( dir )
+                    pts.push_back( edge.nodes[ 1 ] );
+                else
+                    pts.push_front( edge.nodes[ 0 ] );
+                seen.insert( edge.nodes[ dir ].id );
+                break;
+            }
+        }
+    }
+
+
+    return res;
+}
+
+template<class TF,int nvi,int dim,class TI,class NodeData>
+RecursivePolytop<TF,nvi,dim,TI,NodeData> RecursivePolytop<TF,nvi,dim,TI,NodeData>::plane_cut( Pt orig, Pt normal, const std::function<Node(const Node &,const Node &,TF,TF)> &nf, std::vector<Face> *new_faces ) const {
+    if ( ! nf ) {
+        TI mid = max_id();
+        std::map<std::pair<TI,TI>,Node> corr;
+        return plane_cut( orig, normal, [&]( const Node &a, const Node &b, TF sa, TF sb ) {
+            std::pair p{ std::min( a.id, b.id ), std::max( a.id, b.id ) };
+            if ( corr.count( p ) )
+                return corr[ p ];
+            Node &res = corr[ p ];
+            res.pos = a.pos + sa / ( sa - sb ) * ( b.pos - a.pos );
+            res.id = ++mid;
+            return res;
+        }, new_faces );
+    }
+
+    std::vector<typename Face::Face> np1_faces;
+    std::vector<Face> cut_faces;
+    for( const Face &face : faces )
+        if ( Face cut_face = face.plane_cut( orig, normal, nf, &np1_faces ) )
+            cut_faces.push_back( cut_face );
+
+    if ( np1_faces.size() ) {
+        // if nvi == 2, np1_faces are actually nodes.
+        if constexpr ( nvi == 2 ) {
+            for( const DN &dn : non_closed_node_seq( cut_faces ) ) {
+                Face nf = Face::make_from( { dn.back(), dn.front() } );
+                if ( new_faces )
+                    new_faces->push_back( nf );
+                cut_faces.push_back( nf );
+            }
+        } else {
+            Face nf = Face::make_from( np1_faces );
+            if ( new_faces )
+                new_faces->push_back( nf );
+            cut_faces.push_back( nf );
+        }
+    }
+
+    return make_from( cut_faces );
+}
+
+template<class TF,int dim,class TI,class NodeData>
+RecursivePolytop<TF,1,dim,TI,NodeData> RecursivePolytop<TF,1,dim,TI,NodeData>::plane_cut( Pt orig, Pt normal, const std::function<Node(const Node &,const Node &,TF,TF)> &nf, std::vector<Face> *new_faces ) const {
     TF s0 = dot( nodes[ 0 ].pos - orig, normal );
     TF s1 = dot( nodes[ 1 ].pos - orig, normal );
-    if ( s0 <= 0 && s1 <= 0 ) {
-        res.push_back( { { nodes[ 0 ], nodes[ 1 ] } } );
-    }
+    if ( s0 <= 0 && s1 <= 0 )
+        return { { nodes[ 0 ], nodes[ 1 ] } };
     if ( s0 <= 0 && s1 > 0 ) {
-        Node n0{ nodes[ 0 ] };
-        Node n1{ nodes[ 0 ].pos + s0 / ( s0 - s1 ) * ( nodes[ 1 ].pos - nodes[ 0 ].pos ), nodes[ 1 ].data };
-        res.push_back( { { n0, n1 } } );
+        Node nn = nf( nodes[ 0 ], nodes[ 1 ], s0, s1 );
+        if ( new_faces )
+            new_faces->push_back( nn );
+        return { { nodes[ 0 ], nn } };
     }
     if ( s0 > 0 && s1 <= 0 ) {
-        Node n0{ nodes[ 0 ].pos + s0 / ( s0 - s1 ) * ( nodes[ 1 ].pos - nodes[ 0 ].pos ), nodes[ 1 ].data };
-        Node n1{ nodes[ 1 ] };
-        res.push_back( { { n0, n1 } } );
+        Node nn = nf( nodes[ 0 ], nodes[ 1 ], s0, s1 );
+        if ( new_faces )
+            new_faces->push_back( nn );
+        return { { nn, nodes[ 1 ] } };
     }
+    return { {} };
 }
 
 template<class TF,int nvi_,int dim,class TI,class NodeData>

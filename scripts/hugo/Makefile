@@ -1,4 +1,4 @@
-NSMAKE = nsmake -g3 # --exec-with valgrind --cxx clang++ 
+NSMAKE = nsmake -g3 --cpp-flag "-std=c++17"# --exec-with valgrind --cxx clang++ 
 # Dg676-yu
 
 all:
