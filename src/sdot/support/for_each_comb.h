@@ -6,7 +6,7 @@
 namespace  {
 
 template<class TI>
-void _for_each_comb( TI rese_size, TI list_size, const std::function<void( TI * )> &f, TI *res, TI n, bool ordered ) {
+void _for_each_comb( TI rese_size, TI list_size, const std::function<void( const std::vector<TI> & )> &f, std::vector<TI> &res, TI n, bool ordered ) {
     if ( n == list_size )
         return f( res );
 
@@ -31,7 +31,7 @@ void _for_each_comb( TI rese_size, TI list_size, const std::function<void( TI * 
 }
 
 template<class TI>
-bool _for_each_comb_cont( TI rese_size, TI list_size, const std::function<bool( TI * )> &f, TI *res, TI n, bool ordered ) {
+bool _for_each_comb_cont( TI rese_size, TI list_size, const std::function<bool( const std::vector<TI> & )> &f, std::vector<TI> &res, TI n, bool ordered ) {
     if ( n == list_size )
         return f( res );
 
@@ -61,19 +61,19 @@ bool _for_each_comb_cont( TI rese_size, TI list_size, const std::function<bool( 
 }
 
 template<class TI>
-void for_each_comb( TI rese_size, TI list_size, const std::function<void( TI * )> &f, bool ordered = false ) {
+void for_each_comb( TI rese_size, TI list_size, const std::function<void( const std::vector<TI> & )> &f, bool ordered = false ) {
     if ( rese_size < list_size )
         return;
     std::vector<TI> res( list_size );
-    _for_each_comb<TI>( rese_size, list_size, f, res.data(), 0, ordered );
+    _for_each_comb<TI>( rese_size, list_size, f, res, 0, ordered );
 }
 
 template<class TI>
-bool for_each_comb_cont( TI rese_size, TI list_size, const std::function<bool( TI * )> &f, bool ordered = false ) {
+bool for_each_comb_cont( TI rese_size, TI list_size, const std::function<bool( const std::vector<TI> & )> &f, bool ordered = false ) {
     if ( rese_size < list_size )
         return true;
     std::vector<TI> res( list_size );
-    return _for_each_comb_cont( rese_size, list_size, f, res.data(), TI( 0 ), ordered );
+    return _for_each_comb_cont( rese_size, list_size, f, res, TI( 0 ), ordered );
 }
 
 template<class TI>

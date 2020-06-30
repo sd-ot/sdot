@@ -59,3 +59,11 @@ bool Point<TF,dim>::operator<( const Point &that ) const {
     return false;
 }
 
+template<class TF,int dim>
+Point<TF,dim>::operator bool() const {
+    for( int i = 0; i < dim; ++i )
+        if ( data[ i ] )
+            return true;
+    return false;
+}
+

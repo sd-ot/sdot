@@ -1,5 +1,5 @@
 #include "Point.h"
-#include "Conv.h"
+#include "conv.h"
 
 template<class TF,int dim> template<class TG>
 Point<TF,dim>::Point( const Point<TG,dim> &p ) {

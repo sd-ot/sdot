@@ -31,6 +31,7 @@ struct Point {
     const TF*                       end            () const { return data + dim; }
 
     bool                            operator<      ( const Point &that ) const;
+    operator                        bool           () const;
 
     // modifiers
     Point&                          operator*=     ( TF v ) { for( int i = 0; i < dim; ++i ) data[ i ] *= v; return *this; }

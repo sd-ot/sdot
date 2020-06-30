@@ -2,7 +2,7 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/rational.hpp>
-#include "Conv.h"
+#include "conv.h"
 
 using Rational = boost::rational<boost::multiprecision::cpp_int>;
 
@@ -12,3 +12,10 @@ G conv( const Rational &val, S<G> ) {
     return boost::rational_cast<G>( val );
 }
 
+
+std::ostream &operator<<( std::ostream &os, const Rational &r ) {
+    os << r.numerator();
+    if ( r.denominator() != 1 )
+        os << "/" << r.denominator();
+    return os;
+}
