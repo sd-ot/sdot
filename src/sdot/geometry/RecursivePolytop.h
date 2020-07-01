@@ -7,23 +7,23 @@
 /**
 
 */
-template<class TF_,int nvi_,int dim_=nvi_,class TI_=std::size_t,class UserNodeData_=TI_>
+template<class TF_,int dim_,class TI_=std::size_t,class UserNodeData_=TI_>
 class RecursivePolytop {
 public:
     using                   UserNodeData       = UserNodeData_;
-    enum {                  nvi                = nvi_ };
     enum {                  dim                = dim_ };
     using                   TF                 = TF_;
     using                   TI                 = TI_;
     using                   Pt                 = Point<TF,dim>;
 
     struct                  Node               { Pt pos; UserNodeData user_data; };
-    using                   Impl               = RecursivePolytopImpl<RecursivePolytop,nvi>;
+    using                   Impl               = RecursivePolytopImpl<RecursivePolytop,dim>;
 
     /**/                    RecursivePolytop   ();
     static RecursivePolytop convex_hull        ( const std::vector<Node> &nodes );
 
     void                    write_to_stream    ( std::ostream &os, std::string nl = "\n  ", std::string ns = "  " ) const;
+    template<class VO> void display_vtk        ( VO &vo ) const;
 
     //    static std::vector<DN>  non_closed_node_seq( const std::vector<Face> &faces ); ///< get non closed sequence of nodes from faces. Works only for nvi == 2.
     //    template<class Fu> void for_each_faces_rec ( const Fu &func ) const;

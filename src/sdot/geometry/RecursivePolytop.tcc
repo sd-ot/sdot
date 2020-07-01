@@ -3,12 +3,12 @@
 #include "../support/P.h"
 #include "RecursivePolytop.h"
 
-template<class TF,int nvi,int dim,class TI,class UserNodeData>
-RecursivePolytop<TF,nvi,dim,TI,UserNodeData>::RecursivePolytop() {
+template<class TF,int dim,class TI,class UserNodeData>
+RecursivePolytop<TF,dim,TI,UserNodeData>::RecursivePolytop() {
 }
 
-template<class TF,int nvi,int dim,class TI,class UserNodeData>
-RecursivePolytop<TF,nvi,dim,TI,UserNodeData> RecursivePolytop<TF,nvi,dim,TI,UserNodeData>::convex_hull( const std::vector<Node> &nodes ) {
+template<class TF,int dim,class TI,class UserNodeData>
+RecursivePolytop<TF,dim,TI,UserNodeData> RecursivePolytop<TF,dim,TI,UserNodeData>::convex_hull( const std::vector<Node> &nodes ) {
     RecursivePolytop res;
 
     // make a list of vertices
@@ -17,21 +17,35 @@ RecursivePolytop<TF,nvi,dim,TI,UserNodeData> RecursivePolytop<TF,nvi,dim,TI,User
         res.vertices[ i ].node = nodes[ i ];
 
     // make the convex hull recursively
-    std::vector<TI> indices( nvi * ( nodes.size() + nvi ) );
+    std::vector<TI> indices( dim * ( nodes.size() + dim ) );
     for( TI i = 0; i < nodes.size(); ++i )
         indices[ i ] = i;
-    res.impl.add_convex_hull( res.pool, res.vertices, indices.data(), nodes.size(), N<nvi>() );
+    std::array<Pt,dim> prev_normals;
+    res.impl.add_convex_hull( res.pool, res.vertices, indices.data(), nodes.size(), prev_normals.data(), N<dim>() );
 
     return res;
 }
 
-template<class TF,int nvi,int dim,class TI,class UserNodeData>
-void RecursivePolytop<TF,nvi,dim,TI,UserNodeData>::write_to_stream( std::ostream &os, std::string nl, std::string ns ) const {
+template<class TF,int dim,class TI,class UserNodeData>
+void RecursivePolytop<TF,dim,TI,UserNodeData>::write_to_stream( std::ostream &os, std::string nl, std::string ns ) const {
     impl.for_each_item_rec( [&]( const auto &face ) {
         os << nl;
-        for( TI i = 0; i < nvi - face.nvi; ++i )
+        for( TI i = 0; i < dim - face.nvi; ++i )
             os << ns;
         face.write_to_stream( os );
+    } );
+}
+
+template<class TF,int dim,class TI,class UserNodeData> template<class VO>
+void RecursivePolytop<TF,dim,TI,UserNodeData>::display_vtk( VO &vo ) const {
+    impl.for_each_item_rec( [&]( const auto &face ) {
+        typename VO::Pt O = 0, N = 0;
+        for( TI d = 0; d < std::min( int( dim ), 3 ); ++d ) {
+            O[ d ] = conv( face.center[ d ], S<typename VO::TF>() );
+            N[ d ] = conv( face.normal[ d ], S<typename VO::TF>() );
+        }
+        N /= norm_2( N );
+        vo.add_line( { O, O + N } );
     } );
 }
 

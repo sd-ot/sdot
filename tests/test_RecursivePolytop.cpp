@@ -31,7 +31,7 @@ void test_3D() {
         Rp::Node{ Pt{  0,  0, 12 }, 3 },
     } );
 
-    // P( rp );
+    P( rp );
 
     //    P( rp );
     //    P( rp.measure() );
@@ -39,9 +39,9 @@ void test_3D() {
     //    Rp nrp = rp.plane_cut( Pt{ 4, 4, 4 }, Pt{ 1, 0, 0 } );
     //    P( nrp );
 
-    //    VtkOutput vo;
-    //    nrp.display_vtk( vo );
-    //    vo.save( "out.vtk" );
+    VtkOutput vo;
+    rp.display_vtk( vo );
+    vo.save( "out.vtk" );
 
     //    P( rp.contains( Pt{ 2, 2, 2 } ) );
     //    P( nrp.contains( Pt{ 2, 2, 2 } ) );
