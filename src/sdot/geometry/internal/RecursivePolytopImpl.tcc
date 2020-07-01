@@ -240,11 +240,9 @@ void RecursivePolytopImpl<Rp,nvi>::plane_cut( BumpPointerPool &pool, IntrusiveLi
 }
 
 template<class Rp,int nvi>
-typename Rp::TF RecursivePolytopImpl<Rp,nvi>::measure( std::array<Pt,dim> &dirs, N<1> ) const {
-    const Face &n0 = *faces.begin(), &n1 = *faces.begin()->next;
-    dirs[ dim - nvi ] = n1.center - n0.center;
-
-    return determinant( dirs[ 0 ].data, N<dim>() );
+typename Rp::TF RecursivePolytopImpl<Rp,nvi>::measure( std::array<Pt,dim> &dirs, N<0> ) const {
+    TF d = determinant( dirs[ 0 ].data, N<dim>() );
+    return dot( cross_prod( dirs.data() ), normal ) > 0 ? d : - d;
 }
 
 

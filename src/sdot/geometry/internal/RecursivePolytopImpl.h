@@ -31,7 +31,7 @@ struct RecursivePolytopImpl {
     template<class B> void    sort_vertices       ( std::array<Pt,dim> &dirs, B );
     void                      plane_cut           ( BumpPointerPool &pool, IntrusiveList<Face> &new_faces, std::vector<Node *> &new_vertices, TI &date, N<1> );
     template<class B> void    plane_cut           ( BumpPointerPool &pool, IntrusiveList<Face> &new_faces, std::vector<Node *> &new_vertices, TI &date, B );
-    TF                        measure             ( std::array<Pt,dim> &dirs, N<1> ) const;
+    TF                        measure             ( std::array<Pt,dim> &dirs, N<0> ) const;
     template<class B> TF      measure             ( std::array<Pt,dim> &dirs, B ) const;
     Pn                        proj                ( const Pt &pt ) const;
 

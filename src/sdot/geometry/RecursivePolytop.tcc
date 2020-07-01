@@ -38,6 +38,7 @@ void RecursivePolytop<TF,dim,TI,UserNodeData>::write_to_stream( std::ostream &os
 template<class TF,int dim,class TI,class UserNodeData> template<class VO>
 void RecursivePolytop<TF,dim,TI,UserNodeData>::display_vtk( VO &vo ) const {
     impl.for_each_item_rec( [&]( const auto &face ) {
+        // normals
         typename VO::Pt O = 0, N = 0;
         for( TI d = 0; d < std::min( int( dim ), 3 ); ++d ) {
             O[ d ] = conv( face.center[ d ], S<typename VO::TF>() );
@@ -47,15 +48,25 @@ void RecursivePolytop<TF,dim,TI,UserNodeData>::display_vtk( VO &vo ) const {
             N /= norm_2( N );
         vo.add_line( { O, O + N } );
 
-        //        std::vector<typename VO::Pt> pts( face.vertices.size() );
-        //        for( TI i = 0; i < pts.size(); ++i )
-        //            for( TI d = 0; d < std::min( int( dim ), 3 ); ++d )
-        //                pts[ i ][ d ] = conv( face.vertices[ i ]->node.pos[ d ], S<typename VO::TF>() );
+        // lines
+        if ( face.nvi == 1 ) {
+            std::vector<typename VO::Pt> pts;
+            for( const auto &v : face.faces )
+                pts.push_back( v.center );
+            vo.add_line( pts );
+        }
 
-        //        if ( face.nvi == 1 )
-        //            vo.add_line( pts );
-        //        if ( face.nvi == 2 )
-        //            vo.add_polygon( pts );
+        //        if ( face.nvi >= 1 && face.nvi <= 2 ) {
+        //            std::vector<typename VO::Pt> pts;
+        //            for( TI i = 0; i < pts.size(); ++i )
+        //                for( TI d = 0; d < std::min( int( dim ), 3 ); ++d )
+        //                    pts[ i ][ d ] = conv( face.vertices[ i ]->node.pos[ d ], S<typename VO::TF>() );
+
+        //            if ( face.nvi == 1 )
+        //                vo.add_line( pts );
+        //            if ( face.nvi == 2 )
+        //                vo.add_polygon( pts );
+        //        }
     } );
 }
 
