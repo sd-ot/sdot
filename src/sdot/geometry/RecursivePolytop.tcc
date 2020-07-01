@@ -21,7 +21,7 @@ RecursivePolytop<TF,nvi,dim,TI,NodeData> RecursivePolytop<TF,nvi,dim,TI,NodeData
     std::vector<Pt> centers = prev_centers;
     centers.push_back( center );
 
-    // new base. Return is base is not large enough
+    // new base. Return from here if base is not large enough
     std::vector<Pt> dirs;
     for( TI i = 1; i < nodes.size(); ++i )
         dirs.push_back( nodes[ i ].pos - nodes[ 0 ].pos );
@@ -467,6 +467,16 @@ TF RecursivePolytop<TF,1,dim,TI,NodeData>::measure( const std::vector<Pt> &prev_
     std::vector<Pt> new_dirs = prev_dirs;
     new_dirs.push_back( nodes[ 1 ].pos - nodes[ 0 ].pos );
     return determinant( &new_dirs[ 0 ][ 0 ], N<dim>() ) / div;
+}
+
+template<class TF,int nvi,int dim,class TI,class NodeData>
+bool RecursivePolytop<TF,nvi,dim,TI,NodeData>::contains( const Pt &pt ) const {
+    return false;
+}
+
+template<class TF,int dim,class TI,class NodeData>
+bool RecursivePolytop<TF,1,dim,TI,NodeData>::contains( const Pt &pt ) const {
+    return false;
 }
 
 

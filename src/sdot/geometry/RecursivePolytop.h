@@ -31,18 +31,19 @@ public:
     RecursivePolytop        plane_cut          ( Pt orig, Pt normal, const std::function<Node(const Node &,const Node &,TF,TF)> &nf = {}, std::vector<Face> *new_faces = nullptr ) const;
     bool                    operator<          ( const RecursivePolytop &that ) const;
     std::vector<VN>         node_seq           () const; ///< make a sequence of nodes from faces. Works only for nvi == 2.
-
+    bool                    contains           ( const Pt &pt ) const;
     TF                      measure            ( const std::vector<Pt> &prev_dirs = {}, TF div = 1 ) const;
     TI                      max_id             () const;
     operator                bool               () const { return nodes.size(); }
 
     std::vector<Node>       nodes;
     std::vector<Face>       faces;             ///<
+    std::vector<Node>       dirs;              ///< local base
     std::string             name;
 };
 
 /**
-  Definition for a segment
+  Segment
 */
 template<class TF,int dim,class TI,class NodeData>
 class RecursivePolytop<TF,1,dim,TI,NodeData> {
@@ -61,10 +62,12 @@ public:
     static RecursivePolytop make_from         ( const std::vector<Face> &faces );
     RecursivePolytop        plane_cut         ( Pt orig, Pt normal, const std::function<Node(const Node &,const Node &,TF,TF)> &nf, std::vector<Face> *new_faces = nullptr ) const;
     bool                    operator<         ( const RecursivePolytop &that ) const;
+    bool                    contains          ( const Pt &pt ) const;
     TF                      measure           ( const std::vector<Pt> &prev_dirs = {}, TF div = 1 ) const;
     operator                bool              () const { return nodes.size(); }
 
     std::vector<Node>       nodes;
+    std::vector<Node>       dirs;             ///< local base
 };
 
 template<class TF,int dim,class TI,class NodeData>

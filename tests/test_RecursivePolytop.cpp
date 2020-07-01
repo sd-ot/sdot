@@ -40,6 +40,9 @@ void test_3D() {
     VtkOutput vo;
     nrp.display_vtk( vo );
     vo.save( "out.vtk" );
+
+    P( rp.contains( Pt{ 2, 2, 2 } ) );
+    P( nrp.contains( Pt{ 2, 2, 2 } ) );
 }
 
 int main() {
