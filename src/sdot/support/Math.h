@@ -11,6 +11,11 @@ T ceil( T a, U m ) {
     return ( a + m - 1 ) / m * m;
 }
 
+template<class T>
+T factorial( T val ) {
+    return val ? val * factorial( val - 1 ) : 1;
+}
+
 template<class T,class U>
 T gcd( T a, U b ) {
     if ( b == 1 )

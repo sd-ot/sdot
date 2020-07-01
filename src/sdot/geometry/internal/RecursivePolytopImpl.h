@@ -10,23 +10,28 @@
 */
 template<class Rp,int nvi_>
 struct RecursivePolytopImpl {
-    enum {                    dim                 = Rp::dim };
-    enum {                    nvi                 = nvi_ };
-    using                     TF                  = typename Rp::TF;
-    using                     TI                  = typename Rp::TI;
+    enum {                    dim                    = Rp::dim };
+    enum {                    nvi                    = nvi_ };
+    using                     TF                     = typename Rp::TF;
+    using                     TI                     = typename Rp::TI;
 
-    using                     Vertex              = typename Rp::Vertex;
-    using                     Face                = RecursivePolytopImpl<Rp,std::max(nvi-1,0)>;
-    using                     Pt                  = Point<TF,dim>;
-    using                     Pn                  = Point<TF,nvi>;
+    using                     Vertex                 = typename Rp::Vertex;
+    using                     Face                   = RecursivePolytopImpl<Rp,std::max(nvi-1,0)>;
+    using                     Pt                     = Point<TF,dim>;
+    using                     Pn                     = Point<TF,nvi>;
 
-    /**/                      RecursivePolytopImpl();
+    /**/                      RecursivePolytopImpl   ();
 
-    template<class Fu> void   for_each_item_rec   ( const Fu &fu ) const;
-    void                      add_convex_hull     ( BumpPointerPool &pool, FsVec<Vertex> vertices, TI *indices, TI nb_indices, Pt *prev_normals, N<0> );
-    template<class B> void    add_convex_hull     ( BumpPointerPool &pool, FsVec<Vertex> vertices, TI *indices, TI nb_indices, Pt *prev_normals, B );
-    void                      write_to_stream     ( std::ostream &os ) const;
-    Pn                        proj                ( const Pt &pt ) const;
+    void                      make_vertices_from_face( BumpPointerPool &pool, TI &date );
+    template<class Fu> void   for_each_item_rec      ( const Fu &fu ) const;
+    void                      add_convex_hull        ( BumpPointerPool &pool, FsVec<Vertex> vertices, TI *indices, TI nb_indices, Pt *prev_normals, TI &date, N<0> );
+    template<class B> void    add_convex_hull        ( BumpPointerPool &pool, FsVec<Vertex> vertices, TI *indices, TI nb_indices, Pt *prev_normals, TI &date, B );
+    void                      write_to_stream        ( std::ostream &os ) const;
+    void                      sort_vertices          ( std::array<Pt,dim> &dirs, N<1> );
+    template<class B> void    sort_vertices          ( std::array<Pt,dim> &dirs, B );
+    TF                        measure                ( std::array<Pt,dim> &dirs, N<1> ) const;
+    template<class B> TF      measure                ( std::array<Pt,dim> &dirs, B ) const;
+    Pn                        proj                   ( const Pt &pt ) const;
 
     // std::array<Pt,rp_nvi-nvi> prev_centers;
     FsVec<Vertex *>           vertices;

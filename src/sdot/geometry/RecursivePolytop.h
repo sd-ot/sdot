@@ -24,6 +24,7 @@ public:
 
     void                    write_to_stream    ( std::ostream &os, std::string nl = "\n  ", std::string ns = "  " ) const;
     template<class VO> void display_vtk        ( VO &vo ) const;
+    TF                      measure            () const;
 
     //    static std::vector<DN>  non_closed_node_seq( const std::vector<Face> &faces ); ///< get non closed sequence of nodes from faces. Works only for nvi == 2.
     //    template<class Fu> void for_each_faces_rec ( const Fu &func ) const;
@@ -45,11 +46,12 @@ public:
     //    std::string             name;
 
 public:
-    struct                  Vertex             { Node node; };
+    struct                  Vertex             { Node node; TI date = 0; TF tmp; };
 
     FsVec<Vertex>           vertices;
     BumpPointerPool         pool;
     Impl                    impl;
+    TI                      date;
 };
 
 ///**

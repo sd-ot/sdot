@@ -4,7 +4,7 @@
 #include "RecursivePolytop.h"
 
 template<class TF,int dim,class TI,class UserNodeData>
-RecursivePolytop<TF,dim,TI,UserNodeData>::RecursivePolytop() {
+RecursivePolytop<TF,dim,TI,UserNodeData>::RecursivePolytop() : date( 0 ) {
 }
 
 template<class TF,int dim,class TI,class UserNodeData>
@@ -21,7 +21,11 @@ RecursivePolytop<TF,dim,TI,UserNodeData> RecursivePolytop<TF,dim,TI,UserNodeData
     for( TI i = 0; i < nodes.size(); ++i )
         indices[ i ] = i;
     std::array<Pt,dim> prev_normals;
-    res.impl.add_convex_hull( res.pool, res.vertices, indices.data(), nodes.size(), prev_normals.data(), N<dim>() );
+    res.impl.add_convex_hull( res.pool, res.vertices, indices.data(), nodes.size(), prev_normals.data(), res.date, N<dim>() );
+
+    //
+    std::array<Pt,dim> dirs;
+    res.impl.sort_vertices( dirs, N<dim>() );
 
     return res;
 }
@@ -44,9 +48,26 @@ void RecursivePolytop<TF,dim,TI,UserNodeData>::display_vtk( VO &vo ) const {
             O[ d ] = conv( face.center[ d ], S<typename VO::TF>() );
             N[ d ] = conv( face.normal[ d ], S<typename VO::TF>() );
         }
-        N /= norm_2( N );
+        if ( norm_2( N ) )
+            N /= norm_2( N );
         vo.add_line( { O, O + N } );
+
+        std::vector<typename VO::Pt> pts( face.vertices.size() );
+        for( TI i = 0; i < pts.size(); ++i )
+            for( TI d = 0; d < std::min( int( dim ), 3 ); ++d )
+                pts[ i ][ d ] = conv( face.vertices[ i ]->node.pos[ d ], S<typename VO::TF>() );
+
+        if ( face.nvi == 1 )
+            vo.add_line( pts );
+        if ( face.nvi == 2 )
+            vo.add_polygon( pts );
     } );
+}
+
+template<class TF,int dim,class TI,class UserNodeData>
+TF RecursivePolytop<TF,dim,TI,UserNodeData>::measure() const {
+    std::array<Pt,dim> dirs;
+    return impl.measure( dirs, N<dim>() ) / factorial( TF( int( dim ) ) );
 }
 
 //template<class TF,int nvi,int dim,class TI,class NodeData>
