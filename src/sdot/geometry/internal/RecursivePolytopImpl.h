@@ -29,6 +29,8 @@ struct RecursivePolytopImpl {
     void                      write_to_stream        ( std::ostream &os ) const;
     void                      sort_vertices          ( std::array<Pt,dim> &dirs, N<1> );
     template<class B> void    sort_vertices          ( std::array<Pt,dim> &dirs, B );
+    void                      plane_cut              ( BumpPointerPool &pool, IntrusiveList<RecursivePolytopImpl> &new_rps, std::vector<Vertex *> &new_vertices, TI date, N<1> ) const;
+    template<class B> void    plane_cut              ( BumpPointerPool &pool, IntrusiveList<RecursivePolytopImpl> &new_rps, std::vector<Vertex *> &new_vertices, TI date, B ) const;
     TF                        measure                ( std::array<Pt,dim> &dirs, N<1> ) const;
     template<class B> TF      measure                ( std::array<Pt,dim> &dirs, B ) const;
     Pn                        proj                   ( const Pt &pt ) const;

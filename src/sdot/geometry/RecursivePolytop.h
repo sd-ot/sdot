@@ -3,6 +3,7 @@
 
 #include "internal/RecursivePolytopImpl.h"
 #include "../support/BumpPointerPool.h"
+#include <deque>
 
 /**
 
@@ -10,21 +11,22 @@
 template<class TF_,int dim_,class TI_=std::size_t,class UserNodeData_=TI_>
 class RecursivePolytop {
 public:
-    using                   UserNodeData       = UserNodeData_;
-    enum {                  dim                = dim_ };
-    using                   TF                 = TF_;
-    using                   TI                 = TI_;
-    using                   Pt                 = Point<TF,dim>;
+    using                   UserNodeData        = UserNodeData_;
+    enum {                  dim                 = dim_ };
+    using                   TF                  = TF_;
+    using                   TI                  = TI_;
+    using                   Pt                  = Point<TF,dim>;
 
-    struct                  Node               { Pt pos; UserNodeData user_data; };
-    using                   Impl               = RecursivePolytopImpl<RecursivePolytop,dim>;
+    struct                  Node                { Pt pos; UserNodeData user_data; };
+    using                   Impl                = RecursivePolytopImpl<RecursivePolytop,dim>;
 
-    /**/                    RecursivePolytop   ();
-    static RecursivePolytop convex_hull        ( const std::vector<Node> &nodes );
+    /**/                    RecursivePolytop    ();
+    static RecursivePolytop convex_hull         ( const std::vector<Node> &nodes );
 
-    void                    write_to_stream    ( std::ostream &os, std::string nl = "\n  ", std::string ns = "  " ) const;
-    template<class VO> void display_vtk        ( VO &vo ) const;
-    TF                      measure            () const;
+    void                    write_to_stream     ( std::ostream &os, std::string nl = "\n  ", std::string ns = "  " ) const;
+    template<class VO> void display_vtk         ( VO &vo ) const;
+    void                    plane_cut           ( std::deque<RecursivePolytop> &nrps, Pt orig, Pt normal, const std::function<UserNodeData(const UserNodeData &,const UserNodeData &,TF,TF)> &nf = {} ) const;
+    TF                      measure             () const;
 
     //    static std::vector<DN>  non_closed_node_seq( const std::vector<Face> &faces ); ///< get non closed sequence of nodes from faces. Works only for nvi == 2.
     //    template<class Fu> void for_each_faces_rec ( const Fu &func ) const;
@@ -32,7 +34,6 @@ public:
     //    template<class Vk> void display_vtk        ( Vk &vtk_output ) const;
     //    template<class Nd> auto with_nodes         ( const std::vector<Nd> &new_nodes ) const;
     //    static RecursivePolytop make_from          ( const std::vector<Face> &faces );
-    //    RecursivePolytop        plane_cut          ( Pt orig, Pt normal, const std::function<Node(const Node &,const Node &,TF,TF)> &nf = {}, std::vector<Face> *new_faces = nullptr ) const;
     //    bool                    operator<          ( const RecursivePolytop &that ) const;
     //    std::vector<VN>         node_seq           () const; ///< make a sequence of nodes from faces. Works only for nvi == 2.
     //    bool                    contains           ( const Pt &pt ) const;
@@ -46,12 +47,15 @@ public:
     //    std::string             name;
 
 public:
-    struct                  Vertex             { Node node; TI date = 0; TF tmp; Vertex *tmp_v; };
+    struct                  Vertex              { Node node; TI date = 0, tmp_i[ 3 ]; TF tmp_f; Vertex *tmp_v; };
+
+    void                    make_connection_list( TI &nb_vertices, std::vector<Vertex *> &connection_list ) const;
+    void                    get_connected       ( TI &nb_vertices_in_nrp, const std::vector<Vertex *> &connection_list, Vertex *v ) const;
 
     FsVec<Vertex>           vertices;
     BumpPointerPool         pool;
     Impl                    impl;
-    TI                      date;
+    mutable TI              date;
 };
 
 ///**

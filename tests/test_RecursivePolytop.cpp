@@ -35,14 +35,15 @@ void test_3D() {
         Rp::Node{ Pt{ 10, 10, 10 }, 7 },
     } );
 
-    P( rp );
-    P( rp.measure() );
+    //    P( rp );
+    //    P( rp.measure() );
 
-    //    Rp nrp = rp.plane_cut( Pt{ 4, 4, 4 }, Pt{ 1, 0, 0 } );
-    //    P( nrp );
+    std::deque<Rp> cuts;
+    rp.plane_cut( cuts, Pt{ 2, 2, 2 }, Pt{ 1, 0, 0 } );
 
     VtkOutput vo;
-    rp.display_vtk( vo );
+    for( const Rp &rp : cuts )
+        rp.display_vtk( vo );
     vo.save( "out.vtk" );
 
     //    P( rp.contains( Pt{ 2, 2, 2 } ) );
