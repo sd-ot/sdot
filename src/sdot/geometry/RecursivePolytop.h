@@ -46,7 +46,7 @@ public:
     //    std::string             name;
 
 public:
-    struct                  Vertex             { Node node; TI date = 0; TF tmp; };
+    struct                  Vertex             { Node node; TI date = 0; TF tmp; Vertex *tmp_v; };
 
     FsVec<Vertex>           vertices;
     BumpPointerPool         pool;

@@ -5,7 +5,7 @@
 */
 template<class T>
 struct IntrusiveList {
-    struct   Iterator     { T *ptr; T &operator*() const { return *ptr; } void operator++() { ptr = ptr->next; } bool operator!=( const Iterator &that ) const { return ptr != that.ptr; } };
+    struct   Iterator     { T *ptr; T &operator*() const { return *ptr; } T *operator->() const { return ptr; } void operator++() { ptr = ptr->next; } bool operator!=( const Iterator &that ) const { return ptr != that.ptr; } };
 
     /**/     IntrusiveList() : data( nullptr ) {}
 
@@ -13,6 +13,8 @@ struct IntrusiveList {
 
     Iterator begin        () const { return { data }; }
     Iterator end          () const { return { nullptr }; }
+
+    bool     empty        () const { return ! data; }
 
     T*       data;
 };

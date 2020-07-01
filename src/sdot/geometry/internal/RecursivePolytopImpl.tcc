@@ -1,5 +1,6 @@
 #include "../../support/for_each_comb.h"
 #include "../../support/StaticRange.h"
+#include "../../support/ASSERT.h"
 #include "RecursivePolytopImpl.h"
 #include "../../support/P.h"
 
@@ -140,6 +141,22 @@ void RecursivePolytopImpl<Rp,nvi>::sort_vertices( std::array<Pt,dim> &dirs, B ) 
     for( Face &face : faces ) {
         dirs[ dim - nvi ] = face.center - center;
         face.sort_vertices( dirs, N<nvi-1>() );
+    }
+
+    if ( nvi == 2 && ! faces.empty() ) {
+        // make a linked list
+        for( Face &edge : faces ) {
+            ASSERT( edge.vertices.size() == 2 );
+            edge.vertices[ 0 ]->tmp_v = edge.vertices[ 1 ];
+        }
+
+        // make the vertices list with the obtained linked list
+        TI n = 0;
+        for( Vertex *e = faces.begin()->vertices[ 0 ], *v = e; ; v = v->tmp_v ) {
+            vertices[ n++ ] = v;
+            if ( v->tmp_v == e )
+                break;
+        }
     }
 }
 

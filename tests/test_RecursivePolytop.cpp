@@ -25,14 +25,17 @@ void test_3D() {
     using Pt = Rp::Pt;
 
     Rp rp = Rp::convex_hull( {
-        Rp::Node{ Pt{ 0, 0, 0 }, 0 },
-        Rp::Node{ Pt{ 1, 0, 0 }, 1 },
-        Rp::Node{ Pt{ 0, 1, 0 }, 2 },
-        Rp::Node{ Pt{ 0, 0, 1 }, 3 },
-        Rp::Node{ Pt{ 1, 1, 0 }, 4 },
+        Rp::Node{ Pt{  0,  0,  0 }, 0 },
+        Rp::Node{ Pt{ 10,  0,  0 }, 1 },
+        Rp::Node{ Pt{  0, 10,  0 }, 2 },
+        Rp::Node{ Pt{ 10, 10,  0 }, 3 },
+        Rp::Node{ Pt{  0,  0, 10 }, 4 },
+        Rp::Node{ Pt{ 10,  0, 10 }, 5 },
+        Rp::Node{ Pt{  0, 10, 10 }, 6 },
+        Rp::Node{ Pt{ 10, 10, 10 }, 7 },
     } );
 
-    // P( rp );
+    P( rp );
     P( rp.measure() );
 
     //    Rp nrp = rp.plane_cut( Pt{ 4, 4, 4 }, Pt{ 1, 0, 0 } );
