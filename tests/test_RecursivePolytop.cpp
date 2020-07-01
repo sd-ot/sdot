@@ -38,12 +38,10 @@ void test_3D() {
     //    P( rp );
     //    P( rp.measure() );
 
-    std::deque<Rp> cuts;
-    rp.plane_cut( cuts, Pt{ 2, 2, 2 }, Pt{ 1, 0, 0 } );
+    rp.plane_cut( Pt{ 2, 2, 2 }, Pt{ 1, 0, 0 } );
 
     VtkOutput vo;
-    for( const Rp &rp : cuts )
-        rp.display_vtk( vo );
+    rp.display_vtk( vo );
     vo.save( "out.vtk" );
 
     //    P( rp.contains( Pt{ 2, 2, 2 } ) );

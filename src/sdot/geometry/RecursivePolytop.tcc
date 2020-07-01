@@ -71,76 +71,60 @@ TF RecursivePolytop<TF,dim,TI,UserNodeData>::measure() const {
 }
 
 template<class TF,int dim,class TI,class UserNodeData>
-void RecursivePolytop<TF,dim,TI,UserNodeData>::plane_cut( std::deque<RecursivePolytop> &nrps, Pt orig, Pt normal, const std::function<UserNodeData(const UserNodeData &,const UserNodeData &,TF,TF)> &nf ) const {
+void RecursivePolytop<TF,dim,TI,UserNodeData>::plane_cut( Pt orig, Pt normal, const std::function<UserNodeData(const UserNodeData &,const UserNodeData &,TF,TF)> &nf ) {
     using std::min;
     using std::max;
-
-    // edges
-    TI nb_vertices = 0;
-    std::vector<Vertex *> connection_list;
-    make_connection_list( nb_vertices, connection_list );
 
     // scalar product for each vertex
     for( Vertex *v : impl.vertices )
         v->tmp_f = dot( v->node.pos - orig, normal );
 
-    // find the connected items
-    ++date;
-    while ( true ) {
-        // find a first free vertex
-        Vertex *b = nullptr;
-        for( Vertex *v : impl.vertices ) {
-            if ( v->tmp_f <= 0 && v->date != date ) {
-                b = v;
-                break;
+    // tmp[ 0 ] -> ind
+    TI nb_vertices = 0;
+    for( Vertex *v : impl.vertices )
+        v->ind = nb_vertices++;
+
+    // present edges. tmp_i[ 1 ] => nb connected nodes
+    // TI nb_new_vertices = 0;
+    std::vector<bool> present_edges( nb_vertices * ( nb_vertices - 1 ), false );
+    impl.for_each_item_rec( [&]( const auto &face ) {
+        if ( face.nvi == 1 && face.vertices.size() == 2 ) {
+            TI n0 = min( face.vertices[ 0 ]->tmp_i[ 0 ], face.vertices[ 1 ]->tmp_i[ 0 ] );
+            TI n1 = max( face.vertices[ 0 ]->tmp_i[ 0 ], face.vertices[ 1 ]->tmp_i[ 0 ] );
+            TI nn = n1 * ( n1 - 1 ) + n0;
+            if ( ! present_edges[ nn ] ) {
+                present_edges[ nn ] = true;
+                for( TI i = 0; i < 2; ++i )
+                    ++face.vertices[ i ]->tmp_i[ 1 ];
             }
         }
-        if ( ! b )
-            break;
+    } );
 
-        //
-        TI nb_vertices_in_nrp = 0;
-        get_connected( nb_vertices_in_nrp, connection_list, b );
 
-        // creation of a new RecursivePolytop
-        nrps.emplace_back();
-        RecursivePolytop &nrp = nrps.back();
-        nrp.vertices = { nrp.pool, nb_vertices_in_nrp };
+    // make the interpolated vertices
+    std::vector<Vertex *> new_vertices( nb_vertices * ( nb_vertices - 1 ), nullptr );
+    for( Vertex *v : impl.vertices ) {
+        if ( v->tmp_f > 0 )
+            continue;
+        for( TI i = v->tmp_i[ 1 ]; i < v->tmp_i[ 2 ]; ++i ) {
+            Vertex *w = connection_list[ i ];
+            if ( w->tmp_f > 0 ) {
+                Vertex *nv = &nrp.vertices[ nb_vertices_in_nrp++ ];
+                TI n0 = min( v->tmp_i[ 0 ], w->tmp_i[ 0 ] );
+                TI n1 = max( v->tmp_i[ 0 ], w->tmp_i[ 0 ] );
+                new_vertices[ n1 * ( n1 - 1 ) + n0 ] = nv;
 
-        // copy of inside vertices
-        nb_vertices_in_nrp = 0;
-        for( Vertex *v : impl.vertices ) {
-            if ( v->tmp_f <= 0 && v->date == date ) {
-                Vertex &n = nrp.vertices[ nb_vertices_in_nrp++ ];
-                v->tmp_v = &n;
-                n = *v;
+                nv->node.pos = v->node.pos + v->tmp_f / ( v->tmp_f - w->tmp_f ) * ( w->node.pos - v->node.pos );
+                if ( nf )
+                    nv->node.user_data = nf( v->node.user_data, w->node.user_data, v->tmp_f, w->tmp_f );
             }
         }
-
-        // make the interpolated vertices
-        std::vector<Vertex *> new_vertices( nb_vertices * ( nb_vertices - 1 ), nullptr );
-        for( Vertex *v : impl.vertices ) {
-            if ( v->tmp_f > 0 )
-                continue;
-            for( TI i = v->tmp_i[ 1 ]; i < v->tmp_i[ 2 ]; ++i ) {
-                Vertex *w = connection_list[ i ];
-                if ( w->tmp_f > 0 ) {
-                    Vertex *nv = &nrp.vertices[ nb_vertices_in_nrp++ ];
-                    TI n0 = min( v->tmp_i[ 0 ], w->tmp_i[ 0 ] );
-                    TI n1 = max( v->tmp_i[ 0 ], w->tmp_i[ 0 ] );
-                    new_vertices[ n1 * ( n1 - 1 ) + n0 ] = nv;
-
-                    nv->node.pos = v->node.pos + v->tmp_f / ( v->tmp_f - w->tmp_f ) * ( w->node.pos - v->node.pos );
-                    if ( nf )
-                        nv->node.user_data = nf( v->node.user_data, w->node.user_data, v->tmp_f, w->tmp_f );
-                }
-            }
-        }
-
-        //
-        for( const auto &face : impl.faces )
-            face.plane_cut( nrp.pool, nrp.impl.faces, new_vertices, date, N<dim>() );
     }
+
+    //
+    IntrusiveList<typename Impl::Face> new_faces;
+    impl.plane_cut( nrp.pool, nrp.impl, new_faces, new_vertices, date, N<dim>() );
+    P( new_faces.empty() );
 }
 
 template<class TF,int dim,class TI,class UserNodeData>

@@ -25,7 +25,7 @@ public:
 
     void                    write_to_stream     ( std::ostream &os, std::string nl = "\n  ", std::string ns = "  " ) const;
     template<class VO> void display_vtk         ( VO &vo ) const;
-    void                    plane_cut           ( std::deque<RecursivePolytop> &nrps, Pt orig, Pt normal, const std::function<UserNodeData(const UserNodeData &,const UserNodeData &,TF,TF)> &nf = {} ) const;
+    void                    plane_cut           ( Pt orig, Pt normal, const std::function<UserNodeData(const UserNodeData &,const UserNodeData &,TF,TF)> &nf = {} );
     TF                      measure             () const;
 
     //    static std::vector<DN>  non_closed_node_seq( const std::vector<Face> &faces ); ///< get non closed sequence of nodes from faces. Works only for nvi == 2.
@@ -47,7 +47,7 @@ public:
     //    std::string             name;
 
 public:
-    struct                  Vertex              { Node node; TI date = 0, tmp_i[ 3 ]; TF tmp_f; Vertex *tmp_v; };
+    struct                  Vertex              { Node node; TI date = 0, ind, tmp_i[ 3 ]; TF tmp_f; Vertex *tmp_v; };
 
     void                    make_connection_list( TI &nb_vertices, std::vector<Vertex *> &connection_list ) const;
     void                    get_connected       ( TI &nb_vertices_in_nrp, const std::vector<Vertex *> &connection_list, Vertex *v ) const;

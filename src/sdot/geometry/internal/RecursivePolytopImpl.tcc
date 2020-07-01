@@ -78,12 +78,6 @@ void RecursivePolytopImpl<Rp,nvi>::add_convex_hull( BumpPointerPool &pool, FsVec
 
     // make the vertex list
     make_vertices_from_face( pool, date );
-
-    // update center
-    center = TF( 0 );
-    for( Vertex *v : this->vertices )
-        center += v->node.pos;
-    center /= TF( nb_indices );
 }
 
 template<class Rp,int nvi>
@@ -105,14 +99,18 @@ void RecursivePolytopImpl<Rp,nvi>::make_vertices_from_face( BumpPointerPool &poo
     // set values
     ++date;
     nb_vertices = 0;
+    center = TF( 0 );
     for( const Face &face : faces ) {
         for( Vertex *v : face.vertices ) {
             if ( v->date < date ) {
                 v->date = date;
+                center += v->node.pos;
                 vertices[ nb_vertices++ ] = v;
             }
         }
     }
+
+    center /= TF( nb_vertices );
 }
 
 template<class Rp,int nvi>
@@ -161,75 +159,111 @@ void RecursivePolytopImpl<Rp,nvi>::sort_vertices( std::array<Pt,dim> &dirs, B ) 
 }
 
 template<class Rp,int nvi>
-void RecursivePolytopImpl<Rp,nvi>::plane_cut( BumpPointerPool &pool, IntrusiveList<RecursivePolytopImpl> &new_rps, std::vector<Vertex *> &new_vertices, TI date, N<1> ) const {
+bool RecursivePolytopImpl<Rp,nvi>::only_outside_points( TI date ) const {
+    for( Vertex *v : vertices )
+        if ( v->tmp_f <= 0 && v->date == date )
+            return false;
+    return true;
+}
+
+template<class Rp,int nvi>
+void RecursivePolytopImpl<Rp,nvi>::plane_cut( BumpPointerPool &pool, RecursivePolytopImpl &new_rp, IntrusiveList<Face> &new_faces, std::vector<Vertex *> &new_vertices, TI date, N<1> ) const {
     using std::min;
     using std::max;
 
+    //
+    auto set_rp = [&]( Vertex *nv0, Vertex *nv1, TI ind_new ) {
+        new_rp.vertices = { pool, 2 };
+        new_rp.vertices[ 0 ] = nv0;
+        new_rp.vertices[ 1 ] = nv1;
+        new_rp.center = TF( 1 ) / 2 * ( new_rp.vertices[ 0 ]->node.pos + new_rp.vertices[ 1 ]->node.pos );
+        new_rp.normal = normal;
+
+        for( const Face &face : faces ) {
+            Face *new_face = pool.create<Face>();
+            new_rp.faces.push_front( new_face );
+
+            new_face->vertices = { pool, 1 };
+            new_face->vertices[ 0 ] = new_rp.vertices[ face.vertices[ 0 ] != vertices[ 0 ] ];
+            new_face->center = new_face->vertices[ 0 ]->node.pos;
+            new_face->normal = face.normal;
+        }
+
+        if ( ind_new < 2 ) {
+            Face *new_face = pool.create<Face>();
+            new_faces.push_front( new_face );
+
+            new_face->vertices = { pool, 1 };
+            new_face->vertices[ 0 ] = new_rp.vertices[ ind_new ];
+            new_face->center = new_face->vertices[ 0 ]->node.pos;
+        }
+    };
+
+    // scalar products
     TF s0 = vertices[ 0 ]->tmp_f;
     TF s1 = vertices[ 1 ]->tmp_f;
 
     // all inside
-    if ( s0 <= 0 && s1 <= 0 ) {
-        RecursivePolytopImpl *new_rp = pool.create<RecursivePolytopImpl>();
-        new_rp->vertices = { pool, 2 };
-        new_rp->vertices[ 0 ] = vertices[ 0 ]->tmp_v;
-        new_rp->vertices[ 1 ] = vertices[ 1 ]->tmp_v;
-        new_rp->center = center;
-        new_rp->normal = normal;
-
-        new_rps.push_front( new_rp );
-    }
+    if ( s0 <= 0 && s1 <= 0 )
+        set_rp( vertices[ 0 ]->tmp_v, vertices[ 1 ]->tmp_v, 2 );
 
     // only n0 inside
     if ( s0 <= 0 && s1 > 0 ) {
         TI n0 = min( vertices[ 0 ]->tmp_i[ 0 ], vertices[ 1 ]->tmp_i[ 0 ] );
         TI n1 = max( vertices[ 0 ]->tmp_i[ 0 ], vertices[ 1 ]->tmp_i[ 0 ] );
-
-        RecursivePolytopImpl *new_rp = pool.create<RecursivePolytopImpl>();
-        new_rp->vertices = { pool, 2 };
-        new_rp->vertices[ 0 ] = vertices[ 0 ]->tmp_v;
-        new_rp->vertices[ 1 ] = new_vertices[ n1 * ( n1 - 1 ) + n0 ];
-        new_rp->center = TF( 1 ) / 2 * ( new_rp->vertices[ 0 ]->node.pos + new_rp->vertices[ 1 ]->node.pos );
-        new_rp->normal = normal;
-
-        new_rps.push_front( new_rp );
+        set_rp( vertices[ 0 ]->tmp_v, new_vertices[ n1 * ( n1 - 1 ) + n0 ], 1 );
     }
 
     // only n1 inside
     if ( s0 > 0 && s1 <= 0 ) {
         TI n0 = min( vertices[ 0 ]->tmp_i[ 0 ], vertices[ 1 ]->tmp_i[ 0 ] );
         TI n1 = max( vertices[ 0 ]->tmp_i[ 0 ], vertices[ 1 ]->tmp_i[ 0 ] );
-
-        RecursivePolytopImpl *new_rp = pool.create<RecursivePolytopImpl>();
-        new_rp->vertices = { pool, 2 };
-        new_rp->vertices[ 0 ] = new_vertices[ n1 * ( n1 - 1 ) + n0 ];
-        new_rp->vertices[ 1 ] = vertices[ 1 ]->tmp_v;
-        new_rp->center = TF( 1 ) / 2 * ( new_rp->vertices[ 0 ]->node.pos + new_rp->vertices[ 1 ]->node.pos );
-        new_rp->normal = normal;
-
-        new_rps.push_front( new_rp );
+        set_rp( new_vertices[ n1 * ( n1 - 1 ) + n0 ], vertices[ 1 ]->tmp_v, 0 );
     }
 }
 
 template<class Rp,int nvi> template<class B>
-void RecursivePolytopImpl<Rp,nvi>::plane_cut( BumpPointerPool &pool, IntrusiveList<RecursivePolytopImpl> &new_rps, std::vector<Vertex *> &new_vertices, TI date, B ) const {
+void RecursivePolytopImpl<Rp,nvi>::plane_cut( BumpPointerPool &pool, RecursivePolytopImpl &new_rp, IntrusiveList<Face> &new_faces, std::vector<Vertex *> &new_vertices, TI date, B ) const {
+    IntrusiveList<typename Face::Face> new_new_faces;
     for( const Face &face : faces ) {
-        IntrusiveList<Face> new_faces;
-        face.plane_cut( pool, new_faces, new_vertices, date, N<nvi-1>() );
+        if ( face.only_outside_points( date ) )
+            continue;
+        Face *new_face = pool.create<Face>();
+        new_rp.faces.push_front( new_face );
+        face.plane_cut( pool, *new_face, new_new_faces, new_vertices, date, N<nvi-1>() );
+    }
 
-        if ( ! new_faces.empty() ) {
-            RecursivePolytopImpl *new_rp = pool.create<RecursivePolytopImpl>();
-            new_rp->faces = new_faces;
-            // new_rp->make_vertices_from_face() -> Pb: ça modifie la date
-            // new_rp->vertices = { pool, 2 };
-            //            new_rp->vertices[ 0 ] = vertices[ 0 ]->tmp_v;
-            //            new_rp->vertices[ 1 ] = vertices[ 1 ]->tmp_v;
-            //            new_rp->center = center;
-            //            new_rp->normal = normal;
+    if ( ! new_new_faces.empty() ) {
+        // new face to close new_rp
+        Face *new_face_i = pool.create<Face>();
+        new_rp.faces.push_front( new_face_i );
 
-            new_rps.push_front( new_rp );
+        new_face_i->faces = new_new_faces;
+
+        TI tmp_date = date;
+        new_face_i->make_vertices_from_face( pool, tmp_date );
+        for( Vertex *v : new_face_i->vertices )
+            v->date = date;
+
+        // new face to close new_rp
+        if ( int( nvi ) < dim ) {
+            Face *new_face_o = pool.create<Face>();
+            new_faces.push_front( new_face_o );
+
+            new_face_o->faces = new_new_faces;
+
+            TI tmp_date = date;
+            new_face_o->make_vertices_from_face( pool, tmp_date );
+            for( Vertex *v : new_face_o->vertices )
+                v->date = date;
         }
     }
+
+    // update vertices for new_rp
+    TI tmp_date = date;
+    new_rp.make_vertices_from_face( pool, tmp_date );
+    for( Vertex *v : new_rp.vertices )
+        v->date = date;
 }
 
 template<class Rp,int nvi>
