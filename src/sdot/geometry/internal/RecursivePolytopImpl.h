@@ -3,7 +3,6 @@
 
 #include "../../support/BumpPointerPool.h"
 #include "../../support/IntrusiveList.h"
-#include "../../support/FsVec.h"
 #include "../Point.h"
 
 /**
