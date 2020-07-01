@@ -19,3 +19,7 @@ std::ostream &operator<<( std::ostream &os, const Rational &r ) {
         os << "/" << r.denominator();
     return os;
 }
+
+Rational abs( const Rational &a ) {
+    return a >= 0 ? a : -a;
+}

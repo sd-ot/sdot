@@ -8,16 +8,16 @@ using TF = Rational;
 //// nsmake cpp_flag -march=native
 
 void test_2D() {
-//    using Rp = RecursivePolytop<TF,2>;
+    //    using Rp = RecursivePolytop<TF,2>;
 
-//    Rp rp = Rp::convex_hull( {
-//        Rp::Node{ { 0, 0 }, 0 },
-//        Rp::Node{ { 1, 0 }, 1 },
-//        Rp::Node{ { 0, 1 }, 2 },
-//    } );
+    //    Rp rp = Rp::convex_hull( {
+    //        Rp::Node{ { 0, 0 }, 0 },
+    //        Rp::Node{ { 1, 0 }, 1 },
+    //        Rp::Node{ { 0, 1 }, 2 },
+    //    } );
 
-//    P( rp );
-//    P( rp.measure() );
+    //    P( rp );
+    //    P( rp.measure() );
 }
 
 void test_3D() {
@@ -25,24 +25,26 @@ void test_3D() {
     using Pt = Rp::Pt;
 
     Rp rp = Rp::convex_hull( {
-        Rp::Node{ {  0,  0,  0 }, 0, {} },
-        Rp::Node{ { 12,  0,  0 }, 1, {} },
-        Rp::Node{ {  0, 12,  0 }, 2, {} },
-        Rp::Node{ {  0,  0, 12 }, 3, {} },
+        Rp::Node{ Pt{  0,  0,  0 }, 0 },
+        Rp::Node{ Pt{ 12,  0,  0 }, 1 },
+        Rp::Node{ Pt{  0, 12,  0 }, 2 },
+        Rp::Node{ Pt{  0,  0, 12 }, 3 },
     } );
 
-    P( rp );
-    P( rp.measure() );
+    // P( rp );
 
-    Rp nrp = rp.plane_cut( Pt{ 4, 4, 4 }, Pt{ 1, 0, 0 } );
-    P( nrp );
+    //    P( rp );
+    //    P( rp.measure() );
 
-    VtkOutput vo;
-    nrp.display_vtk( vo );
-    vo.save( "out.vtk" );
+    //    Rp nrp = rp.plane_cut( Pt{ 4, 4, 4 }, Pt{ 1, 0, 0 } );
+    //    P( nrp );
 
-    P( rp.contains( Pt{ 2, 2, 2 } ) );
-    P( nrp.contains( Pt{ 2, 2, 2 } ) );
+    //    VtkOutput vo;
+    //    nrp.display_vtk( vo );
+    //    vo.save( "out.vtk" );
+
+    //    P( rp.contains( Pt{ 2, 2, 2 } ) );
+    //    P( nrp.contains( Pt{ 2, 2, 2 } ) );
 }
 
 int main() {

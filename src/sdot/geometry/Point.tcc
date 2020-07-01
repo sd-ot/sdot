@@ -256,6 +256,21 @@ Point<TF,3> cross_prod( Point<TF,3> a, Point<TF,3> b ) {
     return { a[ 1 ] * b[ 2 ] - a[ 2 ] * b[ 1 ], a[ 2 ] * b[ 0 ] - a[ 0 ] * b[ 2 ], a[ 0 ] * b[ 1 ] - a[ 1 ] * b[ 0 ] };
 }
 
+template<class TF>
+Point<TF,1> cross_prod( const Point<TF,1> * ) {
+    return TF( 1 );
+}
+
+template<class TF>
+Point<TF,2> cross_prod( const Point<TF,2> *pts ) {
+    return cross_prod( pts[ 0 ] );
+}
+
+template<class TF>
+Point<TF,3> cross_prod( const Point<TF,3> *pts ) {
+    return cross_prod( pts[ 0 ], pts[ 1 ] );
+}
+
 template<class TF,int dim>
 Point<TF,dim> cross_prod( const Point<TF,dim> *pts ) {
     Point<TF,dim> res;
