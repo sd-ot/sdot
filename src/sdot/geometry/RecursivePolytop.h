@@ -8,16 +8,16 @@
 /**
 
 */
-template<class TF_,int dim_,class TI_=std::size_t,class UserNodeData_=TI_>
+template<class TF_,int dim_,class TI_=std::size_t,class UserData_=TI_>
 class RecursivePolytop {
 public:
-    using                   UserNodeData        = UserNodeData_;
+    using                   UserData            = UserData_;
     enum {                  dim                 = dim_ };
     using                   TF                  = TF_;
     using                   TI                  = TI_;
     using                   Pt                  = Point<TF,dim>;
 
-    struct                  Node                { Pt pos; UserNodeData user_data; };
+    struct                  Node                { Pt pos; UserData user_data; };
     using                   Impl                = RecursivePolytopImpl<RecursivePolytop,dim>;
 
     /**/                    RecursivePolytop    ();
@@ -25,34 +25,12 @@ public:
 
     void                    write_to_stream     ( std::ostream &os, std::string nl = "\n  ", std::string ns = "  " ) const;
     template<class VO> void display_vtk         ( VO &vo ) const;
-    void                    plane_cut           ( Pt orig, Pt normal, const std::function<UserNodeData(const UserNodeData &,const UserNodeData &,TF,TF)> &nf = {} );
+    void                    plane_cut           ( Pt orig, Pt normal, const std::function<UserData(const UserData &,const UserData &,TF,TF)> &nf = {} );
     TF                      measure             () const;
 
-    //    static std::vector<DN>  non_closed_node_seq( const std::vector<Face> &faces ); ///< get non closed sequence of nodes from faces. Works only for nvi == 2.
-    //    template<class Fu> void for_each_faces_rec ( const Fu &func ) const;
-    //    template<class Nd> bool valid_node_prop    ( const std::vector<Nd> &prop, std::vector<Pt> prev_centers = {}, bool prev_centers_are_valid = true ) const;
-    //    template<class Vk> void display_vtk        ( Vk &vtk_output ) const;
-    //    template<class Nd> auto with_nodes         ( const std::vector<Nd> &new_nodes ) const;
-    //    static RecursivePolytop make_from          ( const std::vector<Face> &faces );
-    //    bool                    operator<          ( const RecursivePolytop &that ) const;
-    //    std::vector<VN>         node_seq           () const; ///< make a sequence of nodes from faces. Works only for nvi == 2.
-    //    bool                    contains           ( const Pt &pt ) const;
-    //    TF                      measure            ( const std::vector<Pt> &prev_dirs = {}, TF div = 1 ) const;
-    //    TI                      max_id             () const;
-    //    operator                bool               () const { return nodes.size(); }
-
-    //    std::vector<Node>       nodes;
-    //    std::vector<Face>       faces;             ///<
-    //    std::vector<Node>       dirs;              ///< local base
-    //    std::string             name;
+    //template<class Nd> bool valid_node_prop   ( const std::vector<Nd> &prop, std::vector<Pt> prev_centers = {}, bool prev_centers_are_valid = true ) const;
 
 public:
-    struct                  Vertex              { Node node; TI date = 0, ind, tmp_i[ 3 ]; TF tmp_f; Vertex *tmp_v; };
-
-    void                    make_connection_list( TI &nb_vertices, std::vector<Vertex *> &connection_list ) const;
-    void                    get_connected       ( TI &nb_vertices_in_nrp, const std::vector<Vertex *> &connection_list, Vertex *v ) const;
-
-    FsVec<Vertex>           vertices;
     BumpPointerPool         pool;
     Impl                    impl;
     mutable TI              date;

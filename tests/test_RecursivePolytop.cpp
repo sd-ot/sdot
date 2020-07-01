@@ -35,8 +35,8 @@ void test_3D() {
         Rp::Node{ Pt{ 10, 10, 10 }, 7 },
     } );
 
-    //    P( rp );
-    //    P( rp.measure() );
+    P( rp );
+    P( rp.measure() );
 
     rp.plane_cut( Pt{ 2, 2, 2 }, Pt{ 1, 0, 0 } );
 

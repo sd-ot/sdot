@@ -1,15 +1,19 @@
 #ifndef INTRUSIVELIST_H
 #define INTRUSIVELIST_H
 
+#include <functional>
+
 /**
 */
 template<class T>
 struct IntrusiveList {
-    struct   Iterator     { T *ptr; T &operator*() const { return *ptr; } T *operator->() const { return ptr; } void operator++() { ptr = ptr->next; } bool operator!=( const Iterator &that ) const { return ptr != that.ptr; } };
+    struct   Iterator     { T *ptr; T &operator*() const; T *operator->() const; void operator++(); bool operator!=( const Iterator &that ) const; };
 
-    /**/     IntrusiveList() : data( nullptr ) {}
+    /**/     IntrusiveList();
 
-    void     push_front   ( T *item ) { item->next = data; data = item; }
+    void     push_front   ( T *item );
+    void     remove_if    ( const std::function<bool( T & )> &f ); /// true to remove
+    void     clear        ();
 
     Iterator begin        () const { return { data }; }
     Iterator end          () const { return { nullptr }; }
@@ -18,5 +22,7 @@ struct IntrusiveList {
 
     T*       data;
 };
+
+#include "IntrusiveList.tcc"
 
 #endif // INTRUSIVELIST_H

@@ -33,6 +33,7 @@ public:
     ST                   size      () const;
 
     void                 downsize  ( ST size );
+    void                 clear     () { _size = 0; }
 
 private:
     T*                   _data;
