@@ -71,14 +71,6 @@ std::array<T,dim> mul( const std::array<std::array<T,dim>,dim> &M, const std::ar
 
 template<class T,std::size_t dim>
 std::array<T,dim> solve( const std::array<std::array<T,dim>,dim> &M, const std::array<T,dim> &V ) {
-    //    double r() { return double( rand() ) / RAND_MAX; }
-    //    for( int i = 0; i < 40; ++i ) {
-    //        std::array<std::array<double,3>,3> M{ std::array<double,3>{ r(), r(), r() }, std::array<double,3>{ r(), r(), r() }, std::array<double,3>{ r(), r(), r() } };
-    //        std::array<double,3> V{ r(), r(), r() };
-    //        std::array<double,3> X = solve( M, V );
-    //        P( mul( M, X ), V );
-    //    }
-
     T det = determinant( M );
     std::array<T,dim> res;
     for( int i = 0; i < dim; ++i ) {

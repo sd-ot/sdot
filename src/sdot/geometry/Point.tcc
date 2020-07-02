@@ -15,6 +15,15 @@ Point<TF,dim>::Point( const TG *v ) {
 }
 
 template<class TF,int dim> template<class TG>
+Point<TF,dim>::Point( TG x, TG y, TG z, TG w ) {
+    static_assert( dim >= 4, "" );
+    data[ 0 ] = TF( x );
+    data[ 1 ] = TF( y );
+    data[ 2 ] = TF( z );
+    data[ 3 ] = TF( w );
+}
+
+template<class TF,int dim> template<class TG>
 Point<TF,dim>::Point( TG x, TG y, TG z ) {
     static_assert( dim >= 3, "" );
     data[ 0 ] = TF( x );

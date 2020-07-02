@@ -30,8 +30,8 @@ struct RecursivePolytopImpl {
     static void                  add_convex_hull     ( IntrusiveList<RecursivePolytopImpl> &res, Rp &rp, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &normal, const Pt &center );
     void                         write_to_stream     ( std::ostream &os ) const;
     Vertex*                      first_vertex        () const;
-    void                         plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, N<2> ) const;
-    template<class B> void       plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, B ) const;
+    void                         plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, const Pt &cut_normal, N<2> ) const;
+    template<class B> void       plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, const Pt &cut_normal, B ) const;
     TF                           measure             ( std::array<Pt,dim> &dirs, const Pt &prev_pt ) const;
     Pt                           center              () const; ///< a point in the "middle"
 
@@ -61,7 +61,7 @@ struct RecursivePolytopImpl<Rp,1> {
     static void                  add_convex_hull     ( IntrusiveList<RecursivePolytopImpl> &res, Rp &rp, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &normal, const Pt &center );
     void                         write_to_stream     ( std::ostream &os ) const;
     Vertex*                      first_vertex        () const;
-    void                         plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, N<1> ) const;
+    void                         plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, const Pt &cut_normal, N<1> ) const;
     TF                           measure             ( std::array<Pt,dim> &dirs, const Pt &prev_pt ) const;
     Pt                           center              () const; ///< a point in the "middle"
 

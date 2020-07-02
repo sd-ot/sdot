@@ -107,12 +107,14 @@ void RecursivePolytopImpl<Rp,1>::add_convex_hull( IntrusiveList<RecursivePolytop
     if ( ! nb_indices )
         return;
 
-    Pt d = cross_prod( dirs );
-    TF s = dot( rp.vertices[ indices[ 0 ] ].pos, d ), min_s = s, max_s = s;
+    // find "left" and "right" points
+    dirs[ dim - nvi ] = rp.vertices[ indices[ 0 ] ].pos - center;
+    TF s = determinant( dirs->data, N<dim>() ), min_s = s, max_s = s;
     Vertex *v0 = rp.vertices.data() + indices[ 0 ];
     Vertex *v1 = rp.vertices.data() + indices[ 0 ];
     for( TI i = 1; i < nb_indices; ++i ) {
-        TF s = dot( rp.vertices[ indices[ i ] ].pos, d );
+        dirs[ dim - nvi ] = rp.vertices[ indices[ i ] ].pos - center;
+        TF s = determinant( dirs->data, N<dim>() );
         if ( min_s > s ) { min_s = s; v0 = rp.vertices.data() + indices[ i ]; }
         if ( max_s < s ) { max_s = s; v1 = rp.vertices.data() + indices[ i ]; }
     }
@@ -148,11 +150,11 @@ typename RecursivePolytopImpl<Rp,1>::Vertex* RecursivePolytopImpl<Rp,1>::first_v
 }
 
 template<class Rp,int nvi> template<class B>
-void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, B ) const {
+void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, const Pt &cut_normal, B ) const {
     IntrusiveList<typename Face::Face> new_io_faces;
     IntrusiveList<Face> new_faces;
     for( const Face &face : faces )
-        face.plane_cut( new_faces, new_rp, old_rp, new_vertices, new_io_faces, io_vertex, N<nvi-1>() );
+        face.plane_cut( new_faces, new_rp, old_rp, new_vertices, new_io_faces, io_vertex, cut_normal, N<nvi-1>() );
     if ( new_faces.empty() )
         return;
 
@@ -164,14 +166,19 @@ void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl
             Face *nf = new_rp.pool.template create<Face>();
             new_faces.push_front( nf );
 
+            nf->normal = cut_normal;
             if ( nb_graphs > 1 )
                 new_io_faces.move_to_if( nf->faces, [&]( const typename Face::Face &io_face ) { return new_rp.num_graph( io_face.first_vertex() ) == num_graph; } );
             else
                 nf->faces = new_io_faces;
 
             // to create a new face. New face with a != normal ???
-            if ( int( dim ) > int( nvi ) )
-                io_faces.push_front( nf );
+            if ( int( dim ) > int( nvi ) ) {
+                Face *of = new_rp.pool.template create<Face>();
+                io_faces.push_front( of );
+                of->faces = nf->faces;
+                of->normal = normal;
+            }
         }
     }
 
@@ -183,7 +190,7 @@ void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl
 }
 
 template<class Rp,int nvi>
-void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&/*io_vertex*/, N<2> ) const {
+void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&/*io_vertex*/, const Pt &cut_normal, N<2> ) const {
     using Edge = Face;
     using std::min;
     using std::max;
@@ -192,7 +199,7 @@ void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl
     const Vertex *io_vertex = nullptr;
     IntrusiveList<Edge> new_edges;
     for( const Edge &edge : faces )
-        edge.plane_cut( new_edges, new_rp, old_rp, new_vertices, new_io_faces, io_vertex, N<1>() );
+        edge.plane_cut( new_edges, new_rp, old_rp, new_vertices, new_io_faces, io_vertex, cut_normal, N<1>() );
     if ( new_edges.empty() )
         return;
 
@@ -223,7 +230,7 @@ void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl
 
                 cl_edge->vertices[ 0 ] = new_vertices[ bn ];
                 cl_edge->vertices[ 1 ] = new_vertices[ en ];
-                // cl_edge->normal = normal;
+                cl_edge->normal = cut_normal;
 
                 // edge to create a new face
                 if ( int( dim ) > int( nvi ) ) {
@@ -232,7 +239,7 @@ void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl
 
                     nf_edge->vertices[ 0 ] = new_vertices[ en ];
                     nf_edge->vertices[ 1 ] = new_vertices[ bn ];
-                    // new_edge->normal = normal;
+                    nf_edge->normal = normal;
                 }
 
                 io_vertex = nullptr;
@@ -252,7 +259,7 @@ void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl
 }
 
 template<class Rp>
-void RecursivePolytopImpl<Rp,1>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, N<1> ) const {
+void RecursivePolytopImpl<Rp,1>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, const Pt &cut_normal, N<1> ) const {
     using std::min;
     using std::max;
 

@@ -15,6 +15,7 @@ struct Point {
 
     template<class TG>              Point          ( const Point<TG,dim> &p );
     template<class TG>              Point          ( const TG *v );
+    template<class TG>              Point          ( TG x, TG y, TG z, TG w );
     template<class TG>              Point          ( TG x, TG y, TG z );
     template<class TG>              Point          ( TG x, TG y );
     /**/                            Point          ( TF x );

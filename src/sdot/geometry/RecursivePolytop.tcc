@@ -191,7 +191,7 @@ RecursivePolytop<TF,dim,TI,UserNodeData> RecursivePolytop<TF,dim,TI,UserNodeData
     IntrusiveList<typename Impl::Face> io_faces;
     const Vertex *io_vertex;
     for( const Impl &impl : impls )
-        impl.plane_cut( res.impls, res, *this, new_vertices, io_faces, io_vertex, N<dim>() );
+        impl.plane_cut( res.impls, res, *this, new_vertices, io_faces, io_vertex, normal, N<dim>() );
     return res;
 }
 
