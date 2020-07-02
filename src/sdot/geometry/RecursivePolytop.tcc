@@ -4,29 +4,41 @@
 #include "RecursivePolytop.h"
 
 template<class TF,int dim,class TI,class UserNodeData>
-RecursivePolytop<TF,dim,TI,UserNodeData>::RecursivePolytop() : date( 0 ) {
+RecursivePolytop<TF,dim,TI,UserNodeData>::RecursivePolytop( std::initializer_list<Pt> pts ) : RecursivePolytop( pts.size() ) {
+    TI num = 0;
+    for( const Pt &pos : pts ) {
+        vertices[ num ].pos = pos;
+        vertices[ num ].num = num;
+        ++num;
+    }
 }
 
 template<class TF,int dim,class TI,class UserNodeData>
-RecursivePolytop<TF,dim,TI,UserNodeData> RecursivePolytop<TF,dim,TI,UserNodeData>::convex_hull( const std::vector<Node> &nodes ) {
-    RecursivePolytop res;
+RecursivePolytop<TF,dim,TI,UserNodeData>::RecursivePolytop( TI nb_vertices ) : vertices{ pool, nb_vertices }, date( 0 ) {
+}
 
-    // make the convex hull recursively
-    std::vector<TI> indices( dim * ( nodes.size() + dim ) );
-    for( TI i = 0; i < nodes.size(); ++i )
+template<class TF,int dim,class TI,class UserNodeData>
+void RecursivePolytop<TF,dim,TI,UserNodeData>::make_convex_hull() {
+    // center
+    impl.center = TF( 0 );
+    for( TI i = 0; i < vertices.size(); ++i )
+        impl.center += vertices[ i ].pos;
+    impl.center /= TF( vertices.size() );
+
+    // allowed indices
+    std::vector<TI> indices( dim * ( vertices.size() + dim ) );
+    for( TI i = 0; i < vertices.size(); ++i )
         indices[ i ] = i;
-    std::array<Pt,dim> prev_normals;
-    res.impl.add_convex_hull( res.pool, nodes.data(), indices.data(), nodes.size(), prev_normals.data(), res.date, N<dim>() );
 
-    // adjust orientation and node ordering
-    //    std::array<Pt,dim> dirs;
-    //    res.impl.sort_vertices( dirs, N<dim>() );
-
-    return res;
+    //
+    std::array<Pt,dim> prev_normals, prev_dirs;
+    impl.add_convex_hull( pool, vertices.data(), indices.data(), vertices.size(), prev_normals.data(), prev_dirs.data() );
 }
 
 template<class TF,int dim,class TI,class UserNodeData>
 void RecursivePolytop<TF,dim,TI,UserNodeData>::write_to_stream( std::ostream &os, std::string nl, std::string ns ) const {
+    for( const Vertex &v : vertices )
+        os << v.pos << " " << v.num << "; ";
     impl.for_each_item_rec( [&]( const auto &face ) {
         os << nl;
         for( TI i = 0; i < dim - face.nvi; ++i )
@@ -37,8 +49,8 @@ void RecursivePolytop<TF,dim,TI,UserNodeData>::write_to_stream( std::ostream &os
 
 template<class TF,int dim,class TI,class UserNodeData> template<class VO>
 void RecursivePolytop<TF,dim,TI,UserNodeData>::display_vtk( VO &vo ) const {
+    // normals
     impl.for_each_item_rec( [&]( const auto &face ) {
-        // normals
         typename VO::Pt O = 0, N = 0;
         for( TI d = 0; d < std::min( int( dim ), 3 ); ++d ) {
             O[ d ] = conv( face.center[ d ], S<typename VO::TF>() );
@@ -47,72 +59,105 @@ void RecursivePolytop<TF,dim,TI,UserNodeData>::display_vtk( VO &vo ) const {
         if ( norm_2( N ) )
             N /= norm_2( N );
         vo.add_line( { O, O + N } );
+    } );
 
-        // lines
-        if ( face.nvi == 1 ) {
-            std::vector<typename VO::Pt> pts;
-            for( const auto &v : face.faces )
-                pts.push_back( v.center );
-            vo.add_line( pts );
+    // edges
+    impl.for_each_item_rec( [&]( const auto &edge ) {
+        std::vector<typename VO::Pt> pts;
+        for( const auto *v : edge.vertices )
+            pts.push_back( v->pos );
+
+        vo.add_line( pts );
+    }, N<1>() );
+
+    // faces
+    impl.for_each_item_rec( [&]( const auto &face ) {
+        for( auto &edge : face.faces )
+            edge.vertices[ 0 ]->tmp_v = edge.vertices[ 1 ];
+
+        std::vector<typename VO::Pt> pts;
+        for( const Vertex *b = face.faces.first().vertices[ 0 ], *v = b; ; v = v->tmp_v ) {
+            pts.push_back( v->pos );
+            if ( v->tmp_v == b )
+                break;
         }
 
-        //        if ( face.nvi >= 1 && face.nvi <= 2 ) {
-        //            std::vector<typename VO::Pt> pts;
-        //            for( TI i = 0; i < pts.size(); ++i )
-        //                for( TI d = 0; d < std::min( int( dim ), 3 ); ++d )
-        //                    pts[ i ][ d ] = conv( face.vertices[ i ]->node.pos[ d ], S<typename VO::TF>() );
-
-        //            if ( face.nvi == 1 )
-        //                vo.add_line( pts );
-        //            if ( face.nvi == 2 )
-        //                vo.add_polygon( pts );
-        //        }
-    } );
+        vo.add_polygon( pts );
+    }, N<2>() );
 }
 
 template<class TF,int dim,class TI,class UserNodeData>
 TF RecursivePolytop<TF,dim,TI,UserNodeData>::measure() const {
     std::array<Pt,dim> dirs;
-    return impl.measure( dirs, N<dim>() ) / factorial( TF( int( dim ) ) );
+    return impl.measure( dirs ) / factorial( TF( int( dim ) ) );
 }
 
 template<class TF,int dim,class TI,class UserNodeData>
-void RecursivePolytop<TF,dim,TI,UserNodeData>::plane_cut( Pt orig, Pt normal, const std::function<UserNodeData(const UserNodeData &,const UserNodeData &,TF,TF)> &nf ) {
+RecursivePolytop<TF,dim,TI,UserNodeData> RecursivePolytop<TF,dim,TI,UserNodeData>::plane_cut( Pt orig, Pt normal, const std::function<UserNodeData(const UserNodeData &,const UserNodeData &,TF,TF)> &nf ) const {
     using std::min;
     using std::max;
 
-    //    // scalar product + index for each vertex
-    //    TI nb_vertices = 0;
-    //    for( Vertex *v : impl.vertices ) {
-    //        v->tmp_f = dot( v->node.pos - orig, normal );
-    //        v->ind = nb_vertices++;
-    //    }
+    // scalar product for each vertex + copy of vertices that are inside
+    TI new_vertices_size = 0;
+    for( const Vertex &v : vertices ) {
+        v.tmp_f = dot( v.pos - orig, normal );
+        new_vertices_size += v.tmp_f <= 0;
+    }
 
-    //    // make the interpolated vertices
-    //    std::vector<Vertex *> new_vertices( nb_vertices * ( nb_vertices - 1 ), nullptr );
-    //    impl.for_each_item_rec( [&]( const auto &face ) {
-    //        if ( face.nvi == 1 && face.vertices.size() == 2 ) {
-    //            Vertex *v = face.vertices[ 0 ], *w = face.vertices[ 1 ];
-    //            if ( bool( v->tmp_f > 0 ) != bool( w->tmp_f > 0 ) ) {
-    //                TI n0 = min( v->ind, w->ind );
-    //                TI n1 = max( v->ind, w->ind );
-    //                TI nn = n1 * ( n1 - 1 ) + n0;
-    //                if ( ! new_vertices[ nn ] ) {
-    //                    Vertex *nv = pool.template create<Vertex>();
-    //                    new_vertices[ nn ] = nv;
+    // get nb interpolated vertices
+    std::vector<bool> cr_edge( vertices.size() * ( vertices.size() - 1 ), false );
+    impl.for_each_item_rec( [&]( const auto &edge ) {
+        Vertex *v = edge.vertices[ 0 ], *w = edge.vertices[ 1 ];
+        if ( bool( v->tmp_f > 0 ) != bool( w->tmp_f > 0 ) ) {
+            TI n0 = min( v->num, w->num );
+            TI n1 = max( v->num, w->num );
+            TI nn = n1 * ( n1 - 1 ) + n0;
+            if ( ! cr_edge[ nn ] ) {
+                cr_edge[ nn ] = true;
+                ++new_vertices_size;
+            }
+        }
+    }, N<1>() );
 
-    //                    nv->node.pos = v->node.pos + v->tmp_f / ( v->tmp_f - w->tmp_f ) * ( w->node.pos - v->node.pos );
-    //                    if ( nf )
-    //                        nv->node.user_data = nf( v->node.user_data, w->node.user_data, v->tmp_f, w->tmp_f );
-    //                }
-    //            }
-    //        }
-    //    } );
+    // copy of inside vertices
+    RecursivePolytop<TF,dim,TI,UserNodeData> res( new_vertices_size );
 
-    //    //
-    //    IntrusiveList<typename Impl::Face> new_faces;
-    //    impl.plane_cut( pool, new_faces, new_vertices, date, N<dim>() );
-    //    P( new_faces );
+    new_vertices_size = 0;
+    for( const Vertex &v : vertices ) {
+        if ( v.tmp_f <= 0 ) {
+            Vertex &nv = res.vertices[ new_vertices_size ];
+            nv.user_data = v.user_data;
+            nv.pos = v.pos;
+
+            nv.num = new_vertices_size++;
+        }
+    }
+
+    // make the interpolated vertices
+    std::vector<Vertex *> new_vertices( vertices.size() * ( vertices.size() - 1 ), nullptr );
+    impl.for_each_item_rec( [&]( const auto &edge ) {
+        Vertex *v = edge.vertices[ 0 ], *w = edge.vertices[ 1 ];
+        if ( bool( v->tmp_f > 0 ) != bool( w->tmp_f > 0 ) ) {
+            TI n0 = min( v->num, w->num );
+            TI n1 = max( v->num, w->num );
+            TI nn = n1 * ( n1 - 1 ) + n0;
+            if ( ! new_vertices[ nn ] ) {
+                Vertex &nv = res.vertices[ new_vertices_size ];
+                new_vertices[ nn ] = &nv;
+
+                nv.pos = v->pos + v->tmp_f / ( v->tmp_f - w->tmp_f ) * ( w->pos - v->pos );
+                if ( nf )
+                    nv.user_data = nf( v->user_data, w->user_data, v->tmp_f, w->tmp_f );
+
+                nv.num = new_vertices_size++;
+            }
+        }
+    }, N<1>() );
+
+    //
+    IntrusiveList<typename Impl::Face> new_faces;
+    impl.plane_cut( res.impl, res.pool, new_faces, new_vertices, date );
+    return res;
 }
 
 //template<class TF,int nvi,int dim,class TI,class NodeData> template<class Nd>

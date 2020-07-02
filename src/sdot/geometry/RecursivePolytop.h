@@ -1,107 +1,46 @@
 #ifndef SDOT_RECURSIVE_POLYTOP_HEADER
 #define SDOT_RECURSIVE_POLYTOP_HEADER
 
+#include "internal/RecursivePolytopVertex.h"
 #include "internal/RecursivePolytopImpl.h"
-#include "../support/BumpPointerPool.h"
+#include "../support/Void.h"
 #include <deque>
 
 /**
 
 */
-template<class TF_,int dim_,class TI_=std::size_t,class UserData_=TI_>
+template<class TF_,int dim_,class TI_=std::size_t,class UserData_=Void>
 class RecursivePolytop {
 public:
-    using                   UserData            = UserData_;
-    enum {                  dim                 = dim_ };
-    using                   TF                  = TF_;
-    using                   TI                  = TI_;
-    using                   Pt                  = Point<TF,dim>;
+    using                   UserData        = UserData_;
+    using                   Vertex          = RecursivePolytopVertex<TF_,dim_,TI_,UserData>;
+    enum {                  dim             = dim_ };
+    using                   TF              = TF_;
+    using                   TI              = TI_;
+    using                   Pt              = Point<TF,dim>;
 
-    struct                  Node                { Pt pos; UserData user_data; };
-    using                   Impl                = RecursivePolytopImpl<RecursivePolytop,dim>;
+    /**/                    RecursivePolytop( std::initializer_list<Pt> pts );
+    /**/                    RecursivePolytop( TI nb_vertices = 0 );
 
-    /**/                    RecursivePolytop    ();
-    static RecursivePolytop convex_hull         ( const std::vector<Node> &nodes );
+    const Vertex&           vertex          ( TI i ) const { return vertices[ i ]; }
+    Vertex&                 vertex          ( TI i ) { return vertices[ i ]; }
 
-    void                    write_to_stream     ( std::ostream &os, std::string nl = "\n  ", std::string ns = "  " ) const;
-    template<class VO> void display_vtk         ( VO &vo ) const;
-    void                    plane_cut           ( Pt orig, Pt normal, const std::function<UserData(const UserData &,const UserData &,TF,TF)> &nf = {} );
-    TF                      measure             () const;
+    void                    make_convex_hull();
+    void                    write_to_stream ( std::ostream &os, std::string nl = "\n  ", std::string ns = "  " ) const;
+    //template<class Nd> bl valid_node_prop ( const std::vector<Nd> &prop, std::vector<Pt> prev_centers = {}, bool prev_centers_are_valid = true ) const;
+    template<class VO> void display_vtk     ( VO &vo ) const;
+    RecursivePolytop        plane_cut       ( Pt orig, Pt normal, const std::function<UserData(const UserData &,const UserData &,TF,TF)> &nf = {} ) const;
+    TF                      measure         () const;
 
-    //template<class Nd> bool valid_node_prop   ( const std::vector<Nd> &prop, std::vector<Pt> prev_centers = {}, bool prev_centers_are_valid = true ) const;
+private:
+    using                   Impl            = RecursivePolytopImpl<RecursivePolytop,dim>;
 
-public:
     BumpPointerPool         pool;
-    Impl                    impl;
     mutable TI              date;
+
+    FsVec<Vertex>           vertices;
+    Impl                    impl;
 };
-
-///**
-//  Generic polytop (convex or not) defined by recursion
-//*/
-//template<class TF,int nvi_,int dim=nvi_,class TI=std::size_t,class NodeData=TI>
-//class RecursivePolytop {
-//public:
-//    using                   Face               = RecursivePolytop<TF,nvi_-1,dim,TI,NodeData>;
-//    using                   Node               = typename Face::Node;
-//    enum {                  nvi                = nvi_ };
-//    using                   Pt                 = Point<TF,dim>;
-//    using                   VN                 = std::vector<Node>;
-//    using                   DN                 = std::deque<Node>;
-
-//    static RecursivePolytop convex_hull        ( const std::vector<Node> &nodes, const std::vector<Pt> &prev_centers = {} );
-
-//    static std::vector<DN>  non_closed_node_seq( const std::vector<Face> &faces ); ///< get non closed sequence of nodes from faces. Works only for nvi == 2.
-//    template<class Fu> void for_each_faces_rec ( const Fu &func ) const;
-//    void                    write_to_stream    ( std::ostream &os, std::string sp = "\n  " ) const;
-//    template<class Nd> bool valid_node_prop    ( const std::vector<Nd> &prop, std::vector<Pt> prev_centers = {}, bool prev_centers_are_valid = true ) const;
-//    template<class Vk> void display_vtk        ( Vk &vtk_output ) const;
-//    template<class Nd> auto with_nodes         ( const std::vector<Nd> &new_nodes ) const;
-//    static RecursivePolytop make_from          ( const std::vector<Face> &faces );
-//    RecursivePolytop        plane_cut          ( Pt orig, Pt normal, const std::function<Node(const Node &,const Node &,TF,TF)> &nf = {}, std::vector<Face> *new_faces = nullptr ) const;
-//    bool                    operator<          ( const RecursivePolytop &that ) const;
-//    std::vector<VN>         node_seq           () const; ///< make a sequence of nodes from faces. Works only for nvi == 2.
-//    bool                    contains           ( const Pt &pt ) const;
-//    TF                      measure            ( const std::vector<Pt> &prev_dirs = {}, TF div = 1 ) const;
-//    TI                      max_id             () const;
-//    operator                bool               () const { return nodes.size(); }
-
-//    std::vector<Node>       nodes;
-//    std::vector<Face>       faces;             ///<
-//    std::vector<Node>       dirs;              ///< local base
-//    std::string             name;
-//};
-
-///**
-//  Segment
-//*/
-//template<class TF,int dim,class TI,class NodeData>
-//class RecursivePolytop<TF,1,dim,TI,NodeData> {
-//public:
-//    using                   Pt                = Point<TF,dim>;
-//    struct                  Node              { Pt pos; TI id; NodeData data; bool operator<( const Node &that ) const { return pos < that.pos; } bool operator==( const Node &that ) const { return pos == that.pos; } void write_to_stream( std::ostream &os ) const { os << "[" << pos << "]"; } };
-//    using                   Face              = Node;
-//    enum {                  nvi               = 1 };
-
-//    static RecursivePolytop convex_hull       ( const std::vector<Node> &nodes, const std::vector<Pt> &prev_centers = {} );
-
-//    template<class Fu> void for_each_faces_rec( const Fu &func ) const;
-//    void                    write_to_stream   ( std::ostream &os, std::string sp = {} ) const;
-//    template<class Nd> bool valid_node_prop   ( const std::vector<Nd> &prop, const std::vector<Pt> &prev_centers = {}, bool prev_centers_are_valid = true ) const;
-//    template<class Nd> auto with_nodes        ( const std::vector<Nd> &new_nodes ) const;
-//    static RecursivePolytop make_from         ( const std::vector<Face> &faces );
-//    RecursivePolytop        plane_cut         ( Pt orig, Pt normal, const std::function<Node(const Node &,const Node &,TF,TF)> &nf, std::vector<Face> *new_faces = nullptr ) const;
-//    bool                    operator<         ( const RecursivePolytop &that ) const;
-//    bool                    contains          ( const Pt &pt ) const;
-//    TF                      measure           ( const std::vector<Pt> &prev_dirs = {}, TF div = 1 ) const;
-//    operator                bool              () const { return nodes.size(); }
-
-//    std::vector<Node>       nodes;
-//    std::vector<Node>       dirs;             ///< local base
-//};
-
-//template<class TF,int dim,class TI,class NodeData>
-//bool operator<( const typename RecursivePolytop<TF,1,dim,TI,NodeData>::Node &a, const typename RecursivePolytop<TF,1,dim,TI,NodeData>::Node &b );
 
 #include "RecursivePolytop.tcc"
 

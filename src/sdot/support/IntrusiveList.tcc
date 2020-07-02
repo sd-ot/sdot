@@ -1,6 +1,19 @@
 #include "IntrusiveList.h"
 
 template<class T>
+IntrusiveList<T>::IntrusiveList( T *a, T *b ) {
+    b->next = nullptr;
+    a->next = b;
+    data = a;
+}
+
+template<class T>
+IntrusiveList<T>::IntrusiveList( T *a ) {
+    a->next = nullptr;
+    data = a;
+}
+
+template<class T>
 IntrusiveList<T>::IntrusiveList() : data( nullptr ) {
 }
 

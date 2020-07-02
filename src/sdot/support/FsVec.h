@@ -12,8 +12,13 @@ public:
     template<class Pool> FsVec     ( Pool &pool, ST size, const T *content );
     template<class Pool> FsVec     ( Pool &pool, ST size, ST alig );
     template<class Pool> FsVec     ( Pool &pool, ST size );
-    /**/                 FsVec     ( T *data, ST size );
+    /**/                 FsVec     ( FsVec &&that );
     /**/                 FsVec     ();
+
+    /**/                 FsVec     ( const FsVec & ) = delete;
+    void                 operator= ( const FsVec & ) = delete;
+
+    /**/                ~FsVec     ();
 
     const T&             operator[]( ST index ) const;
     T&                   operator[]( ST index );

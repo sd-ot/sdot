@@ -20,11 +20,18 @@ FsVec<T,ST>::FsVec( Pool &pool, ST size ) : _data( (T *)pool.allocate( size * si
 }
 
 template<class T,class ST>
-FsVec<T,ST>::FsVec( T *data, ST size ) : _data( data ), _size( size ) {
+FsVec<T,ST>::FsVec( FsVec &&that ) : _data( that._data ), _size( that._size ) {
+    that._size = 0;
 }
 
 template<class T,class ST>
 FsVec<T,ST>::FsVec() : _data( nullptr ), _size( 0 ) {
+}
+
+template<class T,class ST>
+FsVec<T,ST>::~FsVec() {
+    for( ST i = _size; i--; )
+        _data[ i ].~T();
 }
 
 template<class T,class ST>
