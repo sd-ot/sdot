@@ -70,8 +70,14 @@ std::array<T,dim> mul( const std::array<std::array<T,dim>,dim> &M, const std::ar
 }
 
 template<class T,std::size_t dim>
-std::array<T,dim> solve( const std::array<std::array<T,dim>,dim> &M, const std::array<T,dim> &V ) {
+std::array<T,dim> solve( const std::array<std::array<T,dim>,dim> &M, const std::array<T,dim> &V, bool *ok = nullptr ) {
     T det = determinant( M );
+    if ( det == 0 ) {
+        if ( ok )
+            *ok = false;
+        return {};
+    }
+
     std::array<T,dim> res;
     for( int i = 0; i < dim; ++i ) {
         std::array<std::array<T,dim>,dim> n;

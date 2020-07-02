@@ -29,6 +29,7 @@ public:
     //template<class Nd> bl       valid_node_prop     ( const std::vector<Nd> &prop, std::vector<Pt> prev_centers = {}, bool prev_centers_are_valid = true ) const;
     template<class VO> void       display_vtk         ( VO &vo ) const;
     RecursivePolytop              plane_cut           ( Pt orig, Pt normal, const std::function<UserData(const UserData &,const UserData &,TF,TF)> &nf = {} ) const;
+    bool                          contains            ( const Pt &pt ) const;
     TF                            measure             () const;
 
 private:

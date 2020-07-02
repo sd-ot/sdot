@@ -26,9 +26,9 @@ void test_1D() {
 }
 
 void test_2D() {
-    //    using Rp = RecursivePolytop<TF,2>;
-    //    using Pt = Rp::Pt;
-    //    using TF = Rp::TF;
+    using Rp = RecursivePolytop<TF,2>;
+    using Pt = Rp::Pt;
+    using TF = Rp::TF;
 
     //    std::vector<Pt> pts;
     //    for( TI i = 0, n = 5; i < n; ++i ) {
@@ -40,8 +40,17 @@ void test_2D() {
     //    rp.make_convex_hull();
     //    rp.vertex( 0 ).pos[ 0 ] = -10;
 
-    //    //    P( rp );
-    //    P( rp.measure() );
+    std::vector<Pt> pts;
+    pts.push_back( {  0,  0 } );
+    pts.push_back( { 10,  0 } );
+    pts.push_back( {  0, 10 } );
+
+    Rp rp( pts );
+    rp.make_convex_hull();
+
+    P( rp.measure() );
+    P( rp.contains( Pt{ 2, 2 } ) );
+    P( rp.contains( Pt{ 200, 0 } ) );
 
     //    Rp np = rp.plane_cut( Pt{ 0, 0 }, Pt{ 1, 0 } );
     //    P( np );
@@ -50,8 +59,7 @@ void test_2D() {
     //    np.display_vtk( vo );
     //    vo.save( "out.vtk" );
 
-    //    //    P( rp.contains( Pt{ 2, 2, 2 } ) );
-    //    //    P( nrp.contains( Pt{ 2, 2, 2 } ) );
+    //    P( nrp.contains( Pt{ 2, 2, 2 } ) );
 }
 
 void test_3D() {
@@ -99,54 +107,54 @@ void test_3D() {
 }
 
 void test_4D() {
-    using Rp = RecursivePolytop<TF,4>;
-    using Pt = Rp::Pt;
+    //    using Rp = RecursivePolytop<TF,4>;
+    //    using Pt = Rp::Pt;
 
-    std::vector<Pt> pts;
+    //    std::vector<Pt> pts;
+    //    //    pts.push_back( { 0, 0, 0, 0 } );
+    //    //    pts.push_back( { 2, 0, 0, 0 } );
+    //    //    pts.push_back( { 0, 2, 0, 0 } );
+    //    //    pts.push_back( { 2, 2, 0, 0 } );
+    //    //    pts.push_back( { 0, 0, 2, 0 } );
+    //    //    pts.push_back( { 2, 0, 2, 0 } );
+    //    //    pts.push_back( { 0, 2, 2, 0 } );
+    //    //    pts.push_back( { 2, 2, 2, 0 } );
+
+    //    //    int a = 0, b = 2;
+    //    //    pts.push_back( { a, a, a, 1 } );
+    //    //    pts.push_back( { b, a, a, 1 } );
+    //    //    pts.push_back( { a, b, a, 1 } );
+    //    //    pts.push_back( { b, b, a, 1 } );
+    //    //    pts.push_back( { a, a, b, 1 } );
+    //    //    pts.push_back( { b, a, b, 1 } );
+    //    //    pts.push_back( { a, b, b, 1 } );
+    //    //    pts.push_back( { b, b, b, 1 } );
     //    pts.push_back( { 0, 0, 0, 0 } );
-    //    pts.push_back( { 2, 0, 0, 0 } );
-    //    pts.push_back( { 0, 2, 0, 0 } );
-    //    pts.push_back( { 2, 2, 0, 0 } );
-    //    pts.push_back( { 0, 0, 2, 0 } );
-    //    pts.push_back( { 2, 0, 2, 0 } );
-    //    pts.push_back( { 0, 2, 2, 0 } );
-    //    pts.push_back( { 2, 2, 2, 0 } );
+    //    pts.push_back( { 1, 0, 0, 0 } );
+    //    pts.push_back( { 0, 1, 0, 0 } );
+    //    pts.push_back( { 0, 0, 1, 0 } );
+    //    pts.push_back( { 0, 0, 0, 1 } );
 
-    //    int a = 0, b = 2;
-    //    pts.push_back( { a, a, a, 1 } );
-    //    pts.push_back( { b, a, a, 1 } );
-    //    pts.push_back( { a, b, a, 1 } );
-    //    pts.push_back( { b, b, a, 1 } );
-    //    pts.push_back( { a, a, b, 1 } );
-    //    pts.push_back( { b, a, b, 1 } );
-    //    pts.push_back( { a, b, b, 1 } );
-    //    pts.push_back( { b, b, b, 1 } );
-    pts.push_back( { 0, 0, 0, 0 } );
-    pts.push_back( { 1, 0, 0, 0 } );
-    pts.push_back( { 0, 1, 0, 0 } );
-    pts.push_back( { 0, 0, 1, 0 } );
-    pts.push_back( { 0, 0, 0, 1 } );
+    //    Rp rp( pts );
+    //    rp.make_convex_hull();
 
-    Rp rp( pts );
-    rp.make_convex_hull();
+    //    // P( rp );
+    //    P( rp.measure() );
 
-    // P( rp );
-    P( rp.measure() );
+    //    TF m = TF( 1 ) / 5;
+    //    Rp n0 = rp.plane_cut( Pt{ m, m, m }, Pt{ +1, +2, +3 } );
+    //    Rp n1 = rp.plane_cut( Pt{ m, m, m }, Pt{ -1, -2, -3 } );
+    //    P( n0.measure() );
+    //    P( n1.measure() );
+    //    P( n0.measure() + n1.measure() );
 
-    TF m = TF( 1 ) / 5;
-    Rp n0 = rp.plane_cut( Pt{ m, m, m }, Pt{ +1, +2, +3 } );
-    Rp n1 = rp.plane_cut( Pt{ m, m, m }, Pt{ -1, -2, -3 } );
-    P( n0.measure() );
-    P( n1.measure() );
-    P( n0.measure() + n1.measure() );
+    //    VtkOutput vo;
+    //    n0.display_vtk( vo );
+    //    n1.display_vtk( vo );
+    //    vo.save( "out.vtk" );
 
-    VtkOutput vo;
-    n0.display_vtk( vo );
-    n1.display_vtk( vo );
-    vo.save( "out.vtk" );
-
-    //    P( rp.contains( Pt{ 2, 2, 2 } ) );
-    //    P( nrp.contains( Pt{ 2, 2, 2 } ) );
+    //    //    P( rp.contains( Pt{ 2, 2, 2 } ) );
+    //    //    P( nrp.contains( Pt{ 2, 2, 2 } ) );
 }
 
 int main() {

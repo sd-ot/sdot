@@ -53,6 +53,14 @@ void RecursivePolytop<TF,dim,TI,UserNodeData>::write_to_stream( std::ostream &os
     }
 }
 
+template<class TF,int dim,class TI,class UserNodeData>
+bool RecursivePolytop<TF,dim,TI,UserNodeData>::contains( const Pt &pt ) const {
+    for( const Impl &impl : impls )
+        if ( impl.contains( pt ) )
+            return true;
+    return false;
+}
+
 template<class TF,int dim,class TI,class UserNodeData> template<class VO>
 void RecursivePolytop<TF,dim,TI,UserNodeData>::display_vtk( VO &vo ) const {
     using std::min;

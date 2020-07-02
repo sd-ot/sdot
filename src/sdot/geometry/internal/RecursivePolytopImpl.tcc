@@ -439,4 +439,53 @@ typename RecursivePolytopImpl<Rp,1>::Pt RecursivePolytopImpl<Rp,1>::center() con
     return TF( 1 ) / 2 * ( vertices[ 0 ]->pos + vertices[ 1 ]->pos );
 }
 
+template<class Rp,int nvi>
+bool RecursivePolytopImpl<Rp,nvi>::contains( const Pt &pos ) const {
+    while ( true ) {
+        // proposition of a direction
+        Pt dir;
+        for( TI d = 0; d < dim; ++d )
+            dir[ d ] = rand() % 10000 - 5000;
+
+        dir = { 1, 0 };
+        //
+        P( dir );
+        for( const Face &face : faces ) {
+            face.for_each_intersection( pos, dir, [&]( TF alpha, Pt inter ) {
+                P( alpha, inter );
+            } );
+        }
+
+        break;
+    }
+    return false;
+}
+
+template<class Rp>
+bool RecursivePolytopImpl<Rp,1>::contains( const Pt &pos ) const {
+    TF s = dot( pos - vertices[ 0 ]->pos, vertices[ 1 ]->pos - vertices[ 0 ]->pos );
+    return s >= 0 && s <= norm_2_p2( vertices[ 1 ]->pos - vertices[ 0 ]->pos );
+}
+
+
+template<class Rp>
+void RecursivePolytopImpl<Rp,1>::for_each_intersection( const Pt &pos, const Pt &dir, const std::function<void( TF alpha, Pt inter )> &f ) const {
+    constexpr int n = nvi + 1;
+    std::array<std::array<TF,n>,n> M;
+    std::array<TF,n> V;
+
+    Pt tra = vertices[ 0 ]->pos - vertices[ 1 ]->pos;
+    M[ 0 ][ 0 ] = dot( dir, dir );
+    M[ 0 ][ 1 ] = dot( dir, tra );
+    M[ 1 ][ 0 ] = dot( tra, dir );
+    M[ 1 ][ 1 ] = dot( tra, tra );
+    V[ 0 ] = dot( dir, vertices[ 0 ]->pos - pos );
+    V[ 1 ] = dot( tra, vertices[ 0 ]->pos - pos );
+
+    bool ok = true;
+    std::array<TF,n> X = solve( M, V, &ok );
+    if ( ok )
+        f( X[ 0 ], pos + X[ 0 ] * dir );
+}
+
 

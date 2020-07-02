@@ -32,6 +32,7 @@ struct RecursivePolytopImpl {
     Vertex*                      first_vertex        () const;
     void                         plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, const Pt &cut_normal, N<2> ) const;
     template<class B> void       plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, const Pt &cut_normal, B ) const;
+    bool                         contains            ( const Pt &pt ) const;
     TF                           measure             ( std::array<Pt,dim> &dirs, const Pt &prev_pt ) const;
     Pt                           center              () const; ///< a point in the "middle"
 
@@ -43,25 +44,27 @@ struct RecursivePolytopImpl {
 /** Edge */
 template<class Rp>
 struct RecursivePolytopImpl<Rp,1> {
-    using                        UserData            = typename Rp::UserData;
-    using                        Vertex              = typename Rp::Vertex;
-    enum {                       dim                 = Rp::dim };
-    enum {                       nvi                 = 1 };
-    using                        TF                  = typename Rp::TF;
-    using                        TI                  = typename Rp::TI;
+    using                        UserData             = typename Rp::UserData;
+    using                        Vertex               = typename Rp::Vertex;
+    enum {                       dim                  = Rp::dim };
+    enum {                       nvi                  = 1 };
+    using                        TF                   = typename Rp::TF;
+    using                        TI                   = typename Rp::TI;
 
-    using                        Face                = Void;
-    using                        Pt                  = Point<TF,dim>;
-    using                        Pn                  = Point<TF,nvi>;
+    using                        Face                 = Void;
+    using                        Pt                   = Point<TF,dim>;
+    using                        Pn                   = Point<TF,nvi>;
 
-    /**/                         RecursivePolytopImpl();
+    /**/                         RecursivePolytopImpl ();
 
-    template<class F> void       for_each_item_rec   ( const F &fu, N<1> ) const;
-    template<class F> void       for_each_item_rec   ( const F &fu ) const;
+    void                         for_each_intersection( const Pt &pos, const Pt &dir, const std::function<void( TF alpha, Pt inter )> &f ) const;
+    template<class F> void       for_each_item_rec    ( const F &fu, N<1> ) const;
+    template<class F> void       for_each_item_rec    ( const F &fu ) const;
     static void                  add_convex_hull     ( IntrusiveList<RecursivePolytopImpl> &res, Rp &rp, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &normal, const Pt &center );
     void                         write_to_stream     ( std::ostream &os ) const;
     Vertex*                      first_vertex        () const;
     void                         plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, const Pt &cut_normal, N<1> ) const;
+    bool                         contains            ( const Pt &pt ) const;
     TF                           measure             ( std::array<Pt,dim> &dirs, const Pt &prev_pt ) const;
     Pt                           center              () const; ///< a point in the "middle"
 
