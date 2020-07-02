@@ -3,7 +3,7 @@
 
 #include "../../support/BumpPointerPool.h"
 #include "../../support/IntrusiveList.h"
-#include "../../support/FsVec.h"
+#include "../../support/Void.h"
 #include "../Point.h"
 
 /**
@@ -26,9 +26,11 @@ struct RecursivePolytopImpl {
     template<class F,int n> void for_each_item_rec   ( const F &fu, N<n> ) const;
     template<class F> void       for_each_item_rec   ( const F &fu, N<nvi> ) const;
     template<class F> void       for_each_item_rec   ( const F &fu ) const;
-    void                         add_convex_hull     ( BumpPointerPool &pool, Vertex *vertices, TI *indices, TI nb_indices, Pt *normals, Pt *dirs );
+    static void                  add_convex_hull     ( IntrusiveList<RecursivePolytopImpl> &res, BumpPointerPool &pool, Vertex *vertices, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &normal, const Pt &center );
     void                         write_to_stream     ( std::ostream &os ) const;
-    void                         plane_cut           ( RecursivePolytopImpl &res, BumpPointerPool &pool, IntrusiveList<Face> &new_faces, std::vector<Vertex *> &new_vertices, TI &date ) const;
+    void                         update_center       ();
+    void                         plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, BumpPointerPool &pool, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, N<2> ) const;
+    template<class B> void       plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, BumpPointerPool &pool, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, B ) const;
     TF                           measure             ( std::array<Pt,dim> &dirs ) const;
 
     Pt                           center;             ///<
@@ -40,29 +42,30 @@ struct RecursivePolytopImpl {
 /** Edge */
 template<class Rp>
 struct RecursivePolytopImpl<Rp,1> {
-    using                     UserData            = typename Rp::UserData;
-    using                     Vertex              = typename Rp::Vertex;
-    enum {                    dim                 = Rp::dim };
-    enum {                    nvi                 = 1 };
-    using                     TF                  = typename Rp::TF;
-    using                     TI                  = typename Rp::TI;
+    using                        UserData            = typename Rp::UserData;
+    using                        Vertex              = typename Rp::Vertex;
+    enum {                       dim                 = Rp::dim };
+    enum {                       nvi                 = 1 };
+    using                        TF                  = typename Rp::TF;
+    using                        TI                  = typename Rp::TI;
 
-    using                     Pt                  = Point<TF,dim>;
-    using                     Pn                  = Point<TF,nvi>;
+    using                        Face                = Void;
+    using                        Pt                  = Point<TF,dim>;
+    using                        Pn                  = Point<TF,nvi>;
 
-    /**/                      RecursivePolytopImpl();
+    /**/                         RecursivePolytopImpl();
 
-    template<class F> void    for_each_item_rec   ( const F &fu, N<1> ) const;
-    template<class F> void    for_each_item_rec   ( const F &fu ) const;
-    void                      add_convex_hull     ( BumpPointerPool &pool, Vertex *vertices, TI *indices, TI nb_indices, Pt *normals, Pt *dirs );
-    void                      write_to_stream     ( std::ostream &os ) const;
-    //void                    plane_cut           ( RecursivePolytopImpl &res, BumpPointerPool &pool, IntrusiveList<Face> &new_faces, std::vector<Vertex *> &new_vertices, TI &date );
-    TF                        measure             ( std::array<Pt,dim> &dirs ) const;
+    template<class F> void       for_each_item_rec   ( const F &fu, N<1> ) const;
+    template<class F> void       for_each_item_rec   ( const F &fu ) const;
+    static void                  add_convex_hull     ( IntrusiveList<RecursivePolytopImpl> &res, BumpPointerPool &pool, Vertex *vertices, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &normal, const Pt &center );
+    void                         write_to_stream     ( std::ostream &os ) const;
+    void                         plane_cut           ( IntrusiveList<RecursivePolytopImpl> &res, BumpPointerPool &pool, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, N<1> ) const;
+    TF                           measure             ( std::array<Pt,dim> &dirs ) const;
 
-    std::array<Vertex *,2>    vertices;           ///<
-    Pt                        center;             ///<
-    Pt                        normal;             ///<
-    RecursivePolytopImpl*     next;               ///< used by IntrusiveList
+    std::array<Vertex *,2>       vertices;           ///<
+    Pt                           center;             ///<
+    Pt                           normal;             ///<
+    RecursivePolytopImpl*        next;               ///< used by IntrusiveList
 };
 
 #include "RecursivePolytopImpl.tcc"

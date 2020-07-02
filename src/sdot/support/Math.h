@@ -106,3 +106,12 @@ auto mean( const V &v ) -> typename std::decay<decltype( v[ 0 ] )>::type {
     return res / T( v.size() );
 }
 
+template<class V,class F>
+auto mean( const V &v, const F &f ) -> typename std::decay<decltype( f( v[ 0 ] ) )>::type {
+    using T = typename std::decay<decltype( f( v[ 0 ] ) )>::type;
+    T res = f( v[ 0 ] );
+    for( std::size_t i = 1; i < v.size(); ++i )
+        res += f( v[ i ] );
+    return res / T( v.size() );
+}
+

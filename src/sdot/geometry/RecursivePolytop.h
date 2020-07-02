@@ -3,7 +3,7 @@
 
 #include "internal/RecursivePolytopVertex.h"
 #include "internal/RecursivePolytopImpl.h"
-#include "../support/Void.h"
+#include "../support/FsVec.h"
 #include <deque>
 
 /**
@@ -20,6 +20,7 @@ public:
     using                   Pt              = Point<TF,dim>;
 
     /**/                    RecursivePolytop( std::initializer_list<Pt> pts );
+    /**/                    RecursivePolytop( const std::vector<Pt> &pts );
     /**/                    RecursivePolytop( TI nb_vertices = 0 );
 
     const Vertex&           vertex          ( TI i ) const { return vertices[ i ]; }
@@ -35,11 +36,9 @@ public:
 private:
     using                   Impl            = RecursivePolytopImpl<RecursivePolytop,dim>;
 
-    BumpPointerPool         pool;
-    mutable TI              date;
-
-    FsVec<Vertex>           vertices;
-    Impl                    impl;
+    BumpPointerPool         pool;           ///< to be defined before vertices
+    IntrusiveList<Impl>     impls;          ///<
+    FsVec<Vertex>           vertices;       ///<
 };
 
 #include "RecursivePolytop.tcc"
