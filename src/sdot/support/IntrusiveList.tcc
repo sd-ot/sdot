@@ -25,17 +25,33 @@ void IntrusiveList<T>::push_front( T *item ) {
 
 template<class T>
 void IntrusiveList<T>::remove_if( const std::function<bool(T &)> &f ) {
-    while ( data && f( *data ) )
-        data = data->next;
+    while ( data ) {
+        T *next = data->next;
+        if ( ! f( *data ) )
+            break;
+        data = next;
+    }
 
     if ( T *curr = data ) {
         while ( curr->next ) {
+            T *next = curr->next->next;
             if ( f( *curr->next ) )
-                curr->next = curr->next->next;
+                curr->next = next;
             else
                 curr = curr->next;
         }
     }
+}
+
+template<class T>
+void IntrusiveList<T>::move_to_if( IntrusiveList<T> &that, const std::function<bool( T & )> &cond ) {
+    remove_if( [&]( T &val ) {
+        if ( cond( val ) ) {
+            that.push_front( &val );
+            return true;
+        }
+        return false;
+    } );
 }
 
 template<class T>

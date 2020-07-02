@@ -3,7 +3,7 @@
 #include "../Point.h"
 
 template<class TF,int dim,class TI,class UserData>
-struct  RecursivePolytopVertex {
+struct RecursivePolytopVertex {
     using           Vertex         = RecursivePolytopVertex;
     using           Pt             = Point<TF,dim>;
 
@@ -19,6 +19,8 @@ struct  RecursivePolytopVertex {
 
     mutable Vertex *tmp_v;
     mutable TF      tmp_f;
-    mutable Vertex *next;
-    mutable TI      date = 0;
+    mutable TI      date = 0;      ///< used for graph operations
+    mutable Vertex *next;          ///< typically used to cycle through the edges
+    mutable TI      beg;           ///< typically used for tmp_connections
+    mutable TI      end;           ///< typically used for tmp_connections
 };

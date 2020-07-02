@@ -14,7 +14,8 @@ struct IntrusiveList {
     /**/     IntrusiveList();
 
     void     push_front   ( T *item );
-    void     remove_if    ( const std::function<bool( T & )> &f ); /// true to remove
+    void     move_to_if   ( IntrusiveList<T> &that, const std::function<bool( T & )> &cond );
+    void     remove_if    ( const std::function<bool( T & )> &cond ); /// true to remove
     void     clear        ();
 
     Iterator begin        () const { return { data }; }

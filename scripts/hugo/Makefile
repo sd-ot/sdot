@@ -7,6 +7,7 @@ all:
 	# ${NSMAKE} tests/test_Simd.cpp
 	# ${NSMAKE} tests/test_StructOfArrays.cpp
 	# ${NSMAKE} run tests/bench_ConvexPolytopSet.cpp
+	# ${NSMAKE} run tests/test_IntrusiveList.cpp
 	${NSMAKE} run tests/test_RecursivePolytop.cpp
 	# ${NSMAKE} run src/sdot/geometry/internal/codegen/gen_cuts.cpp
 

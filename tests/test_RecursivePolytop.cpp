@@ -58,24 +58,37 @@ void test_3D() {
     using Rp = RecursivePolytop<TF,3>;
     using Pt = Rp::Pt;
 
+    //    std::vector<Pt> pts;
+    //    for( TI i = 0, n = 5; i < n; ++i ) {
+    //        double a = 2 * M_PI * i / n;
+    //        pts.push_back( { int( 100 * cos( a ) ), int( 100 * sin( a ) ),   0 } );
+    //        pts.push_back( { int( 100 * cos( a ) ), int( 100 * sin( a ) ), 100 } );
+    //    }
+
+    //    Rp rp( pts );
+    //    rp.make_convex_hull();
+
+    //    rp.vertex( 0 ).pos[ 0 ] = -10;
+    //    rp.vertex( 1 ).pos[ 0 ] = -10;
+
     std::vector<Pt> pts;
-    for( TI i = 0, n = 5; i < n; ++i ) {
-        double a = 2 * M_PI * i / n;
-        pts.push_back( { int( 100 * cos( a ) ), int( 100 * sin( a ) ),   0 } );
-        pts.push_back( { int( 100 * cos( a ) ), int( 100 * sin( a ) ), 100 } );
-    }
+    pts.push_back( { 0, 0, 0 } );
+    pts.push_back( { 1, 0, 0 } );
+    pts.push_back( { 0, 1, 0 } );
+    pts.push_back( { 1, 1, 0 } );
+    pts.push_back( { 0, 0, 1 } );
+    pts.push_back( { 1, 0, 1 } );
+    pts.push_back( { 0, 1, 1 } );
+    pts.push_back( { 1, 1, 1 } );
 
     Rp rp( pts );
     rp.make_convex_hull();
 
-    rp.vertex( 0 ).pos[ 0 ] = -10;
-    rp.vertex( 1 ).pos[ 0 ] = -10;
-
-    //    P( rp );
+    // P( rp );
     P( rp.measure() );
 
-    Rp np = rp.plane_cut( Pt{ 2, 2, 2 }, Pt{ 1, 0, 0 } );
-    P( np );
+    Rp np = rp.plane_cut( Pt{ TF( 1 ) / 3, TF( 1 ) / 2, TF( 1 ) / 2 }, Pt{ 3, 2, 1 } );
+    P( np.measure() );
 
     VtkOutput vo;
     np.display_vtk( vo );
