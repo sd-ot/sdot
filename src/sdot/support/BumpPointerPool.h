@@ -9,8 +9,8 @@
 */
 class BumpPointerPool {
 public:
-    /* */    BumpPointerPool( BumpPointerPool &&that );
     /* */    BumpPointerPool( const BumpPointerPool &that ) = delete;
+    /* */    BumpPointerPool( BumpPointerPool &&that );
     /* */    BumpPointerPool();
     /* */   ~BumpPointerPool();
 

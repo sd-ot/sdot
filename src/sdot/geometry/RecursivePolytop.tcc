@@ -1,29 +1,64 @@
+#include "../support/for_each_permutation.h"
 #include "../support/for_each_comb.h"
 #include "../support/ASSERT.h"
+#include "../support/range.h"
 #include "../support/P.h"
 #include "RecursivePolytop.h"
 
 template<class TF,int dim,class TI,class UserNodeData>
 RecursivePolytop<TF,dim,TI,UserNodeData>::RecursivePolytop( std::initializer_list<Pt> pts ) : RecursivePolytop( pts.size() ) {
     TI num = 0;
-    for( const Pt &pos : pts ) {
-        vertices[ num ].pos = pos;
-        vertices[ num ].num = num;
-        ++num;
-    }
+    for( const Pt &pos : pts )
+        vertices[ num++ ].pos = pos;
 }
 
 template<class TF,int dim,class TI,class UserNodeData>
 RecursivePolytop<TF,dim,TI,UserNodeData>::RecursivePolytop( const std::vector<Pt> &pts ) : RecursivePolytop( pts.size() ) {
-    for( TI num = 0; num < pts.size(); ++num ) {
+    for( TI num = 0; num < pts.size(); ++num )
         vertices[ num ].pos = pts[ num ];
-        vertices[ num ].num = num;
-    }
 }
 
 
 template<class TF,int dim,class TI,class UserNodeData>
 RecursivePolytop<TF,dim,TI,UserNodeData>::RecursivePolytop( TI nb_vertices ) : date( 0 ), vertices{ pool, nb_vertices } {
+    for( TI num = 0; num < nb_vertices; ++num )
+        vertices[ num ].num = num;
+}
+
+template<class TF,int dim,class TI,class UserNodeData>
+bool RecursivePolytop<TF,dim,TI,UserNodeData>::valid_vertex_prop( const std::vector<Pt> &pts ) const {
+    for( const Impl &impl : impls )
+        if ( ! impl.valid_vertex_prop( pts ) )
+            return false;
+    return true;
+}
+
+template<class TF,int dim,class TI,class UserNodeData>
+RecursivePolytop<TF,dim,TI,UserNodeData> RecursivePolytop<TF,dim,TI,UserNodeData>::with_points( const std::vector<Pt> &pts ) const {
+    RecursivePolytop<TF,dim,TI,UserNodeData> res( vertices.size() );
+    for( TI i = 0; i < vertices.size(); ++i ) {
+        res.vertices[ i ].user_data = vertices[ i ].user_data;
+        res.vertices[ i ].pos = pts[ vertices[ i ].num ];
+    }
+
+    for( const Impl &impl : impls )
+        impl.with_points( res.impls, res.pool, res.vertices.data() );
+
+    res.update_normals();
+
+    return res;
+}
+
+template<class TF,int dim,class TI,class UserNodeData> template<class F,int n>
+void RecursivePolytop<TF,dim,TI,UserNodeData>::for_each_item_rec( const F &fu, N<n> ) const {
+    for( const Impl &impl : impls )
+        impl.for_each_item_rec( fu, N<n>() );
+}
+
+template<class TF,int dim,class TI,class UserNodeData> template<class F>
+void RecursivePolytop<TF,dim,TI,UserNodeData>::for_each_item_rec( const F &fu ) const {
+    for( const Impl &impl : impls )
+        impl.for_each_item_rec( fu );
 }
 
 template<class TF,int dim,class TI,class UserNodeData>
@@ -54,11 +89,70 @@ void RecursivePolytop<TF,dim,TI,UserNodeData>::write_to_stream( std::ostream &os
 }
 
 template<class TF,int dim,class TI,class UserNodeData>
+void RecursivePolytop<TF,dim,TI,UserNodeData>::update_normals() {
+    Pt center = mean( vertices, Vertex::get_pos );
+    std::array<Pt,dim> prev_normals;
+    std::array<TI,dim> indices;
+    for( Impl &impl : impls )
+        for( typename Impl::Face &face : impl.faces )
+            face.update_normals( prev_normals.data(), vertices.data(), indices.data(), center );
+}
+
+template<class TF,int dim,class TI,class UserNodeData>
 bool RecursivePolytop<TF,dim,TI,UserNodeData>::contains( const Pt &pt ) const {
     for( const Impl &impl : impls )
         if ( impl.contains( pt ) )
             return true;
     return false;
+}
+
+template<class TF,int dim,class TI,class UserNodeData>
+bool RecursivePolytop<TF,dim,TI,UserNodeData>::all_vertices_are_used() const {
+    for( const Vertex &v : vertices )
+        v.tmp_f = 0;
+
+    for( Impl &impl : impls ) {
+        impl.for_each_vertex( [&]( const Vertex *v ) {
+            v->tmp_f = 1;
+        } );
+    }
+
+    for( const Vertex &v : vertices )
+        if ( v.tmp_f == 0 )
+            return false;
+    return true;
+}
+
+template<class TF,int dim,class TI,class UserNodeData>
+bool RecursivePolytop<TF,dim,TI,UserNodeData>::can_use_perm_pts( const Pt *pts, TI *num_in_pts, bool want_convexity ) const {
+    return ! for_each_permutation_cont<TI>( range<TI>( vertices.size() ), [&]( const std::vector<TI> &prop_num_in_pts ) {
+        //
+        std::vector<Pt> npts( vertices.size() );
+        for( TI i = 0; i < vertices.size(); ++i )
+            npts[ i ] = pts[ prop_num_in_pts[ i ] ];
+        RecursivePolytop rp = with_points( npts );
+        if ( rp.measure() <= 0 )
+            return true;
+        if ( want_convexity && ! rp.is_convex() )
+            return true;
+
+        for( TI i = 0; i < vertices.size(); ++i )
+            num_in_pts[ i ] = prop_num_in_pts[ i ];
+        return false;
+    } );
+}
+
+template<class TF,int dim,class TI,class UserNodeData>
+bool RecursivePolytop<TF,dim,TI,UserNodeData>::is_convex() const {
+    for( Impl &impl : impls ) {
+        for( typename Impl::Face &face : impl.faces ) {
+            Pt orig = face.first_vertex()->pos;
+            for( const Vertex &vertex : vertices )
+                if ( dot( vertex.pos - orig, face.normal ) > 0 )
+                    return false;
+        }
+    }
+    return true;
 }
 
 template<class TF,int dim,class TI,class UserNodeData> template<class VO>
@@ -71,8 +165,8 @@ void RecursivePolytop<TF,dim,TI,UserNodeData>::display_vtk( VO &vo ) const {
             Pt C = face.center();
             typename VO::Pt O = 0, N = 0;
             for( TI d = 0; d < std::min( int( dim ), 3 ); ++d ) {
-                O[ d ] = conv( C[ d ], S<typename VO::TF>() );
                 N[ d ] = conv( face.normal[ d ], S<typename VO::TF>() );
+                O[ d ] = conv( C[ d ], S<typename VO::TF>() );
             }
             if ( norm_2( N ) )
                 N /= norm_2( N );
@@ -301,14 +395,16 @@ TI RecursivePolytop<TF,dim,TI,UserNodeData>::num_graph( const Vertex *v ) const 
 }
 
 template<class TF,int dim,class TI,class UserNodeData>
-static TF RecursivePolytop<TF,dim,TI,UserNodeData>::measure_intersection( const Rp &a, const Rp &b ) {
+TF RecursivePolytop<TF,dim,TI,UserNodeData>::measure_intersection( const Rp &a, const Rp &b ) {
     std::deque<std::array<Rp,2>> is;
     get_intersections( is, a, b );
 
     TF res = 0;
     for( std::array<Rp,2> &p : is ) {
-
+        ASSERT( p[ 0 ].measure() == p[ 1 ].measure() );
+        res += p[ 0 ].measure();
     }
+    return res;
 }
 
 template<class TF,int dim,class TI,class UserNodeData>

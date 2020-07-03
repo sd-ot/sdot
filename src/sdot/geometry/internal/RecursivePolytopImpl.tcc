@@ -41,6 +41,65 @@ void RecursivePolytopImpl<Rp,1>::for_each_item_rec( const Fu &fu ) const {
 }
 
 template<class Rp,int nvi>
+typename Rp::TI RecursivePolytopImpl<Rp,nvi>::make_unique_vertices( const Vertex *vertices ) const {
+    TI res = 0;
+    for_each_vertex( [&]( Vertex *v ) {
+        for( TI i = 0; i < res; ++i )
+            if ( vertices[ i ].tmp_v == v )
+                return;
+        vertices[ res++ ].tmp_v = v;
+    } );
+    return res;
+}
+
+template<class Rp,int nvi>
+void RecursivePolytopImpl<Rp,nvi>::update_normals( Pt *normals, const Vertex *vertices, TI *indices, const Pt &center ) {
+    // list of unique vertices (in vertices[ . ].tmp_v)
+    TI nb_vertices = make_unique_vertices( vertices );
+    if ( nb_vertices == 0 )
+        return;
+
+    // find the "best" normal
+    TF best_score = -1;
+    Pt orig = vertices[ 0 ].tmp_v->pos;
+    for_each_comb<TI>( nvi, nb_vertices - 1, indices, [&]( TI *chosen_num_indices ) {
+        for( TI d = 0; d < nvi; ++d )
+            normals[ dim - nvi - 1 + d ] = vertices[ indices[ chosen_num_indices[ d ] ] + 1 ].tmp_v->pos - orig;
+        Pt prop = cross_prod( normals );
+        TF score = norm_2_p2( prop );
+        if ( score > best_score ) {
+            score = best_score;
+            normal = prop;
+        }
+    } );
+
+    // check orientation (works only for convex polytops)
+    if ( dot( orig - center, normal ) < 0 )
+        normal = - normal;
+
+    //
+    Pt new_center = TF( 0 );
+    for( TI i = 0; i < nb_vertices; ++i )
+        new_center += vertices[ i ].tmp_v->pos;
+    new_center /= TF( nb_vertices );
+
+    // next faces
+    normals[ dim - nvi - 1 ] = normal;
+    for( Face &face : faces )
+        face.update_normals( normals, vertices, indices, new_center );
+}
+
+template<class Rp>
+void RecursivePolytopImpl<Rp,1>::update_normals( Pt *normals, const Vertex *, TI *, const Pt &center ) {
+    normals[ dim - 2 ] = vertices[ 1 ]->pos - vertices[ 0 ]->pos;
+    normal = cross_prod( normals );
+
+    // check orientation (works only for convex polytops)
+    if ( dot( vertices[ 0 ]->pos - center, normal ) < 0 )
+        normal = - normal;
+}
+
+template<class Rp,int nvi>
 void RecursivePolytopImpl<Rp,nvi>::add_convex_hull( IntrusiveList<RecursivePolytopImpl> &res, Rp &rp, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &normal, const Pt &center ) {
     // try each possible vertex selection to make new faces
     IntrusiveList<Face> faces;
@@ -136,7 +195,7 @@ void RecursivePolytopImpl<Rp,nvi>::write_to_stream( std::ostream &os ) const {
 
 template<class Rp>
 void RecursivePolytopImpl<Rp,1>::write_to_stream( std::ostream &os ) const {
-    os << vertices[ 0 ]->num << " " << vertices[ 1 ]->num;
+    os << vertices[ 0 ]->num << " " << vertices[ 1 ]->num << " N: " << normal;
 }
 
 template<class Rp,int nvi>
@@ -314,97 +373,95 @@ void RecursivePolytopImpl<Rp,1>::plane_cut( IntrusiveList<RecursivePolytopImpl> 
     }
 }
 
+template<class Rp,int nvi> template<class F>
+void RecursivePolytopImpl<Rp,nvi>::for_each_vertex( const F &fu ) const {
+    for( const Face &face : faces )
+        face.for_each_vertex( fu );
+}
 
-//template<class Rp,int nvi>
-//void RecursivePolytopImpl<Rp,nvi>::plane_cut( BumpPointerPool &pool, IntrusiveList<Face> &new_faces, std::vector<Node *> &new_vertices, TI &date, N<1> ) {
+template<class Rp> template<class F>
+void RecursivePolytopImpl<Rp,1>::for_each_vertex( const F &fu ) const {
+    for( Vertex *v : vertices )
+        fu( v );
+}
 
-//    //
-//    //    auto set_rp = [&]( Vertex *nv0, Vertex *nv1, TI ind_new ) {
-//    //        new_rp.vertices = { pool, 2 };
-//    //        new_rp.vertices[ 0 ] = nv0;
-//    //        new_rp.vertices[ 1 ] = nv1;
-//    //        new_rp.center = TF( 1 ) / 2 * ( new_rp.vertices[ 0 ]->node.pos + new_rp.vertices[ 1 ]->node.pos );
-//    //        new_rp.normal = normal;
+template<class Rp,int nvi>
+void RecursivePolytopImpl<Rp,nvi>::with_points( IntrusiveList<RecursivePolytopImpl> &res, BumpPointerPool &pool, Vertex *new_vertices ) const {
+    RecursivePolytopImpl *impl = pool.create<RecursivePolytopImpl>();
+    res.push_front( impl );
 
-//    //        for( const Face &face : faces ) {
-//    //            Face *new_face = pool.create<Face>();
-//    //            new_rp.faces.push_front( new_face );
+    for( const Face &face : faces )
+        face.with_points( impl->faces, pool, new_vertices );
+}
 
-//    //            new_face->vertices = { pool, 1 };
-//    //            new_face->vertices[ 0 ] = new_rp.vertices[ face.vertices[ 0 ] != vertices[ 0 ] ];
-//    //            new_face->center = new_face->vertices[ 0 ]->node.pos;
-//    //            new_face->normal = face.normal;
-//    //        }
+template<class Rp>
+void RecursivePolytopImpl<Rp,1>::with_points( IntrusiveList<RecursivePolytopImpl> &res, BumpPointerPool &pool, Vertex *new_vertices ) const {
+    RecursivePolytopImpl *impl = pool.create<RecursivePolytopImpl>();
+    res.push_front( impl );
 
-//    //        if ( ind_new < 2 ) {
-//    //            Face *new_face = pool.create<Face>();
-//    //            new_faces.push_front( new_face );
+    for( TI i = 0; i < 2; ++i )
+        impl->vertices[ i ] = new_vertices + vertices[ i ]->num;
+}
 
-//    //            new_face->vertices = { pool, 1 };
-//    //            new_face->vertices[ 0 ] = new_rp.vertices[ ind_new ];
-//    //            new_face->center = new_face->vertices[ 0 ]->node.pos;
-//    //        }
-//    //    };
+template<class Rp,int nvi>
+bool RecursivePolytopImpl<Rp,nvi>::valid_vertex_prop( const std::vector<Pt> &pts ) const {
+    for( const Face &face : faces )
+        if ( ! face.valid_vertex_prop( pts ) )
+            return false;
 
-//    //    // all inside
-//    //    if ( s0 <= 0 && s1 <= 0 )
-//    //        set_rp( vertices[ 0 ]->tmp_v, vertices[ 1 ]->tmp_v, 2 );
+    //
+    TI rank = 0;
+    bool all_known = true;
+    std::array<Pt,dim> base;
+    const Vertex *f = nullptr;
+    for_each_vertex( [&]( const Vertex *a ) {
+        // we don't have the coordinates for this vertex
+        if ( a->num >= pts.size() ) {
+            all_known = false;
+            return;
+        }
 
-//    //    // only n0 inside
-//    //    if ( s0 <= 0 && s1 > 0 ) {
-//    //        TI n0 = min( vertices[ 0 ]->tmp_i[ 0 ], vertices[ 1 ]->tmp_i[ 0 ] );
-//    //        TI n1 = max( vertices[ 0 ]->tmp_i[ 0 ], vertices[ 1 ]->tmp_i[ 0 ] );
-//    //        set_rp( vertices[ 0 ]->tmp_v, new_vertices[ n1 * ( n1 - 1 ) / 2 + n0 ], 1 );
-//    //    }
+        // get the first vertex if not already done
+        if ( ! f ) {
+            f = a;
+            return;
+        }
 
-//    //    // only n1 inside
-//    //    if ( s0 > 0 && s1 <= 0 ) {
-//    //        TI n0 = min( vertices[ 0 ]->tmp_i[ 0 ], vertices[ 1 ]->tmp_i[ 0 ] );
-//    //        TI n1 = max( vertices[ 0 ]->tmp_i[ 0 ], vertices[ 1 ]->tmp_i[ 0 ] );
-//    //        set_rp( new_vertices[ n1 * ( n1 - 1 ) / 2 + n0 ], vertices[ 1 ]->tmp_v, 0 );
-//    //    }
-//}
+        // can we add the point to augment the rank ?
+        if ( rank < dim ) {
+            base[ rank ] = pts[ a->num ] - pts[ f->num ];
 
-//template<class Rp,int nvi> template<class B>
-//void RecursivePolytopImpl<Rp,nvi>::plane_cut( BumpPointerPool &pool, IntrusiveList<Face> &new_faces, std::vector<Node *> &new_vertices, TI &date, B ) {
-//    //    IntrusiveList<typename Face::Face> new_new_faces;
-//    //    faces.remove_if( [&]( Face &face ) {
-//    //        face.plane_cut( pool, new_new_faces, new_vertices, date, N<nvi-1>() );
-//    //        return face.faces.empty();
-//    //    } );
+            std::array<std::array<TF,dim>,dim> M;
+            for( TI r = 0; r < dim; ++r )
+                for( TI c = 0; c < dim; ++c )
+                    M[ r ][ c ] = TF( r == c );
+            for( TI r = 0; r <= rank; ++r )
+                for( TI c = 0; c <= rank; ++c )
+                    M[ r ][ c ] = dot( base[ r ], base[ c ] );
 
-//    //    if ( ! new_new_faces.empty() ) {
-//    //        // new face to close new_rp
-//    //        Face *new_face_i = pool.create<Face>();
-//    //        new_rp.faces.push_front( new_face_i );
+            rank += determinant( M ) != 0;
+        }
+    } );
 
-//    //        new_face_i->faces = new_new_faces;
+    if ( rank > nvi )
+        return false;
 
-//    //        TI tmp_date = date;
-//    //        new_face_i->make_vertices_from_face( pool, tmp_date );
-//    //        for( Vertex *v : new_face_i->vertices )
-//    //            v->date = date;
+    if ( all_known && rank < nvi )
+        return false;
 
-//    //        // new face to close new_rp
-//    //        if ( int( nvi ) < dim ) {
-//    //            Face *new_face_o = pool.create<Face>();
-//    //            new_faces.push_front( new_face_o );
+    // OK
+    return true;
+}
 
-//    //            new_face_o->faces = new_new_faces;
+template<class Rp>
+bool RecursivePolytopImpl<Rp,1>::valid_vertex_prop( const std::vector<Pt> &pts ) const {
+    // same point
+    if ( vertices[ 0 ]->num < pts.size() && vertices[ 1 ]->num < pts.size() && pts[ vertices[ 0 ]->num ] == pts[ vertices[ 1 ]->num ] )
+        return false;
 
-//    //            TI tmp_date = date;
-//    //            new_face_o->make_vertices_from_face( pool, tmp_date );
-//    //            for( Vertex *v : new_face_o->vertices )
-//    //                v->date = date;
-//    //        }
-//    //    }
-
-//    //    // update vertices for new_rp
-//    //    TI tmp_date = date;
-//    //    new_rp.make_vertices_from_face( pool, tmp_date );
-//    //    for( Vertex *v : new_rp.vertices )
-//    //        v->date = date;
-//}
+    //
+    return true;
+}
 
 template<class Rp,int nvi>
 typename Rp::TF RecursivePolytopImpl<Rp,nvi>::measure( std::array<Pt,dim> &dirs, const Pt &prev_pt ) const {

@@ -1,4 +1,4 @@
-NSMAKE = nsmake -g3 -O3 --cpp-flag "-std=c++17"# --exec-with valgrind --cxx clang++ 
+NSMAKE = time nsmake -g3 -O3 --cpp-flag "-std=c++17"# --exec-with valgrind --cxx clang++ 
 # Dg676-yu
 
 all:
@@ -8,8 +8,8 @@ all:
 	# ${NSMAKE} tests/test_StructOfArrays.cpp
 	# ${NSMAKE} run tests/bench_ConvexPolytopSet.cpp
 	# ${NSMAKE} run tests/test_IntrusiveList.cpp
-	${NSMAKE} run tests/test_RecursivePolytop.cpp
-	# ${NSMAKE} run src/sdot/geometry/internal/codegen/gen_cuts.cpp
+	# ${NSMAKE} run tests/test_RecursivePolytop.cpp
+	${NSMAKE} run src/sdot/geometry/internal/codegen/gen_cuts.cpp
 
 gen:
 	${NSMAKE} run src/sdot/ConvexPolytop/internal/generation/gen_cuts.cpp
@@ -18,7 +18,7 @@ bench:
 	${NSMAKE} run tests/bench_ConvexPolytopSet.cpp
 
 bld:
-	${NSMAKE} exe tests/bench_ConvexPolytopSet.cpp
+	${NSMAKE} exe src/sdot/geometry/internal/codegen/gen_cuts.cpp
 
 tst:
 	${NSMAKE} run tests/test_ConvexPolytopSet.cpp

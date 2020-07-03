@@ -60,39 +60,6 @@ void test_2D() {
     //    P( nrp.contains( Pt{ 2, 2, 2 } ) );
 }
 
-void test_2D_intersection() {
-    using Rp = RecursivePolytop<TF,2>;
-    using Pt = Rp::Pt;
-    using TF = Rp::TF;
-
-    //    std::vector<Pt> pts;
-    //    for( TI i = 0, n = 5; i < n; ++i ) {
-    //        double a = 2 * M_PI * i / n;
-    //        pts.push_back( { int( 100 * cos( a ) ), int( 100 * sin( a ) ) } );
-    //    }
-
-    //    Rp rp( pts );
-    //    rp.make_convex_hull();
-    //    rp.vertex( 0 ).pos[ 0 ] = -10;
-
-    Rp ra( { { 1, 1 }, { 10, 1 }, { 1, 10 } } );
-    ra.make_convex_hull();
-
-    Rp rb( { { 9, 0 }, { 0, 9 }, { 9, 9 } } );
-    rb.make_convex_hull();
-
-    std::deque<std::array<Rp,2>> volumes;
-    Rp::get_intersections( volumes, ra, rb );
-    P( volumes.size() );
-    P( volumes );
-
-    VtkOutput vo;
-    for( const std::array<Rp,2> &v : volumes )
-        for( TI i = 0; i < 2; ++i )
-            v[ i ].display_vtk( vo );
-    vo.save( "out.vtk" );
-}
-
 void test_3D() {
     //    using Rp = RecursivePolytop<TF,3>;
     //    using Pt = Rp::Pt;
@@ -186,6 +153,41 @@ void test_4D() {
 
     //    //    P( rp.contains( Pt{ 2, 2, 2 } ) );
     //    //    P( nrp.contains( Pt{ 2, 2, 2 } ) );
+}
+
+void test_2D_intersection() {
+    using Rp = RecursivePolytop<TF,2>;
+    using Pt = Rp::Pt;
+    using TF = Rp::TF;
+
+    //    std::vector<Pt> pts;
+    //    for( TI i = 0, n = 5; i < n; ++i ) {
+    //        double a = 2 * M_PI * i / n;
+    //        pts.push_back( { int( 100 * cos( a ) ), int( 100 * sin( a ) ) } );
+    //    }
+
+    //    Rp rp( pts );
+    //    rp.make_convex_hull();
+    //    rp.vertex( 0 ).pos[ 0 ] = -10;
+
+    Rp ra( { { 1, 1 }, { 10, 1 }, { 1, 10 } } );
+    ra.make_convex_hull();
+
+    Rp rb( { { 9, 0 }, { 0, 9 }, { 9, 9 } } );
+    rb.make_convex_hull();
+
+    std::deque<std::array<Rp,2>> volumes;
+    Rp::get_intersections( volumes, ra, rb );
+    P( volumes.size() );
+    P( volumes );
+
+    P( Rp::measure_intersection( ra, rb ) );
+
+    VtkOutput vo;
+    for( const std::array<Rp,2> &v : volumes )
+        for( TI i = 0; i < 2; ++i )
+            v[ i ].display_vtk( vo );
+    vo.save( "out.vtk" );
 }
 
 int main() {
