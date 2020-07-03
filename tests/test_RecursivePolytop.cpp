@@ -40,26 +40,57 @@ void test_2D() {
     //    rp.make_convex_hull();
     //    rp.vertex( 0 ).pos[ 0 ] = -10;
 
-    std::vector<Pt> pts;
-    pts.push_back( {  0,  0 } );
-    pts.push_back( { 10,  0 } );
-    pts.push_back( {  0, 10 } );
-
-    Rp rp( pts );
+    Rp rp( { { 0, 0 }, { 10, 0 }, { 0, 10 } } );
     rp.make_convex_hull();
 
     P( rp.measure() );
-    P( rp.contains( Pt{ 2, 2 } ) );
-    P( rp.contains( Pt{ 200, 0 } ) );
+    //    P( rp.contains( Pt{ 2, 2 } ) );
+    //    P( rp.contains( Pt{ 200, 0 } ) );
 
-    //    Rp np = rp.plane_cut( Pt{ 0, 0 }, Pt{ 1, 0 } );
-    //    P( np );
+    Rp np = rp.plane_cut( Pt{ 1, 0 }, Pt{ 1, 0 } );
+    P( np );
+    P( np.measure() );
 
-    //    VtkOutput vo;
-    //    np.display_vtk( vo );
-    //    vo.save( "out.vtk" );
+    rp.make_convex_hull();
+
+    VtkOutput vo;
+    np.display_vtk( vo );
+    vo.save( "out.vtk" );
 
     //    P( nrp.contains( Pt{ 2, 2, 2 } ) );
+}
+
+void test_2D_intersection() {
+    using Rp = RecursivePolytop<TF,2>;
+    using Pt = Rp::Pt;
+    using TF = Rp::TF;
+
+    //    std::vector<Pt> pts;
+    //    for( TI i = 0, n = 5; i < n; ++i ) {
+    //        double a = 2 * M_PI * i / n;
+    //        pts.push_back( { int( 100 * cos( a ) ), int( 100 * sin( a ) ) } );
+    //    }
+
+    //    Rp rp( pts );
+    //    rp.make_convex_hull();
+    //    rp.vertex( 0 ).pos[ 0 ] = -10;
+
+    Rp ra( { { 1, 1 }, { 10, 1 }, { 1, 10 } } );
+    ra.make_convex_hull();
+
+    Rp rb( { { 9, 0 }, { 0, 9 }, { 9, 9 } } );
+    rb.make_convex_hull();
+
+    std::deque<std::array<Rp,2>> volumes;
+    Rp::get_intersections( volumes, ra, rb );
+    P( volumes.size() );
+    P( volumes );
+
+    VtkOutput vo;
+    for( const std::array<Rp,2> &v : volumes )
+        for( TI i = 0; i < 2; ++i )
+            v[ i ].display_vtk( vo );
+    vo.save( "out.vtk" );
 }
 
 void test_3D() {
@@ -158,8 +189,9 @@ void test_4D() {
 }
 
 int main() {
-    test_1D();
-    test_2D();
-    test_3D();
-    test_4D();
+    //    test_1D();
+    //    test_2D();
+    //    test_3D();
+    //    test_4D();
+    test_2D_intersection();
 }

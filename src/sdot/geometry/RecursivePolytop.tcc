@@ -300,6 +300,55 @@ TI RecursivePolytop<TF,dim,TI,UserNodeData>::num_graph( const Vertex *v ) const 
     return date - v->date;
 }
 
+template<class TF,int dim,class TI,class UserNodeData>
+static TF RecursivePolytop<TF,dim,TI,UserNodeData>::measure_intersection( const Rp &a, const Rp &b ) {
+    std::deque<std::array<Rp,2>> is;
+    get_intersections( is, a, b );
+
+    TF res = 0;
+    for( std::array<Rp,2> &p : is ) {
+
+    }
+}
+
+template<class TF,int dim,class TI,class UserNodeData>
+void RecursivePolytop<TF,dim,TI,UserNodeData>::get_intersections( std::deque<std::array<Rp,2>> &res, const Rp &a, const Rp &b ) {
+    bool first_time = true;
+    auto for_each_prev_cuts = [&]( auto f ) {
+        if ( first_time ) {
+            first_time = false;
+            f( a, b );
+            return;
+        }
+        for( const std::array<Rp,2> &p : res )
+            f( p[ 0 ], p[ 1 ] );
+    };
+    //
+    for( const Rp *cutter : { &a, &b } ) {
+        for( const Impl &impl : cutter->impls ) {
+            for( const typename Impl::Face &face : impl.faces ) {
+                std::deque<std::array<Rp,2>> tmp;
+                for_each_prev_cuts( [&]( const Rp &a, const Rp &b ) {
+                    for( Pt normal : { face.normal, - face.normal } ) {
+                        Rp ca = a.plane_cut( face.first_vertex()->pos, normal );
+                        if ( ca.measure() == 0 )
+                            break;
+                        Rp cb = b.plane_cut( face.first_vertex()->pos, normal );
+                        if ( cb.measure() == 0 )
+                            break;
+
+                        tmp.push_back( {
+                            std::move( ca ),
+                            std::move( cb )
+                        } );
+                    }
+                } );
+                std::swap( tmp, res );
+            }
+        }
+    }
+}
+
 //template<class TF,int nvi,int dim,class TI,class NodeData> template<class Nd>
 //bool RecursivePolytop<TF,nvi,dim,TI,NodeData>::valid_node_prop( const std::vector<Nd> &prop, std::vector<Pt> prev_centers, bool prev_centers_are_valid ) const {
 //    // available_points

@@ -3,6 +3,7 @@
 
 #include "internal/RecursivePolytopVertex.h"
 #include "internal/RecursivePolytopImpl.h"
+#include <deque>
 
 /**
 
@@ -16,6 +17,7 @@ public:
     using                         TF                  = TF_;
     using                         TI                  = TI_;
     using                         Pt                  = Point<TF,dim>;
+    using                         Rp                  = RecursivePolytop;
 
     /**/                          RecursivePolytop    ( std::initializer_list<Pt> pts );
     /**/                          RecursivePolytop    ( const std::vector<Pt> &pts );
@@ -31,6 +33,9 @@ public:
     RecursivePolytop              plane_cut           ( Pt orig, Pt normal, const std::function<UserData(const UserData &,const UserData &,TF,TF)> &nf = {} ) const;
     bool                          contains            ( const Pt &pt ) const;
     TF                            measure             () const;
+
+    static TF                     measure_intersection( const Rp &a, const Rp &b ); ///< intersect this with the faces of that
+    static void                   get_intersections   ( std::deque<std::array<Rp,2>> &res, const Rp &a, const Rp &b ); ///< intersect this with the faces of that
 
 private:
     template<class R,int n>       friend              struct RecursivePolytopImpl;
