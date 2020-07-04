@@ -1,4 +1,5 @@
 #include "../../../support/P.h"
+#include "GenCutCaseWriter.h"
 #include "GenCuts.h"
 #include <algorithm>
 
@@ -240,18 +241,29 @@ void GenCuts<dim>::write_code_for_cases() {
 
     // creation of new elements for each case
     os << "\n";
-    //    for( TI num_case = 0; num_case < comb_for_cases.size(); ++num_case )
-    //        write_case( os, num_case );
+    for( TI num_case = 0; num_case < comb_for_cases.size(); ++num_case )
+        write_case( os, num_case );
     os << "    continue;\n";
     os << "}\n";
+}
 
 
-    //    for( TI n = 0; n < comb_for_cases.size(); ++n ) {
-    //        std::cout << n;
-    //        for( Part *p : comb_for_cases[ n ].parts )
-    //            std::cout << "\n  " << p->cut_nodes;
-    //        std::cout << "\n";
-    //    }
+template<int dim>
+void GenCuts<dim>::write_case( std::ostream &os, TI num_case ) {
+    Comb &comb = comb_for_cases[ num_case ];
+
+    GenCutCaseWriter gw;
+    for( Part *part : comb.parts ) {
+        GenCutCaseWriter::Output output;
+        for( const CutNode &cn : part->cut_nodes )
+            output.inds.push_back( cn.inds );
+
+        GenCutCaseWriter::ByOutputShape &bos = gw.by_output_shape( part->ref_shape->name );
+        bos.outputs.push_back( output );
+    }
+
+    gw.optimize();
+    gw.write_to( os, num_case );
 }
 
 template<int dim>

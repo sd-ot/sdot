@@ -33,7 +33,7 @@ struct GenCuts {
 // private:
     struct               Comb                      { std::vector<Part *> parts; TF measure; std::pair<TF,TF> score() const { return { measure, - TF( parts.size() ) }; } };
     using                CombMap                   = std::map<std::set<std::array<TI,2>>,Comb>;
-    void                 make_best_combs_from_parts( const std::vector<TI> &part_inds, const std::vector<TI> &compatible_parts, TF measure );
+    void                 write_case                ( std::ostream &os, TI num_case );
 
     GlobalGenCutData&    global_cut_data;
     std::deque<Shape>    ref_shapes;
