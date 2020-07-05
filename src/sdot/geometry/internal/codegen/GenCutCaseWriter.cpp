@@ -17,11 +17,12 @@ GenCutCaseWriter::ByOutputShape &GenCutCaseWriter::by_output_shape( std::string 
 }
 
 void GenCutCaseWriter::write_func_name( std::ostream &os, const ByOutputShape &bos, TI n ) const {
-    os << ( n ? "__" : "_" ) << n;
-    for( const Output &output : bos.outputs )
+    for( const Output &output : bos.outputs ) {
+        os << "__" << n;
         for( const std::array<TI,2> inds : output.inds )
-             for( TI i = 0; i < 2; ++i )
+            for( TI i = 0; i < 2; ++i )
                 os << "_" << src_map.find( inds[ i ] )->second;
+    }
 }
 
 void GenCutCaseWriter::write_func_name( std::ostream &os ) const {
@@ -102,8 +103,40 @@ void GenCutCaseWriter::optimize_src_map() {
 }
 
 void GenCutCaseWriter::optimize( ByOutputShape &bos ) {
+    // for each choice of first output
+    ByOutputShape best = bos;
+    for( TI first_choice = 0; first_choice < bos.outputs.size(); ++first_choice ) {
+        ByOutputShape wr = bos;
+        std::swap( wr.outputs[ 0 ], wr.outputs[ first_choice ] );
 
+        // udpate wr.num_dst_vertex based on this first choice
+        std::sort( wr.num_dst_vertex.begin(), wr.num_dst_vertex.end(), [&]( TI a, TI b ) {
+            return wr.outputs[ 0 ].inds[ a ] < wr.outputs[ 0 ].inds[ b ];
+        } );
+
+        // sort outputs with the updated wr.num_dst_vertex
+        std::sort( wr.outputs.begin(), wr.outputs.end(), [&]( const Output &a, const Output &b ) {
+            std::array<const Output *,2> o{ &a, &b };
+            std::vector<std::array<TI,2>> ind_list[ 2 ];
+            for( TI i = 0; i < 2; ++i )
+                for( TI num_dst : wr.num_dst_vertex )
+                    ind_list[ i ].push_back( o[ i ]->inds[ num_dst ] );
+            return ind_list[ 0 ] < ind_list[ 1 ];
+        } );
+
+        //
+        std::ostringstream swr, sbest;
+        write_func_name( sbest, best, 0 );
+        write_func_name( swr, wr, 0 );
+
+        //
+        if ( swr.str() < sbest.str() )
+            best = wr;
+    }
+    bos = best;
 }
+
+
 
 
 
