@@ -258,7 +258,7 @@ void GenCuts<dim>::write_case( std::ostream &os, TI num_case ) {
         for( const CutNode &cn : part->cut_nodes )
             output.inds.push_back( cn.inds );
 
-        GenCutCaseWriter::ByOutputShape &bos = gw.by_output_shape( part->ref_shape->name );
+        GenCutCaseWriter::ByOutputShape &bos = gw.by_output_shape( part->ref_shape->name, part->ref_shape->rp.nb_vertices() );
         bos.outputs.push_back( output );
     }
 
