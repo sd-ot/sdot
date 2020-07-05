@@ -8,7 +8,7 @@
 class GenCutCaseWriter {
 public:
     using                      TI              = std::size_t;
-    struct                     Output          { std::vector<std::array<TI,2>> inds; };
+    struct                     Output          { std::vector<std::array<TI,3>> inds; /* [ num_src_0, num_src_1, num_dst ] */ };
     struct                     ByOutputShape   { std::string shape_name; std::vector<Output> outputs; std::vector<TI> num_dst_vertex; };
 
     /**/                       GenCutCaseWriter();
