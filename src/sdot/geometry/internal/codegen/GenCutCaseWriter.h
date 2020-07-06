@@ -18,6 +18,8 @@ public:
 
     void                       add_output      ( std::string shape_name, std::vector<Node> nodes );
     void                       optimize        ();
+
+    std::string                func_name       () const;
     void                       write           ( std::ostream &os, TI num_case );
 
 private:
@@ -43,7 +45,6 @@ private:
 
     ByOutputShape&             by_output_shape ( std::string shape_name, TI nb_nodes );
     std::string                func_args       ( TI num_case ) const;
-    std::string                func_name       () const;
     //    void                       write_func_name ( std::ostream &os, const ByOutputShape &bos, TI n ) const;
     //    void                       write_func_name ( std::ostream &os ) const;
     //    void                       write_func_args ( std::ostream &os, TI num_case ) const;

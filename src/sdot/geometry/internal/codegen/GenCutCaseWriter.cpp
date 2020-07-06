@@ -133,13 +133,10 @@ std::string GenCutCaseWriter::ByOutputShape::func_name( TI num_output_shape ) co
 }
 
 std::string GenCutCaseWriter::ByOutputShape::func_args() const {
-    std::string res;
-    for( TI _ = 0; _ < outputs.size(); ++_ ) {
-        res += ", shape_list( tmp_shape_map, \"" + shape_name + "\" ), { ";
-        for( TI i = 0; i < num_dst_vertex.size(); ++i )
-            res += ( i ? ", " : "" ) + std::to_string( num_dst_vertex[ i ] );
-        res += " }";
-    }
+    std::string res = ", shape_list( tmp_shape_map, \"" + shape_name + "\" ), { ";
+    for( TI i = 0; i < num_dst_vertex.size(); ++i )
+        res += ( i ? ", " : "" ) + std::to_string( num_dst_vertex[ i ] );
+    res += " }";
     return res;
 }
 

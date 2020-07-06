@@ -4,6 +4,7 @@ template<int dim>
 void make_cuts( GlobalGenCutData &gcd, int max_nb_point_circle = 4 ) {
     GenCuts<dim> gc( gcd );
 
+    // base shape
     if ( dim == 1 ) {
         gc.add_ref_shape( "" );
     } else {
@@ -22,14 +23,12 @@ void make_cuts( GlobalGenCutData &gcd, int max_nb_point_circle = 4 ) {
 
     gc.setup_cut_nodes_for( gc.ref_shapes[ 0 ] );
     gc.setup_parts_from_cut_nodes();
-    // gc.display_parts();
     P( gc.parts.size() );
-
     gc.make_best_combs_from_parts();
-    // gc.display_best_combs();
-
     gc.makes_comb_for_cases();
     gc.write_code_for_cases();
+
+    gc.write_cut_op_funcs();
 }
 
 /*

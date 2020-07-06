@@ -1,5 +1,6 @@
 #include "../../../support/P.h"
 #include "GenCutCaseWriter.h"
+#include "GenSetVecOps.h"
 #include "GenCuts.h"
 #include <algorithm>
 
@@ -264,6 +265,21 @@ void GenCuts<dim>::write_case( std::ostream &os, TI num_case ) {
 
     gw.optimize();
     gw.write( os, num_case );
+
+    //
+    cut_op_names.insert( gw.func_name() );
+}
+
+template<int dim>
+void GenCuts<dim>::write_cut_op_funcs() {
+    std::ostream &os = std::cout;
+    os << "template<class TF,class TI,class Arch,class Pos,class Id>\n";
+    os << "struct RecursivePolyhedronCutVecOp_" << dim << " {\n";
+    for( std::string str : cut_op_names ) {
+        GenSetVecOps gs( str, dim );
+        gs.write( os );
+    }
+    os << "};\n";
 }
 
 template<int dim>
