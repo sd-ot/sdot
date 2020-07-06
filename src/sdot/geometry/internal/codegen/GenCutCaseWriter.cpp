@@ -19,9 +19,9 @@ GenCutCaseWriter::ByOutputShape &GenCutCaseWriter::by_output_shape( std::string 
 void GenCutCaseWriter::write_func_name( std::ostream &os, const ByOutputShape &bos, TI n ) const {
     for( const Output &output : bos.outputs ) {
         os << "__" << n;
-        for( const std::array<TI,2> inds : output.inds )
+        for( TI num_ind : bos.num_dst_vertex )
             for( TI i = 0; i < 2; ++i )
-                os << "_" << src_map.find( inds[ i ] )->second;
+                os << "_" << src_map.find( output.inds[ num_ind ][ i ] )->second;
     }
 }
 
@@ -111,16 +111,30 @@ void GenCutCaseWriter::optimize( ByOutputShape &bos ) {
 
         // udpate wr.num_dst_vertex based on this first choice
         std::sort( wr.num_dst_vertex.begin(), wr.num_dst_vertex.end(), [&]( TI a, TI b ) {
-            return wr.outputs[ 0 ].inds[ a ] < wr.outputs[ 0 ].inds[ b ];
+            std::array<TI,2> sa{
+                src_map.find( wr.outputs[ 0 ].inds[ a ][ 0 ] )->second,
+                src_map.find( wr.outputs[ 0 ].inds[ a ][ 1 ] )->second
+            };
+            std::array<TI,2> sb{
+                src_map.find( wr.outputs[ 0 ].inds[ b ][ 0 ] )->second,
+                src_map.find( wr.outputs[ 0 ].inds[ b ][ 1 ] )->second
+            };
+            return sa < sb;
         } );
 
         // sort outputs with the updated wr.num_dst_vertex
         std::sort( wr.outputs.begin(), wr.outputs.end(), [&]( const Output &a, const Output &b ) {
-            std::array<const Output *,2> o{ &a, &b };
             std::vector<std::array<TI,2>> ind_list[ 2 ];
-            for( TI i = 0; i < 2; ++i )
-                for( TI num_dst : wr.num_dst_vertex )
-                    ind_list[ i ].push_back( o[ i ]->inds[ num_dst ] );
+            const Output *o[] = { &a, &b };
+            for( TI i = 0; i < 2; ++i ) {
+                for( TI num_dst : wr.num_dst_vertex ) {
+                    ind_list[ i ].push_back( {
+                         o[ i ]->inds[ num_dst ][ 0 ],
+                         o[ i ]->inds[ num_dst ][ 1 ]
+
+                    } );
+                }
+            }
             return ind_list[ 0 ] < ind_list[ 1 ];
         } );
 
