@@ -26,9 +26,9 @@ struct GenCuts {
     void                 makes_comb_for_cases      ();
     void                 write_code_for_cases      ();
 
+    void                 display_best_combs        () const;
     void                 display_ref_shape         () const;
     void                 display_parts             () const;
-    void                 display_best_combs        () const;
 
 // private:
     struct               Comb                      { std::vector<Part *> parts; TF measure; std::pair<TF,TF> score() const { return { measure, - TF( parts.size() ) }; } };

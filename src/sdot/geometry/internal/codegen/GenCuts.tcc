@@ -251,19 +251,19 @@ void GenCuts<dim>::write_code_for_cases() {
 template<int dim>
 void GenCuts<dim>::write_case( std::ostream &os, TI num_case ) {
     Comb &comb = comb_for_cases[ num_case ];
+    if ( comb.parts.empty() )
+        return;
 
     GenCutCaseWriter gw;
     for( Part *part : comb.parts ) {
-        GenCutCaseWriter::Output output;
+        std::vector<std::array<TI,2>> nodes;
         for( const CutNode &cn : part->cut_nodes )
-            output.inds.push_back( cn.inds );
-
-        GenCutCaseWriter::ByOutputShape &bos = gw.by_output_shape( part->ref_shape->name, part->ref_shape->rp.nb_vertices() );
-        bos.outputs.push_back( output );
+            nodes.push_back( cn.inds );
+        gw.add_output( part->ref_shape->name, nodes );
     }
 
     gw.optimize();
-    gw.write_to( os, num_case );
+    gw.write( os, num_case );
 }
 
 template<int dim>
