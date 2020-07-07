@@ -132,7 +132,25 @@ Dans for_each_laguerre_cell, on veut récupérer la cellule de Laguerre, la pos,
 
 
 
+nb_cut_case = [ nb_pour_cas_0, nb_pour_cas_1, ...pour chaque cas de coupe ] qui démarre à 0
+  À chaque test, on récupère nc = [ num_cas_item_0, num_cas_item_1, ... ]
+  S'il n'y a pas de collision, 
+    VI ncc = VI::gather( nb_cut_case.data, nc ); // [ nb_cut_case_pour_item_0, ... ]
+    VI::scatter( sc[ CutCase() ][ i ].data, ncc ); // on stocke les index
+    ncc += 1; // on ajoute 1
+    VI::scatter( nb_cut_case.data, nc, ncc ); // on met à jour la taille de chaque list
 
+Prop: la liste d'indices pour chaque cas est une liste contigue, avec une séparation en puissance de 2 entre chaque sous-liste. On stocke un nombre d'indices pour chaque cas
+    VI nbi = VI::gather( nb_indices_for_each_case.data, nc );
+    VI::scatter( liste_d'indices.data, ( nc << taille_nb_elems ) + nbi ); // on stocke les index
+    VI::scatter( nb_indices_for_each_case.data, nc, nbi + 1 );
+
+Pour gérer les collisions. Exemple avec nc = [ 4, 2, 4, 1 ] (4 apparaît 2 foix)
+    VI nbi = VI::gather( nb_indices_for_each_case.data, nc ); // -> [ nb_inds_cas_4, nb_inds_cas_2, nb_inds_cas_4, nb_inds_cas_1 ]
+    nbi += nb_cas_similaires_au_cas_courant_dans_le_batch.
+    VI::scatter( liste_d'indices.data, ( nc << taille_nb_elems ) + nbi ); // on stocke les index
+    // -> prendre le max de chaque cas dans nbi + 1
+    VI::scatter( nb_indices_for_each_case.data, nc, nbi );
 
 
 

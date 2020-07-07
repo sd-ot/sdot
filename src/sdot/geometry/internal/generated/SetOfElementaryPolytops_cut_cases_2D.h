@@ -1,14 +1,14 @@
 if ( dim == 2 && name == "3" ) {
     make_sp_and_cases( dirs, sps, sc, N<3>(), { { "3", { 1, 0, 0, 1, 0, 1, 1, 0 } }, { "4", { 0, 1, 1, 0, 1, 0, 0, 0 } } } );
 
-    using RVO = RecursivePolyhedronCutVecOp_2<TF,TI,Arch,Pos,Id>;
-    RVO::cut_l0_0_0_1_1_2_2( beg_cut_cases[ 0 ], nb_cut_cases[ 0 ], shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
-    RVO::cut_l0_0_0_1_1_1_2_0_2( beg_cut_cases[ 1 ], nb_cut_cases[ 1 ], shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 1, 2, 0 } );
-    RVO::cut_l0_0_0_0_1_1_2_2_2( beg_cut_cases[ 2 ], nb_cut_cases[ 2 ], shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
-    RVO::cut_l0_0_0_0_1_0_2( beg_cut_cases[ 3 ], nb_cut_cases[ 3 ], shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 2, 0, 1 } );
-    RVO::cut_l0_0_0_1_1_1_2_0_2( beg_cut_cases[ 4 ], nb_cut_cases[ 4 ], shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
-    RVO::cut_l0_0_0_0_1_0_2( beg_cut_cases[ 5 ], nb_cut_cases[ 5 ], shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 1, 2, 0 } );
-    RVO::cut_l0_0_0_0_1_0_2( beg_cut_cases[ 6 ], nb_cut_cases[ 6 ], shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
+//    using RVO = RecursivePolyhedronCutVecOp_2<TF,TI,Arch,Pos,Id>;
+//    RVO::cut_l0_0_0_1_1_2_2( beg_cut_cases[ 0 ], nb_cut_cases[ 0 ], shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
+//    RVO::cut_l0_0_0_1_1_1_2_0_2( beg_cut_cases[ 1 ], nb_cut_cases[ 1 ], shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 1, 2, 0 } );
+//    RVO::cut_l0_0_0_0_1_1_2_2_2( beg_cut_cases[ 2 ], nb_cut_cases[ 2 ], shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
+//    RVO::cut_l0_0_0_0_1_0_2( beg_cut_cases[ 3 ], nb_cut_cases[ 3 ], shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 2, 0, 1 } );
+//    RVO::cut_l0_0_0_1_1_1_2_0_2( beg_cut_cases[ 4 ], nb_cut_cases[ 4 ], shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
+//    RVO::cut_l0_0_0_0_1_0_2( beg_cut_cases[ 5 ], nb_cut_cases[ 5 ], shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 1, 2, 0 } );
+//    RVO::cut_l0_0_0_0_1_0_2( beg_cut_cases[ 6 ], nb_cut_cases[ 6 ], shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
     continue;
 }
 if ( dim == 2 && name == "4" ) {
