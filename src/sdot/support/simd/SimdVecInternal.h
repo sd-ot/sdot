@@ -295,6 +295,12 @@ void scatter( G *ptr, const V &ind, const Impl<T,1,Arch> &vec ) {
     ptr[ ind.data.values[ 0 ] ] = vec.data.values[ 0 ];
 }
 
+#define SIMD_VEC_IMPL_REG_SCATTER( COND, T, I, SIZE, FUNC ) \
+    template<class Arch> \
+    typename std::enable_if<COND>::type scatter( T *data, const Impl<I,SIZE,Arch> &ind, const Impl<T,SIZE,Arch> &vec ) { \
+        ; FUNC; \
+    }
+
 
 template<class G,class V,class T,int size,class Arch>
 Impl<T,size,Arch> gather( const G *data, const V &ind, S<Impl<T,size,Arch>> ) {

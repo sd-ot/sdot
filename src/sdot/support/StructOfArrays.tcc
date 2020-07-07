@@ -9,7 +9,11 @@ StructOfArrays<Attributes,Arch,TI>::StructOfArrays( const std::vector<TI> &vecto
 
     for_each_ptr( [&]( auto *&t, auto s ) {
         using T = typename decltype( s )::T;
-        t = AlignedAllocator::allocate<T,SimdAlig<T,Arch>::value>( rese );
+        if ( rese ) {
+            t = AlignedAllocator<T,Arch>::allocate( rese );
+            for( TI i = 0; i < rese; ++i )
+                new ( t + i ) T;
+        }
     } );
 }
 
@@ -23,8 +27,14 @@ StructOfArrays<Attributes,Arch,TI>::StructOfArrays( StructOfArrays &&that ) : da
 
 template<class Attributes,class Arch,class TI>
 StructOfArrays<Attributes,Arch,TI>::~StructOfArrays() {
-    for_each_ptr( [&]( auto *&t, auto ) {
-        AlignedAllocator::free( t, rese );
+    for_each_ptr( [&]( auto *t, auto s ) {
+        using T = typename decltype( s )::T;
+        if ( rese ) {
+            if ( ! std::is_trivially_destructible<T>::value )
+                while ( rese-- )
+                    t[ rese ].~T();
+            AlignedAllocator<T,Arch>::deallocate( t, rese );
+        }
     } );
 }
 
@@ -41,11 +51,11 @@ void StructOfArrays<Attributes,Arch,TI>::clear() {
 template<class Attributes,class Arch,class TI>
 void StructOfArrays<Attributes,Arch,TI>::reserve( TI new_rese, TI old_size ) {
     // nothing to do ?
-    TI old_rese = rese;
     if ( rese >= new_rese )
         return;
 
     // find the reservation size
+    TI old_rese = rese;
     rese += rese == 0;
     while ( rese < new_rese )
         rese *= 2;
@@ -53,7 +63,21 @@ void StructOfArrays<Attributes,Arch,TI>::reserve( TI new_rese, TI old_size ) {
     // realloc
     for_each_ptr( [&]( auto *&t, auto s ) {
         using T = typename decltype( s )::T;
-        AlignedAllocator::reallocate<T,SimdAlig<T,Arch>::value>( t, old_size, old_rese, rese );
+
+        T *old_t = t;
+        t = AlignedAllocator<T,Arch>::allocate( rese );
+
+        for( TI i = 0; i < old_size; ++i )
+            new ( t + i ) T( std::move( old_t[ i ] ) );
+        for( TI i = old_size; i < new_rese; ++i )
+            new ( t + i ) T;
+
+        if ( old_rese ) {
+            if ( ! std::is_trivially_destructible<T>::value )
+                while ( old_rese-- )
+                    old_t[ old_rese ].~T();
+            std::free( old_t );
+        }
     } );
 }
 

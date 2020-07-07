@@ -19,7 +19,7 @@ int main() {
     using TF = Cp::TF;
     using Pt = Cp::Pt;
 
-    TI nb_polytops = 1 << 12;
+    TI nb_polytops = 1 << 16;
 
     std::vector<TF> dxs( nb_polytops ), dys( nb_polytops ), sps( nb_polytops );
     for( TI i = 0; i < nb_polytops; ++i ) {
@@ -32,7 +32,7 @@ int main() {
 
     Cp cp;
     std::uint64_t best_time = std::numeric_limits<std::uint64_t>::max();
-    for( TI trial = 0; trial < 50000; ++trial ) {
+    for( TI trial = 0; trial < 5000; ++trial ) {
         cp.clear();
         cp.add_shape( "3", { Pt{ 0, 0 }, Pt{ 1, 0 }, Pt{ 0, 1 } }, 0, nb_polytops );
 

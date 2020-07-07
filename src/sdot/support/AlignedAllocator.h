@@ -1,40 +1,33 @@
 #pragma once
 
-#include <type_traits>
+#include "simd/SimdVec.h"
+//#include <type_traits>
 #include <utility>
 #include <cstdlib>
 
+template<class T,class Arch>
 struct AlignedAllocator {
-    template<class T,std::size_t alig=1>
-    static T *allocate( std::size_t rese ) {
-        return new ( aligned_alloc( alignof( T ) * alig, sizeof( T ) * rese ) ) T[ rese ];
-    }
+    using                    value_type      = T                ;
+    using                    pointer         = value_type*      ;
+    using                    const_pointer   = const value_type*;
+    using                    reference       = value_type&      ;
+    using                    const_reference = const value_type&;
+    using                    size_type       = std::size_t      ;
+    using                    difference_type = std::ptrdiff_t   ;
+    template<class U> struct rebind          { using other = AlignedAllocator<U,Arch>; };
 
-    template<class T>
-    static void free( T *ptr, std::size_t rese ) {
-        if ( rese ) {
-            if ( ! std::is_trivially_destructible<T>::value )
-                while ( rese-- )
-                    ptr[ rese ].~T();
-            std::free( ptr );
-        }
-    }
+    /**/                     AlignedAllocator() {}
+    /**/                    ~AlignedAllocator() {}
 
-    template<class T,std::size_t alig=1>
-    static void reallocate( T *&ptr, std::size_t size, std::size_t rese, std::size_t new_rese ) {
-        T *res = reinterpret_cast<T *>( aligned_alloc( alignof( T ) * alig, sizeof( T ) * new_rese ) );
-        for( std::size_t i = 0; i < size; ++i )
-            new ( res + i ) T( std::move( ptr[ i ] ) );
-        for( std::size_t i = size; i < new_rese; ++i )
-            new ( res + i ) T;
+    template<class T2>       AlignedAllocator( const AlignedAllocator<T2,Arch> & ) {}
 
-        if ( rese ) {
-            if ( ! std::is_trivially_destructible<T>::value )
-                while ( rese-- )
-                    ptr[ rese ].~T();
-            std::free( ptr );
-        }
-
-        ptr = res;
-    }
+    template<class T2> bool  operator==      ( const AlignedAllocator<T2,Arch> & ) const { return true; }
+    template<class T2> bool  operator!=      ( const AlignedAllocator<T2,Arch> & ) const { return false; }
+    static void              deallocate      ( pointer ptr, size_type ) { std::free( ptr ); }
+    static void              construct       ( pointer ptr, const T &t ) { new( ptr ) T( t ); }
+    static pointer           allocate        ( size_type count, const void* = 0 ) { return reinterpret_cast<pointer>( aligned_alloc( alignof( T ) * SimdSize<T,Arch>::value, sizeof( T ) * count ) ); }
+    static size_type         max_size        () { return 0xffffffffUL / sizeof( T ); }
+    static pointer           address         ( reference ref ) { return &ref; }
+    static const_pointer     address         ( const_reference ref ) { return &ref; }
+    static void              destroy         ( pointer ptr ) { ptr->~T(); }
 };

@@ -101,19 +101,64 @@ SIMD_VEC_IMPL_REG_ARITHMETIC_OP( Arch::avx512, std::uint32_t, 16, sll, _mm512_sl
 SIMD_VEC_IMPL_REG_ARITHMETIC_OP( Arch::avx512, std::int32_t , 16, sll, _mm512_sllv_epi32 );
 
 // gather -----------------------------------------------------------------------------------------------
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, std::uint64_t, std::uint32_t,  8, _mm512_i32gather_epi64( ind.data.reg, data, 8 ) );
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, std::int64_t , std::uint32_t,  8, _mm512_i32gather_epi64( ind.data.reg, data, 8 ) );
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, double       , std::uint32_t,  8, _mm512_i32gather_pd   ( ind.data.reg, data, 8 ) );
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, std::uint32_t, std::uint32_t, 16, _mm512_i32gather_epi32( ind.data.reg, data, 4 ) );
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, std::int32_t , std::uint32_t, 16, _mm512_i32gather_epi32( ind.data.reg, data, 4 ) );
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, float        , std::uint32_t, 16, _mm512_i32gather_ps   ( ind.data.reg, data, 4 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, std::uint64_t, std::uint32_t,  8, _mm512_i32gather_epi64( ind.data.reg, data, 8 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, std::int64_t , std::uint32_t,  8, _mm512_i32gather_epi64( ind.data.reg, data, 8 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, double       , std::uint32_t,  8, _mm512_i32gather_pd   ( ind.data.reg, data, 8 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, std::uint32_t, std::uint32_t, 16, _mm512_i32gather_epi32( ind.data.reg, data, 4 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, std::int32_t , std::uint32_t, 16, _mm512_i32gather_epi32( ind.data.reg, data, 4 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, float        , std::uint32_t, 16, _mm512_i32gather_ps   ( ind.data.reg, data, 4 ) );
 
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, std::uint64_t, std::int32_t ,  8, _mm512_i32gather_epi64( ind.data.reg, data, 8 ) );
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, std::int64_t , std::int32_t ,  8, _mm512_i32gather_epi64( ind.data.reg, data, 8 ) );
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, double       , std::int32_t ,  8, _mm512_i32gather_pd   ( ind.data.reg, data, 8 ) );
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, std::uint32_t, std::int32_t , 16, _mm512_i32gather_epi32( ind.data.reg, data, 4 ) );
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, std::int32_t , std::int32_t , 16, _mm512_i32gather_epi32( ind.data.reg, data, 4 ) );
-SIMD_VEC_IMPL_REG_GATHER( Arch::avx2, float        , std::int32_t , 16, _mm512_i32gather_ps   ( ind.data.reg, data, 4 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, std::uint64_t, std::int32_t ,  8, _mm512_i32gather_epi64( ind.data.reg, data, 8 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, std::int64_t , std::int32_t ,  8, _mm512_i32gather_epi64( ind.data.reg, data, 8 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, double       , std::int32_t ,  8, _mm512_i32gather_pd   ( ind.data.reg, data, 8 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, std::uint32_t, std::int32_t , 16, _mm512_i32gather_epi32( ind.data.reg, data, 4 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, std::int32_t , std::int32_t , 16, _mm512_i32gather_epi32( ind.data.reg, data, 4 ) );
+SIMD_VEC_IMPL_REG_GATHER( Arch::avx512, float        , std::int32_t , 16, _mm512_i32gather_ps   ( ind.data.reg, data, 4 ) );
+
+// scatter -----------------------------------------------------------------------------------------------
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint64_t, std::uint32_t,  8, _mm512_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int64_t , std::uint32_t,  8, _mm512_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, double       , std::uint32_t,  8, _mm512_i32scatter_pd   ( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint32_t, std::uint32_t, 16, _mm512_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int32_t , std::uint32_t, 16, _mm512_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, float        , std::uint32_t, 16, _mm512_i32scatter_ps   ( data, ind.data.reg, vec.data.reg, 4 ) );
+
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint64_t, std::int32_t ,  8, _mm512_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int64_t , std::int32_t ,  8, _mm512_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, double       , std::int32_t ,  8, _mm512_i32scatter_pd   ( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint32_t, std::int32_t , 16, _mm512_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int32_t , std::int32_t , 16, _mm512_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, float        , std::int32_t , 16, _mm512_i32scatter_ps   ( data, ind.data.reg, vec.data.reg, 4 ) );
+
+// AVX2 sizes
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint64_t, std::uint32_t, 4, _mm256_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int64_t , std::uint32_t, 4, _mm256_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, double       , std::uint32_t, 4, _mm256_i32scatter_pd   ( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint32_t, std::uint32_t, 8, _mm256_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int32_t , std::uint32_t, 8, _mm256_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, float        , std::uint32_t, 8, _mm256_i32scatter_ps   ( data, ind.data.reg, vec.data.reg, 4 ) );
+
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint64_t, std::int32_t , 4, _mm256_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int64_t , std::int32_t , 4, _mm256_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, double       , std::int32_t , 4, _mm256_i32scatter_pd   ( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint32_t, std::int32_t , 8, _mm256_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int32_t , std::int32_t , 8, _mm256_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, float        , std::int32_t , 8, _mm256_i32scatter_ps   ( data, ind.data.reg, vec.data.reg, 4 ) );
+
+// SSE2 sizes
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint64_t, std::uint32_t, 2, _mm_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int64_t , std::uint32_t, 2, _mm_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, double       , std::uint32_t, 2, _mm_i32scatter_pd   ( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint32_t, std::uint32_t, 4, _mm_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int32_t , std::uint32_t, 4, _mm_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, float        , std::uint32_t, 4, _mm_i32scatter_ps   ( data, ind.data.reg, vec.data.reg, 4 ) );
+
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint64_t, std::int32_t , 2, _mm_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int64_t , std::int32_t , 2, _mm_i32scatter_epi64( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, double       , std::int32_t , 2, _mm_i32scatter_pd   ( data, ind.data.reg, vec.data.reg, 8 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::uint32_t, std::int32_t , 4, _mm_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, std::int32_t , std::int32_t , 4, _mm_i32scatter_epi32( data, ind.data.reg, vec.data.reg, 4 ) );
+SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, float        , std::int32_t , 4, _mm_i32scatter_ps   ( data, ind.data.reg, vec.data.reg, 4 ) );
 
 // cmp simdvec ---------------------------------------------------------------------------------------------
 #define SIMD_VEC_IMPL_CMP_OP_SIMDVEC_AVX512( NAME, FLAG_F, FLAG_I ) \

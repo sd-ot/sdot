@@ -153,6 +153,6 @@ Pour gérer les collisions. Exemple avec nc = [ 4, 2, 4, 1 ] (4 apparaît 2 foix
     VI::scatter( nb_indices_for_each_case.data, nc, nbi );
 
 
-
+Prop: on 
 
 

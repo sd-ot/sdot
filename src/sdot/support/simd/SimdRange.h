@@ -6,14 +6,14 @@
 */
 template<int s>
 struct SimdRange {
-    template<class F>
-    static void for_each( int end, const F &func ) {
-        for_each_al( 0, end, func );
+    template<class TI,class F>
+    static void for_each( TI end, const F &func ) {
+        for_each_al<TI>( 0, end, func );
     }
 
-    template<class F>
-    static void for_each_al( int beg, int end, const F &func ) {
-        for( int cur = beg, nxt; ; cur = nxt ) {
+    template<class TI,class F>
+    static void for_each_al( TI beg, TI end, const F &func ) { ///< al means that beg is aligned
+        for( TI cur = beg, nxt; ; cur = nxt ) {
             nxt = cur + s;
             if ( nxt > end )
                 return SimdRange<s/2>::for_each_al( cur, end, func );
@@ -25,14 +25,14 @@ struct SimdRange {
 //
 template<>
 struct SimdRange<1> {
-    template<class F>
-    static void for_each( int end, const F &func ) {
-        for_each_al( 0, end, func );
+    template<class TI,class F>
+    static void for_each( TI end, const F &func ) {
+        for_each_al<TI>( 0, end, func );
     }
 
-    template<class F>
-    static void for_each_al( int beg, int end, const F &func ) {
-        for( int cur = beg; cur < end; ++cur )
+    template<class TI,class F>
+    static void for_each_al( TI beg, TI end, const F &func ) { ///< al means that beg is aligned
+        for( TI cur = beg; cur < end; ++cur )
             func( cur, N<1>() );
     }
 };
