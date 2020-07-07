@@ -213,7 +213,8 @@ void GenCuts<dim>::write_code_for_cases( std::ostream &os ) {
     os << "if ( dim == " << dim << " && name == \"" << ref_shape_to_cut->name << "\" ) {\n";
 
     // get scalar products and num cases
-    os << "    make_sp_and_cases( dirs, sps, sc, N<" << ref_shape_to_cut->rp.nb_vertices() << ">(), { ";
+    os << "  for( TI be = 0; be < sc.size; be += cut_chunk_size ) {\n";
+    os << "    make_sp_and_cases( dirs, sps, sc, be, N<" << ref_shape_to_cut->rp.nb_vertices() << ">(), { ";
     for( TI j = 0; j < ref_shapes.size(); ++j ) {
         if ( j )
             os << ", ";
@@ -243,7 +244,12 @@ void GenCuts<dim>::write_code_for_cases( std::ostream &os ) {
     os << "    using RVO = RecursivePolyhedronCutVecOp_" << dim << "<TF,TI,Arch,Pos,Id>;\n";
     for( TI num_case = 0; num_case < comb_for_cases.size(); ++num_case )
         write_case( os, num_case );
-    os << "    continue;\n";
+
+    // end for
+    os << "  };\n";
+    os << "  continue;\n";
+
+    // end if
     os << "}\n";
 }
 
