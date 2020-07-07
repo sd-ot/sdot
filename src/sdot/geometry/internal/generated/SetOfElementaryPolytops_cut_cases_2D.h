@@ -2,24 +2,22 @@ if ( dim == 2 && name == "3" ) {
     for( TI be = 0; be < sc.size; be += cut_chunk_size ) {
         make_sp_and_cases( dirs, sps, sc, be, N<3>(), { { "3", { 1, 0, 0, 1, 0, 1, 1, 0 } }, { "4", { 0, 1, 1, 0, 1, 0, 0, 0 } } } );
 
-        using RVO = RecursivePolyhedronCutVecOp_2<TF,TI,Arch,Pos,Id>;
-        for( TI num_simd = 0; num_simd < SimdSize<TI,Arch>::value; ++num_simd ) {
-            TI i0 = 0 * SimdSize<TI,Arch>::value + num_simd, b0 = i0 * cut_chunk_size;
-            TI i1 = 1 * SimdSize<TI,Arch>::value + num_simd, b1 = i1 * cut_chunk_size;
-            TI i2 = 2 * SimdSize<TI,Arch>::value + num_simd, b2 = i2 * cut_chunk_size;
-            TI i3 = 3 * SimdSize<TI,Arch>::value + num_simd, b3 = i3 * cut_chunk_size;
-            TI i4 = 4 * SimdSize<TI,Arch>::value + num_simd, b4 = i4 * cut_chunk_size;
-            TI i5 = 5 * SimdSize<TI,Arch>::value + num_simd, b5 = i5 * cut_chunk_size;
-            TI i6 = 6 * SimdSize<TI,Arch>::value + num_simd, b6 = i6 * cut_chunk_size;
+        TI b0 = 0 * cut_chunk_size;
+        TI b1 = 1 * cut_chunk_size;
+        TI b2 = 2 * cut_chunk_size;
+        TI b3 = 3 * cut_chunk_size;
+        TI b4 = 4 * cut_chunk_size;
+        TI b5 = 5 * cut_chunk_size;
+        TI b6 = 6 * cut_chunk_size;
 
-            RVO::cut_l0_0_0_1_1_2_2    ( tmp_indices_bcc.data() + b0, tmp_offsets_bcc[ i0 ] - b0, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
-            RVO::cut_l0_0_0_1_1_1_2_0_2( tmp_indices_bcc.data() + b1, tmp_offsets_bcc[ i1 ] - b1, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 1, 2, 0 } );
-            RVO::cut_l0_0_0_0_1_1_2_2_2( tmp_indices_bcc.data() + b2, tmp_offsets_bcc[ i2 ] - b2, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
-            RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + b3, tmp_offsets_bcc[ i3 ] - b3, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 2, 0, 1 } );
-            RVO::cut_l0_0_0_1_1_1_2_0_2( tmp_indices_bcc.data() + b4, tmp_offsets_bcc[ i4 ] - b4, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
-            RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + b5, tmp_offsets_bcc[ i5 ] - b5, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 1, 2, 0 } );
-            RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + b6, tmp_offsets_bcc[ i6 ] - b6, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
-        }
+        using RVO = RecursivePolyhedronCutVecOp_2<TF,TI,Arch,Pos,Id>;
+        RVO::cut_l0_0_0_1_1_2_2    ( tmp_indices_bcc.data() + b0, tmp_offsets_bcc[ 0 ] - b0, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
+        RVO::cut_l0_0_0_1_1_1_2_0_2( tmp_indices_bcc.data() + b1, tmp_offsets_bcc[ 1 ] - b1, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 1, 2, 0 } );
+        RVO::cut_l0_0_0_0_1_1_2_2_2( tmp_indices_bcc.data() + b2, tmp_offsets_bcc[ 2 ] - b2, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
+        RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + b3, tmp_offsets_bcc[ 3 ] - b3, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 2, 0, 1 } );
+        RVO::cut_l0_0_0_1_1_1_2_0_2( tmp_indices_bcc.data() + b4, tmp_offsets_bcc[ 4 ] - b4, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
+        RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + b5, tmp_offsets_bcc[ 5 ] - b5, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 1, 2, 0 } );
+        RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + b6, tmp_offsets_bcc[ 6 ] - b6, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
     }
     continue;
 }

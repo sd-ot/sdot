@@ -52,7 +52,7 @@ private:
     using                   ShapeMap                = std::map<std::string,ShapeCoords>; ///< shape name => all the shapes of this type
     // using                TFCalc                  = StructOfArrays<std::vector<TF>,Arch,TI>;
 
-    using                   CutChunkSizeCalc        = PrevPow2<32768/sizeof(TF)/(dim+1)>; // helper for cut_chunk_...
+    using                   CutChunkSizeCalc        = PrevPow2<32768/sizeof(TF)/(dim+1)*2>; // helper for cut_chunk_...
     enum {                  cut_chunk_size          = CutChunkSizeCalc::value }; // nb items in chunks for plane cut (to fit in L1)
     enum {                  cut_chunk_expo          = CutChunkSizeCalc::expo }; // log_2( cut_chunk_size )
 
