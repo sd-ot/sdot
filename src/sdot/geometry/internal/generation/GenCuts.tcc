@@ -209,10 +209,8 @@ void GenCuts<dim>::makes_comb_for_cases() {
 }
 
 template<int dim>
-void GenCuts<dim>::write_code_for_cases() {
-    std::ostream &os = std::cout;
-
-    os << "if ( name == \"" << ref_shape_to_cut->name << "\" ) {\n";
+void GenCuts<dim>::write_code_for_cases( std::ostream &os ) {
+    os << "if ( dim == " << dim << " && name == \"" << ref_shape_to_cut->name << "\" ) {\n";
 
     // get scalar products and num cases
     os << "    make_sp_and_cases( dirs, sps, sc, N<" << ref_shape_to_cut->rp.nb_vertices() << ">(), { ";
@@ -242,6 +240,7 @@ void GenCuts<dim>::write_code_for_cases() {
 
     // creation of new elements for each case
     os << "\n";
+    os << "    using RVO = RecursivePolyhedronCutVecOp_" << dim << "<TF,TI,Arch,Pos,Id>;\n";
     for( TI num_case = 0; num_case < comb_for_cases.size(); ++num_case )
         write_case( os, num_case );
     os << "    continue;\n";
@@ -271,8 +270,7 @@ void GenCuts<dim>::write_case( std::ostream &os, TI num_case ) {
 }
 
 template<int dim>
-void GenCuts<dim>::write_cut_op_funcs() {
-    std::ostream &os = std::cout;
+void GenCuts<dim>::write_cut_op_funcs( std::ostream &os ) {
     os << "template<class TF,class TI,class Arch,class Pos,class Id>\n";
     os << "struct RecursivePolyhedronCutVecOp_" << dim << " {\n";
     for( std::string str : cut_op_names ) {
@@ -280,6 +278,14 @@ void GenCuts<dim>::write_cut_op_funcs() {
         gs.write( os );
     }
     os << "};\n";
+}
+
+template<int dim>
+typename GenCuts<dim>::TI GenCuts<dim>::max_nb_vertices_per_elem() const {
+    TI res = 0;
+    for( const Shape &rs : ref_shapes )
+        res = std::max( res, rs.rp.nb_vertices() );
+    return res;
 }
 
 template<int dim>

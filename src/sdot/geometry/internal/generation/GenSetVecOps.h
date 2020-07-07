@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <array>
+#include <set>
 
 /**
 */
@@ -25,7 +26,8 @@ private:
         std::vector<Output>    outputs;
     };
 
-    std::set<TI>               needed_src_inds;
+    std::set<Node>             needed_disjoint_pairs;
+    std::set<TI>               needed_sp_inds;
     TI                         nb_src_nodes;
     std::string                func_name;
     TI                         dim;

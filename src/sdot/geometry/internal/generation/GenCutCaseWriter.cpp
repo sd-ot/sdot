@@ -68,7 +68,7 @@ void GenCutCaseWriter::optimize() {
 }
 
 void GenCutCaseWriter::write( std::ostream &os, TI num_case ) {
-    os << "    " << func_name() << "( " << func_args( num_case ) << " );\n";
+    os << "    RVO::" << func_name() << "( " << func_args( num_case ) << " );\n";
 }
 
 
@@ -95,13 +95,13 @@ std::string GenCutCaseWriter::func_args( TI num_case ) const {
     res += ", sc, { ";
     for( TI i = 0; i < inv_src_map.size(); ++i )
         res += ( i ? ", " : "" ) + std::to_string( inv_src_map[ i ] );
-    res += " }, N<dim>()";
+    res += " }";
 
     return res;
 }
 
 std::string GenCutCaseWriter::func_name() const {
-    std::string res = "recursive_polyhedron_cut";
+    std::string res = "cut";
     for( TI n = 0; n < by_output_shapes.size(); ++n )
         res += by_output_shapes[ n ].func_name( n );
     return res;

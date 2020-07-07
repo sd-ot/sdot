@@ -24,9 +24,11 @@ struct GenCuts {
     void                  setup_parts_from_cut_nodes();
     void                  make_best_combs_from_parts( const std::vector<Part *> &chosen_parts = {}, const std::vector<Part *> &compatible_parts = {}, TF measure = 0, const std::set<std::array<TI,2>> &used_points = {} );
     void                  makes_comb_for_cases      ();
-    void                  write_code_for_cases      ();
+    void                  write_code_for_cases      ( std::ostream &os );
 
-    void                  write_cut_op_funcs        ();
+    void                  write_cut_op_funcs        ( std::ostream &os );
+
+    TI                    max_nb_vertices_per_elem  () const;
 
     void                  display_best_combs        () const;
     void                  display_ref_shape         () const;

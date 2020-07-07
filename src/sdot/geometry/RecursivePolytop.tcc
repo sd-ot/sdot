@@ -26,6 +26,14 @@ RecursivePolytop<TF,dim,TI,UserNodeData>::RecursivePolytop( TI nb_vertices ) : d
 }
 
 template<class TF,int dim,class TI,class UserNodeData>
+TI RecursivePolytop<TF,dim,TI,UserNodeData>::nb_faces() const {
+    TI res = 0;
+    for( const Impl &impl : impls )
+        res += impl.faces.size();
+    return res;
+}
+
+template<class TF,int dim,class TI,class UserNodeData>
 bool RecursivePolytop<TF,dim,TI,UserNodeData>::valid_vertex_prop( const std::vector<Pt> &pts ) const {
     for( const Impl &impl : impls )
         if ( ! impl.valid_vertex_prop( pts ) )

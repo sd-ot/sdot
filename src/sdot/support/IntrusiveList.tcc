@@ -60,6 +60,14 @@ void IntrusiveList<T>::clear() {
 }
 
 template<class T>
+std::size_t IntrusiveList<T>::size() const {
+    std::size_t res = 0;
+    for( const T *c = data; c; c = c->next )
+        ++res;
+    return res;
+}
+
+template<class T>
 T &IntrusiveList<T>::Iterator::operator*() const {
     return *ptr;
 }

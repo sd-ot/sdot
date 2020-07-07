@@ -1,46 +1,49 @@
-#include "../src/sdot/ConvexPolytop/ConvexPolytopSet.h"
+#include "../src/sdot/geometry/SetOfElementaryPolytops.h"
 #include "../src/sdot/support/range.h"
 #include "../src/sdot/support/P.h"
 using TI = std::size_t;
 
 //// nsmake cpp_flag -march=native
 
-int main() {
-    using Cp = ConvexPolytopSet<3,2,float,unsigned>;
-    using TI = Cp::TI;
-    using TF = Cp::TF;
-    using Pt = Cp::Pt;
-    TI nb_volumes = 1; // 24;
+template<int dim,class Fms>
+void test_with_shape( VtkOutput &vo, N<dim>, const Fms &fms, TI nb_volumes = 20, VtkOutput::Pt off = 0.0 ) {
+    using Cp = SetOfElementaryPolytops<dim,dim,float,unsigned>;
+    using TI = typename Cp::TI;
+    using TF = typename Cp::TF;
+    using Pt = typename Cp::Pt;
 
     Cp cp;
-    for( TI i = 0; i < nb_volumes; ++i ) {
-        cp.add_shape( "3", { Pt{ 0, 0, int( i ) }, Pt{ 20, 0, int( i ) }, Pt{ 0, 20, int( i ) } }, 2 * i + 0 );
-        //cp.add_shape( "4", { Pt{ 30, 0, int( i ) }, Pt{ 50, 0, int( i ) }, Pt{ 30, 20, int( i ) }, Pt{ 50, 20, int( i ) } }, 2 * i + 1 );
-    }
+    fms( cp, nb_volumes );
     PN( cp );
 
-    std::vector<TF> dxs( 2 * nb_volumes ), dys( 2 * nb_volumes ), dzs( 2 * nb_volumes ), sps( 2 * nb_volumes );
+    std::vector<TF> dxs( nb_volumes ), dys( nb_volumes ), sps( nb_volumes );
     for( TI i = 0; i < nb_volumes; ++i ) {
         TF a = 2 * M_PI * i / nb_volumes;
-        Pt d( cos( a ), sin( a ) ), p[ 2 ] = { Pt( 5, 5 ), Pt( 35, 5 ) };
-        for( TI o = 0; o < 2; ++o ) {
-            sps[ 2 * i + o ] = dot( p[ o ], d );
-            dxs[ 2 * i + o ] = d[ 0 ];
-            dys[ 2 * i + o ] = d[ 1 ];
-            dzs[ 2 * i + o ] = 0;
-        }
+        Pt d( cos( a ), sin( a ) );
+        sps[ i ] = dot( Pt( 5, 5 ), d );
+        dxs[ i ] = d[ 0 ];
+        dys[ i ] = d[ 1 ];
     }
 
-    cp.plane_cut( { dxs.data(), dys.data(), dzs.data() }, sps.data() );
+    cp.plane_cut( { dxs.data(), dys.data() }, sps.data() );
     PN( cp );
 
-    std::vector<TF> measures( 2 * nb_volumes );
+    std::vector<TF> measures( nb_volumes );
     cp.get_measures( measures.data() );
     P( measures );
-    for( TI i = 0; i < nb_volumes; ++i )
-        P( measures[ i ] + measures[ nb_volumes + i ] );
+    if ( nb_volumes % 2 == 0 )
+        for( TI i = 0; i < nb_volumes / 2; ++i )
+            P( measures[ i ] + measures[ i + nb_volumes / 2 ] );
+
+    cp.display_vtk( vo, [&]( TI id ) { return off + VtkOutput::Pt{ 0.0, 0.0, 1.0 * id }; } );
+}
+
+int main() {
+    auto mk_4 = []( auto &cp, TI nb_volumes ) { cp.add_shape( "4", { { 0, 0 }, { 20, 0 }, { 20, 20 }, { 0, 20 } }, 0, nb_volumes ); };
+    auto mk_3 = []( auto &cp, TI nb_volumes ) { cp.add_shape( "3", { { 0, 0 }, { 20, 0 }, { 0, 20 } }, 0, nb_volumes ); };
 
     VtkOutput vo;
-    cp.display_vtk( vo );
+    test_with_shape( vo, N<2>(), mk_3, 20, {  0.0, 0.0, 0.0 } );
+    test_with_shape( vo, N<2>(), mk_4, 20, { 30.0, 0.0, 0.0 } );
     vo.save( "out.vtk" );
 }

@@ -24,6 +24,7 @@ public:
     /**/                          RecursivePolytop     ( TI nb_vertices = 0 );
 
     TI                            nb_vertices          () const { return vertices.size(); }
+    TI                            nb_faces             () const;
     const Vertex&                 vertex               ( TI i ) const { return vertices[ i ]; }
     Vertex&                       vertex               ( TI i ) { return vertices[ i ]; }
 
