@@ -19,7 +19,7 @@ int main() {
     using TF = Cp::TF;
     using Pt = Cp::Pt;
 
-    TI nb_polytops = 1 << 16;
+    TI nb_polytops = 1 << 12; // 6;
 
     std::vector<TF> dxs( nb_polytops ), dys( nb_polytops ), sps( nb_polytops );
     for( TI i = 0; i < nb_polytops; ++i ) {
