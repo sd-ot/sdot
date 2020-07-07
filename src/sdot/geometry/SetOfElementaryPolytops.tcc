@@ -340,22 +340,22 @@ void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::make_sp_and_cases( std::array<
         // VI nbi = VI::gather( tmp_offsets_bcc.data(), nc );
         // VI::scatter( tmp_indices_bcc.data(), nbi, iota + beg_num_elem );
         // VI::scatter( tmp_offsets_bcc.data(), nc, nbi + 1 );
-        //        VI inds{
-        //            tmp_offsets_bcc[ nc[ 0 ] ]++,
-        //            tmp_offsets_bcc[ nc[ 1 ] ]++,
-        //            tmp_offsets_bcc[ nc[ 2 ] ]++,
-        //            tmp_offsets_bcc[ nc[ 3 ] ]++,
-        //            tmp_offsets_bcc[ nc[ 4 ] ]++,
-        //            tmp_offsets_bcc[ nc[ 5 ] ]++,
-        //            tmp_offsets_bcc[ nc[ 6 ] ]++,
-        //            tmp_offsets_bcc[ nc[ 7 ] ]++
-        //        };
-        VI inds;
+        // VI inds{
+        //     tmp_offsets_bcc[ nc[ 0 ] ]++,
+        //     tmp_offsets_bcc[ nc[ 1 ] ]++,
+        //     tmp_offsets_bcc[ nc[ 2 ] ]++,
+        //     tmp_offsets_bcc[ nc[ 3 ] ]++,
+        //     tmp_offsets_bcc[ nc[ 4 ] ]++,
+        //     tmp_offsets_bcc[ nc[ 5 ] ]++,
+        //     tmp_offsets_bcc[ nc[ 6 ] ]++,
+        //     tmp_offsets_bcc[ nc[ 7 ] ]++
+        // };
+        // VI inds;
+        // for( TI i = 0; i < simd_size.value; ++i )
+        //     inds[ i ] = tmp_offsets_bcc[ nc[ i ] ]++;
+        // VI::scatter( tmp_indices_bcc.data(), inds, VI::iota() + beg_num_elem );
         for( TI i = 0; i < simd_size.value; ++i )
-            inds[ i ] = tmp_offsets_bcc[ nc[ i ] ]++;
-        VI::scatter( tmp_indices_bcc.data(), inds, VI::iota() + beg_num_elem );
-//        for( TI i = 0; i < simd_size.value; ++i )
-//            tmp_indices_bcc[ tmp_offsets_bcc[ nc[ i ] ]++ ] = beg_num_elem + i;
+            tmp_indices_bcc[ tmp_offsets_bcc[ nc[ i ] ]++ ] = beg_num_elem + i;
     } );
 
     // reservation
