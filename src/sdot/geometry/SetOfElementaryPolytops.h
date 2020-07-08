@@ -4,6 +4,7 @@
 #include "../support/StructOfArrays.h"
 #include "../support/simd/SimdVec.h"
 #include "../support/PrevPow2.h"
+#include "../support/Vec.h"
 #include "VtkOutput.h"
 #include <functional>
 #include <array>

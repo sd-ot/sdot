@@ -1,4 +1,4 @@
-NSMAKE = time nsmake -g3 -O3 # --cxx clang++ --cpp-flag  "-std=c++17"
+NSMAKE = nsmake # --cpp-flag  "-std=c++17"
 # Dg676-yu
 
 all:
@@ -12,11 +12,14 @@ all:
 	# ${NSMAKE} run src/sdot/geometry/internal/generation/gen_cuts.cpp
 	# ${NSMAKE} run --exec-with "valgrind --tool=callgrind --dump-instr=yes --collect-jumps=yes" tests/bench_SetOfElementaryPolytops.cpp
 	# ${NSMAKE} run tests/bench_SetOfElementaryPolytops.cpp
-	${NSMAKE} run tests/test_SetOfElementaryPolytops.cpp
+	# ${NSMAKE} run tests/test_SetOfElementaryPolytops.cu
 	# ${NSMAKE} run tests/test_SymbolicExpr.cpp
+	# cd ~/nsmake; nsmake stop; rm -rf ~/.nsmake 2> /dev/null; npm run build
+	# nsmake run tests/test_SetOfElementaryPolytops.cu; cat ~/.nsmake/server.log
+	nsmake run tests/test_SetOfElementaryPolytops.cpp
 
 gen:
-	${NSMAKE} run src/sdot/geometry/internal/generation/gen_cuts.cpp
+	${NSMAKE} -O3 run src/sdot/geometry/internal/generation/gen_cuts.cpp 2; ${NSMAKE} run -O3 src/sdot/geometry/internal/generation/gen_cuts.cpp 3
 
 bench:
 	${NSMAKE} run tests/bench_ConvexPolytopSet.cpp

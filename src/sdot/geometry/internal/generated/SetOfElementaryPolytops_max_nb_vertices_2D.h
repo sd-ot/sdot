@@ -1,1 +1,1 @@
-if ( dim == 2 ) return 4;
+if ( dim == 2 ) return 3;

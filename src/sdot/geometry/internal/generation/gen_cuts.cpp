@@ -67,9 +67,11 @@ void make_cuts( GlobalGenCutData &gcd, int max_nb_point_circle = 4 ) {
   Prop: pour toutes les coupes,
     * on cherche si ça correspond à un volume élémentaire
 */
-int main() {
+int main( int, char **argv ) {
     GlobalGenCutData gcd;
-    make_cuts<2>( gcd, 8 );
-    make_cuts<3>( gcd, 4 );
+    if ( std::string( argv[ 1 ] ) == "2" )
+        make_cuts<2>( gcd, 6 );
+    if ( std::string( argv[ 1 ] ) == "3" )
+        make_cuts<3>( gcd, 4 );
 }
 
