@@ -143,110 +143,107 @@ void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::display_vtk( VtkOutput &vo, co
 
 template<int dim,int nvi,class TF,class TI,class Arch>
 void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::get_measures( TF *measures ) const {
-    TODO;
-    //    // tmp storage
-    //    TI rese = 1;
-    //    while ( rese < end_id )
-    //        rese *= 2;
-    //    reserve_and_clear( tf_calc, 1, SimdSize<TF,Arch>::value * rese );
-    //    TF *vec = tf_calc[ 0 ].data;
+    // tmp storage
+    tmp_f.reserve( SimdSize<TF,Arch>::value * end_id );
+    SimdRange<SimdSize<TF,Arch>::value>::for_each( SimdSize<TF,Arch>::value * end_id, [&]( TI beg, auto simd_size ) {
+        using VF = SimdVec<TF,simd_size.value,Arch>;
+        VF::store_aligned( tmp_f.data() + beg, 0 );
+    } );
 
-    //    // for each type of element
-    //    for( auto &named_sl : shape_map ) {
-    //        const ShapeCoords &sc = named_sl.second;
-    //        std::string name = named_sl.first;
+    // for each type of element
+    for( auto &named_sl : shape_map ) {
+        const ShapeCoords &sc = named_sl.second;
+        std::string name = named_sl.first;
 
-    //        if ( name == "3" ) {
-    //            const TF *p_0_0_ptr = sc[ Pos() ][ 0 ][ 0 ].data;
-    //            const TF *p_0_1_ptr = sc[ Pos() ][ 0 ][ 1 ].data;
-    //            const TF *p_1_0_ptr = sc[ Pos() ][ 1 ][ 0 ].data;
-    //            const TF *p_1_1_ptr = sc[ Pos() ][ 1 ][ 1 ].data;
-    //            const TF *p_2_0_ptr = sc[ Pos() ][ 2 ][ 0 ].data;
-    //            const TF *p_2_1_ptr = sc[ Pos() ][ 2 ][ 1 ].data;
-    //            const TI *id_data = sc[ Id() ].data;
+        if ( name == "3" ) {
+            const TF *p_0_0_ptr = sc[ Pos() ][ 0 ][ 0 ].data;
+            const TF *p_0_1_ptr = sc[ Pos() ][ 0 ][ 1 ].data;
+            const TF *p_1_0_ptr = sc[ Pos() ][ 1 ][ 0 ].data;
+            const TF *p_1_1_ptr = sc[ Pos() ][ 1 ][ 1 ].data;
+            const TF *p_2_0_ptr = sc[ Pos() ][ 2 ][ 0 ].data;
+            const TF *p_2_1_ptr = sc[ Pos() ][ 2 ][ 1 ].data;
+            const TI *id_data = sc[ Id() ].data;
 
-    //            SimdRange<SimdSize<TF,Arch>::value>::for_each( sc.size, [&]( TI beg, auto simd_size ) {
-    //                using VF = SimdVec<TF,simd_size.value,Arch>;
-    //                using VI = SimdVec<TI,simd_size.value,Arch>;
+            SimdRange<SimdSize<TF,Arch>::value>::for_each( sc.size, [&]( TI beg, auto simd_size ) {
+                using VF = SimdVec<TF,simd_size.value,Arch>;
+                using VI = SimdVec<TI,simd_size.value,Arch>;
 
-    //                VI ids = VI::load_aligned( id_data + beg ) + VI::iota() * rese;
-    //                VF old = VF::gather( vec, ids );
+                VI ids = VI::load_aligned( id_data + beg ) * SimdSize<TF,Arch>::value + VI::iota();
+                VF old = VF::gather( tmp_f.data(), ids );
 
-    //                VF x_0 = VF::load_aligned( p_0_0_ptr + beg );
-    //                VF y_0 = VF::load_aligned( p_0_1_ptr + beg );
-    //                VF x_1 = VF::load_aligned( p_1_0_ptr + beg );
-    //                VF y_1 = VF::load_aligned( p_1_1_ptr + beg );
-    //                VF x_2 = VF::load_aligned( p_2_0_ptr + beg );
-    //                VF y_2 = VF::load_aligned( p_2_1_ptr + beg );
+                VF x_0 = VF::load_aligned( p_0_0_ptr + beg );
+                VF y_0 = VF::load_aligned( p_0_1_ptr + beg );
+                VF x_1 = VF::load_aligned( p_1_0_ptr + beg );
+                VF y_1 = VF::load_aligned( p_1_1_ptr + beg );
+                VF x_2 = VF::load_aligned( p_2_0_ptr + beg );
+                VF y_2 = VF::load_aligned( p_2_1_ptr + beg );
 
-    //                VF dx_1 = x_1 - x_0;
-    //                VF dy_1 = y_1 - y_0;
-    //                VF dx_2 = x_2 - x_0;
-    //                VF dy_2 = y_2 - y_0;
+                VF dx_1 = x_1 - x_0;
+                VF dy_1 = y_1 - y_0;
+                VF dx_2 = x_2 - x_0;
+                VF dy_2 = y_2 - y_0;
 
-    //                VF res = VF( TF( 1 ) / 2 ) * ( dx_1 * dy_2 - dy_1 * dx_2 );
+                VF res = VF( TF( 1 ) / 2 ) * ( dx_1 * dy_2 - dy_1 * dx_2 );
 
-    //                VF::scatter( vec, ids, old + res );
-    //            } );
-    //            continue;
-    //        }
+                VF::scatter( tmp_f.data(), ids, old + res );
+            } );
+            continue;
+        }
 
-    //        if ( name == "4" ) {
-    //            const TF *p_0_0_ptr = sc[ Pos() ][ 0 ][ 0 ].data;
-    //            const TF *p_0_1_ptr = sc[ Pos() ][ 0 ][ 1 ].data;
-    //            const TF *p_1_0_ptr = sc[ Pos() ][ 1 ][ 0 ].data;
-    //            const TF *p_1_1_ptr = sc[ Pos() ][ 1 ][ 1 ].data;
-    //            const TF *p_2_0_ptr = sc[ Pos() ][ 2 ][ 0 ].data;
-    //            const TF *p_2_1_ptr = sc[ Pos() ][ 2 ][ 1 ].data;
-    //            const TF *p_3_0_ptr = sc[ Pos() ][ 3 ][ 0 ].data;
-    //            const TF *p_3_1_ptr = sc[ Pos() ][ 3 ][ 1 ].data;
-    //            const TI *id_data = sc[ Id() ].data;
+        if ( name == "4" ) {
+            const TF *p_0_0_ptr = sc[ Pos() ][ 0 ][ 0 ].data;
+            const TF *p_0_1_ptr = sc[ Pos() ][ 0 ][ 1 ].data;
+            const TF *p_1_0_ptr = sc[ Pos() ][ 1 ][ 0 ].data;
+            const TF *p_1_1_ptr = sc[ Pos() ][ 1 ][ 1 ].data;
+            const TF *p_2_0_ptr = sc[ Pos() ][ 2 ][ 0 ].data;
+            const TF *p_2_1_ptr = sc[ Pos() ][ 2 ][ 1 ].data;
+            const TF *p_3_0_ptr = sc[ Pos() ][ 3 ][ 0 ].data;
+            const TF *p_3_1_ptr = sc[ Pos() ][ 3 ][ 1 ].data;
+            const TI *id_data = sc[ Id() ].data;
 
-    //            SimdRange<SimdSize<TF,Arch>::value>::for_each( sc.size, [&]( TI beg, auto simd_size ) {
-    //                using VF = SimdVec<TF,simd_size.value,Arch>;
-    //                using VI = SimdVec<TI,simd_size.value,Arch>;
+            SimdRange<SimdSize<TF,Arch>::value>::for_each( sc.size, [&]( TI beg, auto simd_size ) {
+                using VF = SimdVec<TF,simd_size.value,Arch>;
+                using VI = SimdVec<TI,simd_size.value,Arch>;
 
-    //                VI ids = VI::load_aligned( id_data + beg ) + VI::iota() * rese;
-    //                VF old = VF::gather( vec, ids );
+                VI ids = VI::load_aligned( id_data + beg ) * SimdSize<TF,Arch>::value + VI::iota();
+                VF old = VF::gather( tmp_f.data(), ids );
 
-    //                VF x_0 = VF::load_aligned( p_0_0_ptr + beg );
-    //                VF y_0 = VF::load_aligned( p_0_1_ptr + beg );
-    //                VF x_1 = VF::load_aligned( p_1_0_ptr + beg );
-    //                VF y_1 = VF::load_aligned( p_1_1_ptr + beg );
-    //                VF x_2 = VF::load_aligned( p_2_0_ptr + beg );
-    //                VF y_2 = VF::load_aligned( p_2_1_ptr + beg );
-    //                VF x_3 = VF::load_aligned( p_3_0_ptr + beg );
-    //                VF y_3 = VF::load_aligned( p_3_1_ptr + beg );
+                VF x_0 = VF::load_aligned( p_0_0_ptr + beg );
+                VF y_0 = VF::load_aligned( p_0_1_ptr + beg );
+                VF x_1 = VF::load_aligned( p_1_0_ptr + beg );
+                VF y_1 = VF::load_aligned( p_1_1_ptr + beg );
+                VF x_2 = VF::load_aligned( p_2_0_ptr + beg );
+                VF y_2 = VF::load_aligned( p_2_1_ptr + beg );
+                VF x_3 = VF::load_aligned( p_3_0_ptr + beg );
+                VF y_3 = VF::load_aligned( p_3_1_ptr + beg );
 
-    //                VF dx_1 = x_1 - x_0;
-    //                VF dy_1 = y_1 - y_0;
-    //                VF dx_2 = x_3 - x_0;
-    //                VF dy_2 = y_3 - y_0;
+                VF dx_1 = x_1 - x_0;
+                VF dy_1 = y_1 - y_0;
+                VF dx_2 = x_3 - x_0;
+                VF dy_2 = y_3 - y_0;
 
-    //                VF dx_3 = x_3 - x_2;
-    //                VF dy_3 = y_3 - y_2;
-    //                VF dx_4 = x_1 - x_2;
-    //                VF dy_4 = y_1 - y_2;
+                VF dx_3 = x_3 - x_2;
+                VF dy_3 = y_3 - y_2;
+                VF dx_4 = x_1 - x_2;
+                VF dy_4 = y_1 - y_2;
 
-    //                VF res = VF( TF( 1 ) / 2 ) * ( dx_1 * dy_2 - dy_1 * dx_2 + dx_3 * dy_4 - dy_3 * dx_4 );
+                VF res = VF( TF( 1 ) / 2 ) * ( dx_1 * dy_2 - dy_1 * dx_2 + dx_3 * dy_4 - dy_3 * dx_4 );
 
-    //                VF::scatter( vec, ids, old + res );
-    //            } );
-    //            continue;
-    //        }
+                VF::scatter( tmp_f.data(), ids, old + res );
+            } );
+            continue;
+        }
 
-    //        PE( name );
-    //        TODO;
-    //    }
+        PE( name );
+        TODO;
+    }
 
-    //    // sum if data in tmp storage
-    //    SimdRange<SimdSize<TF,Arch>::value>::for_each( end_id, [&]( TI beg, auto simd_size ) {
-    //        using VF = SimdVec<TF,simd_size.value,Arch>;
-    //        VF v = VF::load_aligned( vec + beg + 0 * rese );
-    //        for( TI n = 1; n < SimdSize<TF,Arch>::value; ++n )
-    //            v = v + VF::load_aligned( vec + beg + n * rese );
-    //        VF::store( measures + beg, v );
-    //    } );
+    // sum of data in tmp storage
+    for( TI i = 0; i < end_id; ++i ) {
+        using VF = SimdVec<TF,SimdSize<TF,Arch>::value,Arch>;
+        VF v = VF::load_aligned( tmp_f.data() + i * SimdSize<TF,Arch>::value );
+        measures[ i ] = v.sum();
+    }
 }
 
 template<int dim,int nvi,class TF,class TI,class Arch>

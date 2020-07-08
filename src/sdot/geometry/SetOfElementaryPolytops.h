@@ -69,13 +69,11 @@ private:
     void                    free                    ( ShapeCoords &sc );
 
     AlignedVecTI            tmp_offsets_bcc;        ///< offsets in tmp_indices_bcc for each cut_case and each simd lane
-    AlignedVecTI            tmp_indices_bcc;        ///<
+    AlignedVecTI            tmp_indices_bcc;        ///< list of num elem for each cut case
     ShapeMap                tmp_shape_map;          ///< tmp shape_map for the cuts
     ShapeMap                shape_map;              ///< type elem => coords
-    // mutable TFCalc       tf_calc;                ///< tmp storage for each elem. Typically used by get_measures, get_centroids, ...
-    // std::vector<TI>      nb_inds;                ///< nb indices for each cut case, for each simd index
     TI                      end_id;                 ///< nb ids
-    AlignedVecTF            tmp_f;                  ///<
+    mutable AlignedVecTF    tmp_f;                  ///< tmp storage forget_measures, get_centroids, ...
 };
 
 #include "SetOfElementaryPolytops.tcc"

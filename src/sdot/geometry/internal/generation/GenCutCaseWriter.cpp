@@ -87,7 +87,7 @@ std::string GenCutCaseWriter::func_args( TI num_case ) const {
         inv_src_map[ p.second ] = p.first;
 
     // outputs
-    std::string res = "beg_cut_cases[ " + std::to_string( num_case ) + " ], nb_cut_cases[ " + std::to_string( num_case ) + " ]";
+    std::string res = "tmp_indices_bcc.data() + " + std::to_string( num_case ) + " * cut_chunk_size, tmp_offsets_bcc[ " + std::to_string( num_case ) + " ] - " + std::to_string( num_case ) + " * cut_chunk_size";
     for( const ByOutputShape &bos : by_output_shapes )
         res += bos.func_args();
 

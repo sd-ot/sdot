@@ -28,12 +28,12 @@ void test_with_shape( VtkOutput &vo, N<dim>, const Fms &fms, TI nb_volumes = 20,
     cp.plane_cut( { dxs.data(), dys.data() }, sps.data() );
     // PN( cp );
 
-    //    std::vector<TF> measures( nb_volumes );
-    //    cp.get_measures( measures.data() );
-    //    P( measures );
-    //    if ( nb_volumes % 2 == 0 )
-    //        for( TI i = 0; i < nb_volumes / 2; ++i )
-    //            P( measures[ i ] + measures[ i + nb_volumes / 2 ] );
+    std::vector<TF> measures( nb_volumes );
+    cp.get_measures( measures.data() );
+    P( measures );
+    if ( nb_volumes % 2 == 0 )
+        for( TI i = 0; i < nb_volumes / 2; ++i )
+            P( measures[ i ] + measures[ i + nb_volumes / 2 ] );
 
     cp.display_vtk( vo, [&]( TI id ) { return off + VtkOutput::Pt{ 0.0, 0.0, 1.0 * id }; } );
 }

@@ -283,6 +283,17 @@ Impl<T,1,Arch> iota( T beg, S<Impl<T,1,Arch>> ) {
     return res;
 }
 
+// sum -----------------------------------------------------------------------------
+template<class T,int size,class Arch>
+T sum( const Impl<T,size,Arch> &impl ) {
+    return sum( impl.data.split[ 0 ] ) + sum( impl.data.split[ 1 ] );
+}
+
+template<class T,class Arch>
+T sum( const Impl<T,1,Arch> &impl ) {
+    return impl.data.values[ 0 ];
+}
+
 // scatter/gather -----------------------------------------------------------------------
 template<class G,class V,class T,int size,class Arch>
 void scatter( G *ptr, const V &ind, const Impl<T,size,Arch> &vec ) {

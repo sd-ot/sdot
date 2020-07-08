@@ -2,22 +2,14 @@ if ( dim == 2 && name == "3" ) {
     for( TI be = 0; be < sc.size; be += cut_chunk_size ) {
         make_sp_and_cases( dirs, sps, sc, be, N<3>(), { { "3", { 1, 0, 0, 1, 0, 1, 1, 0 } }, { "4", { 0, 1, 1, 0, 1, 0, 0, 0 } } } );
 
-        TI b0 = 0 * cut_chunk_size;
-        TI b1 = 1 * cut_chunk_size;
-        TI b2 = 2 * cut_chunk_size;
-        TI b3 = 3 * cut_chunk_size;
-        TI b4 = 4 * cut_chunk_size;
-        TI b5 = 5 * cut_chunk_size;
-        TI b6 = 6 * cut_chunk_size;
-
         using RVO = RecursivePolyhedronCutVecOp_2<TF,TI,Arch,Pos,Id>;
-        RVO::cut_l0_0_0_1_1_2_2    ( tmp_indices_bcc.data() + b0, tmp_offsets_bcc[ 0 ] - b0, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
-        RVO::cut_l0_0_0_1_1_1_2_0_2( tmp_indices_bcc.data() + b1, tmp_offsets_bcc[ 1 ] - b1, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 1, 2, 0 } );
-        RVO::cut_l0_0_0_0_1_1_2_2_2( tmp_indices_bcc.data() + b2, tmp_offsets_bcc[ 2 ] - b2, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
-        RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + b3, tmp_offsets_bcc[ 3 ] - b3, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 2, 0, 1 } );
-        RVO::cut_l0_0_0_1_1_1_2_0_2( tmp_indices_bcc.data() + b4, tmp_offsets_bcc[ 4 ] - b4, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
-        RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + b5, tmp_offsets_bcc[ 5 ] - b5, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 1, 2, 0 } );
-        RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + b6, tmp_offsets_bcc[ 6 ] - b6, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
+        RVO::cut_l0_0_0_1_1_2_2    ( tmp_indices_bcc.data() + 0 * cut_chunk_size, tmp_offsets_bcc[ 0 ] - 0 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
+        RVO::cut_l0_0_0_1_1_1_2_0_2( tmp_indices_bcc.data() + 1 * cut_chunk_size, tmp_offsets_bcc[ 1 ] - 1 * cut_chunk_size, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 1, 2, 0 } );
+        RVO::cut_l0_0_0_0_1_1_2_2_2( tmp_indices_bcc.data() + 2 * cut_chunk_size, tmp_offsets_bcc[ 2 ] - 2 * cut_chunk_size, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
+        RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + 3 * cut_chunk_size, tmp_offsets_bcc[ 3 ] - 3 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 2, 0, 1 } );
+        RVO::cut_l0_0_0_1_1_1_2_0_2( tmp_indices_bcc.data() + 4 * cut_chunk_size, tmp_offsets_bcc[ 4 ] - 4 * cut_chunk_size, shape_list( tmp_shape_map, "4" ), { 0, 1, 2, 3 }, sc, { 0, 1, 2 } );
+        RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + 5 * cut_chunk_size, tmp_offsets_bcc[ 5 ] - 5 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 1, 2, 0 } );
+        RVO::cut_l0_0_0_0_1_0_2    ( tmp_indices_bcc.data() + 6 * cut_chunk_size, tmp_offsets_bcc[ 6 ] - 6 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
     }
     continue;
 }

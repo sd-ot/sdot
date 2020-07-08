@@ -50,6 +50,10 @@ void make_cuts( GlobalGenCutData &gcd, int max_nb_point_circle = 4 ) {
     std::ofstream fnf( "src/sdot/geometry/internal/generated/SetOfElementaryPolytops_nb_faces_" + std::to_string( dim ) + "D.h" );
     for( const auto &rs : gc.ref_shapes )
         fnf << "if ( dim == " << dim << " && name == \"" << rs.name << "\" ) return " << rs.rp.nb_faces() << ";\n";
+
+    // -> measure
+    std::ofstream fme( "src/sdot/geometry/internal/generated/SetOfElementaryPolytops_measure_" + std::to_string( dim ) + "D.h" );
+    gc.write_measure_func( fme );
 }
 
 /*

@@ -10,9 +10,10 @@ all:
 	# ${NSMAKE} run tests/test_IntrusiveList.cpp
 	# ${NSMAKE} run tests/test_RecursivePolytop.cpp
 	# ${NSMAKE} run src/sdot/geometry/internal/generation/gen_cuts.cpp
-	# ${NSMAKE} run tests/test_SetOfElementaryPolytops.cpp
 	# ${NSMAKE} run --exec-with "valgrind --tool=callgrind --dump-instr=yes --collect-jumps=yes" tests/bench_SetOfElementaryPolytops.cpp
-	${NSMAKE} run tests/bench_SetOfElementaryPolytops.cpp
+	# ${NSMAKE} run tests/bench_SetOfElementaryPolytops.cpp
+	# ${NSMAKE} run tests/test_SetOfElementaryPolytops.cpp
+	${NSMAKE} run tests/test_SymbolicExpr.cpp
 
 gen:
 	${NSMAKE} run src/sdot/ConvexPolytop/internal/generation/gen_cuts.cpp

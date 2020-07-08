@@ -287,6 +287,40 @@ void GenCuts<dim>::write_cut_op_funcs( std::ostream &os ) {
 }
 
 template<int dim>
+void GenCuts<dim>::write_measure_func( std::ostream &os ) {
+    for( const Shape &rs : ref_shapes ) {
+        os << "if ( name == \"" << rs.name << "\" ) {\n";
+        for( TI num_vertex = 0; num_vertex < rs.rp.nb_vertices(); ++num_vertex )
+            for( TI d = 0; d < dim; ++d )
+                os << "    const TF *p_" << num_vertex << "_" << d << "_ptr = sc[ Pos() ][ " << num_vertex << " ][ " << d << " ].data;\n";
+        os << "    const TI *id_data = sc[ Id() ].data;\n";
+        os << "\n";
+        os << "    SimdRange<SimdSize<TF,Arch>::value>::for_each( sc.size, [&]( TI beg, auto simd_size ) {\n";
+        os << "        using VF = SimdVec<TF,simd_size.value,Arch>;\n";
+        os << "        using VI = SimdVec<TI,simd_size.value,Arch>;\n";
+        os << "\n";
+        os << "        VI ids = VI::load_aligned( id_data + beg ) * SimdSize<TF,Arch>::value + VI::iota();\n";
+        os << "        VF old = VF::gather( tmp_f.data(), ids );\n";
+        os << "\n";
+        for( TI num_vertex = 0; num_vertex < rs.rp.nb_vertices(); ++num_vertex )
+            for( TI d = 0; d < dim; ++d )
+                os << "        VF p_" << num_vertex << "_" << d << " = VF::load_aligned( p_" << num_vertex << "_" << d << "_ptr + beg );\n";
+        os << "\n";
+        os << "        VF dx_1 = x_1 - x_0;\n";
+        os << "        VF dy_1 = y_1 - y_0;\n";
+        os << "        VF dx_2 = x_2 - x_0;\n";
+        os << "        VF dy_2 = y_2 - y_0;\n";
+        os << "\n";
+        os << "        VF res = VF( TF( 1 ) / 2 ) * ( dx_1 * dy_2 - dy_1 * dx_2 );\n";
+        os << "\n";
+        os << "        VF::scatter( tmp_f.data(), ids, old + res );\n";
+        os << "    } );\n";
+        os << "    continue;\n";
+        os << "}\n";
+    }
+}
+
+template<int dim>
 typename GenCuts<dim>::TI GenCuts<dim>::max_nb_vertices_per_elem() const {
     TI res = 0;
     for( const Shape &rs : ref_shapes )

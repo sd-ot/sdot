@@ -27,6 +27,7 @@ struct GenCuts {
     void                  write_code_for_cases      ( std::ostream &os );
 
     void                  write_cut_op_funcs        ( std::ostream &os );
+    void                  write_measure_func        ( std::ostream &os );
 
     TI                    max_nb_vertices_per_elem  () const;
 

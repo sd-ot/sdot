@@ -53,6 +53,8 @@ struct SimdVec {
     // std::uint64_t is_neg     () const { return value < 0; }
     // std::uint64_t nz         () const { return value != 0; }
 
+    T              sum          () const { return SimdVecInternal::sum( impl ); }
+
     Impl           impl;
 
 };

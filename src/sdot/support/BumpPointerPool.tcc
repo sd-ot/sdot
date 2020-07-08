@@ -99,6 +99,7 @@ T* BumpPointerPool::create( Args &&...args ) {
     return &item->object;
 }
 
+inline
 void BumpPointerPool::clear() {
     // items
     for( Item *f = last_item, *o; ( o = f ) ; ) {
@@ -120,6 +121,7 @@ void BumpPointerPool::clear() {
     }
 }
 
+inline
 void BumpPointerPool::free() {
     // items
     for( Item *f = last_item, *o; ( o = f ) ; ) {
