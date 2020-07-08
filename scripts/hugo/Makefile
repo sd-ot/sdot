@@ -16,7 +16,7 @@ all:
 	# ${NSMAKE} run tests/test_SymbolicExpr.cpp
 
 gen:
-	${NSMAKE} run src/sdot/ConvexPolytop/internal/generation/gen_cuts.cpp
+	${NSMAKE} run src/sdot/geometry/internal/generation/gen_cuts.cpp
 
 bench:
 	${NSMAKE} run tests/bench_ConvexPolytopSet.cpp

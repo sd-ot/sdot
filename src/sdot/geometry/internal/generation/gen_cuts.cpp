@@ -9,7 +9,7 @@ void make_cuts( GlobalGenCutData &gcd, int max_nb_point_circle = 4 ) {
     if ( dim == 1 ) {
         gc.add_ref_shape( "" );
     } else {
-        for( int n = 3; n <= max_nb_point_circle; ++n ) {
+        for( int n = 3; n <= std::min( 4, max_nb_point_circle ); ++n ) {
             for( int k = 0; k < ( 1 << dim - 2 ); ++k ) {
                 std::ostringstream name;
                 name << n;
@@ -17,6 +17,13 @@ void make_cuts( GlobalGenCutData &gcd, int max_nb_point_circle = 4 ) {
                     name << ( k & ( 1 << d ) ? "E" : "S" );
                 gc.add_ref_shape( name.str() );
             }
+        }
+        for( int n = 5; n <= max_nb_point_circle; ++n ) {
+            std::ostringstream name;
+            name << n;
+            for( int d = 0; d < dim - 2; ++d )
+                name << "S";
+            gc.add_ref_shape( name.str() );
         }
     }
 
@@ -62,7 +69,7 @@ void make_cuts( GlobalGenCutData &gcd, int max_nb_point_circle = 4 ) {
 */
 int main() {
     GlobalGenCutData gcd;
-    make_cuts<2>( gcd, 4 );
-    // make_cuts<3>( gcd );
+    make_cuts<2>( gcd, 8 );
+    make_cuts<3>( gcd, 4 );
 }
 
