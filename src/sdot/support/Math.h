@@ -13,7 +13,7 @@ T ceil( T a, U m ) {
 
 template<class T>
 T factorial( T val ) {
-    return val ? val * factorial( val - 1 ) : 1;
+    return val ? val * factorial( val - T( 1 ) ) : T( 1 );
 }
 
 template<class T,class U>

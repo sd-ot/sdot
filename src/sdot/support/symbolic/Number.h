@@ -1,19 +1,19 @@
 #pragma once
 
+#include "../Rational.h"
 #include "Inst.h"
-#include <string>
 
 namespace Symbolic {
 
 /** */
-class BinOp : public Inst {
+class Number : public Inst {
 public:
-    /***/        BinOp( Context *context, std::string name, Inst *a, Inst *b );
+    /***/        Number         ( Context *context, Rational value );
 
     virtual void write_to_stream( std::ostream &os ) const;
     virtual void write_code     ( std::ostream &os ) const;
 
-    std::string  name;
+    Rational     value;
 };
 
 }

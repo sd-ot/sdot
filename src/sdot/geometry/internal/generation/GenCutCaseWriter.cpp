@@ -2,6 +2,7 @@
 #include "../../../support/range.h"
 #include "../../../support/P.h"
 #include "GenCutCaseWriter.h"
+#include <algorithm>
 #include <ostream>
 
 GenCutCaseWriter::GenCutCaseWriter( const GenCutCaseWriter &that ) {

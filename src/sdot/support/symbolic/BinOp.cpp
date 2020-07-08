@@ -14,4 +14,8 @@ void BinOp::write_to_stream( std::ostream &os ) const {
     os << ")";
 }
 
+void BinOp::write_code( std::ostream &os ) const {
+    os << children[ 0 ]->reg << " " << name << " " << children[ 1 ]->reg;
+}
+
 }

@@ -37,7 +37,7 @@ public:
     void                          write_to_stream      ( std::ostream &os, std::string nl = "\n  ", std::string ns = "  " ) const;
     void                          update_normals       (); ///< TODO: check orientation
     template<class VO> void       display_vtk          ( VO &vo ) const;
-    Rp                            with_points          ( const std::vector<Pt> &pts ) const;
+    template<class Pts> auto      with_points          ( const Pts &pts ) const -> RecursivePolytop<typename std::decay<decltype( pts[ 0 ][ 0 ] )>::type,dim,TI,UserData>;
     bool                          is_convex            () const;
     RecursivePolytop              plane_cut            ( Pt orig, Pt normal, const std::function<UserData(const UserData &,const UserData &,TF,TF)> &nf = {} ) const;
     bool                          contains             ( const Pt &pt ) const;
@@ -47,6 +47,7 @@ public:
     static void                   get_intersections    ( std::deque<std::array<Rp,2>> &res, const Rp &a, const Rp &b ); ///< intersect this with the faces of that
 
 private:
+    template<class a,int b,class c,class d> friend     class RecursivePolytop;
     template<class R,int n>       friend               struct RecursivePolytopImpl;
     using                         Impl                 = RecursivePolytopImpl<RecursivePolytop,dim>;
 

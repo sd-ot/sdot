@@ -385,18 +385,18 @@ void RecursivePolytopImpl<Rp,1>::for_each_vertex( const F &fu ) const {
         fu( v );
 }
 
-template<class Rp,int nvi>
-void RecursivePolytopImpl<Rp,nvi>::with_points( IntrusiveList<RecursivePolytopImpl> &res, BumpPointerPool &pool, Vertex *new_vertices ) const {
-    RecursivePolytopImpl *impl = pool.create<RecursivePolytopImpl>();
+template<class Rp,int nvi> template<class R,class V>
+void RecursivePolytopImpl<Rp,nvi>::with_points( IntrusiveList<R> &res, BumpPointerPool &pool, V *new_vertices ) const {
+    R *impl = pool.create<R>();
     res.push_front( impl );
 
     for( const Face &face : faces )
         face.with_points( impl->faces, pool, new_vertices );
 }
 
-template<class Rp>
-void RecursivePolytopImpl<Rp,1>::with_points( IntrusiveList<RecursivePolytopImpl> &res, BumpPointerPool &pool, Vertex *new_vertices ) const {
-    RecursivePolytopImpl *impl = pool.create<RecursivePolytopImpl>();
+template<class Rp> template<class R,class V>
+void RecursivePolytopImpl<Rp,1>::with_points( IntrusiveList<R> &res, BumpPointerPool &pool, V *new_vertices ) const {
+    R *impl = pool.create<R>();
     res.push_front( impl );
 
     for( TI i = 0; i < 2; ++i )

@@ -41,9 +41,10 @@ bool RecursivePolytop<TF,dim,TI,UserNodeData>::valid_vertex_prop( const std::vec
     return true;
 }
 
-template<class TF,int dim,class TI,class UserNodeData>
-RecursivePolytop<TF,dim,TI,UserNodeData> RecursivePolytop<TF,dim,TI,UserNodeData>::with_points( const std::vector<Pt> &pts ) const {
-    RecursivePolytop<TF,dim,TI,UserNodeData> res( vertices.size() );
+template<class TF,int dim,class TI,class UserNodeData> template<class Pts>
+auto RecursivePolytop<TF,dim,TI,UserNodeData>::with_points( const Pts &pts ) const -> RecursivePolytop<typename std::decay<decltype( pts[ 0 ][ 0 ] )>::type,dim,TI,UserData> {
+    using NF = typename std::decay<decltype( pts[ 0 ][ 0 ] )>::type;
+    RecursivePolytop<NF,dim,TI,UserNodeData> res( vertices.size() );
     for( TI i = 0; i < vertices.size(); ++i ) {
         res.vertices[ i ].user_data = vertices[ i ].user_data;
         res.vertices[ i ].pos = pts[ vertices[ i ].num ];

@@ -1,3 +1,4 @@
+#include "../../../support/symbolic/Codegen.h"
 #include "../../../support/P.h"
 #include "GenCutCaseWriter.h"
 #include "GenSetVecOps.h"
@@ -306,12 +307,25 @@ void GenCuts<dim>::write_measure_func( std::ostream &os ) {
             for( TI d = 0; d < dim; ++d )
                 os << "        VF p_" << num_vertex << "_" << d << " = VF::load_aligned( p_" << num_vertex << "_" << d << "_ptr + beg );\n";
         os << "\n";
-        os << "        VF dx_1 = x_1 - x_0;\n";
-        os << "        VF dy_1 = y_1 - y_0;\n";
-        os << "        VF dx_2 = x_2 - x_0;\n";
-        os << "        VF dy_2 = y_2 - y_0;\n";
-        os << "\n";
-        os << "        VF res = VF( TF( 1 ) / 2 ) * ( dx_1 * dy_2 - dy_1 * dx_2 );\n";
+
+        //RecursivePolytop<Symbolic::Expr,dim,TI,CutNode> rp;
+        using Ps = Point<Symbolic::Expr,dim>;
+        Symbolic::Context context;
+        std::vector<Ps> pts;
+        for( TI num_vertex = 0; num_vertex < rs.rp.nb_vertices(); ++num_vertex ) {
+            Ps pt;
+            for( TI d = 0; d < dim; ++d )
+                pt[ d ] = context.named( "p_" + std::to_string( num_vertex ) + "_" + std::to_string( d ) );
+            pts.push_back( pt );
+        }
+        auto rp = rs.rp.with_points( pts );
+        Symbolic::Expr measure = rp.measure();
+        measure.simplify();
+
+        Symbolic::Codegen cg( "VF", "        " );
+        cg.add_expr( "res", measure );
+        cg.write( os );
+
         os << "\n";
         os << "        VF::scatter( tmp_f.data(), ids, old + res );\n";
         os << "    } );\n";

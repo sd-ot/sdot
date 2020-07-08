@@ -6,9 +6,9 @@
 namespace Symbolic {
 
 /** */
-class BinOp : public Inst {
+class UnaOp : public Inst {
 public:
-    /***/        BinOp( Context *context, std::string name, Inst *a, Inst *b );
+    /***/        UnaOp( Context *context, std::string name, Inst *a );
 
     virtual void write_to_stream( std::ostream &os ) const;
     virtual void write_code     ( std::ostream &os ) const;
