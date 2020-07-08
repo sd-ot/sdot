@@ -38,7 +38,6 @@ public:
     void                    get_measures            ( TF *measures ) const;
 
     //    void              add_weighted_barycenters( Pt *weighted_centers, TF *measures ) const; ///< beware: user is responsible to 0 the data
-    //    void              add_measures            ( TF *measures ) const; ///< beware: user is responsible to 0 the data
     //    void              split                   ( ConvexPolytop *volumes_assemblies, bool copy_id = false ) const;
 
 private:
@@ -50,7 +49,6 @@ private:
     using                   AlignedVecTF            = std::vector<TF,AlignedAllocator<TF,Arch>>;
     using                   ShapeCoords             = StructOfArrays<std::tuple<Pos,Id,FaceIds>,Arch,TI>;
     using                   ShapeMap                = std::map<std::string,ShapeCoords>; ///< shape name => all the shapes of this type
-    // using                TFCalc                  = StructOfArrays<std::vector<TF>,Arch,TI>;
 
     using                   CutChunkSizeCalc        = PrevPow2<32768/sizeof(TF)/(dim+1)*2>; // helper for cut_chunk_...
     enum {                  cut_chunk_size          = CutChunkSizeCalc::value }; // nb items in chunks for plane cut (to fit in L1)
@@ -62,8 +60,6 @@ private:
 
 
     template<int n> void    make_sp_and_cases       ( std::array<const TF *,dim> dirs, const TF *sps, ShapeCoords &sc, TI be, N<n>, const std::map<std::string,std::vector<TI>> &nb_created );
-    void                    make_sp_and_cases       ( std::array<const TF *,dim> dirs, const TF *sps, ShapeCoords &sc, TI be, N<3>, const std::map<std::string,std::vector<TI>> &nb_created );
-    //static void           reserve_and_clear       ( TFCalc &calc, TI nb_rows, TI size );
     ShapeCoords&            shape_list              ( ShapeMap &shape_map, const std::string &name, TI new_rese = 1024 );
     void                    reserve                 ( ShapeCoords &sc, TI old_size, TI new_rese );
     void                    free                    ( ShapeCoords &sc );

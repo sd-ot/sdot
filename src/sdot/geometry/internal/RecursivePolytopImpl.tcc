@@ -95,8 +95,7 @@ void RecursivePolytopImpl<Rp,1>::update_normals( Pt *normals, const Vertex *, TI
     normal = cross_prod( normals );
 
     // check orientation (works only for convex polytops)
-    if ( dot( vertices[ 0 ]->pos - center, normal ) < 0 )
-        normal = - normal;
+    normal *= TF( 1 - 2 * ( dot( vertices[ 0 ]->pos - center, normal ) < 0 ) );
 }
 
 template<class Rp,int nvi>

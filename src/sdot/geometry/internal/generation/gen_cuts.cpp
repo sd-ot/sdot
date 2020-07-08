@@ -53,7 +53,7 @@ void make_cuts( GlobalGenCutData &gcd, int max_nb_point_circle = 4 ) {
 
     // -> measure
     std::ofstream fme( "src/sdot/geometry/internal/generated/SetOfElementaryPolytops_measure_" + std::to_string( dim ) + "D.h" );
-    gc.write_measure_func( std::cout /*fme*/ );
+    gc.write_measure_func( fme );
 }
 
 /*

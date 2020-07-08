@@ -44,6 +44,6 @@ int main() {
 
     VtkOutput vo;
     test_with_shape( vo, N<2>(), mk_3, 20, {  0.0, 0.0, 0.0 } );
-    // test_with_shape( vo, N<2>(), mk_4, 20, { 30.0, 0.0, 0.0 } );
+    test_with_shape( vo, N<2>(), mk_4, 20, { 30.0, 0.0, 0.0 } );
     vo.save( "out.vtk" );
 }

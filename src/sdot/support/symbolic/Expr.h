@@ -18,6 +18,9 @@ public:
     void              simplify       ();
 
     Expr&             operator+=     ( const Expr &that );
+    Expr&             operator-=     ( const Expr &that );
+    Expr&             operator*=     ( const Expr &that );
+    Expr&             operator/=     ( const Expr &that );
     Expr              operator-      () const;
 
     explicit operator Rational       () const;
@@ -34,5 +37,7 @@ Expr operator+( Expr a, Expr b );
 Expr operator-( Expr a, Expr b );
 Expr operator*( Expr a, Expr b );
 Expr operator/( Expr a, Expr b );
+
+Expr operator<( Expr a, Expr b );
 
 }

@@ -26,10 +26,10 @@ void Expr::simplify() {
         inst = inst->simplify();
 }
 
-Expr &Expr::operator+=( const Expr &that ) {
-    *this = *this + that;
-    return *this;
-}
+Expr &Expr::operator+=( const Expr &that ) { *this = *this + that; return *this; }
+Expr &Expr::operator-=( const Expr &that ) { *this = *this - that; return *this; }
+Expr &Expr::operator*=( const Expr &that ) { *this = *this * that; return *this; }
+Expr &Expr::operator/=( const Expr &that ) { *this = *this / that; return *this; }
 
 Expr Expr::operator-() const {
     if ( ! inst )
@@ -60,11 +60,12 @@ Expr bin_op( std::string name, Expr a, Expr b ) {
         if ( name == "-" ) return a.value - b.value;
         if ( name == "*" ) return a.value * b.value;
         if ( name == "/" ) return a.value / b.value;
+        if ( name == "<" ) return a.value < b.value;
         TODO;
     }
 
     Inst *ai = a.inst, *bi = b.inst;
-    if ( ai > bi )
+    if ( ( name == "+" || name == "*" ) && ai > bi )
         std::swap( ai, bi );
     for( Inst *p : a.inst->parents )
         if ( BinOp *b = dynamic_cast<BinOp *>( p ) )
@@ -90,5 +91,6 @@ Expr operator+( Expr a, Expr b ) { return bin_op( "+", a, b ); }
 Expr operator-( Expr a, Expr b ) { return bin_op( "-", a, b ); }
 Expr operator*( Expr a, Expr b ) { return bin_op( "*", a, b ); }
 Expr operator/( Expr a, Expr b ) { return bin_op( "/", a, b ); }
+Expr operator<( Expr a, Expr b ) { return bin_op( "<", a, b ); }
 
 }
