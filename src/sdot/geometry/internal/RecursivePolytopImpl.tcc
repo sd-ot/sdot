@@ -67,8 +67,8 @@ void RecursivePolytopImpl<Rp,nvi>::update_normals( Pt *normals, const Vertex *ve
             normals[ dim - nvi - 1 + d ] = vertices[ indices[ chosen_num_indices[ d ] ] + 1 ].tmp_v->pos - orig;
         Pt prop = cross_prod( normals );
         TF score = norm_2_p2( prop );
-        if ( score > best_score ) {
-            score = best_score;
+        if ( best_score < score ) {
+            best_score = score;
             normal = prop;
         }
     } );
