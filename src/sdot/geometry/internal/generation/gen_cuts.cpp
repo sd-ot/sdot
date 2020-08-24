@@ -7,10 +7,10 @@ void make_cuts( GlobalGenCutData &gcd, int max_nb_point_circle = 4 ) {
 
     // make the base shapes
     if ( dim == 1 ) {
-        gc.add_ref_shape( "" );
+        gc.add_ref_shape( "" ); // a simple segment
     } else {
         for( int n = 3; n <= std::min( 4, max_nb_point_circle ); ++n ) {
-            for( int k = 0; k < ( 1 << dim - 2 ); ++k ) {
+            for( int k = 0; k < ( 1 << ( dim - 2 ) ); ++k ) {
                 std::ostringstream name;
                 name << n;
                 for( int d = 0; d < dim - 2; ++d )

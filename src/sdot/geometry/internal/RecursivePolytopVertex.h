@@ -17,10 +17,12 @@ struct RecursivePolytopVertex {
     Pt              pos;
     TI              num;
 
-    mutable Vertex *tmp_v;
-    mutable TF      tmp_f;
+    mutable Vertex *prev_oi;       ///< used by plane cut
+    mutable Vertex *tmp_v;         ///< typically used to get new vertices correspondance
+    mutable TF      tmp_f;         ///<
     mutable TI      date = 0;      ///< used for graph operations
     mutable Vertex *next;          ///< typically used to cycle through the edges
     mutable TI      beg;           ///< typically used for tmp_connections
     mutable TI      end;           ///< typically used for tmp_connections
+    mutable void   *t;             ///< hum
 };

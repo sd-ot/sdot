@@ -8,7 +8,6 @@ all:
 	# ${NSMAKE} tests/test_StructOfArrays.cpp
 	# ${NSMAKE} run tests/bench_ConvexPolytopSet.cpp
 	# ${NSMAKE} run tests/test_IntrusiveList.cpp
-	# ${NSMAKE} run tests/test_RecursivePolytop.cpp
 	# ${NSMAKE} run src/sdot/geometry/internal/generation/gen_cuts.cpp
 	# ${NSMAKE} run --exec-with "valgrind --tool=callgrind --dump-instr=yes --collect-jumps=yes" tests/bench_SetOfElementaryPolytops.cpp
 	# ${NSMAKE} run tests/bench_SetOfElementaryPolytops.cpp
@@ -16,7 +15,8 @@ all:
 	# ${NSMAKE} run tests/test_SymbolicExpr.cpp
 	# cd ~/nsmake; nsmake stop; rm -rf ~/.nsmake 2> /dev/null; npm run build
 	# nsmake run tests/test_SetOfElementaryPolytops.cu; cat ~/.nsmake/server.log
-	nsmake run tests/test_SetOfElementaryPolytops.cpp
+	# nsmake run tests/test_SetOfElementaryPolytops.cpp
+	${NSMAKE} run tests/test_RecursivePolytop.cpp
 
 gen:
 	${NSMAKE} -O3 run src/sdot/geometry/internal/generation/gen_cuts.cpp 2; ${NSMAKE} run -O3 src/sdot/geometry/internal/generation/gen_cuts.cpp 3

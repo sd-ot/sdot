@@ -208,11 +208,11 @@ typename RecursivePolytopImpl<Rp,1>::Vertex* RecursivePolytopImpl<Rp,1>::first_v
 }
 
 template<class Rp,int nvi> template<class B>
-void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, const Pt &cut_normal, B ) const {
+void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, Vertex *&oi_vertices, const Pt &cut_normal, B ) const {
     IntrusiveList<typename Face::Face> new_io_faces;
     IntrusiveList<Face> new_faces;
     for( const Face &face : faces )
-        face.plane_cut( new_faces, new_rp, old_rp, new_vertices, new_io_faces, io_vertex, cut_normal, N<nvi-1>() );
+        face.plane_cut( new_faces, new_rp, old_rp, new_vertices, new_io_faces, oi_vertices, cut_normal, N<nvi-1>() );
     if ( new_faces.empty() )
         return;
 
@@ -248,76 +248,74 @@ void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl
 }
 
 template<class Rp,int nvi>
-void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&/*io_vertex*/, const Pt &cut_normal, N<2> ) const {
+void RecursivePolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, Vertex *&/*oi_vertices*/, const Pt &cut_normal, N<2> ) const {
     using Edge = Face;
     using std::min;
     using std::max;
 
-    IntrusiveList<typename Face::Face> new_io_faces;
-    const Vertex *io_vertex = nullptr;
-    IntrusiveList<Edge> new_edges;
+    IntrusiveList<typename Face::Face> new_io_faces; // tmp data (not used at all)
+    IntrusiveList<Edge> all_the_new_edges; // list that will be used for res
+    Vertex *oi_vertices = nullptr; // outside -> inside node list
     for( const Edge &edge : faces )
-        edge.plane_cut( new_edges, new_rp, old_rp, new_vertices, new_io_faces, io_vertex, cut_normal, N<1>() );
-    if ( new_edges.empty() )
+        edge.plane_cut( all_the_new_edges, new_rp, old_rp, new_vertices, new_io_faces, oi_vertices, cut_normal, N<1>() );
+    if ( all_the_new_edges.empty() )
         return;
 
-    // close the face
-    if ( const Vertex *b = io_vertex ) {
-        // make a linked list
-        for( const Edge &edge : faces )
+    // if some edges are cut, we have to close the face(s)
+    if ( const Vertex *b = oi_vertices ) {
+        // make a linked list of nodes
+        for( Edge &edge : all_the_new_edges ) {
             edge.vertices[ 0 ]->next = edge.vertices[ 1 ];
-
-        //
-        for( const Vertex *v = b; ; v = v->next ) {
-            if ( io_vertex == nullptr ) {
-                // io_vertex == nullptr means that we are inside, and we are looking for a io node
-                if ( v->next->outside() )
-                    io_vertex = v;
-            } else if ( v->next->inside() ) {
-                TI b0 = min( io_vertex->num, io_vertex->next->num );
-                TI b1 = max( io_vertex->num, io_vertex->next->num );
-                TI bn = b1 * ( b1 - 1 ) / 2 + b0;
-
-                TI e0 = min( v->num, v->next->num );
-                TI e1 = max( v->num, v->next->num );
-                TI en = e1 * ( e1 - 1 ) / 2 + e0;
-
-                // edge to close the current face
-                Edge *cl_edge = new_rp.pool.template create<Edge>();
-                new_edges.push_front( cl_edge );
-
-                cl_edge->vertices[ 0 ] = new_vertices[ bn ];
-                cl_edge->vertices[ 1 ] = new_vertices[ en ];
-                cl_edge->normal = cut_normal;
-
-                // edge to create a new face
-                if ( int( dim ) > int( nvi ) ) {
-                    Edge *nf_edge = new_rp.pool.template create<Edge>();
-                    io_faces.push_front( nf_edge );
-
-                    nf_edge->vertices[ 0 ] = new_vertices[ en ];
-                    nf_edge->vertices[ 1 ] = new_vertices[ bn ];
-                    nf_edge->normal = normal;
-                }
-
-                io_vertex = nullptr;
-            }
-
-            if ( v->next == b || ! v->next )
-                break;
+            edge.vertices[ 0 ]->t = &edge;
         }
 
+        // for each output -> input vertex
+        for( Vertex *b = oi_vertices; b; b = b->prev_oi ) {
+            // find the end of the face
+            IntrusiveList<Edge> new_edges;
+            Vertex *e = b;
+            while ( e->next ) {
+                new_edges.push_front( reinterpret_cast<Edge *>( e->t ) );
+                e = e->next;
+            }
+
+            // edge to close the current face
+            Edge *cl_edge = new_rp.pool.template create<Edge>();
+            new_edges.push_front( cl_edge );
+
+            cl_edge->vertices[ 0 ] = e;
+            cl_edge->vertices[ 1 ] = b;
+            cl_edge->normal = cut_normal;
+
+            /// creation of the new face
+            RecursivePolytopImpl *nrp = new_rp.pool.template create<RecursivePolytopImpl>();
+            nrp->faces = std::move( new_edges );
+            nrp->normal = normal;
+            res.push_front( nrp );
+
+            // edge to create a new face
+            if ( int( dim ) > int( nvi ) ) {
+                Edge *nf_edge = new_rp.pool.template create<Edge>();
+                io_faces.push_front( nf_edge );
+
+                nf_edge->vertices[ 0 ] = b;
+                nf_edge->vertices[ 1 ] = e;
+                nf_edge->normal = normal;
+            }
+        }
+
+        return;
     }
 
-    ///
+    // else, all inside
     RecursivePolytopImpl *nrp = new_rp.pool.template create<RecursivePolytopImpl>();
+    nrp->faces = std::move( all_the_new_edges );
     nrp->normal = normal;
-    nrp->faces = std::move( new_edges );
     res.push_front( nrp );
 }
 
 template<class Rp>
-void RecursivePolytopImpl<Rp,1>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, const Vertex *&io_vertex, const Pt &cut_normal, N<1> ) const {
+void RecursivePolytopImpl<Rp,1>::plane_cut( IntrusiveList<RecursivePolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, Vertex *&oi_vertices, const Pt &cut_normal, N<1> ) const {
     using std::min;
     using std::max;
 
@@ -350,8 +348,6 @@ void RecursivePolytopImpl<Rp,1>::plane_cut( IntrusiveList<RecursivePolytopImpl> 
         new_edge->vertices[ 1 ] = new_vertices[ nn ];
         new_edge->normal = normal;
 
-        io_vertex = vertices[ 0 ];
-
         return;
     }
 
@@ -367,6 +363,9 @@ void RecursivePolytopImpl<Rp,1>::plane_cut( IntrusiveList<RecursivePolytopImpl> 
         new_edge->vertices[ 0 ] = new_vertices[ nn ];
         new_edge->vertices[ 1 ] = vertices[ 1 ]->tmp_v;
         new_edge->normal = normal;
+
+        new_vertices[ nn ]->prev_oi = oi_vertices;
+        oi_vertices = new_vertices[ nn ];
 
         return;
     }

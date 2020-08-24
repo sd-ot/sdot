@@ -275,7 +275,7 @@ RecursivePolytop<TF,dim,TI,UserNodeData> RecursivePolytop<TF,dim,TI,UserNodeData
         }
     }
 
-    // make the interpolated vertices
+    // make the interpolated ones
     std::vector<Vertex *> new_vertices( vertices.size() * ( vertices.size() - 1 ) / 2, nullptr );
     for( const Impl &impl : impls ) {
         impl.for_each_item_rec( [&]( const auto &edge ) {
@@ -300,9 +300,9 @@ RecursivePolytop<TF,dim,TI,UserNodeData> RecursivePolytop<TF,dim,TI,UserNodeData
 
     //
     IntrusiveList<typename Impl::Face> io_faces;
-    const Vertex *io_vertex;
+    Vertex *oi_vertices;
     for( const Impl &impl : impls )
-        impl.plane_cut( res.impls, res, *this, new_vertices, io_faces, io_vertex, normal, N<dim>() );
+        impl.plane_cut( res.impls, res, *this, new_vertices, io_faces, oi_vertices, normal, N<dim>() );
     return res;
 }
 
