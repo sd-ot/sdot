@@ -30,8 +30,8 @@ private:
     template<int nvi> struct     GenSimplex        { std::array<TI,nvi+1> nodes; std::array<TI,nvi+1> cut_ids; };
     using                        Simplex           = GenSimplex<dim>;
 
-    template<int nvi> void       plane_cut_        ( std::vector<GenSimplex<nvi>> &new_simplices, std::vector<GenSimplex<nvi-1>> &new_faces, TI *new_nodes, const Pt pos, const Pt dir, const GenSimplex<nvi> &simplex );
-    void                         plane_cut_        ( std::vector<GenSimplex<  1>> &new_simplices, std::vector<GenSimplex<    0>> &new_faces, TI *new_nodes, const Pt pos, const Pt dir, const GenSimplex<  1> &simplex );
+    template<int nvi> void       plane_cut_        ( std::vector<Simplex> &new_simplices, Simplex &new_simplex, std::vector<bool> &new_faces, TI *new_nodes, const std::vector<TF> &sps, const GenSimplex<nvi> &simplex, std::vector<GenSimplex<nvi-1>> &closers );
+    void                         plane_cut_        ( std::vector<Simplex> &new_simplices, Simplex &new_simplex, std::vector<bool> &new_faces, TI *new_nodes, const std::vector<TF> &sps, const GenSimplex<  1> &simplex, std::vector<GenSimplex<    0>> &closers );
     TF                           measure_          ( const Simplex &simplex ) const;
 
     std::vector<Simplex>         simplices;

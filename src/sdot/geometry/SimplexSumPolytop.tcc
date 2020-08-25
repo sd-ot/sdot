@@ -64,66 +64,111 @@ void SimplexSumPolytop<dim,TF,TI,Arch>::display_vtk( VtkOutput &vo ) const {
 
 template<int dim,class TF,class TI,class Arch>
 TI SimplexSumPolytop<dim,TF,TI,Arch>::plane_cut( Pt pos, Pt dir ) {
+    // scalar products
+    std::vector<TF> sps( positions.size() );
+    for( TI i = 0; i < sps.size(); ++i )
+        sps[ i ] = dot( positions[ i ] - pos, dir );
+
     std::vector<TI> new_nodes( positions.size() * ( positions.size() - 1 ) / 2, 0 ); // for each possible edge
-    std::vector<GenSimplex<dim-1>> new_faces;
     std::vector<Simplex> new_simplices;
-    for( const Simplex &simplex : simplices )
-        plane_cut_( new_simplices, new_faces, new_nodes.data(), pos, dir, simplex );
+    for( const Simplex &simplex : simplices ) {
+        Simplex new_simplex;
+        std::vector<GenSimplex<dim-1>> closers;
+        std::vector<bool> allowed_nodes( positions.size(), true );
+        plane_cut_( new_simplices, new_simplex, allowed_nodes, new_nodes.data(), sps, simplex, closers );
+    }
     simplices = std::move( new_simplices );
     return nb_cuts++;
 }
 
 template<int dim,class TF,class TI,class Arch> template<int nvi>
-void SimplexSumPolytop<dim,TF,TI,Arch>::plane_cut_( std::vector<GenSimplex<nvi>> &new_simplices, std::vector<GenSimplex<nvi-1>> &new_faces, TI *new_nodes, const Pt pos, const Pt dir, const GenSimplex<nvi> &simplex ) {
-    std::vector<GenSimplex<nvi-2>> new_sub_faces;
+void SimplexSumPolytop<dim,TF,TI,Arch>::plane_cut_( std::vector<Simplex> &new_simplices, Simplex &new_simplex, std::vector<bool> &allowed_nodes, TI *new_nodes, const std::vector<TF> &sps, const GenSimplex<nvi> &simplex, std::vector<GenSimplex<nvi-1>> &closers ) {
+    // find a base point (allowed, and inside the cut)
+    // -> il faut continuer qd même pour avoir les closers
+    TI base_point;
+    for( TI i = 0; ; ++i ) {
+        if ( i == nvi + 1 )
+            return;
+        if ( ! ( sps[ simplex.nodes[ i ] ] > 0 ) ) {
+            new_simplex.nodes[ dim - nvi ] = i;
+            allowed_nodes[ i ] = false;
+            base_point = i;
+            break;
+        }
+    }
+
+    // rec call for each sub_item (i.e. for each edge if triangle, for each triangle if tetra, ...)
+    std::vector<GenSimplex<nvi-2>> sub_closers;
     for( TI num_face = 0; num_face < nvi + 1; ++num_face ) {
-        GenSimplex<nvi-1> face;
+        GenSimplex<nvi-1> sub_item;
         for( TI n = 0; n < nvi; ++n )
-            face.nodes[ n ] = simplex.nodes[ n + ( n >= num_face ) ];
-
-        std::vector<GenSimplex<nvi-1>> new_faces;
-        plane_cut_( new_faces, new_sub_faces, new_nodes, pos, dir, face );
-
-        for( const GenSimplex<nvi-1> &new_face : new_faces ) {
-            bool valid = true;
-            GenSimplex<nvi> new_simplex;
-            for( TI n = 0; n < nvi; ++n ) {
-                valid &= new_face.nodes[ n ] != simplex.nodes[ 0 ];
-                new_simplex.nodes[ n ] = new_face.nodes[ n ];
-            }
-
-            if ( valid ) {
-                new_simplex.nodes[ nvi ] = simplex.nodes[ 0 ];
-                new_simplices.push_back( new_simplex );
-            }
-        }
+            sub_item.nodes[ n ] = simplex.nodes[ n + ( n >= num_face ) ];
+        plane_cut_( new_simplices, new_simplex, allowed_nodes, new_nodes, sps, sub_item, sub_closers );
     }
 
-    // close
-    for( const GenSimplex<nvi-2> new_sub_face : new_sub_faces ) {
-        bool valid = true;
-        GenSimplex<nvi> new_simplex;
-        for( TI n = 0; n < nvi - 1; ++n ) {
-            valid &= new_sub_face.nodes[ n ] != new_sub_faces[ 0 ].nodes[ 0 ];
-            new_simplex.nodes[ n ] = new_sub_face.nodes[ n ];
-        }
+    P( sub_closers.size() );
 
-        if ( valid ) {
-            new_simplex.nodes[ nvi - 1 ] = new_sub_faces[ 0 ].nodes[ 0 ];
-            new_simplex.nodes[ nvi ] = simplex.nodes[ 0 ];
-            new_simplices.push_back( new_simplex );
-        }
-    }
+    //        std::vector<GenSimplex<nvi-1>> new_loc_faces;
+    //        plane_cut_( new_loc_faces, new_sub_faces, new_nodes, pos, dir, face, loc_first_inside_node );
+    //        if ( nvi == 3 )
+    //            P( new_loc_faces.size() );
+
+    //        for( const GenSimplex<nvi-1> &new_face : new_loc_faces ) {
+    //            bool valid = true;
+    //            GenSimplex<nvi> new_simplex;
+    //            for( TI n = 0; n < nvi; ++n ) {
+    //                valid &= new_face.nodes[ n ] != loc_first_inside_node;
+    //                new_simplex.nodes[ n ] = new_face.nodes[ n ];
+    //            }
+
+    //            if ( valid ) {
+    //                new_simplex.nodes[ nvi ] = loc_first_inside_node;
+    //                new_simplices.push_back( new_simplex );
+    //            }
+    //        }
+    //    }
+
+    //    if ( nvi == 3 ) {
+    //        P( new_sub_faces.size() );
+    //        for( const GenSimplex<nvi-2> new_sub_face : new_sub_faces )
+    //            P( new_sub_face.nodes);
+    //        return;
+    //    }
+
+    //    // close
+    //    for( const GenSimplex<nvi-2> new_sub_face : new_sub_faces ) {
+    //        bool valid = true;
+    //        GenSimplex<nvi-1> new_face;
+    //        for( TI n = 0; n < nvi - 1; ++n ) {
+    //            valid &= new_sub_face.nodes[ n ] != new_sub_faces[ 0 ].nodes[ 0 ];
+    //            new_face.nodes[ n ] = new_sub_face.nodes[ n ];
+    //        }
+
+    //        if ( valid ) {
+    //            GenSimplex<nvi> new_simplex;
+    //            for( TI n = 0; n < nvi - 1; ++n )
+    //                new_simplex.nodes[ n ] = new_face.nodes[ n ];
+    //            new_simplex.nodes[ nvi - 1 ] = new_sub_faces[ 0 ].nodes[ 0 ];
+    //            new_simplex.nodes[ nvi ] = loc_first_inside_node;
+    //            new_simplices.push_back( new_simplex );
+
+    //            new_face.nodes[ nvi - 1 ] = new_sub_faces[ 0 ].nodes[ 0 ];
+    //            if ( nvi < dim )
+    //                new_faces.push_back( new_face );
+    //        }
+    //    }
+
+    //    //
+    //    if ( first_inside_node == std::numeric_limits<TI>::max() )
+    //        first_inside_node = loc_first_inside_node;
 }
 
 template<int dim,class TF,class TI,class Arch>
-void SimplexSumPolytop<dim,TF,TI,Arch>::plane_cut_( std::vector<GenSimplex<1>> &new_simplices, std::vector<GenSimplex<0>> &new_faces, TI *new_nodes, const Pt pos, const Pt dir, const GenSimplex<1> &simplex ) {
+void SimplexSumPolytop<dim,TF,TI,Arch>::plane_cut_( std::vector<Simplex> &new_simplices, Simplex &new_simplex, std::vector<bool> &allowed_nodes, TI *new_nodes, const std::vector<TF> &sps, const GenSimplex<1> &simplex, std::vector<GenSimplex<0>> &closers ) {
     TI n0 = simplex.nodes[ 0 ];
     TI n1 = simplex.nodes[ 1 ];
-    Pt p0 = positions[ n0 ];
-    Pt p1 = positions[ n1 ];
-    TF s0 = dot( p0 - pos, dir );
-    TF s1 = dot( p1 - pos, dir );
+    TF s0 = sps[ n0 ];
+    TF s1 = sps[ n1 ];
     bool o0 = s0 > 0;
     bool o1 = s1 > 0;
 
@@ -136,25 +181,35 @@ void SimplexSumPolytop<dim,TF,TI,Arch>::plane_cut_( std::vector<GenSimplex<1>> &
         TI nn = o1 * ( o1 - 1 ) / 2 + o0;
         if ( ! new_nodes[ nn ] ) {
             new_nodes[ nn ] = positions.size();
-            new_faces.push_back( { .nodes = { positions.size() } } );
-            positions.push_back( p0 + s0 / ( s0 - s1 ) * ( p1 - p0 ) );
+            positions.push_back( positions[ n0 ] + s0 / ( s0 - s1 ) * ( positions[ n1 ] - positions[ n0 ] ) );
         }
+        closers.push_back( { .nodes = { new_nodes[ nn ] } } );
         return new_nodes[ nn ];
     };
 
-    if ( o0 ) {
-        GenSimplex<1> new_simplex;
-        new_simplex.nodes = { new_node(), n1 };
+    auto push = [&]( TI n0, TI n1 ) {
+        new_simplex.nodes[ dim - 1 ] = n0;
+        new_simplex.nodes[ dim - 0 ] = n1;
         new_simplices.push_back( new_simplex );
+    };
+
+    // only n1 is inside
+    if ( o0 ) {
+        if ( allowed_nodes[ n1 ] )
+            push( new_node(), n1 );
         return;
     }
 
+    // only n0 is inside
     if ( o1 ) {
-        GenSimplex<1> new_simplex;
-        new_simplex.nodes = { n0, new_node() };
-        new_simplices.push_back( new_simplex );
+        if ( allowed_nodes[ n0 ] )
+            push( n0, new_node() );
         return;
     }
+
+    // n0 and n1 are both inside
+    if ( allowed_nodes[ n0 ] && allowed_nodes[ n1 ] )
+        push( n0, n1 );
 }
 
 template<int dim,class TF,class TI,class Arch>
