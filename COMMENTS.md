@@ -153,6 +153,13 @@ Pour gérer les collisions. Exemple avec nc = [ 4, 2, 4, 1 ] (4 apparaît 2 foix
     VI::scatter( nb_indices_for_each_case.data, nc, nbi );
 
 
-Prop: on 
+Prop d'algorithme pour la création de volume:
+  * RecursivePolytop ne fonctionne qu'en mode convexe. Pas la peine de s'embêter, ça ne sert qu'à la génération de cas
+  * Pour éviter d'explorer trop de cas, on cherche les cas qui passent par une face déjà existante s'il y en a une
+  * 
 
+Est-ce qu'on pourrait travailler à un niveau plus élémentaire ?
 
+Définition d'une forme élémentaire: une liste de normales
+
+Considérant un cas de coupe. On peut trouver 

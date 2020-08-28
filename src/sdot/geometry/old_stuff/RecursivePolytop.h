@@ -1,18 +1,15 @@
 #ifndef SDOT_RECURSIVE_POLYTOP_HEADER
 #define SDOT_RECURSIVE_POLYTOP_HEADER
 
-#include "internal/RecursivePolytopVertex.h"
 #include "internal/RecursivePolytopImpl.h"
 #include <deque>
 
 /**
   Starting from a set of point, make_convex_hull adds faces
 */
-template<class TF_,int dim_,class TI_=std::size_t,class UserData_=Void>
+template<class TF_,int dim_,class TI_=std::size_t>
 class RecursivePolytop {
 public:
-    using                         UserData             = UserData_;
-    using                         Vertex               = RecursivePolytopVertex<TF_,dim_,TI_,UserData>;
     enum {                        dim                  = dim_ };
     using                         TF                   = TF_;
     using                         TI                   = TI_;
