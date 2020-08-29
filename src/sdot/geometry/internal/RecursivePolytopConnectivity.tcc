@@ -7,13 +7,22 @@
 
 // write_to_stream -----------------------------------------------------------------------
 template<class TF,int dim,int nvi,class TI>
-void RecursivePolytopConnectivity<TF,dim,nvi,TI>::write_to_stream( std::ostream &os ) const {
-    os << " N: " << normal;
+void RecursivePolytopConnectivity<TF,dim,nvi,TI>::write_to_stream( std::ostream &os, bool rec ) const {
+    if ( rec ) {
+        os << "[";
+        int cpt = 0;
+        for( const Face &face : faces )
+            face.write_to_stream( os << ( cpt++ ? "," : "" ), rec );
+        os << "]";
+    } else
+        os << " N: " << normal;
 }
 
 template<class TF,int dim,class TI>
-void RecursivePolytopConnectivity<TF,dim,1,TI>::write_to_stream( std::ostream &os ) const {
-    os << vertices[ 0 ] << " " << vertices[ 1 ] << " N: " << normal;
+void RecursivePolytopConnectivity<TF,dim,1,TI>::write_to_stream( std::ostream &os, bool rec ) const {
+    os << "[" << vertices[ 0 ] << " " << vertices[ 1 ] << "]";
+    if ( ! rec )
+        os << " N: " << normal;
 }
 
 // write_to_stream -----------------------------------------------------------------------

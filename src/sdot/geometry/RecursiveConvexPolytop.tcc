@@ -23,7 +23,7 @@ void RecursiveConvexPolytop<TF,dim,TI>::write_to_stream( std::ostream &os, std::
             os << nl;
             for( TI i = 0; i < dim - face.nvi; ++i )
                 os << ns;
-            face.write_to_stream( os );
+            face.write_to_stream( os, false );
         } );
     }
 }

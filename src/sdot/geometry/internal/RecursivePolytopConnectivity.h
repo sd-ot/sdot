@@ -23,7 +23,7 @@ struct RecursivePolytopConnectivity {
     template<class F,int n> void   for_each_item_rec( const F &fu, N<n> ) const;
     template<class F> void         for_each_item_rec( const F &fu, N<nvi> ) const;
     template<class F> void         for_each_item_rec( const F &fu ) const;
-    void                           write_to_stream  ( std::ostream &os ) const;
+    void                           write_to_stream  ( std::ostream &os, bool rec = true ) const;
     TI                             first_vertex     () const;
     void                           conn_cut         ( std::vector<RecursivePolytopConnectivity> &res, TI &nb_points, TI *new_points_per_edge, std::vector<bool> &outside );
     bool                           contains         ( const Pt *points, const Pt &pt ) const;
@@ -50,7 +50,7 @@ struct RecursivePolytopConnectivity<TF_,dim_,1,TI_> {
 
     template<class F> void         for_each_item_rec( const F &fu, N<1> ) const;
     template<class F> void         for_each_item_rec( const F &fu ) const;
-    void                           write_to_stream  ( std::ostream &os ) const;
+    void                           write_to_stream  ( std::ostream &os, bool rec = true ) const;
     TI                             first_vertex     () const;
     void                           conn_cut         ( std::vector<RecursivePolytopConnectivity> &res, TI &nb_points, TI *new_points_per_edge, std::vector<bool> &outside );
     bool                           contains         ( const Pt *points, const Pt &pt ) const;

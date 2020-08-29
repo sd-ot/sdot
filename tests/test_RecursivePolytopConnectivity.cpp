@@ -7,44 +7,47 @@ using TF = double;
 //// nsmake cpp_flag -g3
 
 void test_1D() {
-    using Rc = RecursivePolytopConnectivity<TF,1>;
-    using Rp = RecursiveConvexPolytop<TF,1>;
-    using Pt = Rp::Pt;
+    //    using Rc = RecursivePolytopConnectivity<TF,1>;
+    //    using Rp = RecursiveConvexPolytop<TF,1>;
+    //    using Pt = Rp::Pt;
 
-    std::vector<Pt> pts{ Pt{ 0 }, Pt{ 10 }, Pt{ 20 } };
-    Rp rp( pts );
+    //    std::vector<Pt> pts{ Pt{ 0 }, Pt{ 10 }, Pt{ 20 } };
+    //    Rp rp( pts );
 
-    Rc rc;
-    rp.for_each_item_rec( [&]( const auto &v ) { rc = v; }, N<1>() );
-    P( rc );
+    //    Rc rc;
+    //    rp.for_each_item_rec( [&]( const auto &v ) { rc = v; }, N<1>() );
+    //    P( rc );
 
-    TI nb_points = 10;
-    std::vector<Rc> ncs;
-    std::vector<bool> outside{ 0, 1, 1 };
-    std::vector<TI> new_points_per_edge( pts.size() * ( pts.size() - 1 ) / 2, 0 );
-    rc.conn_cut( ncs, nb_points, new_points_per_edge.data(), outside );
+    //    TI nb_points = 10;
+    //    std::vector<Rc> ncs;
+    //    std::vector<bool> outside{ 0, 1, 1 };
+    //    std::vector<TI> new_points_per_edge( pts.size() * ( pts.size() - 1 ) / 2, 0 );
+    //    rc.conn_cut( ncs, nb_points, new_points_per_edge.data(), outside );
 
-    P( ncs );
+    //    P( ncs );
 }
 
 void test_2D() {
-    //    using Rp = RecursiveConvexPolytop<TF,2>;
-    //    using Pt = Rp::Pt;
+    using Rc = RecursivePolytopConnectivity<TF,2>;
+    using Rp = RecursiveConvexPolytop<TF,2>;
+    using Pt = Rp::Pt;
 
-    //    // house shape
-    //    Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } } );
-    //    P( rp.contains( Pt{ 2, 22 } ) );
-    //    P( rp.contains( Pt{ 2, 2 } ) );
-    //    // P( rp.measure() );
-    //    P( rp );
+    // house shape
+    std::vector<Pt> pts{ { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } };
+    Rp rp( pts );
+    P( rp );
 
+    Rc rc;
+    rp.for_each_item_rec( [&]( const auto &v ) { P( v ); rc = v; }, N<2>() );
+    P( rc );
 
-    //    Rp op = rp.plane_cut( Pt{ 5, 12 }, Pt{ 0, +1 } );
-    //    P( op );
+    //    TI nb_points = 10;
+    //    std::vector<Rc> ncs;
+    //    std::vector<bool> outside{ 0, 1, 1 };
+    //    std::vector<TI> new_points_per_edge( pts.size() * ( pts.size() - 1 ) / 2, 0 );
+    //    rc.conn_cut( ncs, nb_points, new_points_per_edge.data(), outside );
 
-    //    VtkOutput vo;
-    //    op.display_vtk( vo );
-    //    vo.save( "out.vtk" );
+    //    P( ncs );
 }
 
 void test_3D() {
