@@ -6,7 +6,7 @@ using TF = double;
 
 //// nsmake cpp_flag -g3
 
-void test_1D() {
+void test_1D_conv() {
     //    using Rc = RecursivePolytopConnectivity<TF,1>;
     //    using Rp = RecursiveConvexPolytop<TF,1>;
     //    using Pt = Rp::Pt;
@@ -27,7 +27,7 @@ void test_1D() {
     //    P( ncs );
 }
 
-void test_2D() {
+void test_2D_conv() {
     using Rc = RecursivePolytopConnectivity<TF,2>;
     using Rp = RecursiveConvexPolytop<TF,2>;
     using Pt = Rp::Pt;
@@ -50,7 +50,7 @@ void test_2D() {
     //    P( ncs );
 }
 
-void test_3D() {
+void test_3D_conv() {
     //    using Rp = RecursiveConvexPolytop<TF,3>;
     //    using Pt = Rp::Pt;
 
@@ -80,9 +80,9 @@ void test_3D() {
 }
 
 int main() {
-    test_1D();
-    test_2D();
-    test_3D();
+    test_1D_conv();
+    test_2D_conv();
+    test_3D_conv();
     //    test_4D();
     //    test_2D_intersection();
 }

@@ -17,8 +17,8 @@ all:
 	# nsmake run tests/test_SetOfElementaryPolytops.cu; cat ~/.nsmake/server.log
 	# nsmake run tests/test_SetOfElementaryPolytops.cpp
 	# ${NSMAKE} run tests/test_SimplexSumPolytop.cpp
-	# ${NSMAKE} run tests/test_RecursiveConvexPolytop.cpp
-	${NSMAKE} run tests/test_RecursivePolytopConnectivity.cpp
+	# ${NSMAKE} run tests/test_RecursivePolytopConnectivity.cpp
+	${NSMAKE} run tests/test_RecursiveConvexPolytop.cpp
 
 gen:
 	${NSMAKE} -O3 run src/sdot/geometry/internal/generation/gen_cuts.cpp 2; ${NSMAKE} run -O3 src/sdot/geometry/internal/generation/gen_cuts.cpp 3

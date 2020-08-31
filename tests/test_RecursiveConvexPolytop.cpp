@@ -8,20 +8,14 @@ using TF = Rational;
 //// nsmake cpp_flag -march=native
 //// nsmake cpp_flag -g3
 
-void test_1D() {
-    //    using Rp = RecursiveConvexPolytop<TF,1>;
-    //    using Pt = Rp::Pt;
+void test_1D_convex() {
+    using Rp = RecursiveConvexPolytop<TF,1>;
+    using Pt = Rp::Pt;
 
-    //    Rp rp( { Pt{ 0 }, Pt{ 10 }, Pt{ 20 } } );
-    //    P( rp.contains( Pt{ 22 } ) );
-    //    P( rp.contains( Pt{ 2 } ) );
-    //    P( rp );
-
-    //    Rp np = rp.plane_cut( Pt{ 5 }, Pt{ 1 } );
-    //    P( np );
+    Rp rp( { Pt{ 0 }, Pt{ 10 }, Pt{ 20 } } );
 }
 
-void test_2D() {
+void test_2D_convex() {
     //    using Rp = RecursiveConvexPolytop<TF,2>;
     //    using Pt = Rp::Pt;
 
@@ -29,7 +23,7 @@ void test_2D() {
     //    Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } } );
     //    P( rp.contains( Pt{ 2, 22 } ) );
     //    P( rp.contains( Pt{ 2, 2 } ) );
-    //    // P( rp.measure() );
+    //    P( rp.measure() );
     //    P( rp );
 
 
@@ -41,36 +35,36 @@ void test_2D() {
     //    vo.save( "out.vtk" );
 }
 
-void test_3D() {
-    using Rp = RecursiveConvexPolytop<TF,3>;
-    using Pt = Rp::Pt;
+void test_3D_convex() {
+    //    using Rp = RecursiveConvexPolytop<TF,3>;
+    //    using Pt = Rp::Pt;
 
-    std::vector<Pt> pts;
-    pts.push_back( {  0,  0,  0 } );
-    pts.push_back( { 10,  0,  0 } );
-    pts.push_back( {  0, 10,  0 } );
-    pts.push_back( { 10, 10,  0 } );
-    pts.push_back( {  0,  0, 10 } );
-    pts.push_back( { 10,  0, 10 } );
-    pts.push_back( {  0, 10, 10 } );
-    pts.push_back( { 10, 10, 10 } );
-    pts.push_back( {  5,  5, 15 } );
+    //    std::vector<Pt> pts;
+    //    pts.push_back( {  0,  0,  0 } );
+    //    pts.push_back( { 10,  0,  0 } );
+    //    pts.push_back( {  0, 10,  0 } );
+    //    pts.push_back( { 10, 10,  0 } );
+    //    pts.push_back( {  0,  0, 10 } );
+    //    pts.push_back( { 10,  0, 10 } );
+    //    pts.push_back( {  0, 10, 10 } );
+    //    pts.push_back( { 10, 10, 10 } );
+    //    pts.push_back( {  5,  5, 15 } );
 
-    Rp rp( pts );
-    // P( rp.measure() );
+    //    Rp rp( pts );
+    //    // P( rp.measure() );
 
-    Rp np = rp.plane_cut( Pt{ 5, 5, 12 }, Pt{ 0, 0, 1 } );
-    // P( np.measure() );
+    //    Rp np = rp.plane_cut( Pt{ 5, 5, 12 }, Pt{ 0, 0, 1 } );
+    //    // P( np.measure() );
 
-    VtkOutput vo;
-    np.display_vtk( vo );
-    vo.save( "out.vtk" );
+    //    VtkOutput vo;
+    //    np.display_vtk( vo );
+    //    vo.save( "out.vtk" );
 
-    P( np.contains( Pt{ 4, 6, 28 } ) );
-    P( np.contains( Pt{ 4, 6, 8 } ) );
+    //    P( np.contains( Pt{ 4, 6, 28 } ) );
+    //    P( np.contains( Pt{ 4, 6, 8 } ) );
 }
 
-void test_4D() {
+void test_4D_convex() {
     //    using Rp = RecursiveConvexPolytop<TF,4>;
     //    using Pt = Rp::Pt;
 
@@ -121,45 +115,52 @@ void test_4D() {
     //    //    P( nrp.contains( Pt{ 2, 2, 2 } ) );
 }
 
-void test_2D_intersection() {
+void test_1D_conn() {
+    //    using Rp = RecursiveConvexPolytop<TF,1>;
+    //    using Pt = Rp::Pt;
+
+    //    Rp rp( { Pt{ 0 }, Pt{ 10 }, Pt{ 20 } } );
+    //    P( rp.contains( Pt{ 22 } ) );
+    //    P( rp.contains( Pt{ 2 } ) );
+    //    P( rp );
+
+    //    //    Rp np = rp.plane_cut( Pt{ 5 }, Pt{ 1 } );
+    //    std::vector<std::vector<Rp>> np = rp.conn_cut( Pt{ 5 }, Pt{ 1 } );
+    //    P( np );
+}
+
+void test_2D_conn() {
     //    using Rp = RecursiveConvexPolytop<TF,2>;
     //    using Pt = Rp::Pt;
-    //    using TF = Rp::TF;
 
-    //    //    std::vector<Pt> pts;
-    //    //    for( TI i = 0, n = 5; i < n; ++i ) {
-    //    //        double a = 2 * M_PI * i / n;
-    //    //        pts.push_back( { int( 100 * cos( a ) ), int( 100 * sin( a ) ) } );
-    //    //    }
+    //    // house shape
+    //    Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } } );
+    //    P( rp.contains( Pt{ 2, 22 } ) );
+    //    P( rp.contains( Pt{ 2, 2 } ) );
+    //    P( rp );
 
-    //    //    Rp rp( pts );
-    //    //    rp.make_convex_hull();
-    //    //    rp.vertex( 0 ).pos[ 0 ] = -10;
+    //    std::vector<std::vector<Rp>> np = rp.conn_cut( Pt{ 5, 12 }, Pt{ 0, +1 } );
+    //    P( np );
 
-    //    Rp ra( { { 1, 1 }, { 10, 1 }, { 1, 10 } } );
-    //    ra.make_convex_hull();
+    //    //    VtkOutput vo;
+    //    //    op.display_vtk( vo );
+    //    //    vo.save( "out.vtk" );
+}
 
-    //    Rp rb( { { 9, 0 }, { 0, 9 }, { 9, 9 } } );
-    //    rb.make_convex_hull();
+void test_3D_conn() {
+}
 
-    //    std::deque<std::array<Rp,2>> volumes;
-    //    Rp::get_intersections( volumes, ra, rb );
-    //    P( volumes.size() );
-    //    P( volumes );
-
-    //    P( Rp::measure_intersection( ra, rb ) );
-
-    //    VtkOutput vo;
-    //    for( const std::array<Rp,2> &v : volumes )
-    //        for( TI i = 0; i < 2; ++i )
-    //            v[ i ].display_vtk( vo );
-    //    vo.save( "out.vtk" );
+void test_4D_conn() {
 }
 
 int main() {
-    test_1D();
-    test_2D();
-    test_3D();
-    //    test_4D();
-    //    test_2D_intersection();
+    test_1D_convex();
+    test_2D_convex();
+    test_3D_convex();
+    test_4D_convex();
+
+    test_1D_conn();
+    test_2D_conn();
+    test_3D_conn();
+    test_4D_conn();
 }

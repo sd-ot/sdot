@@ -20,7 +20,7 @@ void RecursivePolytopConnectivity<TF,dim,nvi,TI>::write_to_stream( std::ostream 
 
 template<class TF,int dim,class TI>
 void RecursivePolytopConnectivity<TF,dim,1,TI>::write_to_stream( std::ostream &os, bool rec ) const {
-    os << "[" << vertices[ 0 ] << " " << vertices[ 1 ] << "]";
+    os << "[" << node_numbers[ 0 ] << " " << node_numbers[ 1 ] << "]";
     if ( ! rec )
         os << " N: " << normal;
 }
@@ -33,7 +33,7 @@ TI RecursivePolytopConnectivity<TF,dim,nvi,TI>::first_vertex() const {
 
 template<class TF,int dim,class TI>
 TI RecursivePolytopConnectivity<TF,dim,1,TI>::first_vertex() const {
-    return vertices[ 0 ];
+    return node_numbers[ 0 ];
 }
 
 // for_each_item_rec ---------------------------------------------------------------------
@@ -66,11 +66,13 @@ void RecursivePolytopConnectivity<TF,dim,1,TI>::for_each_item_rec( const Fu &fu 
     fu( *this );
 }
 
-// add_convex_hull --------------------------------------------------------------------------------------------------
+// set_convex_hull --------------------------------------------------------------------------------------------------
 template<class TF,int dim,int nvi,class TI>
-void RecursivePolytopConnectivity<TF,dim,nvi,TI>::add_convex_hull( std::vector<RecursivePolytopConnectivity> &res, const Pt *points, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &normal, const Pt &center ) {
+void RecursivePolytopConnectivity<TF,dim,nvi,TI>::set_convex_hull( const Pt *points, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &normal, const Pt &center ) {
+    //
+    this->normal = normal;
+
     // try each possible vertex selection to make new faces
-    std::vector<Face> faces;
     for_each_comb<TI>( nvi, nb_indices, indices + nb_indices, [&]( TI *chosen_num_indices ) {
         // normal
         Pt orig = points[ indices[ chosen_num_indices[ 0 ] ] ];
@@ -116,29 +118,22 @@ void RecursivePolytopConnectivity<TF,dim,nvi,TI>::add_convex_hull( std::vector<R
         dirs[ dim - nvi ] = face_center - center;
 
         // construct the new face
-        Face::add_convex_hull( faces, points, new_indices, new_nb_indices, normals, dirs, face_normal, face_center );
+        Face face;
+        face.set_convex_hull( points, new_indices, new_nb_indices, normals, dirs, face_normal, face_center );
+        if ( face )
+            faces.push_back( std::move( face ) );
     } );
-
-    // register the faces
-    if ( ! faces.empty() ) {
-        RecursivePolytopConnectivity nrp;
-        nrp.faces = std::move( faces );
-        nrp.normal = normal;
-
-        res.push_back( nrp );
-    }
 }
 
 template<class TF,int dim,class TI>
-void RecursivePolytopConnectivity<TF,dim,1,TI>::add_convex_hull( std::vector<RecursivePolytopConnectivity> &res, const Pt *points, TI *indices, TI nb_indices, Pt */*normals*/, Pt *dirs, const Pt &normal, const Pt &center ) {
+void RecursivePolytopConnectivity<TF,dim,1,TI>::set_convex_hull( const Pt *points, TI *indices, TI nb_indices, Pt */*normals*/, Pt *dirs, const Pt &normal, const Pt &center ) {
     if ( ! nb_indices )
         return;
 
     // find "left" and "right" points
+    TI v0 = indices[ 0 ], v1 = indices[ 0 ];
     dirs[ dim - nvi ] = points[ indices[ 0 ] ] - center;
     TF s = determinant( dirs->data, N<dim>() ), min_s = s, max_s = s;
-    TI v0 = indices[ 0 ];
-    TI v1 = indices[ 0 ];
     for( TI i = 1; i < nb_indices; ++i ) {
         dirs[ dim - nvi ] = points[ indices[ i ] ] - center;
         TF s = determinant( dirs->data, N<dim>() );
@@ -147,12 +142,8 @@ void RecursivePolytopConnectivity<TF,dim,1,TI>::add_convex_hull( std::vector<Rec
     }
 
     if ( v0 != v1 ) {
-        RecursivePolytopConnectivity nrp;
-        nrp.vertices[ 0 ] = v0;
-        nrp.vertices[ 1 ] = v1;
-        nrp.normal = normal;
-
-        res.push_back( nrp );
+        node_numbers = { v0, v1 };
+        this->normal = normal;
     }
 }
 
@@ -167,8 +158,8 @@ bool RecursivePolytopConnectivity<TF,dim,nvi,TI>::contains( const Pt *points, co
 
 template<class TF,int dim,class TI>
 bool RecursivePolytopConnectivity<TF,dim,1,TI>::contains( const Pt *points, const Pt &pos ) const {
-    TF s = dot( pos - points[ vertices[ 0 ] ], points[ vertices[ 1 ] ] - points[ vertices[ 0 ] ] );
-    return s >= 0 && s <= norm_2_p2( points[ vertices[ 1 ] ] - points[ vertices[ 0 ] ] );
+    TF s = dot( pos - points[ node_numbers[ 0 ] ], points[ node_numbers[ 1 ] ] - points[ node_numbers[ 0 ] ] );
+    return s >= 0 && s <= norm_2_p2( points[ node_numbers[ 1 ] ] - points[ node_numbers[ 0 ] ] );
 }
 
 // center ------------------------------------------------------------------------------------
@@ -185,7 +176,7 @@ typename RecursivePolytopConnectivity<TF,dim,nvi,TI>::Pt RecursivePolytopConnect
 
 template<class TF,int dim,class TI>
 typename RecursivePolytopConnectivity<TF,dim,1,TI>::Pt RecursivePolytopConnectivity<TF,dim,1,TI>::center( const Pt *points ) const {
-    return TF( 1 ) / 2 * ( points[ vertices[ 0 ] ] + points[ vertices[ 1 ] ] );
+    return TF( 1 ) / 2 * ( points[ node_numbers[ 0 ] ] + points[ node_numbers[ 1 ] ] );
 }
 
 // measure -----------------------------------------------------------------------------------------------------------------------------
@@ -202,50 +193,121 @@ TF RecursivePolytopConnectivity<TF,dim,nvi,TI>::measure( const Pt *points, std::
 
 template<class TF,int dim,class TI>
 TF RecursivePolytopConnectivity<TF,dim,1,TI>::measure( const Pt *points, std::array<Pt,dim> &dirs, const Pt &/*prev_pt*/ ) const {
-    dirs[ dim - nvi ] = points[ vertices[ 1 ] ] - points[ vertices[ 0 ] ];
+    dirs[ dim - nvi ] = points[ node_numbers[ 1 ] ] - points[ node_numbers[ 0 ] ];
     return determinant( dirs[ 0 ].data, N<dim>() );
 }
 
 // measure -----------------------------------------------------------------------------------------------------------------------------
-template<class TF,int dim,int nvi,class TI>
-void RecursivePolytopConnectivity<TF,dim,nvi,TI>::conn_cut( std::vector<RecursivePolytopConnectivity> &res, TI &nb_points, TI *new_points_per_edge, std::vector<bool> &outside ) {
+template<class TF,int dim,int nvi,class TI> template<int n>
+void RecursivePolytopConnectivity<TF,dim,nvi,TI>::conn_cut( std::vector<std::vector<RecursivePolytopConnectivity>> &res, const TI *edge_corr, const TF *sp, N<n> ) const {
+    TODO;
+}
 
+template<class TF,int dim,int nvi,class TI>
+void RecursivePolytopConnectivity<TF,dim,nvi,TI>::conn_cut( std::vector<std::vector<RecursivePolytopConnectivity>> &res, const TI *edge_corr, const TF *sp, N<2> ) const {
+    using Edge = Face;
+    using std::min;
+    using std::max;
+
+    IntrusiveList<typename Face::Face> new_io_faces; // tmp data (not used at all)
+    IntrusiveList<Edge> all_the_new_edges; // list that will be used for res
+    Vertex *oi_vertices = nullptr; // outside -> inside node list
+    for( const Edge &edge : faces )
+        edge.plane_cut( all_the_new_edges, new_rp, old_rp, new_vertices, new_io_faces, oi_vertices, cut_normal, N<1>() );
+    if ( all_the_new_edges.empty() )
+        return;
+
+    // if some edges are cut, we have to close the face(s)
+    if ( const Vertex *b = oi_vertices ) {
+        // make a linked list of nodes
+        for( Edge &edge : all_the_new_edges ) {
+            edge.vertices[ 0 ]->next = edge.vertices[ 1 ];
+            edge.vertices[ 0 ]->t = &edge;
+        }
+
+        // for each output -> input vertex
+        for( Vertex *b = oi_vertices; b; b = b->prev_oi ) {
+            // find the end of the face
+            IntrusiveList<Edge> new_edges;
+            Vertex *e = b;
+            while ( e->next ) {
+                new_edges.push_front( reinterpret_cast<Edge *>( e->t ) );
+                e = e->next;
+            }
+
+            // edge to close the current face
+            Edge *cl_edge = new_rp.pool.template create<Edge>();
+            new_edges.push_front( cl_edge );
+
+            cl_edge->vertices[ 0 ] = e;
+            cl_edge->vertices[ 1 ] = b;
+            cl_edge->normal = cut_normal;
+
+            /// creation of the new face
+            RecursiveConvexPolytopImpl *nrp = new_rp.pool.template create<RecursiveConvexPolytopImpl>();
+            nrp->faces = std::move( new_edges );
+            nrp->normal = normal;
+            res.push_front( nrp );
+
+            // edge to create a new face
+            if ( int( dim ) > int( nvi ) ) {
+                Edge *nf_edge = new_rp.pool.template create<Edge>();
+                io_faces.push_front( nf_edge );
+
+                nf_edge->vertices[ 0 ] = b;
+                nf_edge->vertices[ 1 ] = e;
+                nf_edge->normal = normal;
+            }
+        }
+
+        return;
+    }
+
+    // else, all inside
+    RecursiveConvexPolytopImpl *nrp = new_rp.pool.template create<RecursiveConvexPolytopImpl>();
+    nrp->faces = std::move( all_the_new_edges );
+    nrp->normal = normal;
+    res.push_front( nrp );
 }
 
 template<class TF,int dim,class TI>
-void RecursivePolytopConnectivity<TF,dim,1,TI>::conn_cut( std::vector<RecursivePolytopConnectivity> &res, TI &nb_points, TI *new_points_per_edge, std::vector<bool> &outside ) {
-    bool o0 = outside[ vertices[ 0 ] ];
-    bool o1 = outside[ vertices[ 1 ] ];
+void RecursivePolytopConnectivity<TF,dim,1,TI>::conn_cut( std::vector<std::vector<RecursivePolytopConnectivity>> &res, const TI *edge_corr, const TF *sp, N<1> ) const {
+    if ( node_numbers.size() != 2 )
+        return;
+
+    bool o0 = sp[ node_numbers[ 0 ] ] > 0;
+    bool o1 = sp[ node_numbers[ 1 ] ] > 0;
 
     if ( o0 && o1 )
         return;
 
     auto new_point = [&]() {
-        TI n0 = std::min( vertices[ 0 ], vertices[ 1 ] );
-        TI n1 = std::max( vertices[ 0 ], vertices[ 1 ] );
-        TI nn = n0 * ( n0 - 1 ) / 2 + n1;
-        if ( ! new_points_per_edge[ nn ] )
-            new_points_per_edge[ nn ] = nb_points++;
-        return new_points_per_edge[ nn ];
+        TI n0 = std::min( node_numbers[ 0 ], node_numbers[ 1 ] );
+        TI n1 = std::max( node_numbers[ 0 ], node_numbers[ 1 ] );
+        TI nn = n1 * ( n1 - 1 ) / 2 + n0;
+        return edge_corr[ nn ];
     };
 
     if ( o0 ) {
         RecursivePolytopConnectivity nrp;
-        nrp.vertices[ 0 ] = new_point();
-        nrp.vertices[ 1 ] = vertices[ 1 ];
-        res.push_back( nrp );
+        nrp.node_numbers = { new_point(), node_numbers[ 1 ] };
+        nrp.normal = TF( 0 );
+        res.push_back( { nrp } );
         return;
     }
 
     if ( o1 ) {
         RecursivePolytopConnectivity nrp;
-        nrp.vertices[ 0 ] = vertices[ 0 ];
-        nrp.vertices[ 1 ] = new_point();
-        res.push_back( nrp );
+        nrp.node_numbers = { node_numbers[ 0 ], new_point() };
+        nrp.normal = TF( 0 );
+        res.push_back( { nrp } );
         return;
     }
 
-    res.push_back( *this );
+    RecursivePolytopConnectivity nrp;
+    nrp.node_numbers = { node_numbers[ 0 ], node_numbers[ 1 ] };
+    nrp.normal = TF( 0 );
+    res.push_back( { nrp } );
 }
 
 //template<class TF,int dim,int nvi,class TI>
@@ -335,161 +397,6 @@ void RecursivePolytopConnectivity<TF,dim,1,TI>::conn_cut( std::vector<RecursiveP
 //    res.push_front( nrp );
 //}
 
-//template<class TF,int dim,int nvi,class TI>
-//void RecursiveConvexPolytopImpl<Rp,nvi>::plane_cut( IntrusiveList<RecursiveConvexPolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, Vertex *&/*oi_vertices*/, const Pt &cut_normal, N<2> ) const {
-//    using Edge = Face;
-//    using std::min;
-//    using std::max;
-
-//    IntrusiveList<typename Face::Face> new_io_faces; // tmp data (not used at all)
-//    IntrusiveList<Edge> all_the_new_edges; // list that will be used for res
-//    Vertex *oi_vertices = nullptr; // outside -> inside node list
-//    for( const Edge &edge : faces )
-//        edge.plane_cut( all_the_new_edges, new_rp, old_rp, new_vertices, new_io_faces, oi_vertices, cut_normal, N<1>() );
-//    if ( all_the_new_edges.empty() )
-//        return;
-
-//    // if some edges are cut, we have to close the face(s)
-//    if ( const Vertex *b = oi_vertices ) {
-//        // make a linked list of nodes
-//        for( Edge &edge : all_the_new_edges ) {
-//            edge.vertices[ 0 ]->next = edge.vertices[ 1 ];
-//            edge.vertices[ 0 ]->t = &edge;
-//        }
-
-//        // for each output -> input vertex
-//        for( Vertex *b = oi_vertices; b; b = b->prev_oi ) {
-//            // find the end of the face
-//            IntrusiveList<Edge> new_edges;
-//            Vertex *e = b;
-//            while ( e->next ) {
-//                new_edges.push_front( reinterpret_cast<Edge *>( e->t ) );
-//                e = e->next;
-//            }
-
-//            // edge to close the current face
-//            Edge *cl_edge = new_rp.pool.template create<Edge>();
-//            new_edges.push_front( cl_edge );
-
-//            cl_edge->vertices[ 0 ] = e;
-//            cl_edge->vertices[ 1 ] = b;
-//            cl_edge->normal = cut_normal;
-
-//            /// creation of the new face
-//            RecursiveConvexPolytopImpl *nrp = new_rp.pool.template create<RecursiveConvexPolytopImpl>();
-//            nrp->faces = std::move( new_edges );
-//            nrp->normal = normal;
-//            res.push_front( nrp );
-
-//            // edge to create a new face
-//            if ( int( dim ) > int( nvi ) ) {
-//                Edge *nf_edge = new_rp.pool.template create<Edge>();
-//                io_faces.push_front( nf_edge );
-
-//                nf_edge->vertices[ 0 ] = b;
-//                nf_edge->vertices[ 1 ] = e;
-//                nf_edge->normal = normal;
-//            }
-//        }
-
-//        return;
-//    }
-
-//    // else, all inside
-//    RecursiveConvexPolytopImpl *nrp = new_rp.pool.template create<RecursiveConvexPolytopImpl>();
-//    nrp->faces = std::move( all_the_new_edges );
-//    nrp->normal = normal;
-//    res.push_front( nrp );
-//}
-
-//template<class TF,int dim,class TI>
-//void RecursiveConvexPolytopImpl<Rp,1>::plane_cut( IntrusiveList<RecursiveConvexPolytopImpl> &res, Rp &new_rp, const Rp &old_rp, std::vector<Vertex *> &new_vertices, IntrusiveList<Face> &io_faces, Vertex *&oi_vertices, const Pt &cut_normal, N<1> ) const {
-//    using std::min;
-//    using std::max;
-
-//    // scalar products
-//    TF s0 = vertices[ 0 ]->tmp_f;
-//    TF s1 = vertices[ 1 ]->tmp_f;
-
-//    // all inside => nothing to do
-//    if ( s0 <= 0 && s1 <= 0 ) {
-//        RecursiveConvexPolytopImpl *new_edge = new_rp.pool.template create<RecursiveConvexPolytopImpl>();
-//        res.push_front( new_edge );
-
-//        new_edge->vertices[ 0 ] = vertices[ 0 ]->tmp_v;
-//        new_edge->vertices[ 1 ] = vertices[ 1 ]->tmp_v;
-//        new_edge->normal = normal;
-
-//        return;
-//    }
-
-//    // s1 outside
-//    if ( s0 <= 0 ) {
-//        RecursiveConvexPolytopImpl *new_edge = new_rp.pool.template create<RecursiveConvexPolytopImpl>();
-//        res.push_front( new_edge );
-
-//        TI n0 = min( vertices[ 0 ]->num, vertices[ 1 ]->num );
-//        TI n1 = max( vertices[ 0 ]->num, vertices[ 1 ]->num );
-//        TI nn = n1 * ( n1 - 1 ) / 2 + n0;
-
-//        new_edge->vertices[ 0 ] = vertices[ 0 ]->tmp_v;
-//        new_edge->vertices[ 1 ] = new_vertices[ nn ];
-//        new_edge->normal = normal;
-
-//        return;
-//    }
-
-//    // s0 outside
-//    if ( s1 <= 0 ) {
-//        RecursiveConvexPolytopImpl *new_edge = new_rp.pool.template create<RecursiveConvexPolytopImpl>();
-//        res.push_front( new_edge );
-
-//        TI n0 = min( vertices[ 0 ]->num, vertices[ 1 ]->num );
-//        TI n1 = max( vertices[ 0 ]->num, vertices[ 1 ]->num );
-//        TI nn = n1 * ( n1 - 1 ) / 2 + n0;
-
-//        new_edge->vertices[ 0 ] = new_vertices[ nn ];
-//        new_edge->vertices[ 1 ] = vertices[ 1 ]->tmp_v;
-//        new_edge->normal = normal;
-
-//        new_vertices[ nn ]->prev_oi = oi_vertices;
-//        oi_vertices = new_vertices[ nn ];
-
-//        return;
-//    }
-//}
-
-//template<class TF,int dim,int nvi,class TI>
-//void RecursiveConvexPolytopImpl<Rp,nvi>::for_each_vertex( const F &fu ) const {
-//    for( const Face &face : faces )
-//        face.for_each_vertex( fu );
-//}
-
-//template<class TF,int dim,class TI> template<class F>
-//void RecursiveConvexPolytopImpl<Rp,1>::for_each_vertex( const F &fu ) const {
-//    for( Vertex *v : vertices )
-//        fu( v );
-//}
-
-//template<class TF,int dim,int nvi,class TI> template<class R,class V>
-//void RecursiveConvexPolytopImpl<Rp,nvi>::with_points( IntrusiveList<R> &res, BumpPointerPool &pool, V *new_vertices ) const {
-//    R *impl = pool.create<R>();
-//    res.push_front( impl );
-
-//    for( const Face &face : faces )
-//        face.with_points( impl->faces, pool, new_vertices );
-//}
-
-//template<class TF,int dim,class TI> template<class R,class V>
-//void RecursiveConvexPolytopImpl<Rp,1>::with_points( IntrusiveList<R> &res, BumpPointerPool &pool, V *new_vertices ) const {
-//    R *impl = pool.create<R>();
-//    res.push_front( impl );
-
-//    for( TI i = 0; i < 2; ++i )
-//        impl->vertices[ i ] = new_vertices + vertices[ i ]->num;
-//}
-
-//template<class TF,int dim,int nvi,class TI>
 
 //bool RecursiveConvexPolytopImpl<Rp,nvi>::valid_vertex_prop( const std::vector<Pt> &pts ) const {
 //    for( const Face &face : faces )
@@ -549,8 +456,6 @@ void RecursivePolytopConnectivity<TF,dim,1,TI>::conn_cut( std::vector<RecursiveP
 //    //
 //    return true;
 //}
-
-
 
 
 //template<class TF,int dim,class TI>
