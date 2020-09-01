@@ -75,12 +75,13 @@ void RecursivePolytopConnectivityItem<TF,TI,nvi>::add_convex_hull( std::vector<I
 
     // create a new item
     if ( faces.size() ) {
-        std::sort( faces.begin(), faces.end() );
+        std::sort( faces.begin(), faces.end(), []( Face *a, Face *b ) { return *a < *b; } );
         res.push_back( item_pool.find_or_create( mem_pool, std::move( faces ) ) );
     }
 }
 
 template<class TF,class TI> template<class Pt>
-void RecursivePolytopConnectivityItem<TF,TI,0>::add_convex_hull( std::vector<Item *> &res, ItemPool &item_pool, BumpPointerPool &mem_pool, const Pt */*positions*/, TI *indices, TI /*nb_indices*/, Pt */*normals*/, Pt */*dirs*/, const Pt &/*center*/ ) {
-    res.push_back( item_pool.find_or_create( mem_pool, *indices ) );
+void RecursivePolytopConnectivityItem<TF,TI,0>::add_convex_hull( std::vector<Item *> &res, ItemPool &item_pool, BumpPointerPool &mem_pool, const Pt */*positions*/, TI *indices, TI /*nb_indices*/, Pt *normals, Pt *dirs, const Pt &/*center*/ ) {
+    bool is_start = dot( normals[ Pt::dim - 1 ], dirs[ Pt::dim - 1 ] ) > 0;
+    res.push_back( item_pool.find_or_create( mem_pool, *indices, is_start ) );
 }

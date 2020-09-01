@@ -35,8 +35,8 @@ struct RecursivePolytopConnectivityItemPool<TF,TI,0> {
     auto                         operator[]     ( N<0> ) { return this; }
 
     void                         write_to_stream( std::ostream &os ) const;
-    Item*                        find_or_create ( BumpPointerPool &mem_pool, TI node_number );
-    Item*                        create         ( BumpPointerPool &mem_pool, TI node_number );
+    Item*                        find_or_create ( BumpPointerPool &mem_pool, TI node_number, bool is_start );
+    Item*                        create         ( BumpPointerPool &mem_pool, TI node_number, bool is_start );
 
     Item*                        last_in_pool   = nullptr;
     TI                           nb_items       = 0;

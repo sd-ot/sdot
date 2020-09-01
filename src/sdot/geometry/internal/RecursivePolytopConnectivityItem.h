@@ -25,6 +25,7 @@ struct RecursivePolytopConnectivityItem {
 
     void                              write_to_stream  ( std::ostream &os ) const;
     Vertex*                           first_vertex     () { return faces[ 0 ]->first_vertex(); }
+    bool                              operator<        ( const Item &that ) const { return num > that.num; }
 
     RecursivePolytopConnectivityItem* prev_in_pool;    ///<
     RecursivePolytopConnectivityItem* sibling;         ///<
@@ -46,9 +47,11 @@ struct RecursivePolytopConnectivityItem<TF_,TI_,0> {
 
     void                              write_to_stream  ( std::ostream &os ) const;
     Item*                             first_vertex     () { return this; }
+    bool                              operator<        ( const Item &that ) const { return std::tie( is_start, num ) > std::tie( that.is_start, that.num ); }
 
     RecursivePolytopConnectivityItem* prev_in_pool;    ///<
     TI                                node_number;     ///<
+    bool                              is_start;        ///<
     RecursivePolytopConnectivityItem* sibling;         ///<
     mutable TI                        num;             ///<
 };

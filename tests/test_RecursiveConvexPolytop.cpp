@@ -17,53 +17,53 @@ void test_1D_convex() {
 }
 
 void test_2D_convex() {
-//    using Rp = RecursiveConvexPolytop<TF,2>;
-//    using Pt = Rp::Pt;
-
-//    // house shape
-//    Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } } );
-//    //    P( rp.contains( Pt{ 2, 22 } ) );
-//    //    P( rp.contains( Pt{ 2, 2 } ) );
-//    //    P( rp.measure() );
-//    P( rp );
-
-
-//    //    Rp op = rp.plane_cut( Pt{ 5, 12 }, Pt{ 0, +1 } );
-//    //    P( op );
-
-//    VtkOutput vo;
-//    rp.display_vtk( vo );
-//    vo.save( "out.vtk" );
-}
-
-void test_3D_convex() {
-    using Rp = RecursiveConvexPolytop<TF,3>;
+    using Rp = RecursiveConvexPolytop<TF,2>;
     using Pt = Rp::Pt;
 
-    std::vector<Pt> pts;
-    pts.push_back( {  0,  0,  0 } );
-    pts.push_back( { 10,  0,  0 } );
-    pts.push_back( {  0, 10,  0 } );
-    pts.push_back( { 10, 10,  0 } );
-    pts.push_back( {  0,  0, 10 } );
-    pts.push_back( { 10,  0, 10 } );
-    pts.push_back( {  0, 10, 10 } );
-    pts.push_back( { 10, 10, 10 } );
-    pts.push_back( {  5,  5, 15 } );
-
-    Rp rp( std::move( pts ) );
-    // P( rp.measure() );
+    // house shape
+    Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }/*, { 5, 15 }, { 0, 10 }*/ } );
+    //    P( rp.contains( Pt{ 2, 22 } ) );
+    //    P( rp.contains( Pt{ 2, 2 } ) );
+    //    P( rp.measure() );
     P( rp );
 
-    // Rp np = rp.plane_cut( Pt{ 5, 5, 12 }, Pt{ 0, 0, 1 } );
-    // P( np.measure() );
+
+    //    Rp op = rp.plane_cut( Pt{ 5, 12 }, Pt{ 0, +1 } );
+    //    P( op );
 
     VtkOutput vo;
     rp.display_vtk( vo );
     vo.save( "out.vtk" );
+}
 
-    //    P( np.contains( Pt{ 4, 6, 28 } ) );
-    //    P( np.contains( Pt{ 4, 6, 8 } ) );
+void test_3D_convex() {
+//    using Rp = RecursiveConvexPolytop<TF,3>;
+//    using Pt = Rp::Pt;
+
+//    std::vector<Pt> pts;
+//    pts.push_back( {  0,  0,  0 } );
+//    pts.push_back( { 10,  0,  0 } );
+//    pts.push_back( {  0, 10,  0 } );
+//    pts.push_back( { 10, 10,  0 } );
+//    pts.push_back( {  0,  0, 10 } );
+//    pts.push_back( { 10,  0, 10 } );
+//    pts.push_back( {  0, 10, 10 } );
+//    pts.push_back( { 10, 10, 10 } );
+//    pts.push_back( {  5,  5, 15 } );
+
+//    Rp rp( std::move( pts ) );
+//    // P( rp.measure() );
+//    P( rp );
+
+//    // Rp np = rp.plane_cut( Pt{ 5, 5, 12 }, Pt{ 0, 0, 1 } );
+//    // P( np.measure() );
+
+//    VtkOutput vo;
+//    rp.display_vtk( vo );
+//    vo.save( "out.vtk" );
+
+//    //    P( np.contains( Pt{ 4, 6, 28 } ) );
+//    //    P( np.contains( Pt{ 4, 6, 8 } ) );
 }
 
 void test_4D_convex() {

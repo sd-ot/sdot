@@ -14,14 +14,14 @@ RecursivePolytopConnectivityItem<TF,TI,nvi> *RecursivePolytopConnectivityItemPoo
 }
 
 template<class TF,class TI>
-RecursivePolytopConnectivityItem<TF,TI,0> *RecursivePolytopConnectivityItemPool<TF,TI,0>::find_or_create( BumpPointerPool &mem_pool, TI node_number ) {
+RecursivePolytopConnectivityItem<TF,TI,0> *RecursivePolytopConnectivityItemPool<TF,TI,0>::find_or_create( BumpPointerPool &mem_pool, TI node_number, bool is_start ) {
     // already in the pool ?
     for( Item *item = last_in_pool; item; item = item->prev_in_pool )
-        if ( item->node_number == node_number )
+        if ( item->node_number == node_number && item->is_start == is_start )
             return item;
 
     // else, create a new one
-    return create( mem_pool, node_number );
+    return create( mem_pool, node_number, is_start );
 }
 
 // create ------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ RecursivePolytopConnectivityItem<TF,TI,nvi> *RecursivePolytopConnectivityItemPoo
     alt->faces.resize( sorted_faces.size() );
     for( TI i = 0; i < alt->faces.size(); ++i )
         alt->faces[ i ] = sorted_faces[ i ]->sibling;
-    std::sort( alt->faces.begin(), alt->faces.end() );
+    std::sort( alt->faces.begin(), alt->faces.end(), []( Face *a, Face *b ) { return *a < *b; } );
 
     // make the target item
     Item *res = mem_pool.create<Item>();
@@ -54,11 +54,12 @@ RecursivePolytopConnectivityItem<TF,TI,nvi> *RecursivePolytopConnectivityItemPoo
 }
 
 template<class TF,class TI>
-RecursivePolytopConnectivityItem<TF,TI,0> *RecursivePolytopConnectivityItemPool<TF,TI,0>::create( BumpPointerPool &mem_pool, TI node_number ) {
+RecursivePolytopConnectivityItem<TF,TI,0> *RecursivePolytopConnectivityItemPool<TF,TI,0>::create( BumpPointerPool &mem_pool, TI node_number, bool is_start ) {
     // make a sibling
     Item *alt = mem_pool.create<Item>();
     alt->prev_in_pool = last_in_pool;
     alt->node_number = node_number;
+    alt->is_start = ! is_start;
     alt->num = nb_items++;
     last_in_pool = alt;
 
@@ -66,6 +67,7 @@ RecursivePolytopConnectivityItem<TF,TI,0> *RecursivePolytopConnectivityItemPool<
     Item *res = mem_pool.create<Item>();
     res->prev_in_pool = last_in_pool;
     res->node_number = node_number;
+    res->is_start = is_start;
     res->num = nb_items++;
     last_in_pool = res;
 
@@ -83,8 +85,6 @@ void RecursivePolytopConnectivityItemPool<TF,TI,nvi>::write_to_stream( std::ostr
 
     os << "\n  nvi " << nvi << ":";
     for( Item *item = last_in_pool; item; item = item->prev_in_pool ) {
-        if ( item->num % 2 )
-            continue;
         os << "\n    " << item->num << ":";
         for( auto *face : item->faces )
             os << " " << face->num;
@@ -94,10 +94,7 @@ void RecursivePolytopConnectivityItemPool<TF,TI,nvi>::write_to_stream( std::ostr
 template<class TF,class TI>
 void RecursivePolytopConnectivityItemPool<TF,TI,0>::write_to_stream( std::ostream &os ) const {
     os << "\n  nvi 0:";
-    for( Item *item = last_in_pool; item; item = item->prev_in_pool ) {
-        if ( item->num % 2 )
-            continue;
-        os << "\n    " << item->num << ": " << item->node_number;
-    }
+    for( Item *item = last_in_pool; item; item = item->prev_in_pool )
+        os << "\n    " << item->num << ": " << item->node_number << " " << ( item->is_start ? "S" : "E" );
 }
 
