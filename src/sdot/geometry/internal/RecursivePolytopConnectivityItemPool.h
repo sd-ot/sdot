@@ -1,33 +1,44 @@
-#ifndef SDOT_RecursivePolytopConnectivityPool_HEADER
-#define SDOT_RecursivePolytopConnectivityPool_HEADER
+#ifndef SDOT_RecursivePolytopConnectivityItemPool_HEADER
+#define SDOT_RecursivePolytopConnectivityItemPool_HEADER
 
-#include "RecursivePolytopConnectivityItem.tcc"
+#include "RecursivePolytopConnectivityItem.h"
 #include "../../support/BumpPointerPool.h"
 
 /**
 */
 template<class TF,class TI,int nvi>
-struct RecursivePolytopConnectivityPool {
-    using                        Next         = RecursivePolytopConnectivityPool<TF,TI,nvi-1>;
-    using                        Item         = RecursivePolytopConnectivityItem<TF,TI,nvi>;
+struct RecursivePolytopConnectivityItemPool {
+    using                        Next           = RecursivePolytopConnectivityItemPool<TF,TI,nvi-1>;
+    using                        Item           = RecursivePolytopConnectivityItem<TF,TI,nvi>;
+    using                        Face           = typename Item::Face;
 
-    template<int n,class F> void get_item     ( RecursivePolytopConnectivityItem<TF,TI,n> *&res, bool &neg, BumpPointerPool &pool, const F &sorted_faces ); ///< faces can sorted by adresses
-    void                         get_item     ( Item *&res, bool &neg, BumpPointerPool &pool, const std::vector<typename Item::OrientedFace> &sorted_faces ); ///< faces can sorted by adresses
+    template<int n> auto         operator[]     ( N<n> v ) { return next[ v ]; }
+    auto                         operator[]     ( N<nvi> ) { return this; }
 
-    Item*                        last_in_pool = nullptr;
+    void                         write_to_stream( std::ostream &os ) const;
+    Item*                        find_or_create ( BumpPointerPool &mem_pool, std::vector<Face *> &&sorted_faces ); ///< faces can sorted by adresses
+    Item*                        create         ( BumpPointerPool &mem_pool, std::vector<Face *> &&sorted_faces );
+
+    Item*                        last_in_pool   = nullptr;
+    TI                           nb_items       = 0;
     Next                         next;
 };
 
 //
 template<class TF,class TI>
-struct RecursivePolytopConnectivityPool<TF,TI,0> {
-    using                        Item         = RecursivePolytopConnectivityItem<TF,TI,0>;
+struct RecursivePolytopConnectivityItemPool<TF,TI,0> {
+    using                        Item           = RecursivePolytopConnectivityItem<TF,TI,0>;
 
-    void                         get_item     ( N<0>, Item *&item, bool &neg, BumpPointerPool &pool, TI node_number );
+    auto                         operator[]     ( N<0> ) { return this; }
 
-    Item*                        last_in_pool = nullptr;
+    void                         write_to_stream( std::ostream &os ) const;
+    Item*                        find_or_create ( BumpPointerPool &mem_pool, TI node_number );
+    Item*                        create         ( BumpPointerPool &mem_pool, TI node_number );
+
+    Item*                        last_in_pool   = nullptr;
+    TI                           nb_items       = 0;
 };
 
-#include "RecursivePolytopConnectivityPool.tcc"
+#include "RecursivePolytopConnectivityItemPool.tcc"
 
-#endif // SDOT_RecursivePolytopConnectivityPool_HEADER
+#endif // SDOT_RecursivePolytopConnectivityItemPool_HEADER

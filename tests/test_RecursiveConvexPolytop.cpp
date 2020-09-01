@@ -13,6 +13,7 @@ void test_1D_convex() {
     using Pt = Rp::Pt;
 
     Rp rp( { Pt{ 0 }, Pt{ 10 }, Pt{ 20 } } );
+    P( rp );
 }
 
 void test_2D_convex() {

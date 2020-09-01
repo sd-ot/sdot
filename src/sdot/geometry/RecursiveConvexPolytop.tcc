@@ -1,40 +1,43 @@
 #include "RecursiveConvexPolytop.h"
 #include "../support/ASSERT.h"
+#include "../support/P.h"
 
 template<class TF,int dim,class TI>
 RecursiveConvexPolytop<TF,dim,TI>::RecursiveConvexPolytop( std::vector<Pt> &&positions ) : positions( std::move( positions ) ) {
-    if ( positions.size() ) {
-        using Node = RecursivePolytopConnectivityItem<TF,TI,0>;
+    // make the vertices
+    vertices.resize( this->positions.size() );
+    for( TI i = 0; i < this->positions.size(); ++i )
+        vertices[ i ] = item_pool[ N<0>() ]->create( mem_pool, i );
 
-        // make the nodes + allowed indices
-        std::vector<TI> indices( dim * ( positions.size() + dim ) );
-        std::vector<Node *> nodes( positions.size() );
-        for( TI i = 0; i < positions.size(); ++i ) {
-            indices[ i ] = i;
-
-            bool neg;
-            item_pool.get_item( nodes[ i ], neg, pool, i );
-        }
-
-        // add the faces
-        Pt center = mean( positions );
-        std::array<Pt,dim> prev_normals, prev_dirs;
-        //Item::add_convex_hull( connected_connectivities, positions.data(), indices.data(), positions.size(), prev_normals.data(), prev_dirs.data(), Pt( TF( 0 ) ), center );
-    }
+    // make a convex hull
+    _make_convex_hull();
 }
 
-//template<class TF,int dim,class TI>
-//void RecursiveConvexPolytop<TF,dim,TI>::write_to_stream( std::ostream &os, std::string nl, std::string ns ) const {
-//    for( const Pt &v : nodes )
-//        os << v << " ";
+template<class TF,int dim,class TI>
+void RecursiveConvexPolytop<TF,dim,TI>::_make_convex_hull() {
+    using Vertex = RecursivePolytopConnectivityItem<TF,TI,0>;
+    if ( vertices.empty() )
+        return;
 
-//    connectivity.for_each_item_rec( [&]( const auto &face ) {
-//        os << nl;
-//        for( TI i = 0; i < dim - face.nvi; ++i )
-//            os << ns;
-//        face.write_to_stream( os, false );
-//    } );
-//}
+    // allowed indices
+    std::vector<TI> indices( dim * ( vertices.size() + dim ) );
+    for( TI i = 0; i < vertices.size(); ++i )
+        indices[ i ] = i;
+
+    // add the faces
+    Pt center = mean( positions );
+    std::array<Pt,dim> prev_normals, prev_dirs;
+    Item::add_convex_hull( item_pool, mem_pool, items, positions.data(), indices.data(), positions.size(), prev_normals.data(), prev_dirs.data(), Pt( TF( 0 ) ), center );
+}
+
+template<class TF,int dim,class TI>
+void RecursiveConvexPolytop<TF,dim,TI>::write_to_stream( std::ostream &os ) const {
+    os << "positions: \n";
+    for( TI i = 0; i < positions.size(); ++i )
+        os << "\n  " << i << ": " << positions[ i ];
+
+    item_pool.write_to_stream( os << "\n" );
+}
 
 //template<class TF,int dim,class TI> template<class F,int n>
 //void RecursiveConvexPolytop<TF,dim,TI>::for_each_item_rec( const F &fu, N<n> ) const {
