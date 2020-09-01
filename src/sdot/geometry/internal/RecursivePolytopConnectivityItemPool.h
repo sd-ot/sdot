@@ -12,7 +12,9 @@ struct RecursivePolytopConnectivityItemPool {
     using                        Item           = RecursivePolytopConnectivityItem<TF,TI,nvi>;
     using                        Face           = typename Item::Face;
 
+    template<int n> auto         operator[]     ( N<n> v ) const { return next[ v ]; }
     template<int n> auto         operator[]     ( N<n> v ) { return next[ v ]; }
+    auto                         operator[]     ( N<nvi> ) const { return this; }
     auto                         operator[]     ( N<nvi> ) { return this; }
 
     void                         write_to_stream( std::ostream &os ) const;
@@ -29,6 +31,7 @@ template<class TF,class TI>
 struct RecursivePolytopConnectivityItemPool<TF,TI,0> {
     using                        Item           = RecursivePolytopConnectivityItem<TF,TI,0>;
 
+    auto                         operator[]     ( N<0> ) const { return this; }
     auto                         operator[]     ( N<0> ) { return this; }
 
     void                         write_to_stream( std::ostream &os ) const;

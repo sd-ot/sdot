@@ -4,39 +4,71 @@
 
 template<class TF,int dim,class TI>
 RecursiveConvexPolytop<TF,dim,TI>::RecursiveConvexPolytop( std::vector<Pt> &&positions ) : positions( std::move( positions ) ) {
-    // make the vertices
-    vertices.resize( this->positions.size() );
-    for( TI i = 0; i < this->positions.size(); ++i )
-        vertices[ i ] = item_pool[ N<0>() ]->create( mem_pool, i );
-
-    // make a convex hull
     _make_convex_hull();
 }
 
 template<class TF,int dim,class TI>
 void RecursiveConvexPolytop<TF,dim,TI>::_make_convex_hull() {
     using Vertex = RecursivePolytopConnectivityItem<TF,TI,0>;
-    if ( vertices.empty() )
+    if ( positions.empty() )
         return;
 
     // allowed indices
-    std::vector<TI> indices( dim * ( vertices.size() + dim ) );
-    for( TI i = 0; i < vertices.size(); ++i )
+    std::vector<TI> indices( dim * ( positions.size() + dim ) );
+    for( TI i = 0; i < positions.size(); ++i )
         indices[ i ] = i;
 
     // add the faces
     Pt center = mean( positions );
     std::array<Pt,dim> prev_normals, prev_dirs;
-    Item::add_convex_hull( item_pool, mem_pool, items, positions.data(), indices.data(), positions.size(), prev_normals.data(), prev_dirs.data(), Pt( TF( 0 ) ), center );
+    Item::add_convex_hull( items, item_pool, mem_pool, positions.data(), indices.data(), positions.size(), prev_normals.data(), prev_dirs.data(), center );
 }
 
 template<class TF,int dim,class TI>
 void RecursiveConvexPolytop<TF,dim,TI>::write_to_stream( std::ostream &os ) const {
-    os << "positions: \n";
+    os << "\n  positions:";
     for( TI i = 0; i < positions.size(); ++i )
-        os << "\n  " << i << ": " << positions[ i ];
+        os << "\n    " << i << ": " << positions[ i ];
 
-    item_pool.write_to_stream( os << "\n" );
+    item_pool.write_to_stream( os );
+}
+
+template<class TF,int dim,class TI> template<class VO>
+void RecursiveConvexPolytop<TF,dim,TI>::display_vtk( VO &vo ) const {
+    using std::min;
+
+    // edges
+    for( const auto *edge = item_pool[ N<1>() ]->last_in_pool; edge; edge = edge->prev_in_pool ) {
+        std::vector<typename VO::Pt> pts;
+        for( const auto *vertex : edge->faces ) {
+            typename VO::Pt pt;
+            for( TI d = 0; d < min( int( dim ), 3 ); ++d )
+                pt[ d ] = conv( positions[ vertex->node_number ][ d ], S<typename VO::TF>() );
+            pts.push_back( pt );
+        }
+
+        vo.add_line( pts );
+    }
+
+    //    // faces
+    //    connectivity.for_each_item_rec( [&]( const auto &face ) {
+    //        std::vector<TI> nexts( nodes.size() );
+    //        for( auto &edge : face.faces )
+    //            if ( edge.node_numbers.size() == 2 )
+    //                nexts[ edge.node_numbers[ 0 ] ] = edge.node_numbers[ 1 ];
+
+    //        std::vector<typename VO::Pt> pts;
+    //        for( TI b = face.first_vertex(), v = b; ; v = nexts[ v ] ) {
+    //            typename VO::Pt pt;
+    //            for( TI d = 0; d < min( int( dim ), 3 ); ++d )
+    //                pt[ d ] = conv( nodes[ v ][ d ], S<typename VO::TF>() );
+    //            pts.push_back( pt );
+    //            if ( nexts[ v ] == b )
+    //                break;
+    //        }
+
+    //        vo.add_polygon( pts );
+    //    }, N<2>() );
 }
 
 //template<class TF,int dim,class TI> template<class F,int n>
@@ -141,56 +173,6 @@ void RecursiveConvexPolytop<TF,dim,TI>::write_to_stream( std::ostream &os ) cons
 //    return res;
 //}
 
-//template<class TF,int dim,class TI> template<class VO>
-//void RecursiveConvexPolytop<TF,dim,TI>::display_vtk( VO &vo ) const {
-//    using std::min;
-
-//    // normals
-//    connectivity.for_each_item_rec( [&]( const auto &face ) {
-//        Pt C = face.center( nodes.data() );
-//        typename VO::Pt O = 0, N = 0;
-//        for( TI d = 0; d < std::min( int( dim ), 3 ); ++d ) {
-//            N[ d ] = conv( face.normal[ d ], S<typename VO::TF>() );
-//            O[ d ] = conv( C[ d ], S<typename VO::TF>() );
-//        }
-//        if ( norm_2( N ) )
-//            N /= norm_2( N );
-//        vo.add_line( { O, O + N } );
-//    } );
-
-//    // edges
-//    connectivity.for_each_item_rec( [&]( const auto &edge ) {
-//        std::vector<typename VO::Pt> pts;
-//        for( TI v : edge.node_numbers ) {
-//            typename VO::Pt pt;
-//            for( TI d = 0; d < min( int( dim ), 3 ); ++d )
-//                pt[ d ] = conv( nodes[ v ][ d ], S<typename VO::TF>() );
-//            pts.push_back( pt );
-//        }
-
-//        vo.add_line( pts );
-//    }, N<1>() );
-
-//    // faces
-//    connectivity.for_each_item_rec( [&]( const auto &face ) {
-//        std::vector<TI> nexts( nodes.size() );
-//        for( auto &edge : face.faces )
-//            if ( edge.node_numbers.size() == 2 )
-//                nexts[ edge.node_numbers[ 0 ] ] = edge.node_numbers[ 1 ];
-
-//        std::vector<typename VO::Pt> pts;
-//        for( TI b = face.first_vertex(), v = b; ; v = nexts[ v ] ) {
-//            typename VO::Pt pt;
-//            for( TI d = 0; d < min( int( dim ), 3 ); ++d )
-//                pt[ d ] = conv( nodes[ v ][ d ], S<typename VO::TF>() );
-//            pts.push_back( pt );
-//            if ( nexts[ v ] == b )
-//                break;
-//        }
-
-//        vo.add_polygon( pts );
-//    }, N<2>() );
-//}
 
 //template<class TF,int dim,class TI>
 //TF RecursiveConvexPolytop<TF,dim,TI>::measure() const {

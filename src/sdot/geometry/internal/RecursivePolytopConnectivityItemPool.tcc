@@ -10,7 +10,7 @@ RecursivePolytopConnectivityItem<TF,TI,nvi> *RecursivePolytopConnectivityItemPoo
             return item;
 
     // else, create a new one
-    return create( mem_pool, sorted_faces );
+    return create( mem_pool, std::move( sorted_faces ) );
 }
 
 template<class TF,class TI>
@@ -81,17 +81,23 @@ template<class TF,class TI,int nvi>
 void RecursivePolytopConnectivityItemPool<TF,TI,nvi>::write_to_stream( std::ostream &os ) const {
     next.write_to_stream( os );
 
-    os << "nvi " << nvi << ":";
+    os << "\n  nvi " << nvi << ":";
     for( Item *item = last_in_pool; item; item = item->prev_in_pool ) {
         if ( item->num % 2 )
             continue;
-        os << "\n  " << item->num / 2 << ":";
-        for( auto *face : item->sorted_faces )
-            os << " " << face->num / 2;
+        os << "\n    " << item->num << ":";
+        for( auto *face : item->faces )
+            os << " " << face->num;
     }
 }
 
 template<class TF,class TI>
-void RecursivePolytopConnectivityItemPool<TF,TI,0>::write_to_stream( std::ostream &/*os*/ ) const {
+void RecursivePolytopConnectivityItemPool<TF,TI,0>::write_to_stream( std::ostream &os ) const {
+    os << "\n  nvi 0:";
+    for( Item *item = last_in_pool; item; item = item->prev_in_pool ) {
+        if ( item->num % 2 )
+            continue;
+        os << "\n    " << item->num << ": " << item->node_number;
+    }
 }
 
