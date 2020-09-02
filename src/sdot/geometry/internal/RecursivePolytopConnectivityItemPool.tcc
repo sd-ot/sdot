@@ -98,3 +98,17 @@ void RecursivePolytopConnectivityItemPool<TF,TI,0>::write_to_stream( std::ostrea
         os << "\n    " << item->num << ": " << item->node_number << " " << ( item->is_start ? "S" : "E" );
 }
 
+
+// apply_rec -----------------------------------------------------------------------------------------------------------------------------------------------------
+template<class TF,class TI,int nvi> template<class F>
+void RecursivePolytopConnectivityItemPool<TF,TI,nvi>::apply_rec( const F &f ) const {
+    next.apply_rec( f );
+    for( Item *item = last_in_pool; item; item = item->prev_in_pool )
+        f( item );
+}
+
+template<class TF,class TI> template<class F>
+void RecursivePolytopConnectivityItemPool<TF,TI,0>::apply_rec( const F &f ) const {
+    for( Item *item = last_in_pool; item; item = item->prev_in_pool )
+        f( item );
+}

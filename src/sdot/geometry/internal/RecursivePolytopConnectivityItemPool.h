@@ -19,6 +19,7 @@ struct RecursivePolytopConnectivityItemPool {
 
     void                         write_to_stream( std::ostream &os ) const;
     Item*                        find_or_create ( BumpPointerPool &mem_pool, std::vector<Face *> &&sorted_faces ); ///< faces can sorted by adresses
+    template<class F> void       apply_rec      ( const F &f ) const;
     Item*                        create         ( BumpPointerPool &mem_pool, std::vector<Face *> &&sorted_faces );
 
     Item*                        last_in_pool   = nullptr;
@@ -36,6 +37,7 @@ struct RecursivePolytopConnectivityItemPool<TF,TI,0> {
 
     void                         write_to_stream( std::ostream &os ) const;
     Item*                        find_or_create ( BumpPointerPool &mem_pool, TI node_number, bool is_start );
+    template<class F> void       apply_rec      ( const F &f ) const;
     Item*                        create         ( BumpPointerPool &mem_pool, TI node_number, bool is_start );
 
     Item*                        last_in_pool   = nullptr;

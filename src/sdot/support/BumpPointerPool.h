@@ -15,6 +15,7 @@ public:
     /* */   ~BumpPointerPool();
 
     void     operator=      ( const BumpPointerPool &that ) = delete;
+    void     operator=      ( BumpPointerPool &&that );
 
     char*    allocate       ( std::size_t size, std::size_t alig );
     char*    allocate       ( std::size_t size );

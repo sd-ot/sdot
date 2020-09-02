@@ -85,3 +85,22 @@ void RecursivePolytopConnectivityItem<TF,TI,0>::add_convex_hull( std::vector<Ite
     bool is_start = determinant( dirs->data, N<Pt::dim>() ) > 0;
     res.push_back( item_pool.find_or_create( mem_pool, *indices, is_start ) );
 }
+
+// copy -----------------------------------------------------------------------
+template<class TF,class TI,int nvi> template<class Pt>
+RecursivePolytopConnectivityItem<TF,TI,nvi> *RecursivePolytopConnectivityItem<TF,TI,nvi>::copy( std::vector<Pt> &new_positions, ItemPool &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const {
+    if ( ! new_item ) {
+        TODO;
+    }
+
+    return new_item;
+}
+
+template<class TF,class TI> template<class Pt>
+RecursivePolytopConnectivityItem<TF,TI,0> *RecursivePolytopConnectivityItem<TF,TI,0>::copy( std::vector<Pt> &new_positions, ItemPool &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const {
+    if ( ! new_item ) {
+        TODO;
+    }
+
+    return new_item;
+}

@@ -19,10 +19,15 @@ public:
     using                           Pt                    = Point<TF,dim>;
     using                           Rp                    = RecursiveConvexPolytop;
 
+    /**/                            RecursiveConvexPolytop( const std::vector<Pt> &old_positions, const ItemPool &old_item_pool, const std::vector<Item *> &old_items ); ///< make a copy (with only the necessary items)
     /**/                            RecursiveConvexPolytop( std::vector<Pt> &&positions = {} ); ///< make a convex hull from the nodes (if non empty)
+    /**/                            RecursiveConvexPolytop( RecursiveConvexPolytop &&that );
+
     void                            write_to_stream       ( std::ostream &os ) const;
     template<class VO> void         display_vtk           ( VO &vo ) const;
-    RecursiveConvexPolytop          plane_cut             ( Pt orig, Pt normal ) const; ///< a cut based on convexity
+    Rp&                             operator=             ( RecursiveConvexPolytop &&that );
+    Rp                              plane_cut             ( Pt orig, Pt normal ) const; ///< a cut based on convexity
+    std::vector<Rp>                 conn_cut              ( Pt orig, Pt normal ) const; ///< a plane cut based on connectivity. Return a list of possibilities
 
 private:
     void                            _make_convex_hull     ();

@@ -3,13 +3,41 @@
 #include "../support/P.h"
 
 template<class TF,int dim,class TI>
+RecursiveConvexPolytop<TF,dim,TI>::RecursiveConvexPolytop( const std::vector<Pt> &old_positions, const ItemPool &old_item_pool, const std::vector<Item *> &old_items ) {
+    // clear item->new_item
+    old_item_pool.apply_rec( []( auto *item ) {
+        item->new_item = nullptr;
+    } );
+
+    //
+    for( Item *old_item : old_items )
+        items.push_back( old_item->copy( positions, item_pool, mem_pool, old_positions ) );
+}
+
+template<class TF,int dim,class TI>
 RecursiveConvexPolytop<TF,dim,TI>::RecursiveConvexPolytop( std::vector<Pt> &&positions ) : positions( std::move( positions ) ) {
     _make_convex_hull();
 }
 
 template<class TF,int dim,class TI>
+RecursiveConvexPolytop<TF,dim,TI>::RecursiveConvexPolytop( RecursiveConvexPolytop &&that ) :
+    positions( std::move( that.positions ) ),
+    item_pool( std::move( that.item_pool ) ),
+    mem_pool ( std::move( that.mem_pool  ) ),
+    items    ( std::move( that.items     ) ) {
+}
+
+template<class TF,int dim,class TI>
+RecursiveConvexPolytop<TF,dim,TI> &RecursiveConvexPolytop<TF,dim,TI>::operator=( RecursiveConvexPolytop &&that ) {
+    positions = std::move( that.positions );
+    item_pool = std::move( that.item_pool );
+    mem_pool  = std::move( that.mem_pool  );
+    items     = std::move( that.items     );
+    return *this;
+}
+
+template<class TF,int dim,class TI>
 void RecursiveConvexPolytop<TF,dim,TI>::_make_convex_hull() {
-    using Vertex = RecursivePolytopConnectivityItem<TF,TI,0>;
     if ( positions.empty() )
         return;
 
@@ -106,6 +134,83 @@ RecursiveConvexPolytop<TF,dim,TI> RecursiveConvexPolytop<TF,dim,TI>::plane_cut( 
     // make a convex hull from the new points
     return { std::move( new_positions ) };
 }
+
+template<class TF,int dim,class TI>
+std::vector<RecursiveConvexPolytop<TF,dim,TI>> RecursiveConvexPolytop<TF,dim,TI>::conn_cut( Pt orig, Pt normal ) const {
+    if ( items.empty() )
+        return {};
+
+    std::vector<Pt> new_positions;
+    ItemPool        new_item_pool;
+    BumpPointerPool new_mem_pool;
+
+    // vertices
+    for( const auto *vertex = item_pool[ N<0>() ]->last_in_pool; vertex; vertex = vertex->prev_in_pool ) {
+        vertex->sp = dot( positions[ vertex->node_number ] - orig, normal );
+
+        // outside => no possibility in terms of new vertices
+        if ( vertex->sp > 0 ) {
+            vertex->new_items.clear();
+            continue;
+        }
+
+        // creation of a new vertex
+        vertex->new_items = { { new_item_pool[ N<0>() ]->create( new_mem_pool, new_positions.size(), vertex->is_start ) } };
+        new_positions.push_back( positions[ vertex->node_number ] );
+    }
+
+    // edges
+    for( const auto *edge = item_pool[ N<1>() ]->last_in_pool; edge; edge = edge->prev_in_pool ) {
+        ASSERT( edge->faces.size() == 2 );
+        Vertex *v0 = edge->faces[ 0 ];
+        Vertex *v1 = edge->faces[ 1 ];
+
+        bool o0 = v0->sp > 0;
+        bool o1 = v1->sp > 0;
+
+        // helper function
+        auto new_vertex = [&]( bool is_start ) {
+            TI nn = new_positions.size();
+            Pt P0 = positions[ v0->node_number ];
+            Pt P1 = positions[ v1->node_number ];
+            new_positions.push_back( P0 + v0->sp / ( v0->sp - v1->sp ) * ( P1 - P0 ) );
+
+            return new_item_pool[ N<0>() ]->create( new_mem_pool, nn, is_start );
+        };
+
+        // all outside
+        if ( o0 && o1 ) {
+            edge->new_items.clear();
+            continue;
+        }
+
+        // only v0 is outside
+        if ( o0 ) {
+            edge->new_items = { { new_item_pool[ N<1>() ]->create( new_mem_pool, { new_vertex( true ), v1 } ) } };
+            continue;
+        }
+
+        // only v1 is outside
+        if ( o1 ) {
+            edge->new_items = { { new_item_pool[ N<1>() ]->create( new_mem_pool, { v0, new_vertex( false ) } ) } };
+            continue;
+        }
+
+        // all inside
+        edge->new_items = { { new_item_pool[ N<1>() ]->create( new_mem_pool, { v0, v1 } ) } };
+    }
+
+
+    //
+    if ( items.size() != 1 )
+        TODO;
+
+    std::vector<Rp> res;
+    for( const auto &possibility : items[ 0 ]->new_items )
+        res.emplace_back( new_positions, new_item_pool, possibility );
+    return res;
+}
+
 
 //template<class TF,int dim,class TI> template<class F,int n>
 //void RecursiveConvexPolytop<TF,dim,TI>::for_each_item_rec( const F &fu, N<n> ) const {
