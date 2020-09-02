@@ -22,6 +22,7 @@ public:
     /**/                            RecursiveConvexPolytop( std::vector<Pt> &&positions = {} ); ///< make a convex hull from the nodes (if non empty)
     void                            write_to_stream       ( std::ostream &os ) const;
     template<class VO> void         display_vtk           ( VO &vo ) const;
+    RecursiveConvexPolytop          plane_cut             ( Pt orig, Pt normal ) const; ///< a cut based on convexity
 
 private:
     void                            _make_convex_hull     ();
@@ -32,7 +33,6 @@ private:
     std::vector<Item *>             items;                ///< connected "volumes"
 
     //    using                           VVRp                  = std::vector<std::vector<Rp>>;
-    //    RecursiveConvexPolytop          plane_cut             ( Pt orig, Pt normal ) const; ///< a cut based on convexity
     //    VVRp                            conn_cut              ( Pt orig, Pt normal ) const; ///< a cut based on connectivity and that does not rely on convexity. Return a list of possible results, each one consisting in a set of disjoint Rp
 
     //    template<class F,int n> void    for_each_item_rec    ( const F &fu, N<n> ) const; ///< for a fixed nvi

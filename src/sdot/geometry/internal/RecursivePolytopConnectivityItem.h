@@ -24,6 +24,7 @@ struct RecursivePolytopConnectivityItem {
     template<class Pt> static void    add_convex_hull  ( std::vector<Item *> &res, ItemPool &item_pool, BumpPointerPool &mem_pool, const Pt *positions, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &center );
 
     void                              write_to_stream  ( std::ostream &os ) const;
+    const Vertex*                     first_vertex     () const { return faces[ 0 ]->first_vertex(); }
     Vertex*                           first_vertex     () { return faces[ 0 ]->first_vertex(); }
     bool                              operator<        ( const Item &that ) const { return num > that.num; }
 
@@ -46,6 +47,7 @@ struct RecursivePolytopConnectivityItem<TF_,TI_,0> {
     template<class Pt> static void    add_convex_hull  ( std::vector<Item *> &res, ItemPool &item_pool, BumpPointerPool &mem_pool, const Pt *positions, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &center );
 
     void                              write_to_stream  ( std::ostream &os ) const;
+    const Item*                       first_vertex     () const { return this; }
     Item*                             first_vertex     () { return this; }
     bool                              operator<        ( const Item &that ) const { return std::tie( is_start, num ) > std::tie( that.is_start, that.num ); }
 

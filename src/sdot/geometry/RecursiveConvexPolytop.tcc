@@ -50,25 +50,61 @@ void RecursiveConvexPolytop<TF,dim,TI>::display_vtk( VO &vo ) const {
         vo.add_line( pts );
     }
 
-    //    // faces
-    //    connectivity.for_each_item_rec( [&]( const auto &face ) {
-    //        std::vector<TI> nexts( nodes.size() );
-    //        for( auto &edge : face.faces )
-    //            if ( edge.node_numbers.size() == 2 )
-    //                nexts[ edge.node_numbers[ 0 ] ] = edge.node_numbers[ 1 ];
+    // faces
+    for( const auto *face = item_pool[ N<2>() ]->last_in_pool; face; face = face->prev_in_pool ) {
+        std::vector<TI> nexts( positions.size() );
+        for( const auto *edge : face->faces )
+            if ( edge->faces.size() == 2 )
+                nexts[ edge->faces[ 0 ]->node_number ] = edge->faces[ 1 ]->node_number;
 
-    //        std::vector<typename VO::Pt> pts;
-    //        for( TI b = face.first_vertex(), v = b; ; v = nexts[ v ] ) {
-    //            typename VO::Pt pt;
-    //            for( TI d = 0; d < min( int( dim ), 3 ); ++d )
-    //                pt[ d ] = conv( nodes[ v ][ d ], S<typename VO::TF>() );
-    //            pts.push_back( pt );
-    //            if ( nexts[ v ] == b )
-    //                break;
-    //        }
+        std::vector<typename VO::Pt> pts;
+        for( TI b = face->first_vertex()->node_number, v = b; ; v = nexts[ v ] ) {
+            typename VO::Pt pt;
+            for( TI d = 0; d < min( int( dim ), 3 ); ++d )
+                pt[ d ] = conv( positions[ v ][ d ], S<typename VO::TF>() );
+            pts.push_back( pt );
+            if ( nexts[ v ] == b )
+                break;
+        }
 
-    //        vo.add_polygon( pts );
-    //    }, N<2>() );
+        vo.add_polygon( pts );
+    }
+}
+
+template<class TF,int dim,class TI>
+RecursiveConvexPolytop<TF,dim,TI> RecursiveConvexPolytop<TF,dim,TI>::plane_cut( Pt orig, Pt normal ) const {
+    using std::min;
+    using std::max;
+
+    std::vector<Pt> new_positions;
+    new_positions.reserve( 2 * positions.size() );
+
+    // scalar product for each vertex + copy of vertices that are inside
+    std::vector<TF> sp( positions.size() );
+    for( TI i = 0; i < positions.size(); ++i ) {
+        sp[ i ] = dot( positions[ i ] - orig, normal );
+        if ( ! ( sp[ i ] > 0 ) )
+            new_positions.push_back( positions[ i ] );
+    }
+
+    // get the number of interpolated vertices to create
+    std::vector<bool> cut_edges( positions.size() * ( positions.size() - 1 ) / 2, false );
+    for( const auto *edge = item_pool[ N<1>() ]->last_in_pool; edge; edge = edge->prev_in_pool ) {
+        if ( edge->faces.size() == 2 ) {
+            TI v = edge->faces[ 0 ]->node_number, w = edge->faces[ 1 ]->node_number;
+            if ( ( sp[ v ] > 0 ) != ( sp[ w ] > 0 ) ) {
+                TI n0 = min( v, w ), n1 = max( v, w );
+                TI nn = n1 * ( n1 - 1 ) / 2 + n0;
+                if ( ! cut_edges[ nn ] ) {
+                    new_positions.push_back( positions[ v ] + sp[ v ] / ( sp[ v ] - sp[ w ] ) * ( positions[ w ] - positions[ v ] ) );
+                    cut_edges[ nn ] = true;
+                }
+            }
+        }
+    }
+
+    // make a convex hull from the new points
+    return { std::move( new_positions ) };
 }
 
 //template<class TF,int dim,class TI> template<class F,int n>
@@ -88,41 +124,6 @@ void RecursiveConvexPolytop<TF,dim,TI>::display_vtk( VO &vo ) const {
 //    return connectivity.contains( nodes.data(), pt );
 //}
 
-//template<class TF,int dim,class TI>
-//RecursiveConvexPolytop<TF,dim,TI> RecursiveConvexPolytop<TF,dim,TI>::plane_cut( Pt orig, Pt normal ) const {
-//    using std::min;
-//    using std::max;
-
-//    std::vector<Pt> new_nodes;
-//    new_nodes.reserve( 2 * nodes.size() );
-
-//    // scalar product for each vertex + copy of vertices that are inside
-//    std::vector<TF> sp( nodes.size() );
-//    for( TI i = 0; i < nodes.size(); ++i ) {
-//        sp[ i ] = dot( nodes[ i ] - orig, normal );
-//        if ( ! ( sp[ i ] > 0 ) )
-//            new_nodes.push_back( nodes[ i ] );
-//    }
-
-//    // get the number of interpolated vertices to create
-//    std::vector<bool> cut_edges( nodes.size() * ( nodes.size() - 1 ) / 2, false );
-//    connectivity.for_each_item_rec( [&]( const auto &edge ) {
-//        if ( edge.node_numbers.size() == 2 ) {
-//            TI v = edge.node_numbers[ 0 ], w = edge.node_numbers[ 1 ];
-//            if ( ( sp[ v ] > 0 ) != ( sp[ w ] > 0 ) ) {
-//                TI n0 = min( v, w ), n1 = max( v, w );
-//                TI nn = n1 * ( n1 - 1 ) / 2 + n0;
-//                if ( ! cut_edges[ nn ] ) {
-//                    new_nodes.push_back( nodes[ v ] + sp[ v ] / ( sp[ v ] - sp[ w ] ) * ( nodes[ w ] - nodes[ v ] ) );
-//                    cut_edges[ nn ] = true;
-//                }
-//            }
-//        }
-//    }, N<1>() );
-
-//    // make a convex hull from the new points
-//    return { new_nodes };
-//}
 
 //template<class TF,int dim,class TI>
 //typename RecursiveConvexPolytop<TF,dim,TI>::VVRp RecursiveConvexPolytop<TF,dim,TI>::conn_cut( Pt orig, Pt normal ) const {
