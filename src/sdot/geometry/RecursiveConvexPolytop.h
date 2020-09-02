@@ -1,7 +1,7 @@
 #ifndef SDOT_RECURSIVE_POLYTOP_HEADER
 #define SDOT_RECURSIVE_POLYTOP_HEADER
 
-#include "internal/RecursivePolytopConnectivityItemPool.h"
+#include "internal/RecursivePolytop/Pool.h"
 
 
 /**
@@ -21,6 +21,7 @@ public:
 
     /**/                            RecursiveConvexPolytop( const std::vector<Pt> &old_positions, const ItemPool &old_item_pool, const std::vector<Item *> &old_items ); ///< make a copy (with only the necessary items)
     /**/                            RecursiveConvexPolytop( std::vector<Pt> &&positions = {} ); ///< make a convex hull from the nodes (if non empty)
+    /**/                            RecursiveConvexPolytop( const RecursiveConvexPolytop &that );
     /**/                            RecursiveConvexPolytop( RecursiveConvexPolytop &&that );
 
     void                            write_to_stream       ( std::ostream &os ) const;
@@ -35,27 +36,6 @@ private:
     std::vector<Pt>                 positions;            ///<
     ItemPool                        item_pool;            ///<
     BumpPointerPool                 mem_pool;             ///<
-    std::vector<Item *>             items;                ///< connected "volumes"
-
-    //    using                           VVRp                  = std::vector<std::vector<Rp>>;
-    //    VVRp                            conn_cut              ( Pt orig, Pt normal ) const; ///< a cut based on connectivity and that does not rely on convexity. Return a list of possible results, each one consisting in a set of disjoint Rp
-
-    //    template<class F,int n> void    for_each_item_rec    ( const F &fu, N<n> ) const; ///< for a fixed nvi
-    //    template<class F> void          for_each_item_rec    ( const F &fu ) const;
-
-
-    //    bool                            all_vertices_are_used() const;
-    //    TI                              nb_vertices          () const { return nodes.size(); }
-    //    bool                            contains             ( const Pt &pt ) const;
-    //    TF                              measure              () const;
-    //    const Pt&                       vertex               ( TI i ) const { return nodes[ i ]; }
-
-    //private:
-    //    template<class a,int b,int c,class d> friend struct  RecursivePolytopConnectivity;
-    //    using                           Connectivity         = RecursivePolytopConnectivity<TF,dim,dim,TI>;
-
-    //    Connectivity                    connectivity;        ///<
-    //    std::vector<Pt>                 nodes;               ///<
 };
 
 #include "RecursiveConvexPolytop.tcc"

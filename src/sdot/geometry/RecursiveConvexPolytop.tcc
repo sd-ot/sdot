@@ -4,14 +4,12 @@
 
 template<class TF,int dim,class TI>
 RecursiveConvexPolytop<TF,dim,TI>::RecursiveConvexPolytop( const std::vector<Pt> &old_positions, const ItemPool &old_item_pool, const std::vector<Item *> &old_items ) {
-    // clear item->new_item
     old_item_pool.apply_rec( []( auto *item ) {
         item->new_item = nullptr;
     } );
 
-    //
     for( Item *old_item : old_items )
-        items.push_back( old_item->copy( positions, item_pool, mem_pool, old_positions ) );
+        items.push_back( old_item->copy_rec( positions, item_pool, mem_pool, old_positions ) );
 }
 
 template<class TF,int dim,class TI>
@@ -20,11 +18,14 @@ RecursiveConvexPolytop<TF,dim,TI>::RecursiveConvexPolytop( std::vector<Pt> &&pos
 }
 
 template<class TF,int dim,class TI>
+RecursiveConvexPolytop<TF,dim,TI>::RecursiveConvexPolytop( const RecursiveConvexPolytop &that ) : RecursiveConvexPolytop( that.positions, that.item_pool, that.items ) {
+}
+
+template<class TF,int dim,class TI>
 RecursiveConvexPolytop<TF,dim,TI>::RecursiveConvexPolytop( RecursiveConvexPolytop &&that ) :
     positions( std::move( that.positions ) ),
     item_pool( std::move( that.item_pool ) ),
-    mem_pool ( std::move( that.mem_pool  ) ),
-    items    ( std::move( that.items     ) ) {
+    mem_pool ( std::move( that.mem_pool  ) ) {
 }
 
 template<class TF,int dim,class TI>
@@ -32,7 +33,6 @@ RecursiveConvexPolytop<TF,dim,TI> &RecursiveConvexPolytop<TF,dim,TI>::operator=(
     positions = std::move( that.positions );
     item_pool = std::move( that.item_pool );
     mem_pool  = std::move( that.mem_pool  );
-    items     = std::move( that.items     );
     return *this;
 }
 
@@ -68,10 +68,10 @@ void RecursiveConvexPolytop<TF,dim,TI>::display_vtk( VO &vo ) const {
     // edges
     for( const auto *edge = item_pool[ N<1>() ]->last_in_pool; edge; edge = edge->prev_in_pool ) {
         std::vector<typename VO::Pt> pts;
-        for( const auto *vertex : edge->faces ) {
+        for( const auto &vertex : edge->faces ) {
             typename VO::Pt pt;
             for( TI d = 0; d < min( int( dim ), 3 ); ++d )
-                pt[ d ] = conv( positions[ vertex->node_number ][ d ], S<typename VO::TF>() );
+                pt[ d ] = conv( positions[ vertex.item->node_number ][ d ], S<typename VO::TF>() );
             pts.push_back( pt );
         }
 
@@ -81,9 +81,12 @@ void RecursiveConvexPolytop<TF,dim,TI>::display_vtk( VO &vo ) const {
     // faces
     for( const auto *face = item_pool[ N<2>() ]->last_in_pool; face; face = face->prev_in_pool ) {
         std::vector<TI> nexts( positions.size() );
-        for( const auto *edge : face->faces )
-            if ( edge->faces.size() == 2 )
-                nexts[ edge->faces[ 0 ]->node_number ] = edge->faces[ 1 ]->node_number;
+        for( const auto &edge : face->faces ) {
+            if ( edge.item->faces.size() == 2 ) {
+                bool s = edge.item->faces[ 0 ].neg;
+                nexts[ edge.item->faces[ s ].item->node_number ] = edge.item->faces[ 1 - s ].item->node_number;
+            }
+        }
 
         std::vector<typename VO::Pt> pts;
         for( TI b = face->first_vertex()->node_number, v = b; ; v = nexts[ v ] ) {
@@ -137,12 +140,9 @@ RecursiveConvexPolytop<TF,dim,TI> RecursiveConvexPolytop<TF,dim,TI>::plane_cut( 
 
 template<class TF,int dim,class TI>
 std::vector<RecursiveConvexPolytop<TF,dim,TI>> RecursiveConvexPolytop<TF,dim,TI>::conn_cut( Pt orig, Pt normal ) const {
-    if ( items.empty() )
-        return {};
-
     std::vector<Pt> new_positions;
-    ItemPool        new_item_pool;
     BumpPointerPool new_mem_pool;
+    ItemPool new_item_pool;
 
     // vertices
     for( const auto *vertex = item_pool[ N<0>() ]->last_in_pool; vertex; vertex = vertex->prev_in_pool ) {
@@ -155,59 +155,64 @@ std::vector<RecursiveConvexPolytop<TF,dim,TI>> RecursiveConvexPolytop<TF,dim,TI>
         }
 
         // creation of a new vertex
-        vertex->new_items = { { new_item_pool[ N<0>() ]->create( new_mem_pool, new_positions.size(), vertex->is_start ) } };
+        vertex->new_items = { { new_item_pool[ N<0>() ]->create( new_mem_pool, new_positions.size() ) } };
         new_positions.push_back( positions[ vertex->node_number ] );
     }
 
     // edges
-    for( const auto *edge = item_pool[ N<1>() ]->last_in_pool; edge; edge = edge->prev_in_pool ) {
-        ASSERT( edge->faces.size() == 2 );
-        Vertex *v0 = edge->faces[ 0 ];
-        Vertex *v1 = edge->faces[ 1 ];
+    TODO;
+    //    item_pool.conn_cut_rec();
 
-        bool o0 = v0->sp > 0;
-        bool o1 = v1->sp > 0;
+    //    for( const auto *edge = item_pool[ N<1>() ]->last_in_pool; edge; edge = edge->prev_in_pool ) {
+    //        // edge->conn_cut( new_item_pool, new_mem_pool );
 
-        // helper function
-        auto new_vertex = [&]( bool is_start ) {
-            TI nn = new_positions.size();
-            Pt P0 = positions[ v0->node_number ];
-            Pt P1 = positions[ v1->node_number ];
-            new_positions.push_back( P0 + v0->sp / ( v0->sp - v1->sp ) * ( P1 - P0 ) );
+    //        ASSERT( edge->faces.size() == 2 );
+    //        Vertex *v0 = edge->faces[ 0 ].item;
+    //        Vertex *v1 = edge->faces[ 1 ].item;
 
-            return new_item_pool[ N<0>() ]->create( new_mem_pool, nn, is_start );
-        };
+    //        bool o0 = v0->sp > 0;
+    //        bool o1 = v1->sp > 0;
 
-        // all outside
-        if ( o0 && o1 ) {
-            edge->new_items.clear();
-            continue;
-        }
+    //        // helper function
+    //        auto new_vertex = [&]() {
+    //            TI nn = new_positions.size();
+    //            Pt P0 = positions[ v0->node_number ];
+    //            Pt P1 = positions[ v1->node_number ];
+    //            new_positions.push_back( P0 + v0->sp / ( v0->sp - v1->sp ) * ( P1 - P0 ) );
 
-        // only v0 is outside
-        if ( o0 ) {
-            edge->new_items = { { new_item_pool[ N<1>() ]->create( new_mem_pool, { new_vertex( true ), v1 } ) } };
-            continue;
-        }
+    //            return new_item_pool[ N<0>() ]->create( new_mem_pool, nn );
+    //        };
 
-        // only v1 is outside
-        if ( o1 ) {
-            edge->new_items = { { new_item_pool[ N<1>() ]->create( new_mem_pool, { v0, new_vertex( false ) } ) } };
-            continue;
-        }
+    //        // all outside
+    //        if ( o0 && o1 ) {
+    //            edge->new_items.clear();
+    //            continue;
+    //        }
 
-        // all inside
-        edge->new_items = { { new_item_pool[ N<1>() ]->create( new_mem_pool, { v0, v1 } ) } };
-    }
+    //        // only v0 is outside
+    //        if ( o0 ) {
+    //            edge->new_items = { { new_item_pool[ N<1>() ]->create( new_mem_pool, { { new_vertex(), true }, { v1, false } } ) } };
+    //            continue;
+    //        }
+
+    //        // only v1 is outside
+    //        if ( o1 ) {
+    //            edge->new_items = { { new_item_pool[ N<1>() ]->create( new_mem_pool, { { v0, true }, { new_vertex(), false } } ) } };
+    //            continue;
+    //        }
+
+    //        // all inside
+    //        edge->new_items = { { new_item_pool[ N<1>() ]->create( new_mem_pool, { { v0, true }, { v1, false } } ) } };
+    //    }
 
 
-    //
-    if ( items.size() != 1 )
-        TODO;
+    //    // several connected items
+    //    if ( items.size() >= 2 )
+    //        TODO;
 
     std::vector<Rp> res;
-    for( const auto &possibility : items[ 0 ]->new_items )
-        res.emplace_back( new_positions, new_item_pool, possibility );
+//    for( const auto &possibility : items[ 0 ]->new_items )
+//        res.emplace_back( new_positions, new_item_pool, possibility );
     return res;
 }
 
@@ -229,79 +234,6 @@ std::vector<RecursiveConvexPolytop<TF,dim,TI>> RecursiveConvexPolytop<TF,dim,TI>
 //    return connectivity.contains( nodes.data(), pt );
 //}
 
-
-//template<class TF,int dim,class TI>
-//typename RecursiveConvexPolytop<TF,dim,TI>::VVRp RecursiveConvexPolytop<TF,dim,TI>::conn_cut( Pt orig, Pt normal ) const {
-//    using std::min;
-//    using std::max;
-
-//    std::vector<Pt> new_nodes;
-//    new_nodes = nodes;
-
-//    // scalar product for each node
-//    std::vector<TF> sp( nodes.size() );
-//    for( TI i = 0; i < nodes.size(); ++i )
-//        sp[ i ] = dot( nodes[ i ] - orig, normal );
-
-//    // get new vertices from the edges
-//    std::vector<TI> edge_corr( nodes.size() * ( nodes.size() - 1 ) / 2, 0 );
-//    connectivity.for_each_item_rec( [&]( const auto &edge ) {
-//        if ( edge.node_numbers.size() == 2 ) {
-//            TI v = edge.node_numbers[ 0 ], w = edge.node_numbers[ 1 ];
-//            if ( ( sp[ v ] > 0 ) != ( sp[ w ] > 0 ) ) {
-//                TI n0 = min( v, w ), n1 = max( v, w );
-//                TI nn = n1 * ( n1 - 1 ) / 2 + n0;
-//                if ( ! edge_corr[ nn ] ) {
-//                    edge_corr[ nn ] = new_nodes.size();
-//                    new_nodes.push_back( nodes[ v ] + sp[ v ] / ( sp[ v ] - sp[ w ] ) * ( nodes[ w ] - nodes[ v ] ) );
-//                }
-//            }
-//        }
-//    }, N<1>() );
-
-//    // get possibilities in terms of connectivities
-//    std::vector<std::vector<Connectivity>> new_connectivities;
-//    connectivity.conn_cut( new_connectivities, edge_corr.data(), sp.data(), N<dim>() );
-
-//    // make Rps with them
-//    VVRp res( new_connectivities.size() );
-//    for( TI nc = 0; nc < new_connectivities.size(); ++nc ) {
-//        res[ nc ].reserve( new_connectivities[ nc ].size() );
-//        for( Connectivity &c : new_connectivities[ nc ] ) {
-//            Rp loc;
-//            loc.nodes = new_nodes;
-//            loc.connectivity = std::move( c );
-
-//            res[ nc ].push_back( loc );
-//        }
-//    }
-
-//    return res;
-//}
-
-
-//template<class TF,int dim,class TI>
-//TF RecursiveConvexPolytop<TF,dim,TI>::measure() const {
-//    std::array<Pt,dim> dirs;
-//    return connectivity.measure( nodes.data(), dirs, nodes[ connectivity.first_vertex() ] ) / factorial( TF( int( dim ) ) );
-//}
-
-////template<class TF,int dim,class TI> template<class Pts>
-////auto RecursiveConvexPolytop<TF,dim,TI>::with_points( const Pts &pts ) const -> RecursiveConvexPolytop<typename std::decay<decltype( pts[ 0 ][ 0 ] )>::type,dim,TI,UserData> {
-////    using NF = typename std::decay<decltype( pts[ 0 ][ 0 ] )>::type;
-////    RecursiveConvexPolytop<NF,dim,TI> res( vertices.size() );
-////    for( TI i = 0; i < vertices.size(); ++i ) {
-////        res.vertices[ i ].user_data = vertices[ i ].user_data;
-////        res.vertices[ i ].pos = pts[ vertices[ i ].num ];
-////    }
-
-////    for( const Impl &impl : impls )
-////        impl.with_points( res.impls, res.pool, res.vertices.data() );
-
-////    res.update_normals();
-
-////    return res;
-////}
 
 ////template<class TF,int dim,class TI>
 ////bool RecursiveConvexPolytop<TF,dim,TI>::all_vertices_are_used() const {

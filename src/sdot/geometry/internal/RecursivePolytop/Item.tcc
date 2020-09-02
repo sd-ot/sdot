@@ -20,8 +20,8 @@ void RecursivePolytopConnectivityItem<TF,TI,0>::write_to_stream( std::ostream &o
 template<class TF,class TI,int nvi> template<class Pt>
 void RecursivePolytopConnectivityItem<TF,TI,nvi>::add_convex_hull( std::vector<Item *> &res, ItemPool &item_pool, BumpPointerPool &mem_pool, const Pt *positions, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &center ) {
     static constexpr int dim = Pt::dim;
+    std::vector<FaceItem *> face_items;
     std::vector<Pt> face_normals;
-    std::vector<Face *> faces;
 
     // try each possible vertex selection to make new faces
     for_each_comb<TI>( nvi, nb_indices, indices + nb_indices, [&]( TI *chosen_num_indices ) {
@@ -33,8 +33,8 @@ void RecursivePolytopConnectivityItem<TF,TI,nvi>::add_convex_hull( std::vector<I
         normals[ dim - nvi ] = face_normal;
 
         // test if we already have this face
-        for( TI i = 0; i < faces.size(); ++i )
-            if ( dot( face_normals[ i ], orig - positions[ faces[ i ]->first_vertex()->node_number ] ) == 0 && colinear( face_normals[ i ], face_normal ) )
+        for( TI i = 0; i < face_items.size(); ++i )
+            if ( dot( face_normals[ i ], orig - positions[ face_items[ i ]->first_vertex()->node_number ] ) == 0 && colinear( face_normals[ i ], face_normal ) )
                 return;
 
         // test in and out points
@@ -69,14 +69,15 @@ void RecursivePolytopConnectivityItem<TF,TI,nvi>::add_convex_hull( std::vector<I
         dirs[ dim - nvi ] = face_center - center;
 
         // add the new face
-        Face::add_convex_hull( faces, item_pool.next, mem_pool, positions, new_indices, new_nb_indices, normals, dirs, face_center );
+        FaceItem::add_convex_hull( face_items, item_pool.next, mem_pool, positions, new_indices, new_nb_indices, normals, dirs, face_center );
         face_normals.push_back( face_normal );
     } );
 
     // create a new item
-    if ( faces.size() ) {
-        std::sort( faces.begin(), faces.end(), []( Face *a, Face *b ) { return *a < *b; } );
-        res.push_back( item_pool.find_or_create( mem_pool, std::move( faces ) ) );
+    if ( face_items.size() ) {
+        std::vector<Face> new_faces( face_items.size() );
+        std::sort( face_items.begin(), face_items.end(), []( Face *a, Face *b ) { return *a < *b; } );
+        res.push_back( item_pool.find_or_create( mem_pool, std::move( face_items ) ) );
     }
 }
 
@@ -88,18 +89,23 @@ void RecursivePolytopConnectivityItem<TF,TI,0>::add_convex_hull( std::vector<Ite
 
 // copy -----------------------------------------------------------------------
 template<class TF,class TI,int nvi> template<class Pt>
-RecursivePolytopConnectivityItem<TF,TI,nvi> *RecursivePolytopConnectivityItem<TF,TI,nvi>::copy( std::vector<Pt> &new_positions, ItemPool &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const {
+RecursivePolytopConnectivityItem<TF,TI,nvi> *RecursivePolytopConnectivityItem<TF,TI,nvi>::copy_rec( std::vector<Pt> &new_positions, ItemPool &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const {
     if ( ! new_item ) {
-        TODO;
+        std::vector<Face *> new_faces( faces.size() );
+        for( TI i = 0; i < faces.size(); ++i )
+            new_faces[ i ] = faces[ i ]->copy_rec( new_positions, new_item_pool.next, new_mem_pool, old_positions );
+        std::sort( new_faces.begin(), new_faces.end(), []( Face *a, Face *b ) { return *a < *b; } );
+        new_item = new_item_pool.create( new_mem_pool, std::move( new_faces ) );
     }
 
     return new_item;
 }
 
 template<class TF,class TI> template<class Pt>
-RecursivePolytopConnectivityItem<TF,TI,0> *RecursivePolytopConnectivityItem<TF,TI,0>::copy( std::vector<Pt> &new_positions, ItemPool &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const {
+RecursivePolytopConnectivityItem<TF,TI,0> *RecursivePolytopConnectivityItem<TF,TI,0>::copy_rec( std::vector<Pt> &new_positions, ItemPool &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const {
     if ( ! new_item ) {
-        TODO;
+        new_item = new_item_pool.create( new_mem_pool, new_positions.size() );
+        new_positions.push_back( old_positions[ node_number ] );
     }
 
     return new_item;
