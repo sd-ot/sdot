@@ -168,7 +168,7 @@ std::vector<RecursiveConvexPolytop<TF,dim,TI>> RecursiveConvexPolytop<TF,dim,TI>
 
         // outside => no possibility in terms of new vertices
         if ( sps[ vertex->node_number ] > 0 ) {
-            vertex->new_items.clear();
+            vertex->new_items = { {} };
             continue;
         }
 

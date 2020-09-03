@@ -119,15 +119,51 @@ Connectivity<TI,0> *Connectivity<TI,0>::copy_rec( std::vector<Pt> &new_positions
     return new_item;
 }
 
+// for_each_possibility -------------------------------------------------------
+template<class TI,int nvi>
+void Connectivity<TI,nvi>::for_each_possibility( const std::function<void( const std::vector<std::vector<Obn>> &proposition )> &f, std::vector<std::vector<Obn>> &proposition, TI n ) const {
+    if ( n == boundaries.size() ) {
+        f( proposition );
+        return;
+    }
+
+    for( TI i = 0; i < boundaries[ n ].connectivity->new_items.size(); ++i ) {
+        TI nb_items = boundaries[ n ].connectivity->new_items.size();
+        proposition[ n ].resize( nb_items );
+        for( TI i = 0; i < nb_items; ++i )
+            proposition[ n ][ i ] = { boundaries[ n ].connectivity->new_items[ n ][ i ], boundaries[ n ].neg }; // hum
+        for_each_possibility( f, proposition, n + 1 );
+    }
+}
+
+template<class TI,int nvi>
+void Connectivity<TI,nvi>::for_each_possibility( const std::function<void( const std::vector<std::vector<Obn>> &proposition )> &f ) const {
+    std::vector<std::vector<Obn>> proposition( new_items.size() );
+    for_each_possibility( f, proposition, 0 );
+}
+
 // copy -----------------------------------------------------------------------
 template<class TI,int nvi> template<int n>
-void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<n>, const std::function<TI(TI,TI)> &interp ) const {
+void Connectivity<TI,nvi>::conn_cut( Cpl &/*new_item_pool*/, Mpl &/*new_mem_pool*/, N<n>, const std::function<TI(TI,TI)> &/*interp*/ ) const {
     TODO;
 }
 
 template<class TI,int nvi>
-void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<2>, const std::function<TI(TI,TI)> &interp ) const {
-    TODO;
+void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<2>, const std::function<TI(TI,TI)> &/*interp*/ ) const {
+    new_items.clear();
+    for_each_possibility( [&]( const std::vector<std::vector<Obn>> &proposition ) {
+        std::vector<Obn> new_edges;
+        for( const std::vector<Obn> &p : proposition ) {
+            if ( p.empty() )
+                continue;
+            if ( p.size() != 1 )
+                TODO; // several volumes
+            new_edges.push_back( p[ 0 ] );
+        }
+        // new possibility (with only one volume)
+        new_items.push_back( { new_item_pool.create( new_mem_pool, std::move( new_edges ) ) } );
+    } );
+
 }
 
 template<class TI,int nvi>
@@ -138,8 +174,8 @@ void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<1>
     Vtx *v0 = boundaries[ 1 - s ].connectivity;
     Vtx *v1 = boundaries[ 0 + s ].connectivity;
 
-    bool o0 = v0->new_items.empty();
-    bool o1 = v1->new_items.empty();
+    bool o0 = v0->new_items[ 0 ].empty();
+    bool o1 = v1->new_items[ 0 ].empty();
 
     // helper
     auto new_node = [&]() {
@@ -148,24 +184,24 @@ void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<1>
 
     // all outside
     if ( o0 && o1 ) {
-        new_items.clear();
+        new_items = { {} };
         return;
     }
 
     // only v0 is outside
     if ( o0 ) {
-        new_items = { { new_item_pool.create( new_mem_pool, { { new_node(), true }, { v1, false } } ) } };
+        new_items = { { new_item_pool.create( new_mem_pool, { { new_node(), true }, { v1->new_items[ 0 ][ 0 ], false } } ) } };
         return;
     }
 
     // only v1 is outside
     if ( o1 ) {
-        new_items = { { new_item_pool.create( new_mem_pool, { { v0, true }, { new_node(), false } } ) } };
+        new_items = { { new_item_pool.create( new_mem_pool, { { v0->new_items[ 0 ][ 0 ], true }, { new_node(), false } } ) } };
         return;
     }
 
     // all inside
-    new_items = { { new_item_pool.create( new_mem_pool, { { v0, true }, { v1, false } } ) } };
+    new_items = { { new_item_pool.create( new_mem_pool, { { v0->new_items[ 0 ][ 0 ], true }, { v1->new_items[ 0 ][ 0 ], false } } ) } };
 }
 
 template<class TI>

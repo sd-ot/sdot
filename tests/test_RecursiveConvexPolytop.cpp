@@ -152,6 +152,7 @@ void test_2D_conn() {
     P( nps );
 
     VtkOutput vo;
+    // rp.display_vtk( vo );
     for( const Rp &np : nps )
         np.display_vtk( vo );
     vo.save( "out.vtk" );
