@@ -150,52 +150,39 @@ RecursiveConvexPolytop<TF,dim,TI> RecursiveConvexPolytop<TF,dim,TI>::plane_cut( 
 }
 
 template<class TF,int dim,class TI>
-std::vector<RecursiveConvexPolytop<TF,dim,TI>> RecursiveConvexPolytop<TF,dim,TI>::conn_cut( Pt orig, Pt normal ) const {
-    if ( items.empty() )
-        return {};
-
-    // where to store the new data
-    ConnectivityPool new_item_pool;
-    BumpPointerPool new_mem_pool;
+RecursiveConvexPolytop<TF,dim,TI> RecursiveConvexPolytop<TF,dim,TI>::conn_cut( Pt orig, Pt normal ) const {
+    Rp res;
 
     // vertices
-    std::vector<Pt> new_positions;
     std::vector<TF> sps( positions.size() );
     for( const auto *vertex = connectivity_pool[ N<0>() ]->last_in_pool; vertex; vertex = vertex->prev_in_pool ) {
         sps[ vertex->node_number ] = dot( positions[ vertex->node_number ] - orig, normal );
 
         // outside => no possibility in terms of new vertices
         if ( sps[ vertex->node_number ] > 0 ) {
-            vertex->new_items = { {} };
+            vertex->new_item = nullptr;
             continue;
         }
 
         // creation of a new vertex
-        vertex->new_items = { { new_item_pool[ N<0>() ]->create( new_mem_pool, new_positions.size() ) } };
-        new_positions.push_back( positions[ vertex->node_number ] );
+        vertex->new_item = res.connectivity_pool[ N<0>() ]->create( res.mem_pool, res.positions.size() );
+        res.positions.push_back( positions[ vertex->node_number ] );
     }
 
     // edges, faces, ...
     connectivity_pool.apply_rec( [&]( auto *item ) {
         N<item->nvi> nvi;
-        item->conn_cut( *new_item_pool[ nvi ], new_mem_pool, nvi, [&]( TI n0, TI n1 ) -> TI {
-            TI nn = new_positions.size();
+
+        item->conn_cut( *res.connectivity_pool[ nvi ], res.mem_pool, nvi, [&]( TI n0, TI n1 ) -> TI {
+            TI nn = res.positions.size();
             Pt P0 = positions[ n0 ];
             Pt P1 = positions[ n1 ];
-            new_positions.push_back( P0 + sps[ n0 ] / ( sps[ n0 ] - sps[ n1 ] ) * ( P1 - P0 ) );
+            res.positions.push_back( P0 + sps[ n0 ] / ( sps[ n0 ] - sps[ n1 ] ) * ( P1 - P0 ) );
 
             return nn;
         } );
     } );
 
-    std::vector<Rp> res;
-    ASSERT( items.size() == 1 );
-    for( const std::vector<Item *> &possibility : items[ 0 ].connectivity->new_items ) {
-        std::vector<OrientedItem> new_items( possibility.size() );
-        for( TI i = 0; i < possibility.size(); ++i )
-            new_items[ i ] = { possibility[ i ], false };
-        res.emplace_back( new_positions, new_item_pool, new_items );
-    }
     return res;
 }
 

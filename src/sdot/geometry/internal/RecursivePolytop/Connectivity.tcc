@@ -119,78 +119,51 @@ Connectivity<TI,0> *Connectivity<TI,0>::copy_rec( std::vector<Pt> &new_positions
     return new_item;
 }
 
-// for_each_possibility -------------------------------------------------------
-template<class TI,int nvi>
-void Connectivity<TI,nvi>::for_each_possibility( const std::function<void( const std::vector<std::vector<Obn>> &proposition )> &f, std::vector<std::vector<Obn>> &proposition, TI n ) const {
-    if ( n == boundaries.size() ) {
-        f( proposition );
-        return;
-    }
-
-    for( TI num_proposition = 0; num_proposition < boundaries[ n ].connectivity->new_items.size(); ++num_proposition ) {
-        TI nb_items = boundaries[ n ].connectivity->new_items[ num_proposition ].size();
-        proposition[ n ].resize( nb_items );
-        for( TI i = 0; i < nb_items; ++i )
-            proposition[ n ][ i ] = { boundaries[ n ].connectivity->new_items[ num_proposition ][ i ], boundaries[ n ].neg };
-        for_each_possibility( f, proposition, n + 1 );
-    }
-}
-
-template<class TI,int nvi>
-void Connectivity<TI,nvi>::for_each_possibility( const std::function<void( const std::vector<std::vector<Obn>> &proposition )> &f ) const {
-    std::vector<std::vector<Obn>> proposition( boundaries.size() );
-    for_each_possibility( f, proposition, 0 );
-}
-
 // copy -----------------------------------------------------------------------
 template<class TI,int nvi> template<int n>
 void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<n>, const std::function<TI(TI,TI)> &/*interp*/ ) const {
-    new_items.clear();
-    for_each_possibility( [&]( const std::vector<std::vector<Obn>> &new_edge_sets ) {
-        // update parents for each boundary->boundary
-        for( const std::vector<Obn> &new_edge_set : new_edge_sets ) {
-            for( const Obn &new_edge : new_edge_set ) {
-                for( const typename Bnd::Obn &new_vertex : new_edge.connectivity->boundaries ) {
-                    new_vertex.connectivity->parents[ 0 ] = nullptr;
-                    new_vertex.connectivity->parents[ 1 ] = nullptr;
-                }
+    // update parents for each boundary->boundary (i.e. vertices if we're on a face, edges if we're on a volume, ...)
+    for( const Obn &edge : boundaries ) {
+        if ( Bnd *new_edge = edge.connectivity->new_item ) {
+            for( const typename Bnd::Obn &new_vertex : new_edge->boundaries ) {
+                new_vertex.connectivity->parents[ 0 ] = nullptr;
+                new_vertex.connectivity->parents[ 1 ] = nullptr;
             }
         }
+    }
 
-        for( const std::vector<Obn> &new_edge_set : new_edge_sets )
-            for( const Obn &new_edge : new_edge_set )
-                for( const typename Bnd::Obn &new_vertex : new_edge.connectivity->boundaries )
-                    new_vertex.connectivity->parents[ new_vertex.connectivity->parents[ 0 ] != nullptr ] = new_edge.connectivity;
+    for( const Obn &edge : boundaries )
+        if ( Bnd *new_edge = edge.connectivity->new_item )
+            for( const typename Bnd::Obn &new_vertex : new_edge->boundaries )
+                new_vertex.connectivity->parents[ new_vertex.connectivity->parents[ 0 ] != nullptr ] = new_edge;
 
-        // existing or cut edges
-        std::vector<Obn> new_edges;
-        std::vector<typename Bnd::Obn> free_vertices;
-        for( const std::vector<Obn> &new_edge_set : new_edge_sets ) {
-            if ( new_edge_set.empty() )
-                continue;
-            if ( new_edge_set.size() != 1 )
-                TODO; // several volumes
-            new_edges.push_back( new_edge_set[ 0 ] );
+    // existing or cut edges
+    std::vector<Obn> new_edges;
+    std::vector<typename Bnd::Obn> free_vertices;
+    for( const Obn &edge : boundaries ) {
+        if ( Bnd *new_edge = edge.connectivity->new_item ) {
+            new_edges.push_back( { new_edge, edge.neg } );
 
             // look up for free vertices
-            for( const Obn &new_edge : new_edge_set )
-                for( const typename Bnd::Obn &new_vertex : new_edge.connectivity->boundaries )
-                    if ( new_vertex.connectivity->parents[ 1 ] == nullptr )
-                        free_vertices.push_back( new_edge.neg ? new_vertex : - new_vertex );
+            for( const typename Bnd::Obn &new_vertex : new_edge->boundaries )
+                if ( new_vertex.connectivity->parents[ 1 ] == nullptr )
+                    free_vertices.push_back( edge.neg ? new_vertex : - new_vertex );
         }
+    }
 
-        // closing edge
-        if ( free_vertices.size() ) {
-            std::sort( free_vertices.begin(), free_vertices.end() );
-            Bnd *closing_edge = new_item_pool.next.create( new_mem_pool, std::move( free_vertices ) );
-            new_edges.push_back( { closing_edge, false } );
-        }
+    // closing edge
+    if ( free_vertices.size() ) {
+        std::sort( free_vertices.begin(), free_vertices.end() );
+        Bnd *closing_edge = new_item_pool.next.create( new_mem_pool, std::move( free_vertices ) );
+        new_edges.push_back( { closing_edge, false } );
+    }
 
-        // new possibility (with only one volume for now)
+    // new face
+    if ( new_edges.size() ) {
         std::sort( new_edges.begin(), new_edges.end() );
-        new_items.push_back( { new_item_pool.create( new_mem_pool, std::move( new_edges ) ) } );
-    } );
-
+        new_item = new_item_pool.create( new_mem_pool, std::move( new_edges ) );
+    } else
+        new_item = nullptr;
 }
 
 template<class TI,int nvi>
@@ -201,8 +174,8 @@ void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<1>
     Vtx *v0 = boundaries[ 1 - s ].connectivity;
     Vtx *v1 = boundaries[ 0 + s ].connectivity;
 
-    bool o0 = v0->new_items[ 0 ].empty();
-    bool o1 = v1->new_items[ 0 ].empty();
+    bool o0 = v0->new_item == nullptr;
+    bool o1 = v1->new_item == nullptr;
 
     // helper
     auto new_node = [&]() {
@@ -212,29 +185,29 @@ void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<1>
 
     // all outside
     if ( o0 && o1 ) {
-        new_items = { {} };
+        new_item = nullptr;
         return;
     }
 
     // only v0 is outside
     if ( o0 ) {
-        new_items = { { new_item_pool.create( new_mem_pool, { { new_node(), true }, { v1->new_items[ 0 ][ 0 ], false } } ) } };
+        new_item = new_item_pool.create( new_mem_pool, { { new_node(), true }, { v1->new_item, false } } );
         return;
     }
 
     // only v1 is outside
     if ( o1 ) {
-        new_items = { { new_item_pool.create( new_mem_pool, { { v0->new_items[ 0 ][ 0 ], true }, { new_node(), false } } ) } };
+        new_item = new_item_pool.create( new_mem_pool, { { v0->new_item, true }, { new_node(), false } } );
         return;
     }
 
     // all inside
-    new_items = { { new_item_pool.create( new_mem_pool, { { v0->new_items[ 0 ][ 0 ], true }, { v1->new_items[ 0 ][ 0 ], false } } ) } };
+    new_item = new_item_pool.create( new_mem_pool, { { v0->new_item, true }, { v1->new_item, false } } );
 }
 
 template<class TI>
 void Connectivity<TI,0>::conn_cut( Cpl &/*new_item_pool*/, Mpl &/*new_mem_pool*/, N<0>, const std::function<TI(TI,TI)> &/*interp*/ ) const {
-    // nothing to do
+    // nothing to do :)
 }
 
 

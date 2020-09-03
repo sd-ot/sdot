@@ -35,7 +35,7 @@ public:
     void                            add_convex_hull       ();
     template<class VO> void         display_vtk           ( VO &vo ) const;
     Rp                              plane_cut             ( Pt orig, Pt normal ) const; ///< a cut based on convexity
-    std::vector<Rp>                 conn_cut              ( Pt orig, Pt normal ) const; ///< a plane cut based on connectivity. Return a list of possibilities
+    Rp                              conn_cut              ( Pt orig, Pt normal ) const; ///< a plane cut based on connectivity. May contain edge with more than 2 nodes, faces with several sub-faces, ...
 
 
     ConnectivityPool                connectivity_pool;    ///<
