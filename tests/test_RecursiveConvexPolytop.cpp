@@ -140,50 +140,51 @@ void test_1D_conn() {
 }
 
 void test_2D_conn() {
-    //        using Rp = RecursiveConvexPolytop<TF,2>;
-    //        using Pt = Rp::Pt;
-
-    //        // house shape
-    //        Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } } );
-    //        P( rp );
-
-    //        std::vector<Rp> nps = rp.conn_cut( Pt{ 5, 13 }, Pt{ 0, +1 } );
-    //        P( nps.size() );
-    //        P( nps );
-
-    //        VtkOutput vo;
-    //        // rp.display_vtk( vo );
-    //        for( const Rp &np : nps )
-    //            np.display_vtk( vo );
-    //        vo.save( "out.vtk" );
-}
-
-void test_3D_conn() {
-    using Rp = RecursiveConvexPolytop<TF,3>;
+    using Rp = RecursiveConvexPolytop<TF,2>;
     using Pt = Rp::Pt;
 
     // house shape
-    std::vector<Pt> pts;
-    pts.push_back( {  0,  0,  0 } );
-    pts.push_back( { 10,  0,  0 } );
-    pts.push_back( {  0, 10,  0 } );
-    pts.push_back( { 10, 10,  0 } );
-    pts.push_back( {  0,  0, 10 } );
-    pts.push_back( { 10,  0, 10 } );
-    pts.push_back( {  0, 10, 10 } );
-    pts.push_back( { 10, 10, 10 } );
-    pts.push_back( {  5,  5, 15 } );
+    Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } } );
+    rp.positions[ 3 ][ 1 ] = 5;
+    P( rp );
 
-    Rp rp( std::move( pts ) );
-
-    std::vector<Rp> nps = rp.conn_cut( Pt{ 5, 5, 12 }, Pt{ 0, 0, +1 } );
+    std::vector<Rp> nps = rp.conn_cut( Pt{ 5, 9 }, Pt{ 0, +1 } );
     P( nps.size() );
     P( nps );
 
     VtkOutput vo;
+    //    rp.display_vtk( vo );
     for( const Rp &np : nps )
         np.display_vtk( vo );
     vo.save( "out.vtk" );
+}
+
+void test_3D_conn() {
+    //    using Rp = RecursiveConvexPolytop<TF,3>;
+    //    using Pt = Rp::Pt;
+
+    //    // house shape
+    //    std::vector<Pt> pts;
+    //    pts.push_back( {  0,  0,  0 } );
+    //    pts.push_back( { 10,  0,  0 } );
+    //    pts.push_back( {  0, 10,  0 } );
+    //    pts.push_back( { 10, 10,  0 } );
+    //    pts.push_back( {  0,  0, 10 } );
+    //    pts.push_back( { 10,  0, 10 } );
+    //    pts.push_back( {  0, 10, 10 } );
+    //    pts.push_back( { 10, 10, 10 } );
+    //    pts.push_back( {  5,  5, 15 } );
+
+    //    Rp rp( std::move( pts ) );
+
+    //    std::vector<Rp> nps = rp.conn_cut( Pt{ 5, 5, 12 }, Pt{ 0, 0, +1 } );
+    //    P( nps.size() );
+    //    P( nps );
+
+    //    VtkOutput vo;
+    //    for( const Rp &np : nps )
+    //        np.display_vtk( vo );
+    //    vo.save( "out.vtk" );
 }
 
 void test_4D_conn() {

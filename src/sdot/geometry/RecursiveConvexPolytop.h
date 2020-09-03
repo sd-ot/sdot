@@ -32,12 +32,11 @@ public:
     Rp&                             operator=             ( RecursiveConvexPolytop &&that );
 
     void                            write_to_stream       ( std::ostream &os ) const;
+    void                            add_convex_hull       ();
     template<class VO> void         display_vtk           ( VO &vo ) const;
     Rp                              plane_cut             ( Pt orig, Pt normal ) const; ///< a cut based on convexity
     std::vector<Rp>                 conn_cut              ( Pt orig, Pt normal ) const; ///< a plane cut based on connectivity. Return a list of possibilities
 
-private:
-    void                            _make_convex_hull     ();
 
     ConnectivityPool                connectivity_pool;    ///<
     std::vector<Pt>                 positions;            ///<

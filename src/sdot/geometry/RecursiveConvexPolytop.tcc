@@ -28,7 +28,7 @@ RecursiveConvexPolytop<TF,dim,TI>::RecursiveConvexPolytop( RecursiveConvexPolyto
 
 template<class TF,int dim,class TI>
 RecursiveConvexPolytop<TF,dim,TI>::RecursiveConvexPolytop( std::vector<Pt> &&positions ) : positions( std::move( positions ) ) {
-    _make_convex_hull();
+    add_convex_hull();
 }
 
 template<class TF,int dim,class TI>
@@ -45,7 +45,7 @@ RecursiveConvexPolytop<TF,dim,TI> &RecursiveConvexPolytop<TF,dim,TI>::operator=(
 }
 
 template<class TF,int dim,class TI>
-void RecursiveConvexPolytop<TF,dim,TI>::_make_convex_hull() {
+void RecursiveConvexPolytop<TF,dim,TI>::add_convex_hull() {
     if ( positions.empty() )
         return;
 
