@@ -5,6 +5,8 @@
 using TI = std::size_t;
 using TF = Rational;
 
+using namespace sdot;
+
 //// nsmake cpp_flag -march=native
 //// nsmake cpp_flag -g3
 
@@ -21,26 +23,26 @@ void test_1D_convex() {
 }
 
 void test_2D_convex() {
-    using Rp = RecursiveConvexPolytop<TF,2>;
+    //    using Rp = RecursiveConvexPolytop<TF,2>;
 
-    // house shape
-    Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } } );
-    //    P( rp.contains( { 2, 22 } ) );
-    //    P( rp.contains( { 2, 2 } ) );
-    //    P( rp.measure() );
-    P( rp );
+    //    // house shape
+    //    Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } } );
+    //    //    P( rp.contains( { 2, 22 } ) );
+    //    //    P( rp.contains( { 2, 2 } ) );
+    //    //    P( rp.measure() );
+    //    P( rp );
 
-    //    Rp np = rp.plane_cut( { 5, 12 }, { 0, +1 } );
-    //    P( np );
+    //    //    Rp np = rp.plane_cut( { 5, 12 }, { 0, +1 } );
+    //    //    P( np );
 
-    std::vector<Rp> nps = rp.conn_cut( { 5, 12 }, { 0, +1 } );
-    P( nps.size() );
-    P( nps );
+    //    std::vector<Rp> nps = rp.conn_cut( { 5, 12 }, { 0, +1 } );
+    //    P( nps.size() );
+    //    P( nps );
 
-    VtkOutput vo;
-    for( const auto &np : nps )
-        np.display_vtk( vo );
-    vo.save( "out.vtk" );
+    //    VtkOutput vo;
+    //    for( const auto &np : nps )
+    //        np.display_vtk( vo );
+    //    vo.save( "out.vtk" );
 }
 
 void test_3D_convex() {
@@ -59,18 +61,16 @@ void test_3D_convex() {
     //    pts.push_back( {  5,  5, 15 } );
 
     //    Rp rp( std::move( pts ) );
+    //    P( rp );
 
-    //    //    Rp rp( std::move( pts ) );
-    //    //    // P( rp.measure() );
-    //    //    P( rp );
-
-    //    std::vector<Rp> nps = rp.conn_cut( Pt{ 5, 5, 12 }, Pt{ 0, 0, 1 } );
-    //    // P( np.measure() );
-    //    P( nps.size() );
+    ////    std::vector<Rp> nps = rp.conn_cut( Pt{ 5, 5, 12 }, Pt{ 0, 0, 1 } );
+    ////    // P( np.measure() );
+    ////    P( nps.size() );
 
     //    VtkOutput vo;
-    //    for( const Rp &rp : nps )
-    //        rp.display_vtk( vo );
+    //    rp.display_vtk( vo );
+    ////    for( const Rp &rp : nps )
+    ////        rp.display_vtk( vo );
     //    vo.save( "out.vtk" );
 
 
@@ -131,34 +131,30 @@ void test_4D_convex() {
 
 void test_1D_conn() {
     //    using Rp = RecursiveConvexPolytop<TF,1>;
-    //    using Pt = Rp::Pt;
-
-    //    Rp rp( { Pt{ 0 }, Pt{ 10 }, Pt{ 20 } } );
-    //    P( rp.contains( Pt{ 22 } ) );
-    //    P( rp.contains( Pt{ 2 } ) );
+    //    Rp rp( { { 0 }, { 10 } } );
     //    P( rp );
 
-    //    //    Rp np = rp.plane_cut( Pt{ 5 }, Pt{ 1 } );
-    //    std::vector<std::vector<Rp>> np = rp.conn_cut( Pt{ 5 }, Pt{ 1 } );
-    //    P( np );
+    //    std::vector<Rp> nps = rp.conn_cut( { 5 }, { 1 } );
+    //    P( nps.size() );
+    //    P( nps );
 }
 
 void test_2D_conn() {
-    //    using Rp = RecursiveConvexPolytop<TF,2>;
-    //    using Pt = Rp::Pt;
+    using Rp = RecursiveConvexPolytop<TF,2>;
+    using Pt = Rp::Pt;
 
-    //    // house shape
-    //    Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } } );
-    //    P( rp.contains( Pt{ 2, 22 } ) );
-    //    P( rp.contains( Pt{ 2, 2 } ) );
-    //    P( rp );
+    // house shape
+    Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } } );
+    P( rp );
 
-    //    std::vector<std::vector<Rp>> np = rp.conn_cut( Pt{ 5, 12 }, Pt{ 0, +1 } );
-    //    P( np );
+    std::vector<Rp> nps = rp.conn_cut( Pt{ 5, 12 }, Pt{ 0, +1 } );
+    P( nps.size() );
+    P( nps );
 
-    //    //    VtkOutput vo;
-    //    //    op.display_vtk( vo );
-    //    //    vo.save( "out.vtk" );
+    VtkOutput vo;
+    for( const Rp &np : nps )
+        np.display_vtk( vo );
+    vo.save( "out.vtk" );
 }
 
 void test_3D_conn() {

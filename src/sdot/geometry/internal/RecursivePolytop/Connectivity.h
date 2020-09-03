@@ -1,72 +1,86 @@
 #ifndef SDOT_RecursivePolytopConnectivityItem_HEADER
 #define SDOT_RecursivePolytopConnectivityItem_HEADER
 
-#include "RecursivePolytopConnectivityFace.h"
-#include "../../support/BumpPointerPool.h"
-#include "../../support/Void.h"
-#include "../Point.h"
+#include "../../../support/BumpPointerPool.h"
+#include "../../../support/Void.h"
+#include "../../../support/N.h"
+
+#include "OrientedConnectivity.h"
+
+#include <functional>
 #include <vector>
 
-template<class TF,class TI,int nvi>
-struct RecursivePolytopConnectivityItemPool;
+namespace sdot {
+namespace internal {
+namespace RecursivePolytop {
+
+template<class TI,int nvi>
+struct ConnectivityPool;
 
 /**
 */
-template<class TF_,class TI_,int nvi_>
-struct RecursivePolytopConnectivityItem {
-    using                             FaceItem         = RecursivePolytopConnectivityItem<TF_,TI_,std::max(nvi_-1,0)>;
-    using                             ItemPool         = RecursivePolytopConnectivityItemPool<TF_,TI_,nvi_>;
-    using                             Vertex           = RecursivePolytopConnectivityItem<TF_,TI_,0>;
-    using                             Face             = RecursivePolytopConnectivityFace<FaceItem>;
-    using                             Item             = RecursivePolytopConnectivityItem;
-    using                             VVPI             = std::vector<std::vector<Item *>>;
-    enum {                            nvi              = nvi_ };
-    using                             TF               = TF_;
-    using                             TI               = TI_;
+template<class TI_,int nvi_>
+struct Connectivity {
+    using                          Obn            = OrientedConnectivity<Connectivity<TI_,nvi_-1>>;
+    using                          Vvc            = std::vector<std::vector<Connectivity *>>;
+    using                          Ocn            = OrientedConnectivity<Connectivity>;
+    using                          Cpl            = ConnectivityPool<TI_,nvi_>;
+    using                          Bnd            = Connectivity<TI_,nvi_-1>;
+    using                          Vtx            = Connectivity<TI_,0>;
+    using                          Mpl            = BumpPointerPool;
+    using                          Cnn            = Connectivity;
+    enum {                         nvi            = nvi_ };
+    using                          TI             = TI_;
 
-    template<class Pt> static void    add_convex_hull  ( std::vector<Item *> &res, ItemPool &item_pool, BumpPointerPool &mem_pool, const Pt *positions, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &center );
+    template<class Pt> static void add_convex_hull( std::vector<Ocn> &res, Cpl &item_pool, Mpl &mem_pool, const Pt *positions, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &center );
 
-    void                              write_to_stream  ( std::ostream &os ) const;
-    const Vertex*                     first_vertex     () const { return faces[ 0 ].item->first_vertex(); }
-    Vertex*                           first_vertex     () { return faces[ 0 ].item->first_vertex(); }
-    template<class Pt> Item*          copy_rec         ( std::vector<Pt> &new_positions, ItemPool &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const;
+    void                           write_to_stream( std::ostream &os ) const;
+    const Vtx*                     first_vertex   () const { return boundaries[ 0 ].connectivity->first_vertex(); }
+    Vtx*                           first_vertex   () { return boundaries[ 0 ].connectivity->first_vertex(); }
+    template<class Pt> Cnn*        copy_rec       ( std::vector<Pt> &new_positions, Cpl &new_item_pool, Mpl &new_mem_pool, const std::vector<Pt> &old_positions ) const;
+    template<int n> void           conn_cut       ( Cpl &new_item_pool, Mpl &new_mem_pool, N<n>, const std::function<TI(TI,TI)> &interp ) const;
+    void                           conn_cut       ( Cpl &new_item_pool, Mpl &new_mem_pool, N<2>, const std::function<TI(TI,TI)> &interp ) const;
+    void                           conn_cut       ( Cpl &new_item_pool, Mpl &new_mem_pool, N<1>, const std::function<TI(TI,TI)> &interp ) const;
 
-    RecursivePolytopConnectivityItem* prev_in_pool;    ///<
-    std::vector<Face>                 faces;           ///<
+    Cnn*                           prev_in_pool;  ///<
+    std::vector<Obn>               boundaries;    ///<
 
-    mutable VVPI                      new_items;       ///< list of possibilities, each one potentially containing several sub-items
-    mutable Item*                     new_item;        ///< used for copies
-    mutable TI                        tmp_num;             ///<
+    mutable Vvc                    new_items;     ///< list of possibilities, each one potentially containing several sub-items
+    mutable Cnn*                   new_item;      ///< used for copies
+    mutable TI                     tmp_num;       ///<
 };
 
 /** Vertex */
-template<class TF_,class TI_>
-struct RecursivePolytopConnectivityItem<TF_,TI_,0> {
-    using                             ItemPool         = RecursivePolytopConnectivityItemPool<TF_,TI_,0>;
-    using                             FaceItem         = Void;
-    using                             Face             = Void;
-    using                             Item             = RecursivePolytopConnectivityItem;
-    using                             VVPI             = std::vector<std::vector<Item *>>;
-    enum {                            nvi              = 0 };
-    using                             TF               = TF_;
-    using                             TI               = TI_;
+template<class TI_>
+struct Connectivity<TI_,0> {
+    using                          Vvc            = std::vector<std::vector<Connectivity *>>;
+    using                          Ocn            = OrientedConnectivity<Connectivity>;
+    using                          Cpl            = ConnectivityPool<TI_,0>;
+    using                          Mpl            = BumpPointerPool;
+    using                          Cnn            = Connectivity;
+    enum {                         nvi            = 0 };
+    using                          TI             = TI_;
 
-    template<class Pt> static void    add_convex_hull  ( std::vector<Item *> &res, ItemPool &item_pool, BumpPointerPool &mem_pool, const Pt *positions, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &center );
+    template<class Pt> static void add_convex_hull( std::vector<Ocn> &res, Cpl &item_pool, Mpl &mem_pool, const Pt *positions, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &center );
 
-    void                              write_to_stream  ( std::ostream &os ) const;
-    const Item*                       first_vertex     () const { return this; }
-    Item*                             first_vertex     () { return this; }
-    template<class Pt> Item*          copy_rec         ( std::vector<Pt> &new_positions, ItemPool &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const;
+    void                           write_to_stream( std::ostream &os ) const;
+    const Connectivity*            first_vertex   () const { return this; }
+    Connectivity*                  first_vertex   () { return this; }
+    template<class Pt> Cnn*        copy_rec       ( std::vector<Pt> &new_positions, Cpl &new_item_pool, Mpl &new_mem_pool, const std::vector<Pt> &old_positions ) const;
+    void                           conn_cut       ( Cpl &new_item_pool, Mpl &new_mem_pool, N<0>, const std::function<TI(TI,TI)> &interp ) const;
 
-    RecursivePolytopConnectivityItem* prev_in_pool;    ///<
-    TI                                node_number;     ///<
+    Cnn*                           prev_in_pool;  ///<
+    TI                             node_number;   ///<
 
-    mutable VVPI                      new_items;       ///< list of possibilities, each one potentially containing several sub-items
-    mutable Item*                     new_item;        ///< used for copies
-    mutable TI                        tmp_num;         ///<
-    mutable TF                        sp;              ///< scalar product
+    mutable Vvc                    new_items;      ///< list of possibilities, each one potentially containing several sub-items
+    mutable Cnn*                   new_item;      ///< used for copies
+    mutable TI                     tmp_num;       ///<
 };
 
-#include "RecursivePolytopConnectivityItem.tcc"
+} // namespace sdot
+} // namespace internal
+} // namespace RecursivePolytop
+
+#include "Connectivity.tcc"
 
 #endif // SDOT_RecursivePolytopConnectivityItem_HEADER

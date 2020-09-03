@@ -3,11 +3,19 @@
 #include <ostream>
 #include <tuple>
 
-template<class Rp>
-struct RecursivePolytopConnectivityFace {
-    void write_to_stream( std::ostream &os ) const { os << ( neg ? "-" : "+" ) << item->num; }
-    bool operator<      ( const RecursivePolytopConnectivityFace &that ) const { return std::tie( neg, item ) < std::tie( that.neg, that.item ); }
+namespace sdot {
+namespace internal {
+namespace RecursivePolytop {
 
-    Rp*  item;
+template<class Cnn>
+struct OrientedConnectivity {
+    void write_to_stream( std::ostream &os ) const { os << ( neg ? "-" : "+" ) << connectivity->tmp_num; }
+    bool operator<      ( const OrientedConnectivity &that ) const { return connectivity < that.connectivity; }
+
+    Cnn* connectivity;
     bool neg;
 };
+
+} // namespace sdot
+} // namespace internal
+} // namespace RecursivePolytop

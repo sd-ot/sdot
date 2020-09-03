@@ -1,27 +1,35 @@
-#include "RecursivePolytopConnectivityItemPool.h"
-#include "../../support/for_each_comb.h"
-#include "../../support/P.h"
+#include "../../../support/for_each_comb.h"
+#include "../../../support/ASSERT.h"
+#include "../../../support/P.h"
+#include "ConnectivityPool.h"
+
+namespace sdot {
+namespace internal {
+namespace RecursivePolytop {
 
 // write_to_stream -----------------------------------------------------------------------
-template<class TF,class TI,int nvi>
-void RecursivePolytopConnectivityItem<TF,TI,nvi>::write_to_stream( std::ostream &os ) const {
+template<class TI,int nvi>
+void Connectivity<TI,nvi>::write_to_stream( std::ostream &os ) const {
     os << "[";
-    for( TI i = 0; i < faces.size(); ++i )
-        faces[ i ]->write_to_stream( os << ( i++ ? "," : "" ) );
+    for( TI i = 0; i < boundaries.size(); ++i )
+        boundaries[ i ]->write_to_stream( os << ( i++ ? "," : "" ) );
     os << "]";
 }
 
-template<class TF,class TI>
-void RecursivePolytopConnectivityItem<TF,TI,0>::write_to_stream( std::ostream &os ) const {
+template<class TI>
+void Connectivity<TI,0>::write_to_stream( std::ostream &os ) const {
     os << node_number;
 }
 
 // New ------------------------------------------------------------------------------------
-template<class TF,class TI,int nvi> template<class Pt>
-void RecursivePolytopConnectivityItem<TF,TI,nvi>::add_convex_hull( std::vector<Item *> &res, ItemPool &item_pool, BumpPointerPool &mem_pool, const Pt *positions, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &center ) {
+template<class TI,int nvi> template<class Pt>
+void Connectivity<TI,nvi>::add_convex_hull( std::vector<Ocn> &res, Cpl &item_pool, BumpPointerPool &mem_pool, const Pt *positions, TI *indices, TI nb_indices, Pt *normals, Pt *dirs, const Pt &center ) {
+    using BoundaryConnectivity = Connectivity<TI,nvi-1>;
     static constexpr int dim = Pt::dim;
-    std::vector<FaceItem *> face_items;
-    std::vector<Pt> face_normals;
+    using TF = typename Pt::TF;
+
+    std::vector<Obn> oriented_boundaries;
+    std::vector<Pt> boundary_normals;
 
     // try each possible vertex selection to make new faces
     for_each_comb<TI>( nvi, nb_indices, indices + nb_indices, [&]( TI *chosen_num_indices ) {
@@ -33,8 +41,8 @@ void RecursivePolytopConnectivityItem<TF,TI,nvi>::add_convex_hull( std::vector<I
         normals[ dim - nvi ] = face_normal;
 
         // test if we already have this face
-        for( TI i = 0; i < face_items.size(); ++i )
-            if ( dot( face_normals[ i ], orig - positions[ face_items[ i ]->first_vertex()->node_number ] ) == 0 && colinear( face_normals[ i ], face_normal ) )
+        for( TI i = 0; i < oriented_boundaries.size(); ++i )
+            if ( dot( boundary_normals[ i ], orig - positions[ oriented_boundaries[ i ].connectivity->first_vertex()->node_number ] ) == 0 && colinear( boundary_normals[ i ], face_normal ) )
                 return;
 
         // test in and out points
@@ -69,40 +77,40 @@ void RecursivePolytopConnectivityItem<TF,TI,nvi>::add_convex_hull( std::vector<I
         dirs[ dim - nvi ] = face_center - center;
 
         // add the new face
-        FaceItem::add_convex_hull( face_items, item_pool.next, mem_pool, positions, new_indices, new_nb_indices, normals, dirs, face_center );
-        face_normals.push_back( face_normal );
+        BoundaryConnectivity::add_convex_hull( oriented_boundaries, item_pool.next, mem_pool, positions, new_indices, new_nb_indices, normals, dirs, face_center );
+        boundary_normals.push_back( face_normal );
     } );
 
     // create a new item
-    if ( face_items.size() ) {
-        std::vector<Face> new_faces( face_items.size() );
-        std::sort( face_items.begin(), face_items.end(), []( Face *a, Face *b ) { return *a < *b; } );
-        res.push_back( item_pool.find_or_create( mem_pool, std::move( face_items ) ) );
+    if ( oriented_boundaries.size() ) {
+        std::sort( oriented_boundaries.begin(), oriented_boundaries.end() );
+        res.push_back( item_pool.find_or_create( mem_pool, std::move( oriented_boundaries ) ) );
     }
 }
 
-template<class TF,class TI> template<class Pt>
-void RecursivePolytopConnectivityItem<TF,TI,0>::add_convex_hull( std::vector<Item *> &res, ItemPool &item_pool, BumpPointerPool &mem_pool, const Pt */*positions*/, TI *indices, TI /*nb_indices*/, Pt */*normals*/, Pt *dirs, const Pt &/*center*/ ) {
-    bool is_start = determinant( dirs->data, N<Pt::dim>() ) > 0;
-    res.push_back( item_pool.find_or_create( mem_pool, *indices, is_start ) );
+template<class TI> template<class Pt>
+void Connectivity<TI,0>::add_convex_hull( std::vector<Ocn> &res, Cpl &item_pool, BumpPointerPool &mem_pool, const Pt */*positions*/, TI *indices, TI /*nb_indices*/, Pt */*normals*/, Pt *dirs, const Pt &/*center*/ ) {
+    bool neg = determinant( dirs->data, N<Pt::dim>() ) < 0;
+    res.push_back( item_pool.find_or_create( mem_pool, *indices, neg ) );
 }
 
 // copy -----------------------------------------------------------------------
-template<class TF,class TI,int nvi> template<class Pt>
-RecursivePolytopConnectivityItem<TF,TI,nvi> *RecursivePolytopConnectivityItem<TF,TI,nvi>::copy_rec( std::vector<Pt> &new_positions, ItemPool &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const {
+template<class TI,int nvi> template<class Pt>
+Connectivity<TI,nvi> *Connectivity<TI,nvi>::copy_rec( std::vector<Pt> &new_positions, Cpl &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const {
     if ( ! new_item ) {
-        std::vector<Face *> new_faces( faces.size() );
-        for( TI i = 0; i < faces.size(); ++i )
-            new_faces[ i ] = faces[ i ]->copy_rec( new_positions, new_item_pool.next, new_mem_pool, old_positions );
-        std::sort( new_faces.begin(), new_faces.end(), []( Face *a, Face *b ) { return *a < *b; } );
-        new_item = new_item_pool.create( new_mem_pool, std::move( new_faces ) );
+        std::vector<Obn> new_boundaries( boundaries.size() );
+        for( TI i = 0; i < boundaries.size(); ++i )
+            new_boundaries[ i ] = { boundaries[ i ].connectivity->copy_rec( new_positions, new_item_pool.next, new_mem_pool, old_positions ), boundaries[ i ].neg };
+        std::sort( new_boundaries.begin(), new_boundaries.end() );
+
+        new_item = new_item_pool.create( new_mem_pool, std::move( new_boundaries ) );
     }
 
     return new_item;
 }
 
-template<class TF,class TI> template<class Pt>
-RecursivePolytopConnectivityItem<TF,TI,0> *RecursivePolytopConnectivityItem<TF,TI,0>::copy_rec( std::vector<Pt> &new_positions, ItemPool &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const {
+template<class TI> template<class Pt>
+Connectivity<TI,0> *Connectivity<TI,0>::copy_rec( std::vector<Pt> &new_positions, Cpl &new_item_pool, BumpPointerPool &new_mem_pool, const std::vector<Pt> &old_positions ) const {
     if ( ! new_item ) {
         new_item = new_item_pool.create( new_mem_pool, new_positions.size() );
         new_positions.push_back( old_positions[ node_number ] );
@@ -110,3 +118,62 @@ RecursivePolytopConnectivityItem<TF,TI,0> *RecursivePolytopConnectivityItem<TF,T
 
     return new_item;
 }
+
+// copy -----------------------------------------------------------------------
+template<class TI,int nvi> template<int n>
+void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<n>, const std::function<TI(TI,TI)> &interp ) const {
+    TODO;
+}
+
+template<class TI,int nvi>
+void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<2>, const std::function<TI(TI,TI)> &interp ) const {
+    TODO;
+}
+
+template<class TI,int nvi>
+void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<1>, const std::function<TI(TI,TI)> &interp ) const {
+    ASSERT( boundaries.size() == 2 );
+    TI s = boundaries[ 0 ].neg;
+
+    Vtx *v0 = boundaries[ 1 - s ].connectivity;
+    Vtx *v1 = boundaries[ 0 + s ].connectivity;
+
+    bool o0 = v0->new_items.empty();
+    bool o1 = v1->new_items.empty();
+
+    // helper
+    auto new_node = [&]() {
+        return new_item_pool.next.create( new_mem_pool, interp( v0->node_number, v1->node_number ) );
+    };
+
+    // all outside
+    if ( o0 && o1 ) {
+        new_items.clear();
+        return;
+    }
+
+    // only v0 is outside
+    if ( o0 ) {
+        new_items = { { new_item_pool.create( new_mem_pool, { { new_node(), true }, { v1, false } } ) } };
+        return;
+    }
+
+    // only v1 is outside
+    if ( o1 ) {
+        new_items = { { new_item_pool.create( new_mem_pool, { { v0, true }, { new_node(), false } } ) } };
+        return;
+    }
+
+    // all inside
+    new_items = { { new_item_pool.create( new_mem_pool, { { v0, true }, { v1, false } } ) } };
+}
+
+template<class TI>
+void Connectivity<TI,0>::conn_cut( Cpl &/*new_item_pool*/, Mpl &/*new_mem_pool*/, N<0>, const std::function<TI(TI,TI)> &/*interp*/ ) const {
+    // nothing to do
+}
+
+
+} // namespace sdot
+} // namespace internal
+} // namespace RecursivePolytop
