@@ -12,13 +12,13 @@ template<class TI,int nvi>
 void Connectivity<TI,nvi>::write_to_stream( std::ostream &os ) const {
     os << "[";
     for( TI i = 0; i < boundaries.size(); ++i )
-        boundaries[ i ]->write_to_stream( os << ( i++ ? "," : "" ) );
+        boundaries[ i ].write_to_stream( os << ( i ? "," : "" ) );
     os << "]";
 }
 
 template<class TI>
 void Connectivity<TI,0>::write_to_stream( std::ostream &os ) const {
-    os << node_number;
+    os << std::setw( 2 ) << std::left << node_number;
 }
 
 // New ------------------------------------------------------------------------------------
@@ -101,8 +101,8 @@ Connectivity<TI,nvi> *Connectivity<TI,nvi>::copy_rec( std::vector<Pt> &new_posit
         std::vector<Obn> new_boundaries( boundaries.size() );
         for( TI i = 0; i < boundaries.size(); ++i )
             new_boundaries[ i ] = { boundaries[ i ].connectivity->copy_rec( new_positions, new_item_pool.next, new_mem_pool, old_positions ), boundaries[ i ].neg };
-        std::sort( new_boundaries.begin(), new_boundaries.end() );
 
+        std::sort( new_boundaries.begin(), new_boundaries.end() );
         new_item = new_item_pool.create( new_mem_pool, std::move( new_boundaries ) );
     }
 
@@ -144,12 +144,7 @@ void Connectivity<TI,nvi>::for_each_possibility( const std::function<void( const
 
 // copy -----------------------------------------------------------------------
 template<class TI,int nvi> template<int n>
-void Connectivity<TI,nvi>::conn_cut( Cpl &/*new_item_pool*/, Mpl &/*new_mem_pool*/, N<n>, const std::function<TI(TI,TI)> &/*interp*/ ) const {
-    TODO;
-}
-
-template<class TI,int nvi>
-void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<2>, const std::function<TI(TI,TI)> &/*interp*/ ) const {
+void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<n>, const std::function<TI(TI,TI)> &/*interp*/ ) const {
     new_items.clear();
     for_each_possibility( [&]( const std::vector<std::vector<Obn>> &new_edge_sets ) {
         // update parents for each boundary->boundary
@@ -181,14 +176,18 @@ void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<2>
             for( const Obn &new_edge : new_edge_set )
                 for( const typename Bnd::Obn &new_vertex : new_edge.connectivity->boundaries )
                     if ( new_vertex.connectivity->parents[ 1 ] == nullptr )
-                        free_vertices.push_back( - new_vertex );
+                        free_vertices.push_back( new_edge.neg ? new_vertex : - new_vertex );
         }
 
         // closing edge
-        Bnd *closing_edge = new_item_pool.next.create( new_mem_pool, std::move( free_vertices ) );
-        new_edges.push_back( { closing_edge, false } );
+        if ( free_vertices.size() ) {
+            std::sort( free_vertices.begin(), free_vertices.end() );
+            Bnd *closing_edge = new_item_pool.next.create( new_mem_pool, std::move( free_vertices ) );
+            new_edges.push_back( { closing_edge, false } );
+        }
 
         // new possibility (with only one volume for now)
+        std::sort( new_edges.begin(), new_edges.end() );
         new_items.push_back( { new_item_pool.create( new_mem_pool, std::move( new_edges ) ) } );
     } );
 
@@ -197,7 +196,7 @@ void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<2>
 template<class TI,int nvi>
 void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<1>, const std::function<TI(TI,TI)> &interp ) const {
     ASSERT( boundaries.size() == 2 );
-    TI s = boundaries[ 0 ].neg;
+    bool s = boundaries[ 0 ].neg;
 
     Vtx *v0 = boundaries[ 1 - s ].connectivity;
     Vtx *v1 = boundaries[ 0 + s ].connectivity;

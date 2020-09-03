@@ -42,7 +42,6 @@ struct Connectivity {
     Vtx*                           first_vertex        () { return boundaries[ 0 ].connectivity->first_vertex(); }
     template<class Pt> Cnn*        copy_rec            ( std::vector<Pt> &new_positions, Cpl &new_item_pool, Mpl &new_mem_pool, const std::vector<Pt> &old_positions ) const;
     template<int n> void           conn_cut            ( Cpl &new_item_pool, Mpl &new_mem_pool, N<n>, const std::function<TI(TI,TI)> &interp ) const;
-    void                           conn_cut            ( Cpl &new_item_pool, Mpl &new_mem_pool, N<2>, const std::function<TI(TI,TI)> &interp ) const;
     void                           conn_cut            ( Cpl &new_item_pool, Mpl &new_mem_pool, N<1>, const std::function<TI(TI,TI)> &interp ) const;
 
     Cnn*                           prev_in_pool;       ///<

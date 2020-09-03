@@ -63,13 +63,11 @@ void RecursiveConvexPolytop<TF,dim,TI>::_make_convex_hull() {
 template<class TF,int dim,class TI>
 void RecursiveConvexPolytop<TF,dim,TI>::write_to_stream( std::ostream &os ) const {
     os << "\n  positions:";
-    for( TI i = 0; i < positions.size(); ++i )
-        os << "\n    " << std::setw( 2 ) << i << ": " << positions[ i ];
-
-    TI num = 0;
-    connectivity_pool.apply_rec( [&]( auto *item ) {
-        item->tmp_num = num++;
-    } );
+    for( TI i = 0; i < positions.size(); ++i ) {
+        os << "\n    " << std::setw( 2 ) << i << ":";
+        for( TI d = 0; d < dim; ++d )
+            os << " " << std::setw( 4 ) << positions[ i ][ d ];
+    }
 
     connectivity_pool.write_to_stream( os );
 }

@@ -74,18 +74,15 @@ void ConnectivityPool<TI,nvi>::write_to_stream( std::ostream &os ) const {
     next.write_to_stream( os );
 
     os << "\n  nvi " << nvi << ":";
-    for( const Cnn *item = last_in_pool; item; item = item->prev_in_pool ) {
-        os << "\n    " << std::setw( 2 ) << item->tmp_num << ":";
-        for( const auto &boundary : item->boundaries )
-            boundary.write_to_stream( os << " " );
-    }
+    for( const Cnn *item = last_in_pool; item; item = item->prev_in_pool )
+        item->write_to_stream( os << "\n    " );
 }
 
 template<class TI>
-void ConnectivityPool<TI,0>::write_to_stream( std::ostream &os ) const {
-    os << "\n  nvi 0:";
-    for( Cnn *item = last_in_pool; item; item = item->prev_in_pool )
-        os << "\n    " << std::setw( 2 ) << item->tmp_num << ": " << item->node_number;
+void ConnectivityPool<TI,0>::write_to_stream( std::ostream &/*os*/ ) const {
+    //    os << "\n  nvi 0:";
+    //    for( Cnn *item = last_in_pool; item; item = item->prev_in_pool )
+    //        os << "\n    " << std::setw( 2 ) << item->tmp_num << ": " << item->node_number;
 }
 
 
