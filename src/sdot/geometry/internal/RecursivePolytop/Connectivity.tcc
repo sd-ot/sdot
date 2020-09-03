@@ -127,18 +127,18 @@ void Connectivity<TI,nvi>::for_each_possibility( const std::function<void( const
         return;
     }
 
-    for( TI i = 0; i < boundaries[ n ].connectivity->new_items.size(); ++i ) {
-        TI nb_items = boundaries[ n ].connectivity->new_items.size();
+    for( TI num_proposition = 0; num_proposition < boundaries[ n ].connectivity->new_items.size(); ++num_proposition ) {
+        TI nb_items = boundaries[ n ].connectivity->new_items[ num_proposition ].size();
         proposition[ n ].resize( nb_items );
         for( TI i = 0; i < nb_items; ++i )
-            proposition[ n ][ i ] = { boundaries[ n ].connectivity->new_items[ n ][ i ], boundaries[ n ].neg }; // hum
+            proposition[ n ][ i ] = { boundaries[ n ].connectivity->new_items[ num_proposition ][ i ], boundaries[ n ].neg };
         for_each_possibility( f, proposition, n + 1 );
     }
 }
 
 template<class TI,int nvi>
 void Connectivity<TI,nvi>::for_each_possibility( const std::function<void( const std::vector<std::vector<Obn>> &proposition )> &f ) const {
-    std::vector<std::vector<Obn>> proposition( new_items.size() );
+    std::vector<std::vector<Obn>> proposition( boundaries.size() );
     for_each_possibility( f, proposition, 0 );
 }
 
@@ -151,16 +151,44 @@ void Connectivity<TI,nvi>::conn_cut( Cpl &/*new_item_pool*/, Mpl &/*new_mem_pool
 template<class TI,int nvi>
 void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<2>, const std::function<TI(TI,TI)> &/*interp*/ ) const {
     new_items.clear();
-    for_each_possibility( [&]( const std::vector<std::vector<Obn>> &proposition ) {
-        std::vector<Obn> new_edges;
-        for( const std::vector<Obn> &p : proposition ) {
-            if ( p.empty() )
-                continue;
-            if ( p.size() != 1 )
-                TODO; // several volumes
-            new_edges.push_back( p[ 0 ] );
+    for_each_possibility( [&]( const std::vector<std::vector<Obn>> &new_edge_sets ) {
+        // update parents for each boundary->boundary
+        for( const std::vector<Obn> &new_edge_set : new_edge_sets ) {
+            for( const Obn &new_edge : new_edge_set ) {
+                for( const typename Bnd::Obn &new_vertex : new_edge.connectivity->boundaries ) {
+                    new_vertex.connectivity->parents[ 0 ] = nullptr;
+                    new_vertex.connectivity->parents[ 1 ] = nullptr;
+                }
+            }
         }
-        // new possibility (with only one volume)
+
+        for( const std::vector<Obn> &new_edge_set : new_edge_sets )
+            for( const Obn &new_edge : new_edge_set )
+                for( const typename Bnd::Obn &new_vertex : new_edge.connectivity->boundaries )
+                    new_vertex.connectivity->parents[ new_vertex.connectivity->parents[ 0 ] != nullptr ] = new_edge.connectivity;
+
+        // existing or cut edges
+        std::vector<Obn> new_edges;
+        std::vector<typename Bnd::Obn> free_vertices;
+        for( const std::vector<Obn> &new_edge_set : new_edge_sets ) {
+            if ( new_edge_set.empty() )
+                continue;
+            if ( new_edge_set.size() != 1 )
+                TODO; // several volumes
+            new_edges.push_back( new_edge_set[ 0 ] );
+
+            // look up for free vertices
+            for( const Obn &new_edge : new_edge_set )
+                for( const typename Bnd::Obn &new_vertex : new_edge.connectivity->boundaries )
+                    if ( new_vertex.connectivity->parents[ 1 ] == nullptr )
+                        free_vertices.push_back( - new_vertex );
+        }
+
+        // closing edge
+        Bnd *closing_edge = new_item_pool.next.create( new_mem_pool, std::move( free_vertices ) );
+        new_edges.push_back( { closing_edge, false } );
+
+        // new possibility (with only one volume for now)
         new_items.push_back( { new_item_pool.create( new_mem_pool, std::move( new_edges ) ) } );
     } );
 
@@ -179,7 +207,8 @@ void Connectivity<TI,nvi>::conn_cut( Cpl &new_item_pool, Mpl &new_mem_pool, N<1>
 
     // helper
     auto new_node = [&]() {
-        return new_item_pool.next.create( new_mem_pool, interp( v0->node_number, v1->node_number ) );
+        TI n = interp( v0->node_number, v1->node_number );
+        return new_item_pool.next.create( new_mem_pool, n );
     };
 
     // all outside

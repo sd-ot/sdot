@@ -25,6 +25,7 @@ struct Connectivity {
     using                          Vvc                 = std::vector<std::vector<Connectivity *>>;
     using                          Ocn                 = OrientedConnectivity<Connectivity>;
     using                          Cpl                 = ConnectivityPool<TI_,nvi_>;
+    using                          Pcn                 = Connectivity<TI_,nvi_+1>;
     using                          Bnd                 = Connectivity<TI_,nvi_-1>;
     using                          Vtx                 = Connectivity<TI_,0>;
     using                          Mpl                 = BumpPointerPool;
@@ -43,11 +44,13 @@ struct Connectivity {
     template<int n> void           conn_cut            ( Cpl &new_item_pool, Mpl &new_mem_pool, N<n>, const std::function<TI(TI,TI)> &interp ) const;
     void                           conn_cut            ( Cpl &new_item_pool, Mpl &new_mem_pool, N<2>, const std::function<TI(TI,TI)> &interp ) const;
     void                           conn_cut            ( Cpl &new_item_pool, Mpl &new_mem_pool, N<1>, const std::function<TI(TI,TI)> &interp ) const;
+
     Cnn*                           prev_in_pool;       ///<
     std::vector<Obn>               boundaries;         ///<
 
     mutable Vvc                    new_items;          ///< list of possibilities, each one potentially containing several sub-items
     mutable Cnn*                   new_item;           ///< used for copies
+    mutable std::array<Pcn*,2>     parents;            ///<
     mutable TI                     tmp_num;            ///<
 };
 
@@ -57,6 +60,7 @@ struct Connectivity<TI_,0> {
     using                          Vvc                 = std::vector<std::vector<Connectivity *>>;
     using                          Ocn                 = OrientedConnectivity<Connectivity>;
     using                          Cpl                 = ConnectivityPool<TI_,0>;
+    using                          Pcn                 = Connectivity<TI_,1>;
     using                          Mpl                 = BumpPointerPool;
     using                          Cnn                 = Connectivity;
     enum {                         nvi                 = 0 };
@@ -73,8 +77,9 @@ struct Connectivity<TI_,0> {
     Cnn*                           prev_in_pool;       ///<
     TI                             node_number;        ///<
 
-    mutable Vvc                    new_items;           ///< list of possibilities, each one potentially containing several sub-items
+    mutable Vvc                    new_items;          ///< list of possibilities, each one potentially containing several sub-items
     mutable Cnn*                   new_item;           ///< used for copies
+    mutable std::array<Pcn*,2>     parents;            ///<
     mutable TI                     tmp_num;            ///<
 };
 
