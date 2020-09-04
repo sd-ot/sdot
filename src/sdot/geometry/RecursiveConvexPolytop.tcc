@@ -91,7 +91,7 @@ void RecursiveConvexPolytop<TF,dim,TI>::display_vtk( VO &vo ) const {
 
     // faces
     for( const auto *face = connectivity_pool[ N<2>() ]->last_in_pool; face; face = face->prev_in_pool ) {
-        std::vector<TI> nexts( positions.size() );
+        std::vector<TI> nexts( positions.size(), TI( -1 ) );
         for( const auto &edge : face->boundaries ) {
             if ( edge.connectivity->boundaries.size() == 2 ) {
                 bool s = edge.connectivity->boundaries[ 1 - edge.neg ].neg;
@@ -100,7 +100,7 @@ void RecursiveConvexPolytop<TF,dim,TI>::display_vtk( VO &vo ) const {
         }
 
         std::vector<typename VO::Pt> pts;
-        for( TI b = face->first_vertex()->node_number, v = b; ; v = nexts[ v ] ) {
+        for( TI b = face->first_vertex()->node_number, v = b; v != TI( -1 ); v = nexts[ v ] ) {
             typename VO::Pt pt;
             for( TI d = 0; d < min( int( dim ), 3 ); ++d )
                 pt[ d ] = conv( positions[ v ][ d ], S<typename VO::TF>() );

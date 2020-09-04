@@ -145,10 +145,10 @@ void test_2D_conn() {
 
     // house shape
     Rp rp( { { 0, 0 }, { 10, 0 }, { 10, 10 }, { 5, 15 }, { 0, 10 } } );
-    // rp.positions[ 3 ][ 1 ] = 5;
+    rp.positions[ 3 ][ 1 ] = 5;
     P( rp );
 
-    Rp np = rp.conn_cut( Pt{ 5, 11 }, Pt{ 0, +1 } );
+    Rp np = rp.conn_cut( Pt{ 5, 9 }, Pt{ 0, +1 } );
     P( np );
 
     VtkOutput vo;
