@@ -1,5 +1,6 @@
-#include "../src/sdot/ConvexPolyhedron2.h"
-#include "catch_main.h"
+#include "../src/sdot/Geometry/ConvexPolyhedron2.h"
+#include "../src/sdot/Display/VtkOutput.h"
+#include "./catch_main.h"
 
 // #include <boost/multiprecision/mpfr.hpp>
 
@@ -7,9 +8,11 @@
 //// nsmake lib_name gmp
 //// nsmake lib_name mpfr
 
+using namespace sdot;
+
 TEST_CASE( "diam", "diam" ) {
-    struct Pc { enum { dim = 2, allow_ball_cut = 0 }; using TI = std::size_t; using TF = double; }; // boost::multiprecision::mpfr_float_100
-    using  LC = sdot::ConvexPolyhedron2<Pc,std::string>;
+    struct Pc { enum { dim = 2, allow_ball_cut = 0 }; using TI = std::size_t; using TF = double; using CI = std::string; }; // boost::multiprecision::mpfr_float_100
+    using  LC = ConvexPolyhedron2<Pc>;
     using  TF = LC::TF;
     using  Pt = LC::Pt;
     using  std::abs;
@@ -41,8 +44,8 @@ TEST_CASE( "diam", "diam" ) {
 }
 
 TEST_CASE( "only_sphere", "[!benchmark]" ) {
-    struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; }; // boost::multiprecision::mpfr_float_100
-    using  LC = sdot::ConvexPolyhedron2<Pc,std::string>;
+    struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; using CI = std::string; }; // boost::multiprecision::mpfr_float_100
+    using  LC = ConvexPolyhedron2<Pc>;
 
     LC cs( LC::Box{ { -10, -10 }, { +10, +10 } } );
     cs.ball_cut( { 1, 0 }, 1 );
@@ -58,8 +61,8 @@ TEST_CASE( "only_sphere", "[!benchmark]" ) {
 
 
 void test_and_display( VtkOutput<1> &vo, std::vector<std::pair<Point2<double>,Point2<double>>> on, int r, int n, unsigned nb_points, double perimeter ) {
-    struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; }; // boost::multiprecision::mpfr_float_100
-    using  LC = sdot::ConvexPolyhedron2<Pc,std::string>;
+    struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; using CI = std::string; }; // boost::multiprecision::mpfr_float_100
+    using  LC = ConvexPolyhedron2<Pc>;
 
     Point2<Pc::TF> off{ r % n * 2.5, - r / n * 2.5 };
     LC icp( LC::Box{ off - Pc::TF( 10 ), off + Pc::TF( 10 ) } );
@@ -70,7 +73,7 @@ void test_and_display( VtkOutput<1> &vo, std::vector<std::pair<Point2<double>,Po
     icp.ball_cut( { off }, 1 );
     icp.display( vo, { Pc::TF( r ) }, 0 );
     icp.display( vo, { Pc::TF( r ) }, 1 );
-    CHECK( icp._nb_points == nb_points );
+    CHECK( icp.nb_points() == nb_points );
     CHECK_THAT( icp.boundary_measure(), WithinAbs( perimeter, 1e-4 ) );
 }
 
@@ -117,8 +120,8 @@ TEST_CASE( "cases_1" ) {
 }
 
 TEST_CASE( "known_values" ) {
-    struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; }; // boost::multiprecision::mpfr_float_100
-    using  LC = sdot::ConvexPolyhedron2<Pc,std::string>;
+    struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; using CI = std::string; }; // boost::multiprecision::mpfr_float_100
+    using  LC = ConvexPolyhedron2<Pc>;
     using  TF = LC::TF;
     using  Pt = LC::Pt;
 
@@ -131,14 +134,14 @@ TEST_CASE( "known_values" ) {
     SECTION( "no modification" ) {
         icp.plane_cut( { 1.0, 0.0 }, { 1, 0 } );
         icp.ball_cut( { 0.0, 0.0 }, 1 );
-        CHECK( icp.nb_points == 0 );
+        CHECK( icp.nb_points() == 0 );
         CHECK_THAT( icp.measure(), WithinAbs( M_PI, 1e-7 ) );
     }
 
     SECTION( "full removal" ) {
         icp.plane_cut( { 1.0, 0.0 }, { -1, 0 } );
         icp.ball_cut( { 0.0, 0.0 }, 1 );
-        CHECK( icp.nb_points == 0 );
+        CHECK( icp.nb_points() == 0 );
         CHECK_THAT( icp.measure(), WithinAbs( 0, 1e-7 ) );
     }
 
@@ -148,7 +151,7 @@ TEST_CASE( "known_values" ) {
             double a = 2 * M_PI * i / n;
             icp.plane_cut( { 0.0, 0.0 }, { cos( a ), sin( a ) } );
             icp.ball_cut( { 0.0, 0.0 }, 1 );
-            CHECK( icp.nb_points == 2 );
+            CHECK( icp.nb_points() == 2 );
             CHECK_THAT( icp.measure(), WithinAbs( M_PI / 2, 1e-7 ) );
         }
     }
@@ -156,14 +159,14 @@ TEST_CASE( "known_values" ) {
     SECTION( "1 intersection at the right" ) {
         icp.plane_cut( { std::sqrt( 0.5 ), 0.0 }, { 1, 0 } );
         icp.ball_cut( { 0.0, 0.0 }, 1 );
-        CHECK( icp.nb_points == 2 );
+        CHECK( icp.nb_points() == 2 );
         CHECK_THAT( icp.measure(), WithinAbs( 3 * M_PI / 4 + 0.5, 1e-7 ) );
     }
 
     SECTION( "1 intersection at the left" ) {
         icp.plane_cut( { - std::sqrt( 0.5 ), 0.0 }, { 1, 0 } );
         icp.ball_cut( { 0.0, 0.0 }, 1 );
-        CHECK( icp.nb_points == 2 );
+        CHECK( icp.nb_points() == 2 );
         CHECK_THAT( icp.measure(), WithinAbs( M_PI / 4 - 0.5, 1e-7 ) );
     }
 
@@ -171,7 +174,7 @@ TEST_CASE( "known_values" ) {
         icp.plane_cut( { - std::sqrt( 0.5 ), 0.0 }, { -1, 0 } );
         icp.plane_cut( { + std::sqrt( 0.5 ), 0.0 }, { +1, 0 } );
         icp.ball_cut( { 0.0, 0.0 }, 1 );
-        CHECK( icp.nb_points == 4 );
+        CHECK( icp.nb_points() == 4 );
         CHECK_THAT( icp.measure(), WithinAbs( M_PI / 2 + 1.0, 1e-7 ) );
     }
 
@@ -179,7 +182,7 @@ TEST_CASE( "known_values" ) {
         icp.plane_cut( { - std::sqrt( 0.5 ), 0.0 }, { -1, 0 } );
         icp.plane_cut( { + std::sqrt( 0.5 ), 0.0 }, { -1, 0 } );
         icp.ball_cut( { 0.0, 0.0 }, 1 );
-        CHECK( icp.nb_points == 2 );
+        CHECK( icp.nb_points() == 2 );
         CHECK_THAT( icp.measure(), WithinAbs( M_PI / 4 - 0.5, 1e-7 ) );
     }
 
@@ -187,7 +190,7 @@ TEST_CASE( "known_values" ) {
         icp.plane_cut( { - std::sqrt( 0.5 ), 0.0 }, { -1, 0 } );
         icp.plane_cut( { - 0.9             , 0.0 }, { -1, 0 } );
         icp.ball_cut( { 0.0, 0.0 }, 1 );
-        CHECK( icp.nb_points == 2 );
+        CHECK( icp.nb_points() == 2 );
         CHECK_THAT( icp.measure(), WithinAbs( 3 * M_PI / 4 + 0.5, 1e-7 ) );
     }
 
@@ -195,7 +198,7 @@ TEST_CASE( "known_values" ) {
         icp.plane_cut( { 0.0, 0.0 }, { -1, 0 } );
         icp.plane_cut( { 0.0, 0.0 }, { 0, +1 } );
         icp.ball_cut( { 0.0, 0.0 }, 1 );
-        CHECK( icp.nb_points == 3 );
+        CHECK( icp.nb_points() == 3 );
         CHECK_THAT( icp.measure(), WithinAbs( M_PI / 4, 1e-7 ) );
     }
 
@@ -203,7 +206,7 @@ TEST_CASE( "known_values" ) {
         icp.plane_cut( { 0.0, 0.0 }, { -1, 0 } );
         icp.plane_cut( { 0.0, 0.0 }, { 0, -1 } );
         icp.ball_cut( { 0.0, 0.0 }, 1 );
-        CHECK( icp.nb_points == 3 );
+        CHECK( icp.nb_points() == 3 );
         CHECK_THAT( icp.measure(), WithinAbs( M_PI / 4, 1e-7 ) );
     }
 
@@ -213,7 +216,7 @@ TEST_CASE( "known_values" ) {
         icp.plane_cut( { -0.2,  0.0 }, { -1, 0 } );
         icp.plane_cut( {  0.0, -0.2 }, { 0, -1 } );
         icp.ball_cut( { 0.0, 0.0 }, 1 );
-        CHECK( icp.nb_points == 4 );
+        CHECK( icp.nb_points() == 4 );
         CHECK_THAT( icp.measure(), WithinAbs( 0.16, 1e-7 ) );
     }
 
@@ -226,8 +229,8 @@ TEST_CASE( "known_values" ) {
 }
 
 TEST_CASE( "centroid" ) {
-    struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; }; // boost::multiprecision::mpfr_float_100
-    using  LC = sdot::ConvexPolyhedron2<Pc,std::string>;
+    struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; using CI = std::string; }; // boost::multiprecision::mpfr_float_100
+    using  LC = ConvexPolyhedron2<Pc>;
     using  TF = LC::TF;
     using  Pt = LC::Pt;
 
