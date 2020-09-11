@@ -20,3 +20,6 @@ hugo/
 vtk/
 *.pdf
 results/
+*.pyc
+*.cpython
+
