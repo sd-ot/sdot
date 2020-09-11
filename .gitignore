@@ -19,6 +19,7 @@ data/
 hugo/
 vtk/
 *.pdf
+*.user
 results/
 *.pyc
 *.cpython
