@@ -276,31 +276,34 @@ TEST_CASE( "centroid" ) {
     }
 }
 
-//TEST_CASE( PowerDiagram::ConvexPolyhedron2, integration_only_lines ) {
-//    using TF = double;
-//    using PO = Point2<TF>;
+TEST_CASE( "integration_only_lines" ) {
+    struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; using CI = std::string; }; // boost::multiprecision::mpfr_float_100
+    using  LC = ConvexPolyhedron2<Pc>;
+    using  TF = LC::TF;
+    using  Pt = LC::Pt;
 
-//    PowerDiagram::ConvexPolyhedron2<TF> icp( { 0, 0 }, 100 );
-//    icp.plane_cut( { 0, 0 }, { -1, 0 } );
-//    icp.plane_cut( { 0, 0 }, { 0, -1 } );
-//    icp.plane_cut( { 2, 1 }, { +1, 0 } );
-//    icp.plane_cut( { 2, 1 }, { 0, +1 } );
+    LC icp( LC::Box{ { 0, 0 }, { 2, 1 } } );
+    icp.sphere_center = { 0, 0 };
+ 
+    // Unit
+    CHECK_THAT( 2.0            , WithinAbs( icp.integration( FunctionEnum::Unit    () )     , 1e-5 ) );
+    CHECK_THAT( 1.0            , WithinAbs( icp.centroid   ( FunctionEnum::Unit    () )[ 0 ], 1e-5 ) );
+    CHECK_THAT( 0.5            , WithinAbs( icp.centroid   ( FunctionEnum::Unit    () )[ 1 ], 1e-5 ) );
+ 
+    // Gaussian. With wolfram alpha: N[ Integrate[ Integrate[ Exp[ - x*x - y*y ], { x, 0, 2 } ], { y, 0, 1 } ] ]
+    // N[ Integrate[ Integrate[ x * Exp[ - x*x - y*y ], { x, 0, 2 } ], { y, 0, 1 } ] ] / N[ Integrate[ Integrate[ Exp[ - x*x - y*y ], { x, 0, 2 } ], { y, 0, 1 } ] ]
+    CHECK_THAT( 0.6587596697261, WithinAbs( icp.integration( FunctionEnum::ExpWmR2db<TF>{ 1 } )     , 1e-5 ) );
+    CHECK_THAT( 0.5564590588759, WithinAbs( icp.centroid   ( FunctionEnum::ExpWmR2db<TF>{ 1 } )[ 0 ], 1e-5 ) );
+    CHECK_THAT( 0.423206       , WithinAbs( icp.centroid   ( FunctionEnum::ExpWmR2db<TF>{ 1 } )[ 1 ], 1e-5 ) );
+ 
+    // r^2. With wolfram alpha: Integrate[ Integrate[ x * ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ] / Integrate[ Integrate[ x * x + y * y, { x, 0, 2 } ], { y, 0, 1 } ]
+    CHECK_THAT( 10.0 / 3.0     , WithinAbs( icp.integration( FunctionEnum::R2      () )     , 1e-5 ) );
+    // CHECK_THAT( 1.4         , WithinAbs( icp.centroid   ( FunctionEnum::R2      () )[ 0 ], 1e-5 ) );
+    // CHECK_THAT( 0.55        , WithinAbs( icp.centroid   ( FunctionEnum::R2      () )[ 1 ], 1e-5 ) );
 
-//    // Unit
-//    CHECK_THAT( 2.0            , icp.integration( FunctionEnum::Unit    () )     , 1e-5 );
-//    CHECK_THAT( 1.0            , icp.centroid   ( FunctionEnum::Unit    () )[ 0 ], 1e-5 );
-//    CHECK_THAT( 0.5            , icp.centroid   ( FunctionEnum::Unit    () )[ 1 ], 1e-5 );
-
-//    // Gaussian. With wolfram alpha: N[ Integrate[ Integrate[ x * Exp[ - x*x - y*y ], { x, 0, 2 } ], { y, 0, 1 } ] ] / N[ Integrate[ Integrate[ Exp[ - x*x - y*y ], { x, 0, 2 } ], { y, 0, 1 } ] ]
-//    CHECK_THAT( 0.6587596697261, icp.integration( FunctionEnum::Gaussian() )     , 1e-5 );
-//    CHECK_THAT( 0.5564590588759, icp.centroid   ( FunctionEnum::Gaussian() )[ 0 ], 1e-5 );
-//    CHECK_THAT( 0.423206       , icp.centroid   ( FunctionEnum::Gaussian() )[ 1 ], 1e-5 );
-
-//    // r^2. With wolfram alpha: Integrate[ Integrate[ x * ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ] / Integrate[ Integrate[ x * x + y * y, { x, 0, 2 } ], { y, 0, 1 } ]
-//    CHECK_THAT( 10.0 / 3.0     , icp.integration( FunctionEnum::R2      () )     , 1e-5 );
-//    CHECK_THAT( 1.4            , icp.centroid   ( FunctionEnum::R2      () )[ 0 ], 1e-5 );
-//    CHECK_THAT( 0.55           , icp.centroid   ( FunctionEnum::R2      () )[ 1 ], 1e-5 );
-//}
+    // r^4. With wolfram alpha: Integrate[ Integrate[ ( x * x + y * y ) ^ 2, { x, 0, 2 } ], { y, 0, 1 } ]
+    CHECK_THAT( 386.0 / 45.0     , WithinAbs( icp.integration( FunctionEnum::R4      () )     , 1e-5 ) );
+}
 
 //TEST_CASE( PowerDiagram::ConvexPolyhedron2, integration_line_and_disc ) {
 //    PowerDiagram::ConvexPolyhedron2<double> icp( { 0, 0 }, 100 );

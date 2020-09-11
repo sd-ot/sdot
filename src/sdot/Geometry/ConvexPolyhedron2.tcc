@@ -1166,6 +1166,53 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R2, TF w ) con
 }
 
 template<class Pc>
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R4, TF w ) const {
+    using std::pow;
+
+    // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function R4 --end-log-scale 100 --precision 1e-10 -r 100 -l 100
+    if ( _nb_points == 0 )
+        return sphere_radius > 0 ? 2 * pi() * TF( 1 ) / 6 * pow( sphere_radius, 6 ) : 0;
+
+    auto arc_val = []( Pt P0, Pt P1 ) {
+        using std::atan2;
+        using std::pow;
+        TF a0 = atan2( P0.y, P0.x );
+        TF a1 = atan2( P1.y, P1.x );
+        if ( a1 < a0 )
+            a1 += 2 * pi();
+        return ( a1 - a0 ) * TF( 1 ) / 6 * pow( dot( P0, P0 ), 3 );
+    };
+
+    // hand coded version
+    auto seg_val = []( Pt P0, Pt P1 ) {
+        TF result;
+        TF R_0 = P1.y; TF R_1 = (-1.0)*R_0; TF R_2 = P0.y; TF R_3 = (-1.0)*R_2;
+        R_3 = R_0+R_3; TF R_4 = pow(R_3,2); R_1 = R_2+R_1; R_0 = R_2+R_0;
+        R_2 = R_3*R_0; TF R_5 = pow(R_0,2); TF R_6 = P0.x; TF R_7 = (-1.0)*R_6;
+        TF R_8 = P1.x; R_7 = R_8+R_7; TF R_9 = R_1*R_7; R_9 = (-1.0)*R_9;
+        TF R_10 = pow(R_7,2); R_4 = R_10+R_4; R_10 = (-1.0)*R_8; R_10 = R_6+R_10;
+        R_3 = R_10*R_3; R_3 = R_9+R_3; R_0 = R_10*R_0; R_0 = (-1.0)*R_0;
+        R_6 = R_8+R_6; R_7 = R_7*R_6; R_7 = R_2+R_7; R_7 = R_3*R_7;
+        R_7 = 2.0*R_7; R_1 = R_1*R_6; R_0 = R_1+R_0; R_4 = R_4*R_0;
+        R_4 = (-1.0)*R_4; R_7 = R_4+R_7; R_6 = pow(R_6,2); R_5 = R_6+R_5;
+        R_6 = 0.25; R_7 = R_6*R_7; R_7 = (1.0/24.0)*R_7; R_5 = R_6*R_5;
+        R_0 = R_5*R_0; R_0 = -0.125*R_0; R_7 = R_0+R_7; result = R_7;
+        return result;
+
+        
+    };
+
+    TF res = 0;
+    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+        if ( arcs[ i0 ] )
+            res += arc_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+        else
+            res += seg_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+    }
+    return res;
+}
+
+template<class Pc>
 typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration( SpaceFunctions::Constant<TF> cst ) const {
     return integration( FunctionEnum::Unit() ) * cst.coeff;
 }
