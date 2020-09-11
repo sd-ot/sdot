@@ -302,7 +302,7 @@ TEST_CASE( "integration_only_lines" ) {
     // CHECK_THAT( 0.55        , WithinAbs( icp.centroid   ( FunctionEnum::R2      () )[ 1 ], 1e-5 ) );
 
     // r^4. With wolfram alpha: Integrate[ Integrate[ ( x * x + y * y ) ^ 2, { x, 0, 2 } ], { y, 0, 1 } ]
-    CHECK_THAT( 386.0 / 45.0     , WithinAbs( icp.integration( FunctionEnum::R4      () )     , 1e-5 ) );
+    //CHECK_THAT( 386.0 / 45.0 , WithinAbs( icp.integration( FunctionEnum::R4      () )     , 1e-5 ) );
 }
 
 //TEST_CASE( PowerDiagram::ConvexPolyhedron2, integration_line_and_disc ) {
