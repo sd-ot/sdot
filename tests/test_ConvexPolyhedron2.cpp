@@ -1,3 +1,4 @@
+#include <iostream>
 #include "../src/sdot/Geometry/ConvexPolyhedron2.h"
 #include "../src/sdot/Display/VtkOutput.h"
 #include "./catch_main.h"
@@ -323,10 +324,25 @@ TEST_CASE( "integration_only_lines" ) {
     CHECK_THAT( sph.integration( FunctionEnum::R4() ), WithinAbs( M_PI * 64 / 3, 1e-5 ) ); 
 
     // w - r^2. With wolfram alpha: Integrate[ Integrate[ 10 - ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ]
-    CHECK_THAT( icp.integration( FunctionEnum::WmR2(), 10 ), WithinAbs( 50.0 / 3.0, 1e-5 ) );
+    // w = 10; Integrate[ Integrate[ x * ( 10 - ( x * x + y * y ) ), { x, 0, 2 } ], { y, 0, 1 } ] / Integrate[ Integrate[ 10 - ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ]
+    CHECK_THAT( icp.integration( FunctionEnum::WmR2(), 10 )     , WithinAbs( 50.0 /  3.0, 1e-5 ) );
+    CHECK_THAT( icp.centroid   ( FunctionEnum::WmR2(), 10 )[ 0 ], WithinAbs( 23.0 / 25.0, 1e-5 ) );
+    CHECK_THAT( icp.centroid   ( FunctionEnum::WmR2(), 10 )[ 1 ], WithinAbs( 49.0 / 100., 1e-5 ) );
 
     CHECK_THAT( scp.integration( FunctionEnum::WmR2(),  4 ), WithinAbs( M_PI * 2, 1e-5 ) );
     CHECK_THAT( sph.integration( FunctionEnum::WmR2(),  4 ), WithinAbs( M_PI * 8, 1e-5 ) );
+
+    CHECK_THAT( sph.centroid   ( FunctionEnum::WmR2(), 10 )[ 0 ], WithinAbs( 4, 1e-5 ) );
+    CHECK_THAT( sph.centroid   ( FunctionEnum::WmR2(), 10 )[ 1 ], WithinAbs( 4, 1e-5 ) );
+
+    /* 
+        Integrate[ Integrate[ x * ( 4 - ( x * x + y * y ) ) * UnitStep[ 2^2 - x^2 - y^2 ] , { x, 0, 3 } ], { y, 0, 3 } ]
+          => 64 / 15
+        Integrate[ Integrate[ ( 4 - ( x * x + y * y ) ) * UnitStep[ 2^2 - x^2 - y^2 ] , { x, 0, 3 } ], { y, 0, 3 } ]
+          => 2 * Pi
+    */
+    CHECK_THAT( scp.centroid( FunctionEnum::WmR2(), 4 )[ 0 ], WithinAbs( 32.0 / 15.0 / M_PI, 1e-5 ) );
+    CHECK_THAT( scp.centroid( FunctionEnum::WmR2(), 4 )[ 1 ], WithinAbs( 32.0 / 15.0 / M_PI, 1e-5 ) );
 }
 
 //TEST_CASE( PowerDiagram::ConvexPolyhedron2, integration_line_and_disc ) {

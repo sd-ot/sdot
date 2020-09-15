@@ -190,7 +190,7 @@ struct PpWmR2 {
     }
 
     auto func_for_final_cp_integration() const {
-        return R2{};
+        return WmR2{};
     }
 
     N<1> need_ball_cut() const {

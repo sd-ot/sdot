@@ -852,7 +852,107 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 
 template<class Pc>
 void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::WmR2 func, SpaceFunctions::Constant<TF> sf, TF w ) const {
-    TODO;
+    // hand coded version
+    auto arc_val = [&]( Pt P0, Pt P1 ) {
+        using std::atan2;
+        using std::pow;
+        TF a0 = atan2( P0.y, P0.x );
+        TF a1 = atan2( P1.y, P1.x );
+        if ( a1 < a0 )
+            a1 += 2 * pi();
+        TF r2 = dot( P0, P0 );
+        return ( a1 - a0 ) / 2 * r2 * ( w - r2 / 2 );
+    };
+
+    // generated using metil src/sdot/PowerDiagram/offline_integration/lib/gen_WmR2.met
+    auto seg_val = [&]( Pt P0, Pt P1 ) {
+        TF R_0 = P1.y; TF R_1 = (-1.0)*R_0; TF R_2 = P0.y; TF R_3 = (-1.0)*R_2;
+        R_3 = R_0+R_3; TF R_4 = pow(R_3,2); R_1 = R_2+R_1; R_0 = R_2+R_0;
+        R_2 = R_3*R_0; TF R_5 = pow(R_0,2); TF R_6 = P1.x; TF R_7 = (-1.0)*R_6;
+        TF R_8 = P0.x; TF R_9 = (-1.0)*R_8; R_9 = R_6+R_9; TF R_10 = R_1*R_9;
+        R_10 = (-1.0)*R_10; TF R_11 = pow(R_9,2); R_4 = R_11+R_4; R_7 = R_8+R_7;
+        R_3 = R_7*R_3; R_3 = R_10+R_3; R_0 = R_7*R_0; R_0 = (-1.0)*R_0;
+        R_6 = R_8+R_6; R_9 = R_9*R_6; R_9 = R_2+R_9; R_9 = R_3*R_9;
+        R_9 = (-1.0/48.0)*R_9; R_1 = R_1*R_6; R_0 = R_1+R_0; R_4 = R_4*R_0;
+        R_4 = (1.0/96.0)*R_4; R_9 = R_4+R_9; R_6 = pow(R_6,2); R_5 = R_6+R_5;
+        R_5 = (-1.0/16.0)*R_5; R_6 = w; R_6 = 0.5*R_6; R_5 = R_6+R_5;
+        R_0 = R_5*R_0; R_0 = -0.5*R_0; R_9 = R_0+R_9; 
+        return R_9;
+    };
+
+    TF lea = 0;
+    if ( _nb_points == 0 ) {
+        if ( sphere_radius > 0 )
+            lea = pi() * pow( sphere_radius, 2 ) * ( w - pow( sphere_radius, 2 ) / 2 );
+    } else {
+        for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+            if ( arcs[ i0 ] )
+                lea += arc_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+            else
+                lea += seg_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+        }
+    }
+
+    // centroid part
+    ctd += lea * sphere_center;
+    mea += lea;
+
+    if ( _nb_points == 0 )
+        return;
+
+    auto arc_val_centroid = [&]( TF &r_x, TF &r_y, Pt P0, Pt P1 ) {
+        using std::atan2;
+        using std::pow;
+        using std::sin;
+        using std::cos;
+        TF a0 = atan2( P0.y, P0.x );
+        TF a1 = atan2( P1.y, P1.x );
+        if ( a1 < a0 )
+            a1 += 2 * pi();
+        TF c = w * pow( sphere_radius, 3 ) / 3 - pow( sphere_radius, 5 ) / 5;
+        r_x += c * ( sin( a1 ) - sin( a0 ) );
+        r_y += c * ( cos( a0 ) - cos( a1 ) );
+    };
+
+    // generated using metil src/sdot/PowerDiagram/offline_integration/lib/gen_WmR2.met
+    auto seg_val_centroid = [&]( TF &r_x, TF &r_y, Pt P0, Pt P1 ) {
+        TF R_0 = w; TF R_1 = P0.y; TF R_2 = 0.25*R_1; TF R_3 = 0.5*R_1;
+        TF R_4 = P1.x; TF R_5 = 0.125*R_4; TF R_6 = 0.25*R_4; TF R_7 = pow(R_4,2);
+        TF R_8 = -0.5*R_4; TF R_9 = R_4*R_1; R_9 = (-1.0)*R_9; TF R_10 = P1.y;
+        TF R_11 = 0.125*R_10; R_11 = R_2+R_11; R_2 = 0.25*R_10; R_2 = R_3+R_2;
+        R_3 = R_10*R_2; TF R_12 = pow(R_2,2); TF R_13 = pow(R_10,2); R_13 = R_7+R_13;
+        R_7 = R_13*R_2; TF R_14 = 1.5*R_13; TF R_15 = 2.0*R_13; TF R_16 = -0.5*R_10;
+        R_16 = R_1+R_16; R_1 = R_16*R_2; TF R_17 = pow(R_16,2); TF R_18 = R_10*R_16;
+        TF R_19 = P0.x; TF R_20 = 0.25*R_19; R_5 = R_20+R_5; R_20 = 0.5*R_19;
+        R_6 = R_20+R_6; R_20 = R_4*R_6; R_3 = R_20+R_3; R_20 = R_10*R_3;
+        R_20 = 2.0*R_20; R_20 = R_7+R_20; R_20 = (-1.0/96.0)*R_20; R_7 = 6.0*R_3;
+        R_3 = R_4*R_3; R_3 = 2.0*R_3; R_13 = R_13*R_6; R_3 = R_13+R_3;
+        R_3 = (-1.0/96.0)*R_3; R_13 = pow(R_6,2); R_12 = R_13+R_12; R_12 = (-1.0)*R_12;
+        R_12 = R_0+R_12; R_0 = R_16*R_12; R_11 = R_12*R_11; R_20 = R_11+R_20;
+        R_11 = R_12+R_1; R_5 = R_12*R_5; R_3 = R_5+R_3; R_8 = R_19+R_8;
+        R_5 = R_8*R_6; R_11 = R_5+R_11; R_11 = R_8*R_11; R_5 = R_1+R_5;
+        R_1 = R_10*R_5; R_1 = (-1.0)*R_1; R_1 = R_0+R_1; R_1 = (-2.0)*R_1;
+        R_5 = R_6*R_5; R_5 = (-2.0)*R_5; R_11 = R_5+R_11; R_11 = (-2.0)*R_11;
+        R_5 = pow(R_8,2); R_5 = R_17+R_5; R_2 = R_5*R_2; R_2 = (-1.0)*R_2;
+        R_6 = R_5*R_6; R_6 = (-1.0)*R_6; R_5 = 24.0*R_5; R_5 = R_15+R_5;
+        R_16 = R_16*R_5; R_5 = R_8*R_5; R_8 = R_4*R_8; R_18 = R_8+R_18;
+        R_8 = R_10*R_18; R_8 = 4.0*R_8; R_8 = R_16+R_8; R_16 = (-3.0)*R_18;
+        R_7 = R_16+R_7; R_14 = R_7+R_14; R_7 = R_10*R_14; R_7 = (-1.0/12.0)*R_7;
+        R_7 = R_2+R_7; R_1 = R_7+R_1; R_14 = R_4*R_14; R_14 = (-1.0/12.0)*R_14;
+        R_14 = R_6+R_14; R_11 = R_14+R_11; R_18 = R_4*R_18; R_18 = 4.0*R_18;
+        R_5 = R_18+R_5; R_10 = R_19*R_10; R_9 = R_10+R_9; R_1 = R_9*R_1;
+        R_1 = (1.0/24.0)*R_1; R_20 = R_9*R_20; R_1 = R_20+R_1; R_8 = R_9*R_8;
+        R_8 = (1.0/1920.0)*R_8; R_1 = R_8+R_1; r_y += R_1; R_11 = R_9*R_11;
+        R_11 = (1.0/24.0)*R_11; R_3 = R_9*R_3; R_11 = R_3+R_11; R_5 = R_9*R_5;
+        R_5 = (1.0/1920.0)*R_5; R_11 = R_5+R_11; r_x += R_11;
+    };
+
+    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+        if ( arcs[ i0 ] )
+            arc_val_centroid( ctd.x, ctd.y, point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+        else
+            seg_val_centroid( ctd.x, ctd.y, point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+    }
 }
 
 template<class Pc>
@@ -904,89 +1004,6 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 template<class Pc>
 void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::R2, SpaceFunctions::Constant<TF> sf, TF w ) const {
     TODO;
-    //    // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function R2 --end-log-scale 1000 --precision 1e-10 --centroid
-    //    auto arc_val = [&]( PT P0, PT P1 ) {
-    //        using std::atan2;
-    //        using std::pow;
-    //        TF a0 = atan2( P0.y, P0.x );
-    //        TF a1 = atan2( P1.y, P1.x );
-    //        if ( a1 < a0 )
-    //            a1 += 2 * pi();
-    //        return ( a1 - a0 ) * 0.25 * pow( _sphere_radius, 4 );
-    //    };
-
-    //    auto seg_val = []( PT P0, PT P1 ) {
-    //        TF result;
-    //        TF R_0 = P1.y; TF R_1 = (-1.0)*R_0; TF R_2 = P0.y; TF R_3 = (-1.0)*R_2;
-    //        R_3 = R_0+R_3; TF R_4 = pow(R_3,2); R_1 = R_2+R_1; R_0 = R_2+R_0;
-    //        R_2 = R_3*R_0; TF R_5 = pow(R_0,2); TF R_6 = P0.x; TF R_7 = (-1.0)*R_6;
-    //        TF R_8 = P1.x; R_7 = R_8+R_7; TF R_9 = R_1*R_7; R_9 = (-1.0)*R_9;
-    //        TF R_10 = pow(R_7,2); R_4 = R_10+R_4; R_10 = (-1.0)*R_8; R_10 = R_6+R_10;
-    //        R_3 = R_10*R_3; R_3 = R_9+R_3; R_0 = R_10*R_0; R_0 = (-1.0)*R_0;
-    //        R_6 = R_8+R_6; R_7 = R_7*R_6; R_7 = R_2+R_7; R_7 = R_3*R_7;
-    //        R_7 = 2.0*R_7; R_1 = R_1*R_6; R_0 = R_1+R_0; R_4 = R_4*R_0;
-    //        R_4 = (-1.0)*R_4; R_7 = R_4+R_7; R_6 = pow(R_6,2); R_5 = R_6+R_5;
-    //        R_6 = 0.25; R_7 = R_6*R_7; R_7 = (1.0/24.0)*R_7; R_5 = R_6*R_5;
-    //        R_0 = R_5*R_0; R_0 = -0.125*R_0; R_7 = R_0+R_7; result = R_7;
-    //        return result;
-    //    };
-
-    //    TF lea = 0;
-    //    if ( _cuts.empty() ) {
-    //        if ( _sphere_radius > 0 )
-    //            lea = 2 * pi() * 0.25 * pow( _sphere_radius, 4 );
-    //    } else {
-    //        for( size_t i1 = 0, i0 = _cuts.size() - 1; i1 < _cuts.size(); i0 = i1++ ) {
-    //            if ( _cuts[ i0 ].seg_type == SegType::arc )
-    //                lea += arc_val( _cuts[ i0 ].point - _sphere_center, _cuts[ i1 ].point - _sphere_center );
-    //            else
-    //                lea += seg_val( _cuts[ i0 ].point - _sphere_center, _cuts[ i1 ].point - _sphere_center );
-    //        }
-    //    }
-
-    //    // centroid part
-    //    ctd += lea * _sphere_center;
-    //    mea += lea;
-
-    //    if ( _cuts.empty() )
-    //        return;
-
-    //    auto arc_val_centroid = [&]( TF &r_x, TF &r_y, PT P0, PT P1 ) {
-    //        using std::atan2;
-    //        using std::pow;
-    //        using std::sin;
-    //        using std::cos;
-    //        TF a0 = atan2( P0.y, P0.x );
-    //        TF a1 = atan2( P1.y, P1.x );
-    //        if ( a1 < a0 )
-    //            a1 += 2 * pi();
-    //        TF c = ( 0.25 ) * pow( _sphere_radius, 5 );
-    //        r_x += c * ( sin( a1 ) - sin( a0 ) );
-    //        r_y += c * ( cos( a0 ) - cos( a1 ) );
-    //    };
-
-    //    auto seg_val_centroid = []( TF &r_x, TF &r_y, PT P0, PT P1 ) {
-    //        TF R_0 = P0.x; TF R_1 = (-1.0)*R_0; TF R_2 = P1.x; TF R_3 = (-1.0)*R_2;
-    //        R_3 = R_0+R_3; R_0 = R_2+R_0; TF R_4 = pow(R_0,2); R_1 = R_2+R_1;
-    //        R_0 = R_1*R_0; R_1 = pow(R_1,2); R_2 = 0.5; TF R_5 = P1.y;
-    //        TF R_6 = (-1.0)*R_5; TF R_7 = P0.y; TF R_8 = R_5+R_7; TF R_9 = pow(R_8,2);
-    //        R_9 = R_4+R_9; R_4 = pow(R_9,2); R_4 = R_2*R_4; TF R_10 = R_3*R_4;
-    //        R_10 = (1.0/32.0)*R_10; TF R_11 = (-1.0)*R_7; R_11 = R_5+R_11; R_8 = R_11*R_8;
-    //        R_0 = R_8+R_0; R_0 = pow(R_0,2); R_0 = 0.5*R_0; R_11 = pow(R_11,2);
-    //        R_11 = R_1+R_11; R_9 = R_11*R_9; R_9 = 0.25*R_9; R_9 = R_0+R_9;
-    //        R_9 = R_2*R_9; R_0 = R_3*R_9; R_0 = (1.0/12.0)*R_0; R_0 = R_10+R_0;
-    //        R_11 = pow(R_11,2); R_11 = R_2*R_11; R_3 = R_3*R_11; R_3 = (1.0/160.0)*R_3;
-    //        R_0 = R_3+R_0; r_y += R_0; R_6 = R_7+R_6; R_9 = R_6*R_9;
-    //        R_9 = (-1.0/12.0)*R_9; R_4 = R_6*R_4; R_4 = (-1.0/32.0)*R_4; R_9 = R_4+R_9;
-    //        R_11 = R_6*R_11; R_11 = (-1.0/160.0)*R_11; R_9 = R_11+R_9; r_x += R_9;
-    //    };
-
-    //    for( size_t i1 = 0, i0 = _cuts.size() - 1; i1 < _cuts.size(); i0 = i1++ ) {
-    //        if ( _cuts[ i0 ].seg_type == SegType::arc )
-    //            arc_val_centroid( ctd.x, ctd.y, _cuts[ i0 ].point - _sphere_center, _cuts[ i1 ].point - _sphere_center );
-    //        else
-    //            seg_val_centroid( ctd.x, ctd.y, _cuts[ i0 ].point - _sphere_center, _cuts[ i1 ].point - _sphere_center );
-    //    }
 }
 
 template<class Pc> template<class FU>
@@ -1129,10 +1146,11 @@ template<class Pc>
 typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::WmR2, TF w ) const {
     using std::pow;
 
-    // generated using nsmake run metil src/sdot/PowerDiagram/offline_integration/lib/gen_WmR2.met
+    // hand coded version
     if ( _nb_points == 0 ) 
         return sphere_radius > 0 ? pi() * pow( sphere_radius, 2 ) * ( w - pow( sphere_radius, 2 ) / 2 ) : 0;
 
+    // hand coded version
     auto arc_val = [&]( Pt P0, Pt P1 ) {
         using std::atan2;
         using std::pow;
@@ -1144,7 +1162,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::WmR2, TF w ) c
         return ( a1 - a0 ) / 2 * r2 * ( w - r2 / 2 );
     };
 
-    // hand coded version
+    // generated using nsmake run metil src/sdot/PowerDiagram/offline_integration/lib/gen_WmR2.met
     auto seg_val = [&]( Pt P0, Pt P1 ) {
         TF R_0 = P1.y; TF R_1 = (-1.0)*R_0; TF R_2 = P0.y; TF R_3 = (-1.0)*R_2;
         R_3 = R_0+R_3; TF R_4 = pow(R_3,2); R_1 = R_2+R_1; R_0 = R_2+R_0;
