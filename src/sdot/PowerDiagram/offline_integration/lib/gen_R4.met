@@ -26,7 +26,7 @@ def part_int( coeffs, u0, u1, with_os = true )
         stdout << cw.to_string( 4 )
 
 # # with only one coeff
-part_int( [ 0, 0.25 ], 0, 1 )
+part_int( [ 0, 0, 1 / 6 ], 0, 1 )
 
 
 # max_d := 9
