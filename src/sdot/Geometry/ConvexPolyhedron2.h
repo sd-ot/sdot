@@ -92,6 +92,7 @@ public:
 
     // computations
     void                      add_centroid_contrib      ( Pt &ctd, TF &vol, FunctionEnum::ExpWmR2db<TF>, SpaceFunctions::Constant<TF> sf, TF w = 0 ) const;
+    void                      add_centroid_contrib      ( Pt &ctd, TF &vol, FunctionEnum::WmR2         , SpaceFunctions::Constant<TF> sf, TF w = 0 ) const;
     void                      add_centroid_contrib      ( Pt &ctd, TF &vol, FunctionEnum::Unit         , SpaceFunctions::Constant<TF> sf, TF w = 0 ) const;
     void                      add_centroid_contrib      ( Pt &ctd, TF &vol, FunctionEnum::R2           , SpaceFunctions::Constant<TF> sf, TF w = 0 ) const;
     void                      add_centroid_contrib      ( Pt &ctd, TF &vol ) const;

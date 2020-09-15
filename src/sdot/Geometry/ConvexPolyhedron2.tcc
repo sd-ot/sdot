@@ -851,6 +851,11 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 }
 
 template<class Pc>
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::WmR2 func, SpaceFunctions::Constant<TF> sf, TF w ) const {
+    TODO;
+}
+
+template<class Pc>
 void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::ExpWmR2db<TF> func, SpaceFunctions::Constant<TF> sf, TF w ) const {
     using std::sqrt;
 
