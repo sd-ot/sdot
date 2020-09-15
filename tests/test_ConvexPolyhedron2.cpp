@@ -282,27 +282,51 @@ TEST_CASE( "integration_only_lines" ) {
     using  TF = LC::TF;
     using  Pt = LC::Pt;
 
+    // box { 0, 0 }, { 2, 1 }
     LC icp( LC::Box{ { 0, 0 }, { 2, 1 } } );
     icp.sphere_center = { 0, 0 };
+
+    // 1/4 disc radius 2
+    LC scp( LC::Box{ { 0, 0 }, { 3, 3 } } );
+    scp.ball_cut( { 0, 0 }, 2 );
+ 
+    // full disc radius 2
+    LC sph( LC::Box{ { 0, 0 }, { 8, 8 } } );
+    sph.ball_cut( { 4, 4 }, 2 );
  
     // Unit
-    CHECK_THAT( 2.0            , WithinAbs( icp.integration( FunctionEnum::Unit    () )     , 1e-5 ) );
-    CHECK_THAT( 1.0            , WithinAbs( icp.centroid   ( FunctionEnum::Unit    () )[ 0 ], 1e-5 ) );
-    CHECK_THAT( 0.5            , WithinAbs( icp.centroid   ( FunctionEnum::Unit    () )[ 1 ], 1e-5 ) );
- 
+    CHECK_THAT( icp.integration( FunctionEnum::Unit() )     , WithinAbs( 2.0, 1e-5 ) );
+    CHECK_THAT( icp.centroid   ( FunctionEnum::Unit() )[ 0 ], WithinAbs( 1.0, 1e-5 ) );
+    CHECK_THAT( icp.centroid   ( FunctionEnum::Unit() )[ 1 ], WithinAbs( 0.5, 1e-5 ) );
+    
+    CHECK_THAT( scp.integration( FunctionEnum::Unit() )     , WithinAbs( M_PI, 1e-5 ) );
+    CHECK_THAT( sph.integration( FunctionEnum::Unit() )     , WithinAbs( M_PI * 4, 1e-5 ) ); 
+
     // Gaussian. With wolfram alpha: N[ Integrate[ Integrate[ Exp[ - x*x - y*y ], { x, 0, 2 } ], { y, 0, 1 } ] ]
     // N[ Integrate[ Integrate[ x * Exp[ - x*x - y*y ], { x, 0, 2 } ], { y, 0, 1 } ] ] / N[ Integrate[ Integrate[ Exp[ - x*x - y*y ], { x, 0, 2 } ], { y, 0, 1 } ] ]
-    CHECK_THAT( 0.6587596697261, WithinAbs( icp.integration( FunctionEnum::ExpWmR2db<TF>{ 1 } )     , 1e-5 ) );
-    CHECK_THAT( 0.5564590588759, WithinAbs( icp.centroid   ( FunctionEnum::ExpWmR2db<TF>{ 1 } )[ 0 ], 1e-5 ) );
-    CHECK_THAT( 0.423206       , WithinAbs( icp.centroid   ( FunctionEnum::ExpWmR2db<TF>{ 1 } )[ 1 ], 1e-5 ) );
+    CHECK_THAT( icp.integration( FunctionEnum::ExpWmR2db<TF>{ 1 } )     , WithinAbs( 0.6587596697261, 1e-5 ) );
+    CHECK_THAT( icp.centroid   ( FunctionEnum::ExpWmR2db<TF>{ 1 } )[ 0 ], WithinAbs( 0.5564590588759, 1e-5 ) );
+    CHECK_THAT( icp.centroid   ( FunctionEnum::ExpWmR2db<TF>{ 1 } )[ 1 ], WithinAbs( 0.423206       , 1e-5 ) );
  
     // r^2. With wolfram alpha: Integrate[ Integrate[ x * ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ] / Integrate[ Integrate[ x * x + y * y, { x, 0, 2 } ], { y, 0, 1 } ]
-    CHECK_THAT( 10.0 / 3.0     , WithinAbs( icp.integration( FunctionEnum::R2      () )     , 1e-5 ) );
-    // CHECK_THAT( 1.4         , WithinAbs( icp.centroid   ( FunctionEnum::R2      () )[ 0 ], 1e-5 ) );
-    // CHECK_THAT( 0.55        , WithinAbs( icp.centroid   ( FunctionEnum::R2      () )[ 1 ], 1e-5 ) );
+    CHECK_THAT( icp.integration( FunctionEnum::R2() )     , WithinAbs( 10.0 / 3.0, 1e-5 ) );
+    // CHECK_THAT( icp.centroid( FunctionEnum::R2() )[ 0 ], WithinAbs( 1.4       , 1e-5 ) );
+    // CHECK_THAT( icp.centroid( FunctionEnum::R2() )[ 1 ], WithinAbs( 0.55      , 1e-5 ) );
+
+    CHECK_THAT( scp.integration( FunctionEnum::R2() )     , WithinAbs( M_PI * 2, 1e-5 ) );
+    CHECK_THAT( sph.integration( FunctionEnum::R2() )     , WithinAbs( M_PI * 8, 1e-5 ) ); 
 
     // r^4. With wolfram alpha: Integrate[ Integrate[ ( x * x + y * y ) ^ 2, { x, 0, 2 } ], { y, 0, 1 } ]
-    CHECK_THAT( 386.0 / 45.0 , WithinAbs( icp.integration( FunctionEnum::R4      () )     , 1e-5 ) );
+    CHECK_THAT( icp.integration( FunctionEnum::R4() ), WithinAbs( 386.0 / 45.0, 1e-5 ) );
+
+    CHECK_THAT( scp.integration( FunctionEnum::R4() ), WithinAbs( M_PI * 16 / 3, 1e-5 ) );
+    CHECK_THAT( sph.integration( FunctionEnum::R4() ), WithinAbs( M_PI * 64 / 3, 1e-5 ) ); 
+
+    // w - r^2. With wolfram alpha: Integrate[ Integrate[ 10 - ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ]
+    CHECK_THAT( icp.integration( FunctionEnum::WmR2(), 10 ), WithinAbs( 50.0 / 3.0, 1e-5 ) );
+
+    CHECK_THAT( scp.integration( FunctionEnum::WmR2(),  4 ), WithinAbs( M_PI * 2, 1e-5 ) );
+    CHECK_THAT( sph.integration( FunctionEnum::WmR2(),  4 ), WithinAbs( M_PI * 8, 1e-5 ) );
 }
 
 //TEST_CASE( PowerDiagram::ConvexPolyhedron2, integration_line_and_disc ) {

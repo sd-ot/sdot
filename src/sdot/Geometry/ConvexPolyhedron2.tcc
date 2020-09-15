@@ -1121,12 +1121,57 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::Unit, TF w ) c
 }
 
 template<class Pc>
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::WmR2, TF w ) const {
+    using std::pow;
+
+    // generated using nsmake run metil src/sdot/PowerDiagram/offline_integration/lib/gen_WmR2.met
+    if ( _nb_points == 0 ) 
+        return sphere_radius > 0 ? pi() * pow( sphere_radius, 2 ) * ( w - pow( sphere_radius, 2 ) / 2 ) : 0;
+
+    auto arc_val = [&]( Pt P0, Pt P1 ) {
+        using std::atan2;
+        using std::pow;
+        TF a0 = atan2( P0.y, P0.x );
+        TF a1 = atan2( P1.y, P1.x );
+        if ( a1 < a0 )
+            a1 += 2 * pi();
+        TF r2 = dot( P0, P0 );
+        return ( a1 - a0 ) / 2 * r2 * ( w - r2 / 2 );
+    };
+
+    // hand coded version
+    auto seg_val = [&]( Pt P0, Pt P1 ) {
+        TF R_0 = P1.y; TF R_1 = (-1.0)*R_0; TF R_2 = P0.y; TF R_3 = (-1.0)*R_2;
+        R_3 = R_0+R_3; TF R_4 = pow(R_3,2); R_1 = R_2+R_1; R_0 = R_2+R_0;
+        R_2 = R_3*R_0; TF R_5 = pow(R_0,2); TF R_6 = P1.x; TF R_7 = (-1.0)*R_6;
+        TF R_8 = P0.x; TF R_9 = (-1.0)*R_8; R_9 = R_6+R_9; TF R_10 = R_1*R_9;
+        R_10 = (-1.0)*R_10; TF R_11 = pow(R_9,2); R_4 = R_11+R_4; R_7 = R_8+R_7;
+        R_3 = R_7*R_3; R_3 = R_10+R_3; R_0 = R_7*R_0; R_0 = (-1.0)*R_0;
+        R_6 = R_8+R_6; R_9 = R_9*R_6; R_9 = R_2+R_9; R_9 = R_3*R_9;
+        R_9 = (-1.0/48.0)*R_9; R_1 = R_1*R_6; R_0 = R_1+R_0; R_4 = R_4*R_0;
+        R_4 = (1.0/96.0)*R_4; R_9 = R_4+R_9; R_6 = pow(R_6,2); R_5 = R_6+R_5;
+        R_5 = (-1.0/16.0)*R_5; R_6 = w; R_6 = 0.5*R_6; R_5 = R_6+R_5;
+        R_0 = R_5*R_0; R_0 = -0.5*R_0; R_9 = R_0+R_9; 
+        return R_9;
+    };
+
+    TF res = 0;
+    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+        if ( arcs[ i0 ] )
+            res += arc_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+        else
+            res += seg_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+    }
+    return res;
+}
+
+template<class Pc>
 typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R2, TF w ) const {
     using std::pow;
 
     // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function R2 --end-log-scale 100 --precision 1e-10 -r 100 -l 100
     if ( _nb_points == 0 )
-        return sphere_radius > 0 ? 2 * pi() * 0.25 * pow( sphere_radius, 4 ) : 0;
+        return sphere_radius > 0 ? TF( 1 ) / 2 * pi() * pow( sphere_radius, 4 ) : 0;
 
     auto arc_val = []( Pt P0, Pt P1 ) {
         using std::atan2;
@@ -1135,7 +1180,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R2, TF w ) con
         TF a1 = atan2( P1.y, P1.x );
         if ( a1 < a0 )
             a1 += 2 * pi();
-        return ( a1 - a0 ) * 0.25 * pow( dot( P0, P0 ), 2 );
+        return ( a1 - a0 ) / 4 * pow( dot( P0, P0 ), 2 );
     };
 
     // hand coded version
@@ -1170,7 +1215,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R4, TF w ) con
 
     // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function R4 --end-log-scale 100 --precision 1e-10 -r 100 -l 100
     if ( _nb_points == 0 )
-        return sphere_radius > 0 ? 2 * pi() * TF( 1 ) / 6 * pow( sphere_radius, 6 ) : 0;
+        return sphere_radius > 0 ? 2 * pi() / 6 * pow( sphere_radius, 6 ) : 0;
 
     auto arc_val = []( Pt P0, Pt P1 ) {
         using std::atan2;
@@ -1179,7 +1224,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R4, TF w ) con
         TF a1 = atan2( P1.y, P1.x );
         if ( a1 < a0 )
             a1 += 2 * pi();
-        return ( a1 - a0 ) * TF( 1 ) / 6 * pow( dot( P0, P0 ), 3 );
+        return ( a1 - a0 ) / 6 * pow( dot( P0, P0 ), 3 );
     };
 
     // hand coded version

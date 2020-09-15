@@ -108,6 +108,7 @@ public:
 
 
     TF                        integration               ( FunctionEnum::ExpWmR2db<TF>, TF weight = 0 ) const;
+    TF                        integration               ( FunctionEnum::WmR2         , TF weight = 0 ) const;
     TF                        integration               ( FunctionEnum::Unit         , TF weight = 0 ) const;
     TF                        integration               ( FunctionEnum::R2           , TF weight = 0 ) const;
     TF                        integration               ( FunctionEnum::R4           , TF weight = 0 ) const;
