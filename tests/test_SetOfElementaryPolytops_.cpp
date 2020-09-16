@@ -16,7 +16,7 @@ using TI = std::size_t;
 #endif // SDOT_CUDA
 
 int main() {
-    Vec<float,CpuArch::Gpu> v( 10 );
+    Vec<float,MachineArch::Gpu> v( 10 );
     P( v );
 }
 
@@ -59,7 +59,7 @@ int main() {
 //    auto mk_3 = []( auto &cp, TI nb_volumes ) { cp.add_shape( "3", { { 0, 0 }, { 20, 0 }, { 0, 20 } }, 0, nb_volumes ); };
 
 //    VtkOutput vo;
-//    test_with_shape( vo, N<2>(), mk_3, 20, {  0.0, 0.0, 0.0 }, S<CpuArch::Gpu>() );
-//    test_with_shape( vo, N<2>(), mk_4, 20, { 30.0, 0.0, 0.0 }, S<CpuArch::Gpu>() );
+//    test_with_shape( vo, N<2>(), mk_3, 20, {  0.0, 0.0, 0.0 }, S<MachineArch::Gpu>() );
+//    test_with_shape( vo, N<2>(), mk_4, 20, { 30.0, 0.0, 0.0 }, S<MachineArch::Gpu>() );
 //    vo.save( "out.vtk" );
 //}

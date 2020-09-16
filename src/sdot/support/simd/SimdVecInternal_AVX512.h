@@ -1,19 +1,22 @@
 #pragma once
 
 #include "SimdVecInternal.h"
-#include "../CpuArch.h"
+#include "../MachineArch.h"
 #include <x86intrin.h>
 #include "SimdSize.h"
 
-DECL_SIMD_SIZE( std::uint64_t, CpuArch::AVX512,  8 );
-DECL_SIMD_SIZE( std::int64_t , CpuArch::AVX512,  8 );
-DECL_SIMD_SIZE( double       , CpuArch::AVX512,  8 );
-DECL_SIMD_SIZE( std::uint32_t, CpuArch::AVX512, 16 );
-DECL_SIMD_SIZE( std::int32_t , CpuArch::AVX512, 16 );
-DECL_SIMD_SIZE( float        , CpuArch::AVX512, 16 );
+namespace sdot {
+
+DECL_SIMD_SIZE( std::uint64_t, MachineArch::AVX512,  8 );
+DECL_SIMD_SIZE( std::int64_t , MachineArch::AVX512,  8 );
+DECL_SIMD_SIZE( double       , MachineArch::AVX512,  8 );
+DECL_SIMD_SIZE( std::uint32_t, MachineArch::AVX512, 16 );
+DECL_SIMD_SIZE( std::int32_t , MachineArch::AVX512, 16 );
+DECL_SIMD_SIZE( float        , MachineArch::AVX512, 16 );
+
+namespace SimdVecInternal {
 
 #ifdef __AVX512F__
-namespace SimdVecInternal {
 
 // struct Impl<...>
 SIMD_VEC_IMPL_REG( Arch::avx512, std::uint64_t,  8, __m512i );
@@ -187,5 +190,7 @@ SIMD_VEC_IMPL_REG_SCATTER( Arch::avx512, float        , std::int32_t , 4, _mm_i3
 SIMD_VEC_IMPL_CMP_OP_SIMDVEC_AVX512( lt, _CMP_LT_OS, _MM_CMPINT_LT )
 SIMD_VEC_IMPL_CMP_OP_SIMDVEC_AVX512( gt, _CMP_GT_OS, _MM_CMPINT_GT )
 
-}
 #endif // __AVX512F__
+
+} // namespace SimdVecInternal
+} // namespace sdot

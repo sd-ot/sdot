@@ -122,7 +122,7 @@ struct Test {
 int main() {
     using TFS = std::tuple<std::uint64_t,std::int64_t,double,std::uint32_t,std::int32_t,float>;
     using TIS = std::tuple<std::uint64_t,std::int64_t,std::uint32_t,std::int32_t>;
-    using ARS = std::tuple<CpuArch::SSE2,CpuArch::AVX2,CpuArch::AVX512>;
+    using ARS = std::tuple<MachineArch::SSE2,MachineArch::AVX2,MachineArch::AVX512>;
 
     StaticRange<std::tuple_size<TFS>::value>::for_each( [&]( auto nt ) {
         using TF = typename std::tuple_element<nt.value,TFS>::type;

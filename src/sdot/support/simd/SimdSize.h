@@ -4,10 +4,15 @@
 #error SimdSize should be included via SimdVec
 #endif
 
-#include "../CpuArch.h"
+#ifndef SDOT_SIMD_SIZE_H
+#define SDOT_SIMD_SIZE_H
+
+#include "../MachineArch.h"
 #include "SimdVec.h"
 
-template<class T,class Arch=CpuArch::Native>
+namespace sdot {
+
+template<class T,class Arch=MachineArch::Native>
 struct SimdSize {
     enum { value = 1 };
 };
@@ -20,3 +25,6 @@ struct SimdAlig {
 #define DECL_SIMD_SIZE( T, ARCH, SIZE ) \
     template<> struct SimdSize<T,ARCH> { enum { value = SIZE }; }
 
+} // namespace sdot
+
+#endif // SDOT_SIMD_SIZE_H

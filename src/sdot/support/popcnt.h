@@ -1,7 +1,7 @@
 #pragma once
 
 #include <x86intrin.h>
-#include "CpuArch.h"
+#include "MachineArch.h"
 #include "S.h"
 
 template<class Arch>

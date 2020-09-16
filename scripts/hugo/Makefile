@@ -3,22 +3,11 @@ NSMAKE = nsmake # --cpp-flag  "-std=c++17"
 
 all:
 	# nsmake run -g3 --exec-with "valgrind --leak-check=full" tests/test_VolumeAssembly.cpp
-	# ${NSMAKE} run src/sdot/ConvexPolytop/internal/generation/test_ConvexHull.cpp
-	# ${NSMAKE} tests/test_Simd.cpp
-	# ${NSMAKE} tests/test_StructOfArrays.cpp
-	# ${NSMAKE} run tests/bench_ConvexPolytopSet.cpp
-	# ${NSMAKE} run tests/test_IntrusiveList.cpp
-	# ${NSMAKE} run src/sdot/geometry/internal/generation/gen_cuts.cpp
-	# ${NSMAKE} run --exec-with "valgrind --tool=callgrind --dump-instr=yes --collect-jumps=yes" tests/bench_SetOfElementaryPolytops.cpp
-	# ${NSMAKE} run tests/bench_SetOfElementaryPolytops.cpp
-	# ${NSMAKE} run tests/test_SetOfElementaryPolytops.cu
-	# ${NSMAKE} run tests/test_SymbolicExpr.cpp
-	# cd ~/nsmake; nsmake stop; rm -rf ~/.nsmake 2> /dev/null; npm run build
-	# nsmake run tests/test_SetOfElementaryPolytops.cu; cat ~/.nsmake/server.log
-	# nsmake run tests/test_SetOfElementaryPolytops.cpp
 	# ${NSMAKE} run tests/test_SimplexSumPolytop.cpp
 	# ${NSMAKE} run tests/test_RecursivePolytopConnectivity.cpp
-	${NSMAKE} run tests/test_RecursiveConvexPolytop.cpp
+	# ${NSMAKE} run tests/test_RecursiveConvexPolytop.cpp
+	# ${NSMAKE} run tests/test_SetOfElementaryPolytops.cpp
+	${NSMAKE} run tests/prel_bench/bench_case_dispatch.cpp
 
 gen:
 	${NSMAKE} -O3 run src/sdot/geometry/internal/generation/gen_cuts.cpp 2; ${NSMAKE} run -O3 src/sdot/geometry/internal/generation/gen_cuts.cpp 3

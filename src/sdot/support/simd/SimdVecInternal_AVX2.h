@@ -4,15 +4,18 @@
 #include <x86intrin.h>
 #include "SimdSize.h"
 
-DECL_SIMD_SIZE( std::uint64_t, CpuArch::AVX2, 4 );
-DECL_SIMD_SIZE( std::int64_t , CpuArch::AVX2, 4 );
-DECL_SIMD_SIZE( double       , CpuArch::AVX2, 4 );
-DECL_SIMD_SIZE( std::uint32_t, CpuArch::AVX2, 8 );
-DECL_SIMD_SIZE( std::int32_t , CpuArch::AVX2, 8 );
-DECL_SIMD_SIZE( float        , CpuArch::AVX2, 8 );
+namespace sdot {
+
+DECL_SIMD_SIZE( std::uint64_t, MachineArch::AVX2, 4 );
+DECL_SIMD_SIZE( std::int64_t , MachineArch::AVX2, 4 );
+DECL_SIMD_SIZE( double       , MachineArch::AVX2, 4 );
+DECL_SIMD_SIZE( std::uint32_t, MachineArch::AVX2, 8 );
+DECL_SIMD_SIZE( std::int32_t , MachineArch::AVX2, 8 );
+DECL_SIMD_SIZE( float        , MachineArch::AVX2, 8 );
+
+namespace SimdVecInternal {
 
 #ifdef __AVX2__
-namespace SimdVecInternal {
 
 // struct Impl<...>
 SIMD_VEC_IMPL_REG( Arch::avx2, std::uint64_t, 4, __m256i );
@@ -174,6 +177,7 @@ SIMD_VEC_IMPL_CMP_OP_SIMDVEC_AVX2( gt, _CMP_GT_OS )
 ////    // SimdVec                       permute        ( SimdVec<std::uint64_t,4> idx, SimdVec b ) const { return _mm256_permutex2var_pd( values, idx.values, b.values ); }
 ////    std::uint64_t                    nz             () const { return _mm256_movemask_ps( (__m256)_mm256_xor_si256( _mm256_set1_epi8( -1 ), _mm256_cmpeq_epi32( values, _mm256_setzero_si256() ) ) ); }
 
-}
 #endif // __AVX2__
 
+} // namespace SimdVecInternal
+} // namespace sdot

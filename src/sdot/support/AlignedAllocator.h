@@ -1,9 +1,10 @@
 #pragma once
 
 #include "simd/SimdVec.h"
-//#include <type_traits>
 #include <utility>
 #include <cstdlib>
+
+namespace sdot {
 
 template<class T,class Arch>
 struct AlignedAllocator {
@@ -31,3 +32,5 @@ struct AlignedAllocator {
     static const_pointer     address         ( const_reference ref ) { return &ref; }
     static void              destroy         ( pointer ptr ) { ptr->~T(); }
 };
+
+} // namespace sdot

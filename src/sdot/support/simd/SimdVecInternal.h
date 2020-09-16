@@ -1,11 +1,12 @@
 #pragma once
 
-#include "../CpuArch.h"
+#include "../MachineArch.h"
 #include "../bitset.h"
 #include "../TODO.h"
 #include <ostream>
 #include "../S.h"
 
+namespace sdot {
 namespace SimdVecInternal {
 
 // Impl ---------------------------------------------------------
@@ -335,4 +336,5 @@ Impl<T,1,Arch> gather( const G *data, const V &ind, S<Impl<T,1,Arch>> ) {
     }
 
 } // namespace SimdVecInternal
+} // namespace sdot
 
