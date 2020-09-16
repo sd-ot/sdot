@@ -78,10 +78,12 @@ public:
 
     // computations
     void                    for_each_boundary_measure( FunctionEnum::ExpWmR2db<TF>, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure( FunctionEnum::WmR2         , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
     void                    for_each_boundary_measure( FunctionEnum::Unit         , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
     void                    for_each_boundary_measure( FunctionEnum::R2           , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
 
     template<class F> void  for_each_boundary_item   ( FunctionEnum::ExpWmR2db<TF>, const F &f, TF weight = 0 ) const;
+    template<class F> void  for_each_boundary_item   ( FunctionEnum::WmR2         , const F &f, TF weight = 0 ) const;
     template<class F> void  for_each_boundary_item   ( FunctionEnum::Unit         , const F &f, TF weight = 0 ) const;
     template<class F> void  for_each_boundary_item   ( FunctionEnum::R2           , const F &f, TF weight = 0 ) const;
 
@@ -92,10 +94,12 @@ public:
     Pt                      centroid                 ( FunctionEnum::Unit ) const;
 
     void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::ExpWmR2db<TF>, SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
+    void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::WmR2         , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
     void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::Unit         , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
     void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::R2           , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
 
     TF                      measure                  ( FunctionEnum::ExpWmR2db<TF>, TF weight = 0 ) const;
+    TF                      measure                  ( FunctionEnum::WmR2         , TF weight = 0 ) const;
     TF                      measure                  ( FunctionEnum::Unit         , TF weight = 0 ) const;
     TF                      measure                  ( FunctionEnum::R2           , TF weight = 0 ) const;
 

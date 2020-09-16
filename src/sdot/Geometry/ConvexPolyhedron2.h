@@ -55,6 +55,7 @@ public:
     template<class RF> void   for_each_boundary_measure ( RF rf, const std::function<void( TF boundary_measure, CI id )> &f, TF weight = 0 ) const;
 
     void                      for_each_boundary_item    ( FunctionEnum::ExpWmR2db<TF>, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const;
+    void                      for_each_boundary_item    ( FunctionEnum::WmR2         , const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const;
     void                      for_each_boundary_item    ( FunctionEnum::Unit         , const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const;
     void                      for_each_boundary_item    ( FunctionEnum::R2           , const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const;
 
@@ -117,6 +118,7 @@ public:
     TF                        integration               ( SpaceFunctions::Constant<TF> cst ) const;
 
     TF                        integration_der_wrt_weight( FunctionEnum::ExpWmR2db<TF>, TF weight ) const;
+    TF                        integration_der_wrt_weight( FunctionEnum::WmR2, TF weight ) const;
     template<class FU> TF     integration_der_wrt_weight( FU, TF weight ) const;
 
     // approximate computations

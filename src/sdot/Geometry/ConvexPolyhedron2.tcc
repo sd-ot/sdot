@@ -77,6 +77,11 @@ typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_we
 }
 
 template<class Pc>
+typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( FunctionEnum::WmR2 fu, TF weight ) const {
+    return integration( FunctionEnum::Unit(), weight );
+}
+
+template<class Pc>
 template<class FU> typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( FU, TF weight ) const {
     return 0;
 }
@@ -134,6 +139,47 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF> 
                    erf( ( P1.x * ( P1.x - P0.x ) + P1.y * ( P1.y - P0.y ) ) / e5 / d1 ) -
                    erf( ( P0.x * ( P1.x - P0.x ) + P0.y * ( P1.y - P0.y ) ) / e5 / d1 )
                 );
+                item.measure = d1 * c;
+                f( item );
+            }
+        }
+    }
+}
+
+template<class Pc>
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::WmR2 e, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
+    using std::sqrt;
+    using std::pow;
+
+    if ( _nb_points == 0 ) {
+        if ( sphere_radius >= 0 ) {
+            BoundaryItem item;
+            item.id = sphere_cut_id;
+            item.measure = 2 * pi() * sphere_radius * ( weight - pow( sphere_radius, 2 ) );
+            item.a0 = 1;
+            item.a1 = 0;
+            f( item );
+        }
+        return;
+    }
+
+    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+        BoundaryItem item;
+        item.id = cut_ids[ i0 ];
+        item.points[ 0 ] = point( i0 );
+        item.points[ 1 ] = point( i1 );
+
+        if ( allow_ball_cut && arcs[ i0 ] ) {
+            TF c = weight - pow( sphere_radius, 2 );
+            item.measure = _arc_length( point( i0 ), point( i1 ) ) * c;
+            f( item );
+        } else {
+            // Integrate[ w - (A+(B-A)*u)^2 - (C+(D-C)*u)^2, { u, 0, 1 } ]
+            Pt P0 = point( i0 ) - sphere_center, P1 = point( i1 ) - sphere_center;
+            if ( TF d2 = norm_2_p2( P1 - P0 ) ) {
+                TF d1 = sqrt( d2 );
+                TF c = weight - ( P0.x * ( P0.x + P1.x ) + P1.x * P1.x + 
+                                  P0.y * ( P0.y + P1.y ) + P1.y * P1.y ) / 3;
                 item.measure = d1 * c;
                 f( item );
             }
