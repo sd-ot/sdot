@@ -218,6 +218,16 @@ void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::make_sp_and_cases( std::array<
     const TI *id_ptr = sc[ Id() ].vec.data();
 
     // get indices (num_elems) for each cases
+    #ifdef __CUDACC__
+    if ( OnGpu<Arch>::value ) {
+
+    } else {
+    #endif // __CUDACC__
+
+    #ifdef __CUDACC__
+    }
+    #endif // __CUDACC__
+
     SimdRange<SimdSize<TF,Arch>::value>::for_each( sc.size(), [&]( TI beg_num_elem, auto simd_size ) {
         using VF = SimdVec<TF,simd_size.value,Arch>;
         using VI = SimdVec<TI,simd_size.value,Arch>;

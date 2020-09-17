@@ -1,4 +1,5 @@
 #include <cuda_runtime.h>
+#include <cstdint>
 #include <vector>
 
 /**
@@ -6,9 +7,9 @@
 */
 struct GpuInfo {
     struct Unit {
-        int nb_cores;
-        int L2_size;
-        int mem;
+        int           nb_cores;
+        std::uint64_t L2_size;
+        std::uint64_t mem;
     };
 
     // https://en.wikipedia.org/wiki/List_of_Nvidia_graphics_processing_units
