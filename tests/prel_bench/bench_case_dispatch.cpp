@@ -19,7 +19,7 @@ void fill_cases_global_kernel( int *offsets, int *indices, const int *ids, int n
         indices[ atomicAdd( offsets + ids[ i ], 1 ) ] = i;
 }
 
-void fill_cases_global( int *offsets, int *indices, const int *ids, int nb_ids, int nb_threads ) {
+void fill_cases_global( int *offsets, int *indices, const int *ids, int nb_ids, int nb_threads, int /*nb_blocks*/ ) {
     TI nb_groups = ( nb_ids + nb_threads - 1 ) / nb_threads;
     fill_cases_global_kernel<<<nb_groups,nb_threads>>>( offsets, indices, ids, nb_ids );
 }
@@ -30,32 +30,33 @@ void fill_cases_block_kernel( int *offsets, int *indices, const int *ids, int nb
     constexpr std::size_t nb_cases = 32;
     __shared__ int local_offsets[ nb_cases ];
     for( int i = threadIdx.x; i < nb_cases; i += blockDim.x )
-        local_offsets[ i ] = i * nb_ids; // collisions
+        local_offsets[ i ] = ( blockIdx.x * nb_cases + i ) * nb_ids;
     __syncthreads();
 
     for( int i = blockIdx.x * blockDim.x + threadIdx.x; i < nb_ids; i += blockDim.x * gridDim.x )
         indices[ atomicAdd( local_offsets + ids[ i ], 1 ) ] = i;
 }
 
-void fill_cases_block( int *offsets, int *indices, const int *ids, int nb_ids, int nb_threads ) {
-    fill_cases_block_kernel<<<128,nb_threads>>>( offsets, indices, ids, nb_ids );
+void fill_cases_block( int *offsets, int *indices, const int *ids, int nb_ids, int nb_threads, int nb_blocks ) {
+    fill_cases_block_kernel<<<nb_blocks,nb_threads>>>( offsets, indices, ids, nb_ids );
 }
+
 
 // ------------------
 template<class TF>
-void test_func( const char *name, const TF &func, int nb_threads ) {
+void test_func( const char *name, const TF &func, int nb_threads, int nb_blocks = 64 ) {
     using Arch = MachineArch::Gpu;
     std::size_t nb_cases = 32;
 
     // preliminaries
-    Vec<int> case_ids_cpu( 1024 * 1024 * 10 );
+    Vec<int> case_ids_cpu( 1024 * 1024 );
     for( TI i = 0; i < case_ids_cpu.size(); ++i )
         case_ids_cpu[ i ] = rand() % nb_cases;
 
     Vec<int,Arch> case_ids = case_ids_cpu;
 
-    Vec<int,Arch> case_indices( nb_cases * case_ids.size() );
-    Vec<int,Arch> case_offsets( nb_cases );
+    Vec<int,Arch> case_indices( nb_cases * case_ids.size() * nb_blocks );
+    Vec<int,Arch> case_offsets( nb_cases * nb_blocks );
     for( TI i = 0; i < nb_cases; ++i )
         case_offsets[ i ] = i * case_ids.size();
 
@@ -65,7 +66,7 @@ void test_func( const char *name, const TF &func, int nb_threads ) {
     cudaEventCreate( &stop );
 
     cudaEventRecord( start );
-    func( case_offsets.ptr(), case_indices.ptr(), case_ids.ptr(), case_ids.size(), nb_threads );
+    func( case_offsets.ptr(), case_indices.ptr(), case_ids.ptr(), case_ids.size(), nb_threads, nb_blocks );
     cudaEventRecord( stop );
 
     // display
@@ -85,15 +86,15 @@ void test_func( const char *name, const TF &func, int nb_threads ) {
 }
 
 #define TST( FUNC ) \
-    test_func( #FUNC, FUNC, 512 ); \
-    test_func( #FUNC, FUNC, 256 ); \
+    test_func( #FUNC, FUNC, 32  ); \
     test_func( #FUNC, FUNC, 128 ); \
-    test_func( #FUNC, FUNC, 32  )
+    test_func( #FUNC, FUNC, 256 ); \
+    test_func( #FUNC, FUNC, 512 )
 
 int main() {
     // Ref: 616 GB/s ou 448 ?? ROP = 64
     // https://www.guru3d.com/articles-pages/geforce-rtx-2080-super-review,4.html
     TST( fill_cases_global );
-    TST( fill_cases_block );
+    TST( fill_cases_block  );
 }
 
