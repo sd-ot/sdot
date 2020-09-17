@@ -16,7 +16,7 @@ SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::SetOfElementaryPolytops( const Arch
 }
 
 template<int dim,int nvi,class TF,class TI,class Arch>
-void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::add_shape( const std::string &name, TI nb_elems, const std::vector<Pt> pos, TI beg_id, TI face_id ) {
+void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::add_shape( const std::string &name, const std::vector<Pt> pos, TI nb_elems, TI beg_id, TI face_id ) {
     ShapeCoords &sc = shape_list( shape_map, name );
 
     TI old_size = sc.size();

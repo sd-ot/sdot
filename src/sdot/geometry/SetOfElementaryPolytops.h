@@ -25,7 +25,7 @@ public:
 
     /***/                   SetOfElementaryPolytops ( const Arch &arch = {} );
 
-    void                    add_shape               ( const std::string &name, TI nb_elems, const std::vector<Pt> pos, TI beg_id, TI face_id = 0 ); ///< names in 2D flat edges: "3", "4"... (nb points). In 3D: "3E", "4S"... => nb points in the xy cirle + Extrusion/Simple, ... Add a E or a S for each new dim
+    void                    add_shape               ( const std::string &name, const std::vector<Pt> pos, TI nb_elems, TI beg_id = 0, TI face_id = 0 ); ///< names in 2D flat edges: "3", "4"... (nb points). In 3D: "3E", "4S"... => nb points in the xy cirle + Extrusion/Simple, ... Add a E or a S for each new dim
     void                    plane_cut               ( std::array<const Vec<TF,Arch> *,dim> dirs, const Vec<TF,Arch> *sps ); ///< cut for each elementary polytop id
     void                    clear                   ();
 
