@@ -40,7 +40,7 @@ public:
 private:
     // virtual struct that will be transformed by StructOfArrays (std::vectors are assumed to be of the same size inside the same batch)
     struct                  FaceIds                 { using T = std::vector<TI>; };
-    struct                  Pos                     { using T = std::vector<std::array<TF,dim+1>>; }; ///< position + room for a scalar product
+    struct                  Pos                     { using T = std::vector<std::array<TF,dim>>; }; ///< position
     struct                  Id                      { using T = TI; };
 
     // types for actuak data
@@ -52,17 +52,15 @@ private:
     static TI               nb_faces_for            ( const std::string &name );
 
 
-    template<int n> void    make_sp_and_cases       ( std::array<const Vec<TF,Arch> *,dim> dirs, const Vec<TF,Arch> *sps, ShapeCoords &sc, TI beg_chunk, TI len_chunk, N<n>, const std::map<std::string,std::vector<TI>> &nb_created );
+    template<int n> void    make_sp_and_cases       ( Vec<TI,Arch> &offsets, Vec<TI,Arch> &indices, Vec<TF,Arch> &sps, std::array<const Vec<TF,Arch> *,dim> cut_dirs, const Vec<TF,Arch> *cut_sps, ShapeCoords &sc, TI beg_chunk, TI len_chunk, N<n>, N<0> on_gpu );
+    template<int n> void    make_sp_and_cases       ( Vec<TI,Arch> &offsets, Vec<TI,Arch> &indices, Vec<TF,Arch> &sps, std::array<const Vec<TF,Arch> *,dim> cut_dirs, const Vec<TF,Arch> *cut_sps, ShapeCoords &sc, TI beg_chunk, TI len_chunk, N<n>, N<1> on_gpu );
     ShapeCoords&            shape_list              ( ShapeMap &shape_map, const std::string &name, TI new_rese = 1024 );
     void                    reserve                 ( ShapeCoords &sc, TI old_size, TI new_rese );
     void                    free                    ( ShapeCoords &sc );
 
-    Vec<TI>                 tmp_offsets_bcc;        ///< offsets in tmp_indices_bcc for each cut_case and each simd lane
-    Vec<TI>                 tmp_indices_bcc;        ///< list of num elem for each cut case
     ShapeMap                tmp_shape_map;          ///< tmp shape_map for the cuts
     ShapeMap                shape_map;              ///< type elem => coords
     TI                      end_id;                 ///< nb ids
-    mutable Vec<TF>         tmp_f;                  ///< tmp storage forget_measures, get_centroids, ...
     Arch                    arch;                   ///<
 };
 

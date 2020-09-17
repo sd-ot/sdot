@@ -21,6 +21,7 @@ int main() {
     Ep ep;
     ep.add_shape( "3", { Pt{ 0, 0 }, Pt{ 1, 0 }, Pt{ 0, 1 } }, nb_shapes );
 
+    // prepare the cuts
     Vec<TF,Arch> dirs[ 2 ];
     Vec<TF,Arch> sps;
     dirs[ 0 ].resize( nb_shapes );
@@ -33,6 +34,7 @@ int main() {
         sps[ i ] = ( cos( a ) + sin( a ) ) / 3;
     }
 
+    // make the cuts
     ep.plane_cut( { dirs + 0, dirs + 1 }, &sps );
 
     VtkOutput vo;
