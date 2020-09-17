@@ -125,44 +125,44 @@ void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::display_vtk( VtkOutput &vo, co
 
 template<int dim,int nvi,class TF,class TI,class Arch>
 void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::get_measures( TF *measures ) const {
-    // tmp storage
-    tmp_f.reserve( SimdSize<TF,Arch>::value * end_id );
-    SimdRange<SimdSize<TF,Arch>::value>::for_each( SimdSize<TF,Arch>::value * end_id, [&]( TI beg, auto simd_size ) {
-        using VF = SimdVec<TF,simd_size.value,Arch>;
-        VF::store_aligned( tmp_f.data() + beg, 0 );
-    } );
+    TODO;
+    // // tmp storage
+    // tmp_f.reserve( SimdSize<TF,Arch>::value * end_id );
+    // SimdRange<SimdSize<TF,Arch>::value>::for_each( SimdSize<TF,Arch>::value * end_id, [&]( TI beg, auto simd_size ) {
+    //     using VF = SimdVec<TF,simd_size.value,Arch>;
+    //     VF::store_aligned( tmp_f.data() + beg, 0 );
+    // } );
 
-    // for each type of element
-    for( auto &named_sl : shape_map ) {
-        const ShapeCoords &sc = named_sl.second;
-        std::string name = named_sl.first;
+    // // for each type of element
+    // for( auto &named_sl : shape_map ) {
+    //     const ShapeCoords &sc = named_sl.second;
+    //     std::string name = named_sl.first;
 
-        #include "internal/generated/SetOfElementaryPolytops_measure_2D.h"
-        PE( name );
-        TODO;
-    }
+    //     #include "internal/generated/SetOfElementaryPolytops_measure_2D.h"
+    //     PE( name );
+    //     TODO;
+    // }
 
-    // sum of data in tmp storage
-    for( TI i = 0; i < end_id; ++i ) {
-        using VF = SimdVec<TF,SimdSize<TF,Arch>::value,Arch>;
-        VF v = VF::load_aligned( tmp_f.data() + i * SimdSize<TF,Arch>::value );
-        measures[ i ] = v.sum();
-    }
+    // // sum of data in tmp storage
+    // for( TI i = 0; i < end_id; ++i ) {
+    //     using VF = SimdVec<TF,SimdSize<TF,Arch>::value,Arch>;
+    //     VF v = VF::load_aligned( tmp_f.data() + i * SimdSize<TF,Arch>::value );
+    //     measures[ i ] = v.sum();
+    // }
 }
 
 template<int dim,int nvi,class TF,class TI,class Arch>
-void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::plane_cut( std::array<const Vec<TF,Arch> *,dim> cut_dirs, const Vec<TF,Arch> *cut_sps ) {
+void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::plane_cut( std::array<const TF *,dim> cut_dirs, const TF *cut_sps ) {
     // clear sizes in tmp shapes
-    for( auto &named_sl : tmp_shape_map )
-        named_sl.second.resize_wo_check( 0 );
+    for( auto &tmp_shape : tmp_shape_map )
+        tmp_shape.second.resize_wo_check( 0 );
 
     // cut_chunk_size
-    TI len_chunk = 1024; // arch.L1 / ( sizeof( TF ) * dim );
+    TI len_chunk = 1024 * 1024; // arch.L1 / ( sizeof( TF ) * dim );
 
     // get room in tmp_nb_indices_bcc and tmp_indices_bcc
-    Vec<TI,Arch> offsets;
-    Vec<TI,Arch> indices;
-    Vec<TF,Arch> sps;
+    std::vector<Vec<TF,Arch>> sps( max_nb_vertices_per_elem() );
+    Vec<TI,Arch> offsets, indices;
 
     // for each type of shape
     for( auto &named_sl : shape_map ) {
@@ -170,23 +170,43 @@ void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::plane_cut( std::array<const Ve
         ShapeCoords &sc = named_sl.second;
 
         if ( dim == 2 && name == "3" ) {
-          for( TI beg_chunk = 0; beg_chunk < sc.size; beg_chunk += len_chunk ) {
-            make_sp_and_cases( offsets, indices, sps, cut_dirs, cut_sps, sc, beg_chunk, len_chunk, N<3>() );
+            constexpr TI nb_nodes = 3, nb_cases = TI( 1 ) << nb_nodes;
+            for( TI beg_chunk = 0; beg_chunk < sc.size(); beg_chunk += len_chunk ) {
+                TI rem_chunk = std::min( beg_chunk + len_chunk, sc.size() ) - beg_chunk;
+                make_sp_and_cases( offsets, indices, sps.data(), cut_dirs, cut_sps, beg_chunk, rem_chunk, sc, N<3>(), N<OnGpu<Arch>::value>() );
 
-            // reserve
-            //   ShapeCoords &nc = shape_list( tmp_shape_map, creation_data.first );
-            //   nc.reserve( nc.size() + nb_items );
+                TI nb_sm = offsets.size() / nb_cases;
+                TI rc_sm = ceil( rem_chunk, nb_sm ); // actual size to store the indices for each SM
 
-            //   using RVO = RecursivePolyhedronCutVecOp_2<TF,TI,Arch,Pos,Id>;
-            //   RVO::cut_l0_0_0_1_1_2_2( tmp_indices_bcc.data() + 0 * cut_chunk_size, tmp_offsets_bcc[ 0 ] - 0 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
-            //   RVO::cut_l0_0_0_0_1_1_2_l0_0_0_1_2_2_2( tmp_indices_bcc.data() + 1 * cut_chunk_size, tmp_offsets_bcc[ 1 ] - 1 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 2, 1 }, sc, { 1, 0, 2 } );
-            //   RVO::cut_l0_0_0_0_1_1_2_l0_0_0_1_2_2_2( tmp_indices_bcc.data() + 2 * cut_chunk_size, tmp_offsets_bcc[ 2 ] - 2 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
-            //   RVO::cut_l0_0_0_0_1_0_2( tmp_indices_bcc.data() + 3 * cut_chunk_size, tmp_offsets_bcc[ 3 ] - 3 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 2, 0, 1 } );
-            //   RVO::cut_l0_0_0_0_1_1_2_l0_0_0_1_2_2_2( tmp_indices_bcc.data() + 4 * cut_chunk_size, tmp_offsets_bcc[ 4 ] - 4 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 2, 1 }, sc, { 0, 2, 1 } );
-            //   RVO::cut_l0_0_0_0_1_0_2( tmp_indices_bcc.data() + 5 * cut_chunk_size, tmp_offsets_bcc[ 5 ] - 5 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 1, 2, 0 } );
-            //   RVO::cut_l0_0_0_0_1_0_2( tmp_indices_bcc.data() + 6 * cut_chunk_size, tmp_offsets_bcc[ 6 ] - 6 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
-          };
-          continue;
+                // reserve
+                ShapeCoords &nc_3 = shape_list( tmp_shape_map, "3" );
+
+                TI ns_3 = nc_3.size();
+
+                for( TI num_sm = 0; num_sm < nb_sm; ++num_sm) {
+                    ns_3 += 1 * ( offsets[ num_sm * nb_cases + 0 ] - ( num_sm * nb_cases + 0 ) * rc_sm );
+                    ns_3 += 2 * ( offsets[ num_sm * nb_cases + 1 ] - ( num_sm * nb_cases + 1 ) * rc_sm );
+                    ns_3 += 2 * ( offsets[ num_sm * nb_cases + 2 ] - ( num_sm * nb_cases + 2 ) * rc_sm );
+                    ns_3 += 1 * ( offsets[ num_sm * nb_cases + 3 ] - ( num_sm * nb_cases + 3 ) * rc_sm );
+                    ns_3 += 2 * ( offsets[ num_sm * nb_cases + 4 ] - ( num_sm * nb_cases + 4 ) * rc_sm );
+                    ns_3 += 1 * ( offsets[ num_sm * nb_cases + 5 ] - ( num_sm * nb_cases + 5 ) * rc_sm );
+                    ns_3 += 1 * ( offsets[ num_sm * nb_cases + 6 ] - ( num_sm * nb_cases + 6 ) * rc_sm );
+                }
+
+                nc_3.reserve( ns_3 );
+
+                P( ns_3 );
+
+                //   using RVO = RecursivePolyhedronCutVecOp_2<TF,TI,Arch,Pos,Id>;
+                //   RVO::cut_l0_0_0_1_1_2_2( tmp_indices_bcc.data() + 0 * cut_chunk_size, tmp_offsets_bcc[ 0 ] - 0 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
+                //   RVO::cut_l0_0_0_0_1_1_2_l0_0_0_1_2_2_2( tmp_indices_bcc.data() + 1 * cut_chunk_size, tmp_offsets_bcc[ 1 ] - 1 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 2, 1 }, sc, { 1, 0, 2 } );
+                //   RVO::cut_l0_0_0_0_1_1_2_l0_0_0_1_2_2_2( tmp_indices_bcc.data() + 2 * cut_chunk_size, tmp_offsets_bcc[ 2 ] - 2 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
+                //   RVO::cut_l0_0_0_0_1_0_2( tmp_indices_bcc.data() + 3 * cut_chunk_size, tmp_offsets_bcc[ 3 ] - 3 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 2, 0, 1 } );
+                //   RVO::cut_l0_0_0_0_1_1_2_l0_0_0_1_2_2_2( tmp_indices_bcc.data() + 4 * cut_chunk_size, tmp_offsets_bcc[ 4 ] - 4 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 2, 1 }, sc, { 0, 2, 1 } );
+                //   RVO::cut_l0_0_0_0_1_0_2( tmp_indices_bcc.data() + 5 * cut_chunk_size, tmp_offsets_bcc[ 5 ] - 5 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 1, 2, 0 } );
+                //   RVO::cut_l0_0_0_0_1_0_2( tmp_indices_bcc.data() + 6 * cut_chunk_size, tmp_offsets_bcc[ 6 ] - 6 * cut_chunk_size, shape_list( tmp_shape_map, "3" ), { 0, 1, 2 }, sc, { 0, 1, 2 } );
+            };
+            continue;
         }
 
         // generated cases
@@ -196,29 +216,31 @@ void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::plane_cut( std::array<const Ve
         TODO;
     }
 
-    //    std::swap( tmp_shape_map, shape_map );
-    TODO;
+    std::swap( tmp_shape_map, shape_map );
 }
 
 template<int dim,int nvi,class TF,class TI,class Arch> template<int nb_nodes>
-void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::make_sp_and_cases( Vec<TI,Arch> &offsets, Vec<TI,Arch> &indices, Vec<TF,Arch> &sps, std::array<const Vec<TF,Arch> *,dim> cut_dirs, const Vec<TF,Arch> *cut_sps, ShapeCoords &sc, TI beg_chunk, TI len_chunk, N<nb_nodes>, N<0> ) {
+void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::make_sp_and_cases( Vec<TI,Arch> &offsets, Vec<TI,Arch> &indices, Vec<TF,Arch> *sps, std::array<const TF *,dim> cut_dirs, const TF *cut_sps, TI beg_chunk, TI len_chunk, ShapeCoords &sc, N<nb_nodes>, N<0> ) {
     constexpr TI nb_cases = TI( 1 ) << nb_nodes;
-    indices.resize( nb_cases * len_chunk );
-    offsets.resize( nb_cases );
+    indices.resize_wo_cp( nb_cases * len_chunk );
+    offsets.resize_wo_cp( nb_cases );
 
-    // clear values in offsets
+    // initial offset values
     for( TI num_case = 0; num_case < nb_cases; ++num_case )
         offsets[ num_case ] = num_case * len_chunk;
+
+    // resize sps (scalar_products for each node)
+    std::array<TF *,nb_nodes> scp_ptr;
+    for( TI num_node = 0; num_node < nb_nodes; ++num_node ) {
+        sps[ num_node ].resize_wo_cp( len_chunk );
+        scp_ptr[ num_node ] = sps[ num_node ].ptr();
+    }
 
     // needed ptrs
     std::array<std::array<const TF *,dim>,nb_nodes> pos_ptrs;
     for( TI n = 0; n < nb_nodes; ++n )
         for( TI d = 0; d < dim; ++d )
             pos_ptrs[ n ][ d ] = sc[ Pos() ][ n ][ d ].vec.data();
-
-    std::array<TF *,nb_nodes> scp_ptr;
-    for( TI n = 0; n < nb_nodes; ++n )
-        scp_ptr[ n ] = sc[ Pos() ][ n ][ dim ].vec.data();
 
     const TI *id_ptr = sc[ Id() ].vec.data();
 
@@ -239,8 +261,8 @@ void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::make_sp_and_cases( Vec<TI,Arch
         // cut info
         std::array<VF,dim> PD;
         for( TI d = 0; d < dim; ++d )
-            PD[ d ] = VF::gather( dirs[ d ], id );
-        VF SD = VF::gather( sps, id );
+            PD[ d ] = VF::gather( cut_dirs[ d ], id );
+        VF SD = VF::gather( cut_sps, id );
 
         // scalar products
         std::array<VF,nb_nodes> scp;
@@ -266,87 +288,72 @@ void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::make_sp_and_cases( Vec<TI,Arch
 }
 
 template<int dim,int nvi,class TF,class TI,class Arch> template<int nb_nodes>
-void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::make_sp_and_cases( Vec<TI,Arch> &offsets, Vec<TI,Arch> &indices, Vec<TF,Arch> &sps, std::array<const Vec<TF,Arch> *,dim> cut_dirs, const Vec<TF,Arch> *cut_sps, ShapeCoords &sc, TI beg_chunk, TI len_chunk, N<nb_nodes>, N<1> ) {
+void SetOfElementaryPolytops<dim,nvi,TF,TI,Arch>::make_sp_and_cases( Vec<TI,Arch> &offsets, Vec<TI,Arch> &indices, Vec<TF,Arch> *sps, std::array<const TF *,dim> cut_dirs, const TF *cut_sps, TI beg_chunk, TI len_chunk, ShapeCoords &sc, N<nb_nodes>, N<1> ) {
     constexpr TI nb_cases = TI( 1 ) << nb_nodes;
-    TODO;
+    TI nb_sm = arch.mem;
+    indices.resize_wo_cp( nb_cases * len_chunk );
+    offsets.resize_wo_cp( nb_cases );
 
-    // // clear values in tmp_offsets_bcc
-    // for( TI num_case = 0; num_case < nb_cases; ++num_case )
-    //     tmp_offsets_bcc[ num_case ] = num_case * len_chunk;
+    // initial offset values
+    for( TI num_case = 0; num_case < nb_cases; ++num_case )
+        offsets[ num_case ] = num_case * len_chunk;
 
-    // // needed ptrs
-    // std::array<std::array<const TF *,dim>,nb_nodes> pos_ptrs;
-    // for( TI n = 0; n < nb_nodes; ++n )
-    //     for( TI d = 0; d < dim; ++d )
-    //         pos_ptrs[ n ][ d ] = sc[ Pos() ][ n ][ d ].vec.data();
+    // resize sps (scalar_products for each node)
+    std::array<TF *,nb_nodes> scp_ptr;
+    for( TI num_node = 0; num_node < nb_nodes; ++num_node ) {
+        sps[ num_node ].resize_wo_cp( len_chunk );
+        scp_ptr[ num_node ] = sps[ num_node ].ptr();
+    }
 
-    // std::array<TF *,nb_nodes> scp_ptr;
-    // for( TI n = 0; n < nb_nodes; ++n )
-    //     scp_ptr[ n ] = sc[ Pos() ][ n ][ dim ].vec.data();
+    // needed ptrs
+    std::array<std::array<const TF *,dim>,nb_nodes> pos_ptrs;
+    for( TI n = 0; n < nb_nodes; ++n )
+        for( TI d = 0; d < dim; ++d )
+            pos_ptrs[ n ][ d ] = sc[ Pos() ][ n ][ d ].vec.data();
 
-    // const TI *id_ptr = sc[ Id() ].vec.data();
+    const TI *id_ptr = sc[ Id() ].vec.data();
 
-    // // get indices (num_elems) for each cases
-    // #ifdef __CUDACC__
-    // if ( OnGpu<Arch>::value ) {
+    // get indices (num_elems) for each cases
+    SimdRange<SimdSize<TF,Arch>::value>::for_each( sc.size(), [&]( TI beg_num_elem, auto simd_size ) {
+        using VF = SimdVec<TF,simd_size.value,Arch>;
+        using VI = SimdVec<TI,simd_size.value,Arch>;
 
-    // } else {
-    // #endif // __CUDACC__
+        // positions
+        std::array<std::array<VF,dim>,nb_nodes> pos;
+        for( TI n = 0; n < nb_nodes; ++n )
+            for( TI d = 0; d < dim; ++d )
+                pos[ n ][ d ] = VF::load_aligned( pos_ptrs[ n ][ d ] + beg_num_elem );
 
-    // #ifdef __CUDACC__
-    // }
-    // #endif // __CUDACC__
+        // id
+        VI id = VI::load_aligned( id_ptr + beg_num_elem );
 
-    // SimdRange<SimdSize<TF,Arch>::value>::for_each( sc.size(), [&]( TI beg_num_elem, auto simd_size ) {
-    //     using VF = SimdVec<TF,simd_size.value,Arch>;
-    //     using VI = SimdVec<TI,simd_size.value,Arch>;
+        // cut info
+        std::array<VF,dim> PD;
+        for( TI d = 0; d < dim; ++d )
+            PD[ d ] = VF::gather( cut_dirs[ d ], id );
+        VF SD = VF::gather( cut_sps, id );
 
-    //     // positions
-    //     std::array<std::array<VF,dim>,nb_nodes> pos;
-    //     for( TI n = 0; n < nb_nodes; ++n )
-    //         for( TI d = 0; d < dim; ++d )
-    //             pos[ n ][ d ] = VF::load_aligned( pos_ptrs[ n ][ d ] + beg_num_elem );
+        // scalar products
+        std::array<VF,nb_nodes> scp;
+        for( TI n = 0; n < nb_nodes; ++n ) {
+            scp[ n ] = pos[ n ][ 0 ] * PD[ 0 ];
+            for( TI d = 1; d < dim; ++d )
+                scp[ n ] = scp[ n ] + pos[ n ][ d ] * PD[ d ];
+        }
 
-    //     // id
-    //     VI id = VI::load_aligned( id_ptr + beg_num_elem );
+        // num case
+        VI nc = 0;
+        for( TI n = 0; n < nb_nodes; ++n )
+            nc = nc + ( as_SimdVec<VI>( scp[ n ] > SD ) & TI( 1 << n ) );
 
-    //     // cut info
-    //     std::array<VF,dim> PD;
-    //     for( TI d = 0; d < dim; ++d )
-    //         PD[ d ] = VF::gather( dirs[ d ], id );
-    //     VF SD = VF::gather( sps, id );
+        // store scalar product
+        for( TI n = 0; n < nb_nodes; ++n )
+            VF::store_aligned( scp_ptr[ n ] + beg_num_elem, scp[ n ] - SD );
 
-    //     // scalar products
-    //     std::array<VF,nb_nodes> scp;
-    //     for( TI n = 0; n < nb_nodes; ++n ) {
-    //         scp[ n ] = pos[ n ][ 0 ] * PD[ 0 ];
-    //         for( TI d = 1; d < dim; ++d )
-    //             scp[ n ] = scp[ n ] + pos[ n ][ d ] * PD[ d ];
-    //     }
-
-    //     // num case
-    //     VI nc = 0;
-    //     for( TI n = 0; n < nb_nodes; ++n )
-    //         nc = nc + ( as_SimdVec<VI>( scp[ n ] > SD ) & TI( 1 << n ) );
-
-    //     // store scalar product
-    //     for( TI n = 0; n < nb_nodes; ++n )
-    //         VF::store_aligned( scp_ptr[ n ] + beg_num_elem, scp[ n ] - SD );
-
-    //     // store indices
-    //     for( TI i = 0; i < simd_size.value; ++i )
-    //         tmp_indices_bcc[ tmp_offsets_bcc[ nc[ i ] ]++ ] = beg_num_elem + i;
-    // } );
-
-    // // reservation
-    // for( auto &creation_data : nb_created ) {
-    //     TI nb_items = 0;
-    //     for( TI i = 0; i < nb_cases; ++i )
-    //         nb_items += ( tmp_offsets_bcc[ i ] - i * len_chunk ) * creation_data.second[ i ];
-
-    //     ShapeCoords &nc = shape_list( tmp_shape_map, creation_data.first );
-    //     nc.reserve( nc.size() + nb_items );
-    // }
+        // store indices
+        for( TI i = 0; i < simd_size.value; ++i )
+            indices[ offsets[ nc[ i ] ]++ ] = beg_num_elem + i;
+    } );
 }
 
 } // namespace sdot

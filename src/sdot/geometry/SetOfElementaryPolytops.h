@@ -26,7 +26,7 @@ public:
     /***/                   SetOfElementaryPolytops ( const Arch &arch = {} );
 
     void                    add_shape               ( const std::string &name, const std::vector<Pt> pos, TI nb_elems, TI beg_id = 0, TI face_id = 0 ); ///< names in 2D flat edges: "3", "4"... (nb points). In 3D: "3E", "4S"... => nb points in the xy cirle + Extrusion/Simple, ... Add a E or a S for each new dim
-    void                    plane_cut               ( std::array<const Vec<TF,Arch> *,dim> dirs, const Vec<TF,Arch> *sps ); ///< cut for each elementary polytop id
+    void                    plane_cut               ( std::array<const TF *,dim> cut_dirs, const TF *cut_sps ); ///< cut for each elementary polytop id
     void                    clear                   ();
 
     void                    write_to_stream         ( std::ostream &os ) const;
@@ -52,8 +52,8 @@ private:
     static TI               nb_faces_for            ( const std::string &name );
 
 
-    template<int n> void    make_sp_and_cases       ( Vec<TI,Arch> &offsets, Vec<TI,Arch> &indices, Vec<TF,Arch> &sps, std::array<const Vec<TF,Arch> *,dim> cut_dirs, const Vec<TF,Arch> *cut_sps, ShapeCoords &sc, TI beg_chunk, TI len_chunk, N<n>, N<0> on_gpu );
-    template<int n> void    make_sp_and_cases       ( Vec<TI,Arch> &offsets, Vec<TI,Arch> &indices, Vec<TF,Arch> &sps, std::array<const Vec<TF,Arch> *,dim> cut_dirs, const Vec<TF,Arch> *cut_sps, ShapeCoords &sc, TI beg_chunk, TI len_chunk, N<n>, N<1> on_gpu );
+    template<int n> void    make_sp_and_cases       ( Vec<TI,Arch> &offsets, Vec<TI,Arch> &indices, Vec<TF,Arch> *sps, std::array<const TF *,dim> cut_dirs, const TF *cut_sps, TI beg_chunk, TI len_chunk, ShapeCoords &sc, N<n>, N<0> on_gpu );
+    template<int n> void    make_sp_and_cases       ( Vec<TI,Arch> &offsets, Vec<TI,Arch> &indices, Vec<TF,Arch> *sps, std::array<const TF *,dim> cut_dirs, const TF *cut_sps, TI beg_chunk, TI len_chunk, ShapeCoords &sc, N<n>, N<1> on_gpu );
     ShapeCoords&            shape_list              ( ShapeMap &shape_map, const std::string &name, TI new_rese = 1024 );
     void                    reserve                 ( ShapeCoords &sc, TI old_size, TI new_rese );
     void                    free                    ( ShapeCoords &sc );

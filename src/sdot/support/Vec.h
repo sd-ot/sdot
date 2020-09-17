@@ -24,6 +24,8 @@ public:
 
     using std::vector<T,AlignedAllocator<T,Arch>>::vector;
 
+    void  resize_wo_cp   ( std::size_t s ) { this->resize( 0 ); this->resize( s ); }
+
     void  fill_iota      ( std::size_t b, std::size_t e, T beg ) { std::iota( this->begin() + b, this->begin() + e, beg ); }
     void  fill           ( std::size_t b, std::size_t e, T val ) { std::fill( this->begin() + b, this->begin() + e, val ); }
 
@@ -54,6 +56,8 @@ public:
     //    /**/     Vec            ( const Vec<G,B,0> &that ) : thrust::device_vector<T>( that.begin(), that.end() ) {}
 
     void     write_to_stream( std::ostream &os ) const { thrust::host_vector<T> h = *this; os << h; }
+
+    void     resize_wo_cp   ( std::size_t s ) { this->resize( 0 ); this->resize( s ); }
 
     void     fill_iota      ( std::size_t b, std::size_t e, T beg ) { thrust::sequence( this->begin() + b, this->begin() + e, beg ); }
     void     fill           ( std::size_t b, std::size_t e, T val ) { thrust::fill    ( this->begin() + b, this->begin() + e, val ); }
