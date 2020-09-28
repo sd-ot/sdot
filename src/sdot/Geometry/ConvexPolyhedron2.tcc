@@ -1189,6 +1189,16 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::Unit, TF w ) c
 }
 
 template<class Pc>
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arf &arf, TF w ) const {
+    using std::pow;
+
+    arf.make_approximations_if_not_done();
+
+
+    return 0;
+}
+
+template<class Pc>
 typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::WmR2, TF w ) const {
     using std::pow;
 

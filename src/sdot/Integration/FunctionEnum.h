@@ -1,6 +1,10 @@
 #pragma once
 
 #include "../Support/N.h"
+#include <functional>
+#include <vector>
+#include <mutex>
+#include <tuple>
 #include <cmath>
 
 /**
@@ -199,6 +203,47 @@ struct PpWmR2 {
 
     template<class TF,class TS>
     void span_for_viz( const TF&, TS ) const {}
+};
+
+/// "Any Radial Func" => radial func is given by its derivatives. 
+struct Arf {
+    enum { poly_deg = 7 };
+
+    struct Approximation {
+        std::array<double,poly_deg+1> coeffs;
+        double stop;
+    };
+
+    template<class PT,class TF>
+    auto operator()( PT p, PT c, TF w ) const {
+        using std::sqrt;
+        return values( sqrt( norm_2_p2( p - c ) ), 0 );
+    }
+
+    const char *name() const {
+        return "Arf";
+    }
+
+    const auto &func_for_final_cp_integration() const {
+        return *this;
+    }
+
+    N<0> need_ball_cut() const {
+        return {};
+    }
+
+    template<class TF,class TS>
+    void span_for_viz( const TF&, TS ) const {}
+
+    void make_approximations_if_not_done() const;
+
+    //  
+    std::function<double( double r, int num_der )> values;
+    std::vector<double> stops;
+
+    //
+    mutable std::vector<Approximation> approximations;
+    mutable std::mutex mutex;
 };
 
 }
