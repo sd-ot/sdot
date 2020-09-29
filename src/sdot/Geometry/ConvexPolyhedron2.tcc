@@ -1330,12 +1330,12 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
             R_20 = R_9+R_20; res += R_20;
 
             if ( abs( ap->coeffs[ 0 ] ) > 1e-10 ) {
-                TF a = P1.x - P0.x, b = P0.x;
-                TF c = P1.y - P0.y, d = P0.y;
+                TF a = P0.x, b = P1.x - P0.x;
+                TF c = P0.y, d = P1.y - P0.y;
                 if ( TF den = b * c - a * d ) {
-                    res -= dot( P0, rot90( P1 - P0 ) ) * (
-                        atan( ( d + c * new_u ) / ( b + a * new_u ) ) -
-                        atan( ( d + c *     u ) / ( b + a *     u ) )
+                    res -= ap->coeffs[ 0 ] * dot( P0, rot90( P1 - P0 ) ) * (
+                        atan( ( c + d *     u ) / ( a + b *     u ) ) -
+                        atan( ( c + d * new_u ) / ( a + b * new_u ) )
                     ) / den;
                 }
             }
