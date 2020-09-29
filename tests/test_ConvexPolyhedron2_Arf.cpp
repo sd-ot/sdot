@@ -53,7 +53,8 @@ TEST_CASE( "Arf", "Arf" ) {
     P( icp.integration( arf,   1 ),     M_PI / 8.0 );
     P( icp.integration( arf, 0.5 ), 3 * M_PI / 128 );
 
-    // Integrate[ Integrate[ ( 1 - ( x * x + y * y ) ) * UnitStep[ 1^2 - x^2 - y^2 ], { x, 0, 1 } ], { y, 0, 1 } ] => 50.0 / 3.0
+    // Integrate[ Integrate[ ( 1 - ( x * x +  y * y ) ) * UnitStep[ 1^2 - x^2 - y^2 ], { x, 0, 1 } ], { y, 0, 1 } ] => 50.0 / 3.0
+    // Integrate[ Integrate[ ( 1/2 - ( x * x + y * y ) ) * UnitStep[ (1/2)^2 - x^2 - y^2 ], { x, 0, 1 } ], { y, 0, 1 } ] => 50.0 / 3.0
 
     // P( scp.integration( arf,  4 ), M_PI * 2 );
 }

@@ -11,18 +11,16 @@
 namespace sdot {
 namespace FunctionEnum {
 
-/** "Any Radial Func" => radial func is given by its derivatives.
- *
- (2 c ArcTan[(b c - a d)/(a b + c d)] -
- 2 c ArcTan[(b c - a d)/(a (a + b) + c (c + d))] +
- a (-Log[b^2 + d^2] + Log[(a + b)^2 + (c + d)^2]))/(2 (a^2 + c^2))
+/** "Any Radial Func" => radial func is given by function values.
+ * A polynomial approximation
  */
 struct Arfd {
     static constexpr unsigned nb_coeffs = 4;
     using TF = double;
 
     struct Approximation {
-        std::array<TF,nb_coeffs+1> coeffs; ///< sum_i coeffs_i * r^( 2 * i - 2 ) is an approximation of value( r ) for r in [ beg, end ]
+        std::array<TF,nb_coeffs> integration_coeffs; ///<
+        std::array<TF,nb_coeffs> value_coeffs; ///<
         TF beg; ///< beg radius
         TF end; ///< end radius
     };

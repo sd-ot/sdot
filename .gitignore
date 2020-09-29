@@ -23,4 +23,5 @@ vtk/
 results/
 *.pyc
 *.cpython
+scripts/
 

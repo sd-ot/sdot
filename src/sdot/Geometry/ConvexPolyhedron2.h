@@ -108,7 +108,6 @@ public:
     template<class FU> TF     measure                   ( const FU &f, TF w = 0 ) const;
     TF                        measure                   () const;
 
-
     TF                        integration               ( const FunctionEnum::Arfd &fu, TF weight = 0 ) const;
     TF                        integration               ( const FunctionEnum::Arf  &fu, TF weight = 0 ) const;
     TF                        integration               ( FunctionEnum::ExpWmR2db<TF> , TF weight = 0 ) const;
