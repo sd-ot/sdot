@@ -1190,12 +1190,91 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::Unit, TF w ) c
 
 template<class Pc>
 typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arf &arf, TF w ) const {
-    using std::pow;
-
     arf.make_approximations_if_not_done();
+    using std::sqrt;
+    using std::pow;
+    using std::min;
 
+    // v = sum_i coeffs[ i ] * r ^ ( 2 * i )
+    auto pie = [&]( auto r ) {
+        // I += sum_i int coeffs[ i ] * r ^ ( 2 * i + 1 ) dr
+        //    = sum_i 1 / ( 2 * i + 2 ) coeffs[ i ] * r ^ ( 2 * i + 2 ) dr
+        const FunctionEnum::Arf::Approximation *ap = arf.approx_for( r );
+        TF res = ap->start_integration;
+        for( unsigned p = 0; p <= FunctionEnum::Arf::poly_deg; ++p )
+            res += ap->coeffs[ p ] / ( 2 * p + 2 ) * ( pow( r, 2 * p + 2 ) - pow( ap->beg, 2 * p + 2 ) );
+        return res;
+    };
 
-    return 0;
+    // full sphere
+    if ( _nb_points == 0 ) 
+        return sphere_radius > 0 ? 2 * pi() * pie( sphere_radius ) : 0;
+
+    // arc
+    auto arc_val = [&]( Pt P0, Pt P1 ) {
+        using std::atan2;
+        using std::pow;
+        TF a0 = atan2( P0.y, P0.x );
+        TF a1 = atan2( P1.y, P1.x );
+        if ( a1 < a0 )
+            a1 += 2 * pi();
+        TF r2 = dot( P0, P0 );
+        return ( a1 - a0 ) / pie( sqrt( r2 ) );
+    };
+
+    // generated using nsmake run metil src/sdot/PowerDiagram/offline_integration/lib/gen_Arf.met
+    auto seg_val = [&]( Pt P0, Pt P1 ) {
+        const FunctionEnum::Arf::Approximation *ap = arf.approx_for( norm_2( P0 ) );
+        TF u0 = 0;
+        TF u1 = 1;
+
+        TF R_0 = ap->coeffs[ 4 ]; TF R_1 = ap->coeffs[ 3 ]; TF R_2 = 6.0*R_1; TF R_3 = 0.25*R_1;
+        TF R_4 = 0.125*R_1; TF R_5 = ap->coeffs[ 2 ]; R_5 = (1.0/6.0)*R_5; TF R_6 = ap->coeffs[ 1 ];
+        R_6 = 0.25*R_6; TF R_7 = ap->coeffs[ 0 ]; R_7 = 0.5*R_7; TF R_8 = P1.x;
+        TF R_9 = (-1.0)*R_8; TF R_10 = u1; TF R_11 = u0; TF R_12 = (-1.0)*R_11;
+        R_12 = R_10+R_12; TF R_13 = pow(R_12,9); TF R_14 = pow(R_12,7); TF R_15 = pow(R_12,5);
+        TF R_16 = pow(R_12,3); R_10 = R_11+R_10; R_11 = R_8*R_10; R_11 = 0.5*R_11;
+        TF R_17 = -0.5*R_10; R_17 = 1.0+R_17; TF R_18 = P0.x; TF R_19 = (-1.0)*R_18;
+        R_19 = R_8+R_19; R_8 = pow(R_19,2); R_9 = R_18+R_9; R_18 = R_18*R_17;
+        R_11 = R_18+R_11; R_18 = R_19*R_11; TF R_20 = pow(R_11,2); TF R_21 = P0.y;
+        TF R_22 = (-1.0)*R_21; R_17 = R_21*R_17; TF R_23 = P1.y; R_22 = R_23+R_22;
+        TF R_24 = R_9*R_22; TF R_25 = pow(R_22,2); R_25 = R_8+R_25; R_8 = pow(R_25,3);
+        R_10 = R_23*R_10; R_10 = 0.5*R_10; R_17 = R_10+R_17; R_22 = R_22*R_17;
+        R_22 = R_18+R_22; R_18 = pow(R_22,2); R_10 = R_0*R_18; TF R_26 = 384.0*R_10;
+        TF R_27 = 1728.0*R_10; R_10 = (192.0/5.0)*R_10; TF R_28 = pow(R_17,2); R_28 = R_20+R_28;
+        R_20 = R_0*R_28; TF R_29 = (96.0/5.0)*R_20; R_29 = R_2+R_29; R_2 = R_18*R_29;
+        R_29 = R_25*R_29; TF R_30 = 15.0*R_29; R_26 = R_30+R_26; R_27 = R_30+R_27;
+        R_29 = 5.0*R_29; R_29 = R_10+R_29; R_29 = R_18*R_29; R_10 = (2.0/5.0)*R_20;
+        R_10 = R_3+R_10; R_10 = R_28*R_10; R_3 = (12.0/5.0)*R_20; R_3 = R_1+R_3;
+        R_3 = R_28*R_3; R_20 = (1.0/10.0)*R_20; R_20 = R_4+R_20; R_20 = R_28*R_20;
+        R_20 = R_5+R_20; R_5 = 2.0*R_20; R_5 = R_10+R_5; R_10 = R_28*R_5;
+        R_5 = 4.0*R_5; R_5 = R_3+R_5; R_3 = R_25*R_5; R_3 = 3.0*R_3;
+        R_3 = R_2+R_3; R_2 = R_22*R_3; R_3 = R_25*R_3; R_3 = R_29+R_3;
+        R_18 = R_5*R_18; R_20 = R_28*R_20; R_20 = R_6+R_20; R_6 = 2.0*R_20;
+        R_6 = R_10+R_6; R_10 = R_22*R_6; R_6 = R_25*R_6; R_6 = R_18+R_6;
+        R_20 = R_28*R_20; R_20 = R_7+R_20; R_17 = R_9*R_17; R_23 = (-1.0)*R_23;
+        R_21 = R_23+R_21; R_19 = R_21*R_19; R_19 = (-1.0)*R_19; R_24 = R_19+R_24;
+        R_22 = R_24*R_22; R_19 = 32256.0*R_22; R_22 = R_26*R_22; R_22 = 6.0*R_22;
+        R_2 = R_24*R_2; R_2 = 4.0*R_2; R_10 = R_24*R_10; R_10 = 2.0*R_10;
+        R_11 = R_21*R_11; R_11 = (-1.0)*R_11; R_17 = R_11+R_17; R_11 = R_25*R_17;
+        R_21 = 4032.0*R_11; R_19 = R_21+R_19; R_19 = R_8*R_19; R_19 = R_0*R_19;
+        R_13 = R_19*R_13; R_13 = (1.0/92897280.0)*R_13; R_11 = R_27*R_11; R_22 = R_11+R_22;
+        R_22 = R_25*R_22; R_14 = R_22*R_14; R_14 = (1.0/322560.0)*R_14; R_3 = R_17*R_3;
+        R_2 = R_3+R_2; R_15 = R_2*R_15; R_15 = (1.0/1920.0)*R_15; R_6 = R_17*R_6;
+        R_10 = R_6+R_10; R_16 = R_10*R_16; R_16 = (1.0/24.0)*R_16; R_20 = R_17*R_20;
+        R_12 = R_20*R_12; R_16 = R_12+R_16; R_15 = R_16+R_15; R_14 = R_15+R_14;
+        R_13 = R_14+R_13; 
+        return R_13;
+    };
+
+    TF res = 0;
+    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+        if ( arcs[ i0 ] )
+            res += arc_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+        else
+            res += seg_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+    }
+    return res;
 }
 
 template<class Pc>

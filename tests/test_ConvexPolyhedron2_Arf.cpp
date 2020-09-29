@@ -15,23 +15,22 @@ TEST_CASE( "Arf", "Arf" ) {
     using  Pt = LC::Pt;
 
     // box { 0, 0 }, { 2, 1 }
-    LC icp( LC::Box{ { 0, 0 }, { 2, 1 } } );
+    LC icp( LC::Box{ { 0, 0 }, { 0.2, 0.1 } } );
     icp.sphere_center = { 0, 0 };
 
     //
     FunctionEnum::Arf arf;
-    arf.values = []( double r, int num_der ) -> double {
+    arf.values = []( double r ) -> double {
         if ( r > 1 )
             return 0;
-        using std::pow;    
+        using std::pow;
         return ( 1 - r * r );
     };
     arf.stops = { 1.0 };
 
-    P( icp.integration( arf, 1 ) );
-    P( icp.integration( arf, 1 ) );
-    
-    // w - r^2. With wolfram alpha: Integrate[ Integrate[ 10 - ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ]
-    // w = 10; Integrate[ Integrate[ x * ( 10 - ( x * x + y * y ) ), { x, 0, 2 } ], { y, 0, 1 } ] / Integrate[ Integrate[ 10 - ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ]
+    // w - r^2.
+    // Integrate[ Integrate[ 1 - ( x * x + y * y ), { x, 0, 0.2 } ], { y, 0, 0.1 } ] => 0.0196667
+    // Integrate[ Integrate[ x * ( 10 - ( x * x + y * y ) ), { x, 0, 2 } ], { y, 0, 1 } ] / Integrate[ Integrate[ 10 - ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ]
     // CHECK_THAT( icp.integration( arf, 1 )     , WithinAbs( 50.0 /  3.0, 1e-5 ) );
+    P( icp.integration( arf, 1 ) );
 }

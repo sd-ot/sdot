@@ -207,17 +207,20 @@ struct PpWmR2 {
 
 /// "Any Radial Func" => radial func is given by its derivatives. 
 struct Arf {
-    enum { poly_deg = 7 };
+    enum { poly_deg = 4 };
+    using TF = double;
 
     struct Approximation {
-        std::array<double,poly_deg+1> coeffs;
-        double stop;
+        std::array<TF,poly_deg+1> coeffs;
+        TF start_integration;
+        TF beg;
+        TF end;
     };
 
     template<class PT,class TF>
     auto operator()( PT p, PT c, TF w ) const {
         using std::sqrt;
-        return values( sqrt( norm_2_p2( p - c ) ), 0 );
+        return values( sqrt( norm_2_p2( p - c ) ) );
     }
 
     const char *name() const {
@@ -236,10 +239,13 @@ struct Arf {
     void span_for_viz( const TF&, TS ) const {}
 
     void make_approximations_if_not_done() const;
+    const Approximation *approx_for( TF r ) const;
+
+    void _append_approx( TF beg, TF end ) const;
 
     //  
-    std::function<double( double r, int num_der )> values;
-    std::vector<double> stops;
+    std::function<TF( TF r )> values;
+    std::vector<TF> stops;
 
     //
     mutable std::vector<Approximation> approximations;
