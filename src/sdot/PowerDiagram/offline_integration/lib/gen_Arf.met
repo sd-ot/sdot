@@ -11,13 +11,13 @@ def part_int( coeffs, u0 = 0, u1 = 1, with_os = true )
 
     val := Op()
     for i in 0 .. coeffs.size
-        val += coeffs[ i ] / ( 2 * i + 2 ) * dot( Pi, Pi ) ^ i
+        val += coeffs[ i ] * dot( Pi, Pi ) ^ i
     val *= dot( Pi, N )
 
     res := polynomial_integration( val, u, u0, u1, deg_poly_max = 20 )
 
     cw := CodeWriter( "TF" )
-    cw.add( "result", res, init )
+    cw.add( "res", res, add )
     print cw.to_string( 4 )
 
 def centroid()
@@ -43,9 +43,10 @@ def centroid()
 
 print( "========= integration" )
 # w := symbol( "w" )
-u0 := symbol( "u0" )
-u1 := symbol( "u1" )
-coeffs := Vec[ Op, 5 ]( p => symbol( "ap->coeffs[ $p ]" ) )
+u0 := symbol( "u" )
+u1 := symbol( "new_u" )
+coeffs := Vec[ Op, 4 ]( p => symbol( "ap->coeffs[ $( p + 1 ) ]" ) )
+print "static_assert( FunctionEnum::Arfd::nb_coeffs == ${ coeffs.size }, \"\" );"
 part_int( coeffs, u0, u1 )
 
 print( "========= centroid" )

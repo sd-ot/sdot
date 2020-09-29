@@ -10,7 +10,7 @@
 namespace sdot {
 
 template<class Pc>
-ConvexPolyhedron2<Pc>::ConvexPolyhedron2( const EnglobingSimplex &es, CI cut_id ) {
+ConvexPolyhedron2<Pc>::ConvexPolyhedron2( const EnglobingSimplex &/*es*/, CI /*cut_id*/ ) {
     TODO;
 }
 
@@ -77,12 +77,12 @@ typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_we
 }
 
 template<class Pc>
-typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( FunctionEnum::WmR2 fu, TF weight ) const {
+typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( FunctionEnum::WmR2 /*fu*/, TF weight ) const {
     return integration( FunctionEnum::Unit(), weight );
 }
 
 template<class Pc>
-template<class FU> typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( FU, TF weight ) const {
+template<class FU> typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( FU, TF /*weight*/ ) const {
     return 0;
 }
 
@@ -147,7 +147,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF> 
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::WmR2 e, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::WmR2 /*e*/, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
     using std::sqrt;
     using std::pow;
 
@@ -188,12 +188,12 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::WmR2 e, const 
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::R2, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::R2, const std::function<void( const BoundaryItem &boundary_item )> &/*f*/, TF /*weight*/ ) const {
     TODO;
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::Unit, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::Unit, const std::function<void( const BoundaryItem &boundary_item )> &f, TF /*weight*/ ) const {
     if ( _nb_points == 0 ) {
         if ( sphere_radius >= 0 ) {
             BoundaryItem item;
@@ -753,7 +753,7 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
 
 
 template<class Pc>
-bool ConvexPolyhedron2<Pc>::is_a_cutting_plane( Pt origin, Pt normal ) const {
+bool ConvexPolyhedron2<Pc>::is_a_cutting_plane( Pt /*origin*/, Pt /*normal*/ ) const {
     TODO;
     //    for( std::size_t i = 0; i < _cuts.size(); ++i ) {
     //        bool inside = dot( _cuts[ i ].point - origin, normal ) <= 0;
@@ -782,7 +782,7 @@ typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::distance( const Pt &po
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::clear( Pt englobing_center, TF englobing_radius, CI englobing_cut_id ) {
+void ConvexPolyhedron2<Pc>::clear( Pt /*englobing_center*/, TF /*englobing_radius*/, CI /*englobing_cut_id*/ ) {
     //    _sphere_center = englobing_center;
     //    _sphere_radius = -1;
 
@@ -807,7 +807,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea ) const {
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::Unit, SpaceFunctions::Constant<TF> sf, TF w ) const {
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::Unit, SpaceFunctions::Constant<TF> sf, TF /*w*/ ) const {
     using std::pow;
     //    auto arc_val = [&]( PT P0, PT P1 ) {
     //        using std::atan2;
@@ -897,7 +897,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::WmR2 func, SpaceFunctions::Constant<TF> sf, TF w ) const {
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::WmR2 /*func*/, SpaceFunctions::Constant<TF> /*sf*/, TF w ) const {
     // hand coded version
     auto arc_val = [&]( Pt P0, Pt P1 ) {
         using std::atan2;
@@ -1002,7 +1002,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::ExpWmR2db<TF> func, SpaceFunctions::Constant<TF> sf, TF w ) const {
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::ExpWmR2db<TF> func, SpaceFunctions::Constant<TF> sf, TF /*w*/ ) const {
     using std::sqrt;
 
     // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function Gaussian --end-log-scale 10 --precision 1e-10 --centroid
@@ -1048,7 +1048,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::R2, SpaceFunctions::Constant<TF> sf, TF w ) const {
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &/*ctd*/, TF &/*mea*/, FunctionEnum::R2, SpaceFunctions::Constant<TF> /*sf*/, TF /*w*/ ) const {
     TODO;
 }
 
@@ -1135,7 +1135,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::boundary_measure() const {
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::Unit, TF w ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::Unit, TF /*w*/ ) const {
     //    // nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function Unit --end-log-scale 100 --precision 1e-10 -r 100 -l 100
     //    if ( _cuts.empty() )
     //        return _sphere_radius > 0 ? 2 * pi() * 0.5 * pow( _sphere_radius, 2 ) : 0;
@@ -1189,31 +1189,49 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::Unit, TF w ) c
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arf &arf, TF w ) const {
-    arf.make_approximations_if_not_done();
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &arf, TF w ) const {
+    using std::atan2;
     using std::sqrt;
     using std::pow;
     using std::min;
 
+    //
+    arf.make_approximations_if_not_done();
+
     // v = sum_i coeffs[ i ] * r ^ ( 2 * i )
     auto pie = [&]( auto r ) {
+        TODO;
         // I += sum_i int coeffs[ i ] * r ^ ( 2 * i + 1 ) dr
         //    = sum_i 1 / ( 2 * i + 2 ) coeffs[ i ] * r ^ ( 2 * i + 2 ) dr
-        const FunctionEnum::Arf::Approximation *ap = arf.approx_for( r );
-        TF res = ap->start_integration;
-        for( unsigned p = 0; p <= FunctionEnum::Arf::poly_deg; ++p )
+        const FunctionEnum::Arfd::Approximation *ap = arf.approx_for( r );
+        TF res = 0; // ap->start_integration;
+        for( unsigned p = 0; p < FunctionEnum::Arf::nb_coeffs; ++p )
             res += ap->coeffs[ p ] / ( 2 * p + 2 ) * ( pow( r, 2 * p + 2 ) - pow( ap->beg, 2 * p + 2 ) );
         return res;
     };
 
     // full sphere
-    if ( _nb_points == 0 ) 
-        return sphere_radius > 0 ? 2 * pi() * pie( sphere_radius ) : 0;
+    if ( _nb_points == 0 ) {
+        TODO;
+        //        if ( sphere_radius <= 0 )
+        //            return 0;
+        //        TF r = sphere_radius, inp_scaling = 1;
+        //        if ( arf.inp_scaling ) {
+        //            inp_scaling = arf.inp_scaling( w );
+        //            r *= inp_scaling;
+        //        }
+
+        //        TF res = 2 * pi() * pie( r );
+
+        //        if ( arf.out_scaling )
+        //            res *= arf.out_scaling( w );
+        //        if ( arf.inp_scaling )
+        //            res /= inp_scaling * inp_scaling;
+        //        return res;
+    }
 
     // arc
     auto arc_val = [&]( Pt P0, Pt P1 ) {
-        using std::atan2;
-        using std::pow;
         TF a0 = atan2( P0.y, P0.x );
         TF a1 = atan2( P1.y, P1.x );
         if ( a1 < a0 )
@@ -1222,59 +1240,139 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arf &arf
         return ( a1 - a0 ) / pie( sqrt( r2 ) );
     };
 
-    // generated using nsmake run metil src/sdot/PowerDiagram/offline_integration/lib/gen_Arf.met
+    // segment
     auto seg_val = [&]( Pt P0, Pt P1 ) {
-        const FunctionEnum::Arf::Approximation *ap = arf.approx_for( norm_2( P0 ) );
-        TF u0 = 0;
-        TF u1 = 1;
+        const FunctionEnum::Arfd::Approximation *ap = arf.approx_for( norm_2( P0 ) );
+        TF res = 0;
+        for( TF u = 0; ; ) {
+            const FunctionEnum::Arfd::Approximation *new_ap = ap;
+            TF new_u = 1;
 
-        TF R_0 = ap->coeffs[ 4 ]; TF R_1 = ap->coeffs[ 3 ]; TF R_2 = 6.0*R_1; TF R_3 = 0.25*R_1;
-        TF R_4 = 0.125*R_1; TF R_5 = ap->coeffs[ 2 ]; R_5 = (1.0/6.0)*R_5; TF R_6 = ap->coeffs[ 1 ];
-        R_6 = 0.25*R_6; TF R_7 = ap->coeffs[ 0 ]; R_7 = 0.5*R_7; TF R_8 = P1.x;
-        TF R_9 = (-1.0)*R_8; TF R_10 = u1; TF R_11 = u0; TF R_12 = (-1.0)*R_11;
-        R_12 = R_10+R_12; TF R_13 = pow(R_12,9); TF R_14 = pow(R_12,7); TF R_15 = pow(R_12,5);
-        TF R_16 = pow(R_12,3); R_10 = R_11+R_10; R_11 = R_8*R_10; R_11 = 0.5*R_11;
-        TF R_17 = -0.5*R_10; R_17 = 1.0+R_17; TF R_18 = P0.x; TF R_19 = (-1.0)*R_18;
-        R_19 = R_8+R_19; R_8 = pow(R_19,2); R_9 = R_18+R_9; R_18 = R_18*R_17;
-        R_11 = R_18+R_11; R_18 = R_19*R_11; TF R_20 = pow(R_11,2); TF R_21 = P0.y;
-        TF R_22 = (-1.0)*R_21; R_17 = R_21*R_17; TF R_23 = P1.y; R_22 = R_23+R_22;
-        TF R_24 = R_9*R_22; TF R_25 = pow(R_22,2); R_25 = R_8+R_25; R_8 = pow(R_25,3);
-        R_10 = R_23*R_10; R_10 = 0.5*R_10; R_17 = R_10+R_17; R_22 = R_22*R_17;
-        R_22 = R_18+R_22; R_18 = pow(R_22,2); R_10 = R_0*R_18; TF R_26 = 384.0*R_10;
-        TF R_27 = 1728.0*R_10; R_10 = (192.0/5.0)*R_10; TF R_28 = pow(R_17,2); R_28 = R_20+R_28;
-        R_20 = R_0*R_28; TF R_29 = (96.0/5.0)*R_20; R_29 = R_2+R_29; R_2 = R_18*R_29;
-        R_29 = R_25*R_29; TF R_30 = 15.0*R_29; R_26 = R_30+R_26; R_27 = R_30+R_27;
-        R_29 = 5.0*R_29; R_29 = R_10+R_29; R_29 = R_18*R_29; R_10 = (2.0/5.0)*R_20;
-        R_10 = R_3+R_10; R_10 = R_28*R_10; R_3 = (12.0/5.0)*R_20; R_3 = R_1+R_3;
-        R_3 = R_28*R_3; R_20 = (1.0/10.0)*R_20; R_20 = R_4+R_20; R_20 = R_28*R_20;
-        R_20 = R_5+R_20; R_5 = 2.0*R_20; R_5 = R_10+R_5; R_10 = R_28*R_5;
-        R_5 = 4.0*R_5; R_5 = R_3+R_5; R_3 = R_25*R_5; R_3 = 3.0*R_3;
-        R_3 = R_2+R_3; R_2 = R_22*R_3; R_3 = R_25*R_3; R_3 = R_29+R_3;
-        R_18 = R_5*R_18; R_20 = R_28*R_20; R_20 = R_6+R_20; R_6 = 2.0*R_20;
-        R_6 = R_10+R_6; R_10 = R_22*R_6; R_6 = R_25*R_6; R_6 = R_18+R_6;
-        R_20 = R_28*R_20; R_20 = R_7+R_20; R_17 = R_9*R_17; R_23 = (-1.0)*R_23;
-        R_21 = R_23+R_21; R_19 = R_21*R_19; R_19 = (-1.0)*R_19; R_24 = R_19+R_24;
-        R_22 = R_24*R_22; R_19 = 32256.0*R_22; R_22 = R_26*R_22; R_22 = 6.0*R_22;
-        R_2 = R_24*R_2; R_2 = 4.0*R_2; R_10 = R_24*R_10; R_10 = 2.0*R_10;
-        R_11 = R_21*R_11; R_11 = (-1.0)*R_11; R_17 = R_11+R_17; R_11 = R_25*R_17;
-        R_21 = 4032.0*R_11; R_19 = R_21+R_19; R_19 = R_8*R_19; R_19 = R_0*R_19;
-        R_13 = R_19*R_13; R_13 = (1.0/92897280.0)*R_13; R_11 = R_27*R_11; R_22 = R_11+R_22;
-        R_22 = R_25*R_22; R_14 = R_22*R_14; R_14 = (1.0/322560.0)*R_14; R_3 = R_17*R_3;
-        R_2 = R_3+R_2; R_15 = R_2*R_15; R_15 = (1.0/1920.0)*R_15; R_6 = R_17*R_6;
-        R_10 = R_6+R_10; R_16 = R_10*R_16; R_16 = (1.0/24.0)*R_16; R_20 = R_17*R_20;
-        R_12 = R_20*R_12; R_16 = R_12+R_16; R_15 = R_16+R_15; R_14 = R_15+R_14;
-        R_13 = R_14+R_13; 
-        return R_13;
+            // test if line is going to cut a circle at a lower index
+            if ( ap->beg ) {
+                TF d = ap->beg; d = - d; TF b = P0.y; TF R_2 = pow( b, 2 );
+                TF a = (-1.0)*b; TF R_4 = P1.y; a += R_4; b *= a;
+                a *= a; R_4 = P0.x; TF R_5 = pow(R_4,2); R_2 += R_5;
+                d = R_2+d; R_2 = (-1.0)*R_4; R_5 = P1.x;
+                R_2 = R_5+R_2; R_4 = R_4*R_2; b += R_4; R_4 = pow(b,2);
+                b = (-1.0)*b; R_2 = pow(R_2,2); a = R_2+a;
+                d = R_4 - a * d;
+                if ( d > 0 ) {
+                    TF prop_u = ( b - sqrt( d ) ) / a;
+                    if ( prop_u > u && prop_u < new_u ) {
+                        new_ap = ap - 1;
+                        new_u = prop_u;
+                    }
+                    prop_u = ( b + sqrt( d ) ) / a;
+                    if ( prop_u > u && prop_u < new_u ) {
+                        new_ap = ap - 1;
+                        new_u = prop_u;
+                    }
+                }
+            }
+
+            // test if line is going to cut a circle at an higher index
+            if ( ap->end != std::numeric_limits<TF>::max() ) {
+                TF a; TF b; TF d;
+
+                TF R_0 = ap->end; R_0 = (-1.0)*R_0; TF R_1 = P0.y; TF R_2 = pow(R_1,2);
+                TF R_3 = (-1.0)*R_1; TF R_4 = P1.y; R_3 = R_4+R_3; R_1 = R_1*R_3;
+                R_3 = pow(R_3,2); R_4 = P0.x; TF R_5 = pow(R_4,2); R_2 = R_5+R_2;
+                R_0 = R_2+R_0; R_2 = (-1.0)*R_4; R_5 = P1.x;
+                R_2 = R_5+R_2; R_4 = R_4*R_2; R_1 = R_4+R_1; R_4 = pow(R_1,2);
+                R_1 = (-1.0)*R_1; b = R_1; R_2 = pow(R_2,2); R_3 = R_2+R_3;
+                a = R_3; R_0 = R_3*R_0; R_0 = (-1.0)*R_0; R_0 = R_4+R_0;
+                d = R_0;
+                if ( d > 0 ) {
+                    TF prop_u = ( b - sqrt( d ) ) / a;
+                    if ( prop_u > u && prop_u < new_u ) {
+                        new_ap = ap + 1;
+                        new_u = prop_u;
+                    }
+                    prop_u = ( b + sqrt( d ) ) / a;
+                    if ( prop_u > u && prop_u < new_u ) {
+                        new_ap = ap + 1;
+                        new_u = prop_u;
+                    }
+                }
+            }
+
+            // generated using metil src/sdot/PowerDiagram/offline_integration/lib/gen_Arf.met
+            // integration on sub part of the line
+            static_assert( FunctionEnum::Arfd::nb_coeffs == 4, "" );
+            TF R_0 = ap->coeffs[ 2 ]; TF R_1 = ap->coeffs[ 1 ]; TF R_2 = ap->coeffs[ 4 ]; TF R_3 = ap->coeffs[ 3 ];
+            TF R_4 = 2.0*R_3; TF R_5 = 4.0*R_3; TF R_6 = 12.0*R_3; TF R_7 = P0.x;
+            TF R_8 = (-1.0)*R_7; TF R_9 = P1.x; TF R_10 = (-1.0)*R_9; R_10 = R_7+R_10;
+            R_8 = R_9+R_8; TF R_11 = pow(R_8,2); TF R_12 = P0.y; TF R_13 = (-1.0)*R_12;
+            TF R_14 = P1.y; R_13 = R_14+R_13; TF R_15 = pow(R_13,2); R_15 = R_11+R_15;
+            R_11 = pow(R_15,2); TF R_16 = R_10*R_13; TF R_17 = (-1.0)*R_14; R_17 = R_17+R_12;
+            TF R_18 = R_17*R_8; R_18 = (-1.0)*R_18; R_16 = R_18+R_16; R_18 = u;
+            TF R_19 = (-1.0)*R_18; TF R_20 = new_u; R_18 = R_18+R_20; R_14 = R_14*R_18;
+            R_14 = 0.5*R_14; R_9 = R_9*R_18; R_9 = 0.5*R_9; R_18 = -0.5*R_18;
+            R_18 = 1.0+R_18; R_12 = R_12*R_18; R_12 = R_14+R_12; R_10 = R_10*R_12;
+            R_14 = pow(R_12,2); R_12 = R_13*R_12; R_18 = R_7*R_18; R_9 = R_18+R_9;
+            R_17 = R_17*R_9; R_17 = (-1.0)*R_17; R_10 = R_17+R_10; R_17 = R_15*R_10;
+            R_17 = 720.0*R_17; R_18 = pow(R_9,2); R_14 = R_18+R_14; R_18 = R_2*R_14;
+            R_7 = 3.0*R_18; R_7 = R_4+R_7; R_7 = R_14*R_7; R_7 = R_0+R_7;
+            R_4 = R_15*R_7; R_13 = 12.0*R_18; R_13 = R_5+R_13; R_3 = R_3+R_18;
+            R_3 = R_14*R_3; R_3 = R_0+R_3; R_3 = R_14*R_3; R_3 = R_1+R_3;
+            R_3 = R_10*R_3; R_18 = 36.0*R_18; R_18 = R_6+R_18; R_18 = R_15*R_18;
+            R_9 = R_8*R_9; R_12 = R_9+R_12; R_9 = R_16*R_12; R_9 = 4320.0*R_9;
+            R_9 = R_17+R_9; R_9 = R_11*R_9; R_9 = R_2*R_9; R_7 = R_12*R_7;
+            R_7 = R_16*R_7; R_7 = 2.0*R_7; R_11 = pow(R_12,2); R_13 = R_13*R_11;
+            R_4 = R_13+R_4; R_4 = R_10*R_4; R_7 = R_4+R_7; R_11 = R_2*R_11;
+            R_2 = 144.0*R_11; R_2 = R_18+R_2; R_2 = R_15*R_2; R_2 = R_10*R_2;
+            R_2 = (1.0/30.0)*R_2; R_11 = 24.0*R_11; R_11 = R_18+R_11; R_11 = R_12*R_11;
+            R_11 = R_16*R_11; R_11 = (2.0/15.0)*R_11; R_2 = R_11+R_2; R_19 = R_20+R_19;
+            R_20 = pow(R_19,7); R_20 = R_9*R_20; R_20 = (1.0/322560.0)*R_20; R_9 = pow(R_19,3);
+            R_9 = R_7*R_9; R_9 = (1.0/12.0)*R_9; R_3 = R_3*R_19; R_9 = R_3+R_9;
+            R_19 = pow(R_19,5); R_2 = R_19*R_2; R_2 = (1.0/32.0)*R_2; R_9 = R_2+R_9;
+            R_20 = R_9+R_20; res += R_20;
+
+            if ( abs( ap->coeffs[ 0 ] ) > 1e-10 ) {
+                TF a = P1.x - P0.x, b = P0.x;
+                TF c = P1.y - P0.y, d = P0.y;
+                if ( TF den = b * c - a * d ) {
+                    res -= dot( P0, rot90( P1 - P0 ) ) * (
+                        atan( ( d + c * new_u ) / ( b + a * new_u ) ) -
+                        atan( ( d + c *     u ) / ( b + a *     u ) )
+                    ) / den;
+                }
+            }
+
+            // next disc
+            if ( new_u >= 1 )
+                break;
+            ap = new_ap;
+            u = new_u;
+        }
+
+        return res;
     };
 
-    TF res = 0;
+    TF res = 0, inp_scaling = 1;
+    if ( arf.inp_scaling )
+        inp_scaling = arf.inp_scaling( w );
+
     for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
         if ( arcs[ i0 ] )
-            res += arc_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+            res += arc_val( inp_scaling * ( point( i0 ) - sphere_center ), inp_scaling * ( point( i1 ) - sphere_center ) );
         else
-            res += seg_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
+            res += seg_val( inp_scaling * ( point( i0 ) - sphere_center ), inp_scaling * ( point( i1 ) - sphere_center ) );
     }
+
+    if ( arf.out_scaling )
+        res *= arf.out_scaling( w );
+    if ( arf.inp_scaling )
+        res /= inp_scaling * inp_scaling;
+
     return res;
+}
+
+template<class Pc>
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arf &/*arf*/, TF /*w*/ ) const {
+    TODO;
+    return 0;
 }
 
 template<class Pc>
@@ -1324,7 +1422,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::WmR2, TF w ) c
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R2, TF w ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R2, TF /*w*/ ) const {
     using std::pow;
 
     // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function R2 --end-log-scale 100 --precision 1e-10 -r 100 -l 100
@@ -1368,7 +1466,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R2, TF w ) con
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R4, TF w ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R4, TF /*w*/ ) const {
     using std::pow;
 
     // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function R4 --end-log-scale 100 --precision 1e-10 -r 100 -l 100
@@ -1420,7 +1518,7 @@ typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration( SpaceFunc
 }
 
 template<class Pc> template<class FU>
-typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::centroid_ap( const FU &func, std::size_t n ) const {
+typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::centroid_ap( const FU &/*func*/, std::size_t /*n*/ ) const {
     TODO;
     return {};
     //    auto rd01 = []() {
@@ -1470,7 +1568,7 @@ typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::centroid_ap( const FU 
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::measure_ap( TF max_ratio_area_error ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::measure_ap( TF /*max_ratio_area_error*/ ) const {
     TODO;
     return 0;
     //    std::vector<PT> points;
@@ -1530,7 +1628,7 @@ void ConvexPolyhedron2<Pc>::_centroid_arc( Pt &ctd, TF &mea, Pt p0, Pt p1, TF co
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::boundary_measure_ap( TF max_ratio_area_error ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::boundary_measure_ap( TF /*max_ratio_area_error*/ ) const {
     TODO;
     return 0;
     //    std::vector<PT> lines;
@@ -1577,7 +1675,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::_arc_area( Pt p0, Pt p1 ) const {
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::display_html_canvas( std::ostream &os, TF weight, bool ext ) const {
+void ConvexPolyhedron2<Pc>::display_html_canvas( std::ostream &os, TF /*weight*/, bool ext ) const {
     using std::atan2;
     using std::cos;
     using std::sin;
@@ -1722,7 +1820,7 @@ void ConvexPolyhedron2<Pc>::display( V &vo, const typename V::CV &cell_data, boo
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::for_each_approx_seg( const std::function<void( Pt )> &f, TF max_ratio_area_error ) const {
+void ConvexPolyhedron2<Pc>::for_each_approx_seg( const std::function<void( Pt )> &f, TF /*max_ratio_area_error*/ ) const {
     using std::atan2;
 
     if ( _nb_points == 0 ) {
@@ -1787,7 +1885,7 @@ void ConvexPolyhedron2<Pc>::for_each_node( const std::function<void( Pt )> &f ) 
 }
 
 template<class Pc> template<class Fu>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration_ap( const Fu &func, std::size_t n ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::integration_ap( const Fu &/*func*/, std::size_t /*n*/ ) const {
     TODO;
     return 0;
     //    auto rd01 = []() {

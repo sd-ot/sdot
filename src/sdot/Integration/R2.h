@@ -1,27 +1,26 @@
 #pragma once
 
-#include "WmR2.h"
+#include "../Support/N.h"
+#include <cmath>
 
 namespace sdot {
 namespace FunctionEnum {
 
-/// pos_part( w - r * r )
-struct PpWmR2 {
+struct R2 {
     template<class PT,class TF>
-    auto operator()( PT p, PT c, TF w ) const {
-        auto r2 = norm_2_p2( p - c );
-        return ( w - r2 ) * ( r2 <= w );
+    auto operator()( PT p, PT c, TF /*w*/ ) const {
+        return norm_2_p2( p - c );
     }
 
     const char *name() const {
-        return "PpWmR2";
+        return "R2";
     }
 
     auto func_for_final_cp_integration() const {
-        return WmR2{};
+        return *this;
     }
 
-    N<1> need_ball_cut() const {
+    N<0> need_ball_cut() const {
         return {};
     }
 

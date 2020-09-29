@@ -123,7 +123,7 @@ TEST_CASE( "cases_1" ) {
 TEST_CASE( "known_values" ) {
     struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; using CI = std::string; }; // boost::multiprecision::mpfr_float_100
     using  LC = ConvexPolyhedron2<Pc>;
-    using  TF = LC::TF;
+    //    using  TF = LC::TF;
     using  Pt = LC::Pt;
 
     LC icp( LC::Box{ { -10, -10 }, { +10, +10 } } );
@@ -232,8 +232,8 @@ TEST_CASE( "known_values" ) {
 TEST_CASE( "centroid" ) {
     struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; using CI = std::string; }; // boost::multiprecision::mpfr_float_100
     using  LC = ConvexPolyhedron2<Pc>;
-    using  TF = LC::TF;
-    using  Pt = LC::Pt;
+    //    using  TF = LC::TF;
+    //    using  Pt = LC::Pt;
 
     LC icp( LC::Box{ { -10, -10 }, { +10, +10 } } );
 
@@ -281,7 +281,7 @@ TEST_CASE( "integration_only_lines" ) {
     struct Pc { enum { dim = 2, allow_ball_cut = 1 }; using TI = std::size_t; using TF = double; using CI = std::string; }; // boost::multiprecision::mpfr_float_100
     using  LC = ConvexPolyhedron2<Pc>;
     using  TF = LC::TF;
-    using  Pt = LC::Pt;
+    //    using  Pt = LC::Pt;
 
     // box { 0, 0 }, { 2, 1 }
     LC icp( LC::Box{ { 0, 0 }, { 2, 1 } } );
