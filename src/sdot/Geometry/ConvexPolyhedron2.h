@@ -128,7 +128,7 @@ public:
     // approximate computations
     TF                        boundary_measure_ap       ( TF max_ratio_area_error = 1e-4 ) const; ///<
     template<class Fu> TF     integration_ap            ( const Fu &func, TF weight = 0, std::size_t n = 1e6 ) const;
-    template<class Fu> Pt     centroid_ap               ( const Fu &func, std::size_t n = 1e6 ) const; ///<
+    template<class Fu> Pt     centroid_ap               ( const Fu &func, TF weight = 0, std::size_t n = 1e6 ) const; ///<
     TF                        measure_ap                ( TF max_ratio_area_error = 1e-4 ) const; ///<
     static TF                 pi                        () { if ( std::is_same<TF,double>::value ) return M_PI; using std::atan; return 4 * atan( TF( 1 ) ); }
 

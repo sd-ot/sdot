@@ -25,7 +25,7 @@ struct Arfd {
         TF end; ///< end radius
     };
 
-    Arfd( const std::function<TF( TF w )> &inp_scaling, const std::function<TF( TF w )> &out_scaling, const std::function<TF( TF r )> &values, const std::vector<TF> &stops );
+    Arfd( const std::function<TF( TF r )> &values, const std::function<TF( TF w )> &inp_scaling, const std::function<TF( TF w )> &out_scaling, const std::vector<TF> &stops );
     Arfd() {}
 
     template<class PT,class TF>
@@ -52,6 +52,8 @@ struct Arfd {
 
     void make_approximations_if_not_done() const;
     const Approximation *approx_for( TF r ) const;
+
+    std::size_t nb_polynomials() const { return approximations.size(); }
 
     //
     std::function<TF( TF w )> inp_scaling;

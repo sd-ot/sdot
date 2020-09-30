@@ -1,7 +1,7 @@
 def rot90( P )
     return [ - P[ 1 ], P[ 0 ] ]
 
-def part_int( coeffs, u0 = 0, u1 = 1, with_os = true )
+def part_int( coeffs, u0 = 0, u1 = 1 )
     P0   := Vec[ Op, 2 ]( [ symbol( "P0.x" ), symbol( "P0.y" ) ] ) 
     P1   := Vec[ Op, 2 ]( [ symbol( "P1.x" ), symbol( "P1.y" ) ] ) 
     N    := rot90( P0 - P1 )
@@ -20,34 +20,49 @@ def part_int( coeffs, u0 = 0, u1 = 1, with_os = true )
     cw.add( "res", res, add )
     print cw.to_string( 4 )
 
-def centroid()
-    P0  := Vec[ Op, 2 ]( [ symbol( "P0.x" ), symbol( "P0.y" ) ] ) 
-    P1  := Vec[ Op, 2 ]( [ symbol( "P1.x" ), symbol( "P1.y" ) ] ) 
+def centroid( coeffs, u0, u1 )
+    O0  := Vec[ Op, 2 ]( [ symbol( "P0.x" ), symbol( "P0.y" ) ] )
+    O1  := Vec[ Op, 2 ]( [ symbol( "P1.x" ), symbol( "P1.y" ) ] )
+    P0  := O0 + ( O1 - O0 ) * u0
+    P1  := O0 + ( O1 - O0 ) * u1
     u   := symbol( "u" )
     v   := symbol( "v" )
     w   := symbol( "w" )
     Pi  := u * P0 + v * P1
     r2  := dot( Pi, Pi )
+    is  := symbol( "inp_scaling" )
+    os  := symbol( "out_scaling" )
 
-    val := ( w - r2 ) * vect_prod( P0, P1 )
+    val := Op()
+    for i in 0 .. coeffs.size
+        val += coeffs[ i ] * dot( Pi, Pi ) ^ i
+    val *= vect_prod( P0, P1 )
 
     r_x := polynomial_integration( Pi[ 0 ] * val, v, 0, 1 - u, deg_poly_max = 20 )
     r_y := polynomial_integration( Pi[ 1 ] * val, v, 0, 1 - u, deg_poly_max = 20 )
-    r_x = polynomial_integration( r_x, u, 0, 1, deg_poly_max = 20 )
-    r_y = polynomial_integration( r_y, u, 0, 1, deg_poly_max = 20 )
+    mea := polynomial_integration(           val, v, 0, 1 - u, deg_poly_max = 20 )
+    r_x = polynomial_integration( r_x, u, 0, 1, deg_poly_max = 20 ) * os / is ^ 3
+    r_y = polynomial_integration( r_y, u, 0, 1, deg_poly_max = 20 ) * os / is ^ 3
+    mea = polynomial_integration( mea, u, 0, 1, deg_poly_max = 20 ) * os / is ^ 2
 
     cw := CodeWriter( "TF" )
-    cw.add( "r_x", r_x, add )
-    cw.add( "r_y", r_y, add )
+    cw.add( "ctd.x", r_x, add )
+    cw.add( "ctd.y", r_y, add )
+    cw.add( "lea", mea, add )
     print cw.to_string( 4 )
 
-print( "========= integration" )
-# w := symbol( "w" )
+# symbols
+ns := 4
 u0 := symbol( "u0" )
 u1 := symbol( "u1" )
-coeffs := Vec[ Op, 4 ]( p => symbol( "ap->integration_coeffs[ $( p + 1 ) ]" ) )
-print "static_assert( FunctionEnum::Arfd::nb_coeffs == ${ coeffs.size }, \"\" );"
-part_int( coeffs, u0, u1 )
+sa := "static_assert( FunctionEnum::Arfd::nb_coeffs == $ns, \"\" );"
+
+
+print( "========= integration" )
+print( sa )
+part_int( Vec[ Op, ns ]( p => symbol( "ap->integration_coeffs[ $( p + 1 ) ]" ) ), u0, u1 )
 
 print( "========= centroid" )
-# centroid()
+print( sa )
+centroid( Vec[ Op, ns ]( p => symbol( "ap->value_coeffs[ $p ]" ) ), u0, u1 )
+
