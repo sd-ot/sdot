@@ -77,11 +77,13 @@ public:
     void                    clear                    ( const Box &box, CI cut_id = {} );
 
     // computations
+    void                    for_each_boundary_measure( const FunctionEnum::Arfd &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
     void                    for_each_boundary_measure( FunctionEnum::ExpWmR2db<TF>, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
     void                    for_each_boundary_measure( FunctionEnum::WmR2         , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
     void                    for_each_boundary_measure( FunctionEnum::Unit         , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
     void                    for_each_boundary_measure( FunctionEnum::R2           , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
 
+    template<class F> void  for_each_boundary_item   ( const FunctionEnum::Arfd &r, const F &f, TF weight = 0 ) const { TODO; }
     template<class F> void  for_each_boundary_item   ( FunctionEnum::ExpWmR2db<TF>, const F &f, TF weight = 0 ) const;
     template<class F> void  for_each_boundary_item   ( FunctionEnum::WmR2         , const F &f, TF weight = 0 ) const;
     template<class F> void  for_each_boundary_item   ( FunctionEnum::Unit         , const F &f, TF weight = 0 ) const;
@@ -93,11 +95,13 @@ public:
     TF                      boundary_measure         ( FunctionEnum::Unit ) const;
     Pt                      centroid                 ( FunctionEnum::Unit ) const;
 
+    void                    add_centroid_contrib     ( Pt &ctd, TF &vol, const FunctionEnum::Arfd &r, SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const { TODO; }
     void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::ExpWmR2db<TF>, SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
     void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::WmR2         , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
     void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::Unit         , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
     void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::R2           , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
 
+    TF                      measure                  ( const FunctionEnum::Arfd &r, TF weight = 0 ) const { TODO; return 0; }
     TF                      measure                  ( FunctionEnum::ExpWmR2db<TF>, TF weight = 0 ) const;
     TF                      measure                  ( FunctionEnum::WmR2         , TF weight = 0 ) const;
     TF                      measure                  ( FunctionEnum::Unit         , TF weight = 0 ) const;
@@ -106,7 +110,7 @@ public:
     template<class F> bool  all_pos                  ( const F &f ) const;
 
     TF                      integration_der_wrt_weight( FunctionEnum::ExpWmR2db<TF>, TF weight ) const;
-    template<class FU> TF   integration_der_wrt_weight( FU, TF weight ) const;
+    template<class FU> TF   integration_der_wrt_weight( const FU &, TF weight ) const;
 
     void                    add_centroid_contrib     ( Pt &ctd, TF &vol ) const { return add_centroid_contrib( ctd, vol, FunctionEnum::Unit(), SpaceFunctions::Constant<TF>{ 1.0 } ); }    
     TF                      boundary_measure         ()                   const { return boundary_measure    ( FunctionEnum::Unit()           ); }

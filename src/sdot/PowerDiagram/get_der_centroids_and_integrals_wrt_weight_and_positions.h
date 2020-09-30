@@ -15,7 +15,7 @@ namespace sdot {
 
 */
 template<class TI,class TF,class Grid,class Bounds,class Pt,class Func>
-int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m_offsets, std::vector<TI> &m_columns, std::vector<TF> &m_values, std::vector<TF> &v_values, Grid &grid, Bounds &bounds, const Pt *positions, const TF *weights, std::size_t nb_diracs, Func radial_func, bool stop_if_void = true ) {
+int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m_offsets, std::vector<TI> &m_columns, std::vector<TF> &m_values, std::vector<TF> &v_values, Grid &grid, Bounds &bounds, const Pt *positions, const TF *weights, std::size_t nb_diracs, const Func &radial_func, bool stop_if_void = true ) {
     constexpr std::size_t dim = Grid::dim;
     constexpr std::size_t nupd = 1 + dim; // nb unknowns per dirac
     using TM = std::array<TF,nupd*nupd>;

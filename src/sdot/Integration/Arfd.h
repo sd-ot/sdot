@@ -25,6 +25,9 @@ struct Arfd {
         TF end; ///< end radius
     };
 
+    Arfd( const std::function<TF( TF w )> &inp_scaling, const std::function<TF( TF w )> &out_scaling, const std::function<TF( TF r )> &values, const std::vector<TF> &stops );
+    Arfd() {}
+
     template<class PT,class TF>
     auto operator()( PT p, PT c, TF w ) const {
         TF i = inp_scaling ? inp_scaling( w ) : 1;

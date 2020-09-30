@@ -8,6 +8,10 @@ namespace FunctionEnum {
 
 constexpr unsigned Arfd::nb_coeffs;
 
+Arfd::Arfd( const std::function<TF( TF w )> &inp_scaling, const std::function<TF( TF w )> &out_scaling, const std::function<TF( TF r )> &values, const std::vector<TF> &stops ) :  inp_scaling( inp_scaling ), out_scaling( out_scaling ), values( values ), stops( stops ) {
+
+}
+
 const Arfd::Approximation *Arfd::approx_for( TF r ) const {
     for( const Arfd::Approximation &ap : approximations )
         if ( ap.end >= r )
@@ -18,6 +22,8 @@ const Arfd::Approximation *Arfd::approx_for( TF r ) const {
 void Arfd::make_approximations_if_not_done() const {
     if ( approximations.size() )
         return;
+    std::cout << &mutex << std::endl;
+
     mutex.lock();
     if ( approximations.size() ) {
         mutex.unlock();
@@ -25,8 +31,10 @@ void Arfd::make_approximations_if_not_done() const {
     }
 
     //
-    if ( stops.empty() )
+    if ( stops.empty() ) {
+        mutex.unlock();
         TODO;
+    }
 
     // make points ( xs, ys ) of int r V( r )
     TF sum = 0;
@@ -36,6 +44,8 @@ void Arfd::make_approximations_if_not_done() const {
     //
     _append_approx( sum, stops.back(), 1e20 * stops.back() );
     approximations.back().end = std::numeric_limits<TF>::max();
+
+    // std::cout << "Nb polynomials" << std::endl;
 
     mutex.unlock();
 }
@@ -90,7 +100,6 @@ void Arfd::_append_approx( TF &sum, TF beg, TF end, unsigned nb_points ) const {
         error = max( error, abs( loc - values( x ) ) );
     }
 
-    P( beg, end, error );
     if ( error > 1e-10 ) {
         std::size_t mid = beg + ( end - beg ) / 2;
         _append_approx( sum, beg, mid, nb_points );

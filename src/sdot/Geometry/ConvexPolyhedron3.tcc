@@ -956,7 +956,7 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration_der_wrt_we
 }
 
 template<class Pc> template<class FU>
-typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration_der_wrt_weight( FU, TF weight ) const {
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration_der_wrt_weight( const FU &, TF weight ) const {
     return 0;
 }
 

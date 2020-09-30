@@ -82,7 +82,7 @@ typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_we
 }
 
 template<class Pc>
-template<class FU> typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( FU, TF /*weight*/ ) const {
+template<class FU> typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( const FU &, TF /*weight*/ ) const {
     return 0;
 }
 
@@ -95,7 +95,7 @@ bool ConvexPolyhedron2<Pc>::all_pos( const F &f ) const {
 }
 
 template<class Pc> template<class RF>
-void ConvexPolyhedron2<Pc>::for_each_boundary_measure( RF rf, const std::function<void( TF, CI )> &f, TF weight ) const {
+void ConvexPolyhedron2<Pc>::for_each_boundary_measure( const RF &rf, const std::function<void( TF, CI )> &f, TF weight ) const {
     for_each_boundary_item( rf, [&]( const BoundaryItem &boundary_item ) {
         f( boundary_item.measure, boundary_item.id );
     }, weight );
@@ -808,67 +808,6 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea ) const {
 
 template<class Pc>
 void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::Unit, SpaceFunctions::Constant<TF> sf, TF /*w*/ ) const {
-    using std::pow;
-    //    auto arc_val = [&]( PT P0, PT P1 ) {
-    //        using std::atan2;
-    //        using std::pow;
-    //        TF a0 = atan2( P0.y, P0.x );
-    //        TF a1 = atan2( P1.y, P1.x );
-    //        if ( a1 < a0 )
-    //            a1 += 2 * pi();
-    //        return ( a1 - a0 ) * 0.5 * pow( _sphere_radius, 2 );
-    //    };
-
-    //    auto seg_val = []( PT P0, PT P1 ) {
-    //        return -0.25 * ( ( P0.x + P1.x ) * ( P0.y - P1.y ) - ( P0.x - P1.x ) * ( P0.y + P1.y ) );
-    //    };
-
-    //    TF lea = 0;
-    //    if ( _cuts.empty() ) {
-    //        if ( _sphere_radius > 0 )
-    //            lea = 2 * pi() * 0.5 * pow( _sphere_radius, 2 );
-    //    } else {
-    //        for( size_t i1 = 0, i0 = _cuts.size() - 1; i1 < _cuts.size(); i0 = i1++ ) {
-    //            if ( _cuts[ i0 ].seg_type == SegType::arc )
-    //                lea += arc_val( _cuts[ i0 ].point - _sphere_center, _cuts[ i1 ].point - _sphere_center );
-    //            else
-    //                lea += seg_val( _cuts[ i0 ].point - _sphere_center, _cuts[ i1 ].point - _sphere_center );
-    //        }
-    //    }
-
-    //    // centroid part
-    //    ctd += lea * _sphere_center;
-    //    mea += lea;
-
-    //    if ( _cuts.empty() )
-    //        return;
-
-    //    auto arc_val_centroid = [&]( PT P0, PT P1 ) -> PT {
-    //        using std::atan2;
-    //        using std::pow;
-    //        using std::sin;
-    //        using std::cos;
-    //        TF a0 = atan2( P0.y, P0.x );
-    //        TF a1 = atan2( P1.y, P1.x );
-    //        if ( a1 < a0 )
-    //            a1 += 2 * pi();
-    //        TF c = ( 0.5 ) * pow( _sphere_radius, 3 );
-    //        return { c * ( sin( a1 ) - sin( a0 ) ) ,
-    //                 c * ( cos( a0 ) - cos( a1 ) ) };
-    //    };
-
-    //    auto seg_val_centroid = []( PT P0, PT P1 ) -> PT {
-    //        TF c = ( 0.125 ) * ( pow( P0.x + P1.x, 2 ) + pow( P0.y + P1.y, 2 ) ) + ( 0.04166666666666667 ) * ( pow( P1.x - P0.x, 2 ) + pow( P1.y - P0.y, 2 ) );
-    //        return { ( P1.y - P0.y ) * c, ( P0.x - P1.x ) * c };
-    //    };
-
-    //    for( size_t i1 = 0, i0 = _cuts.size() - 1; i1 < _cuts.size(); i0 = i1++ ) {
-    //        if ( _cuts[ i0 ].seg_type == SegType::arc )
-    //            ctd += arc_val_centroid( _cuts[ i0 ].point - _sphere_center, _cuts[ i1 ].point - _sphere_center );
-    //        else
-    //            ctd += seg_val_centroid( _cuts[ i0 ].point - _sphere_center, _cuts[ i1 ].point - _sphere_center );
-    //    }
-
     // hand coded version
     if ( _nb_points == 0 ) {
         if ( sphere_radius >= 0 ) {
@@ -897,7 +836,10 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::WmR2 /*func*/, SpaceFunctions::Constant<TF> /*sf*/, TF w ) const {
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::WmR2 /*func*/, SpaceFunctions::Constant<TF> sf, TF w ) const {
+    if ( sf.coeff != 1 )
+        TODO;
+
     // hand coded version
     auto arc_val = [&]( Pt P0, Pt P1 ) {
         using std::atan2;
@@ -999,6 +941,11 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
         else
             seg_val_centroid( ctd.x, ctd.y, point( i0 ) - sphere_center, point( i1 ) - sphere_center );
     }
+}
+
+template<class Pc>
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const FunctionEnum::Arfd &func, SpaceFunctions::Constant<TF> sf, TF /*w*/ ) const {
+    TODO;
 }
 
 template<class Pc>
@@ -1338,7 +1285,8 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
                 TF a1 = atan2( B.y, B.x );
                 if ( a1 < a0 )
                     a1 += 2 * pi();
-                P( ap->integration_coeffs[ 0 ], a1 - a0, u0, u1 );
+                if ( a1 - a0 > M_PI )
+                    a1 -= 2 * pi();
                 res += ap->integration_coeffs[ 0 ] * ( a1 - a0 );
             }
 
