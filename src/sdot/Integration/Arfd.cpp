@@ -102,12 +102,12 @@ void Arfd::_append_approx( TF &sum, TF beg, TF end, unsigned nb_points ) const {
     Approximation approx;
     approx.beg = beg;
     approx.end = end;
-    approx.coeffs[ 0 ] = sum;
-    for( std::size_t i = 0; i < nb_coeffs; ++i )
-        approx.coeffs[ i + 1 ] = D[ i ] * sc( i ) / ( 2 * i + 2 );
+    approx.integration_coeffs[ 0 ] = sum;
+    for( std::size_t i = 0; i < nb_coeffs; ++i ) {
+        approx.integration_coeffs[ i + 1 ] = D[ i ] * sc( i ) / ( 2 * i + 2 );
+        approx.value_coeffs[ i ] = D[ i ] * sc( i );
+    }
     approximations.push_back( approx );
-
-    P( approx.beg, approx.end, approx.coeffs );
 
     // update sum
     for( std::size_t i = 0; i < nb_coeffs; ++i )

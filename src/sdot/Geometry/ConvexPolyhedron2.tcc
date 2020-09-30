@@ -1199,15 +1199,16 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
     arf.make_approximations_if_not_done();
 
     // v = sum_i coeffs[ i ] * r ^ ( 2 * i )
-    auto pie = [&]( auto r ) {
+    auto pie = [&]( auto /*r*/ ) {
         TODO;
+        return 0;
         // I += sum_i int coeffs[ i ] * r ^ ( 2 * i + 1 ) dr
         //    = sum_i 1 / ( 2 * i + 2 ) coeffs[ i ] * r ^ ( 2 * i + 2 ) dr
-        const FunctionEnum::Arfd::Approximation *ap = arf.approx_for( r );
-        TF res = 0; // ap->start_integration;
-        for( unsigned p = 0; p < FunctionEnum::Arf::nb_coeffs; ++p )
-            res += ap->coeffs[ p ] / ( 2 * p + 2 ) * ( pow( r, 2 * p + 2 ) - pow( ap->beg, 2 * p + 2 ) );
-        return res;
+        //        const FunctionEnum::Arfd::Approximation *ap = arf.approx_for( r );
+        //        TF res = 0; // ap->start_integration;
+        //        for( unsigned p = 0; p < FunctionEnum::Arf::nb_coeffs; ++p )
+        //            res += ap->coeffs[ p ] / ( 2 * p + 2 ) * ( pow( r, 2 * p + 2 ) - pow( ap->beg, 2 * p + 2 ) );
+        //        return res;
     };
 
     // full sphere
@@ -1237,16 +1238,16 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
         if ( a1 < a0 )
             a1 += 2 * pi();
         TF r2 = dot( P0, P0 );
-        return ( a1 - a0 ) / pie( sqrt( r2 ) );
+        return ( a1 - a0 ) * pie( sqrt( r2 ) );
     };
 
     // segment
     auto seg_val = [&]( Pt P0, Pt P1 ) {
         const FunctionEnum::Arfd::Approximation *ap = arf.approx_for( norm_2( P0 ) );
         TF res = 0;
-        for( TF u = 0; ; ) {
+        for( TF u0 = 0; ; ) {
             const FunctionEnum::Arfd::Approximation *new_ap = ap;
-            TF new_u = 1;
+            TF u1 = 1;
 
             // test if line is going to cut a circle at a lower index
             if ( ap->beg ) {
@@ -1259,14 +1260,14 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
                 d = R_4 - a * d;
                 if ( d > 0 ) {
                     TF prop_u = ( b - sqrt( d ) ) / a;
-                    if ( prop_u > u && prop_u < new_u ) {
+                    if ( prop_u > u0 && prop_u < u1 ) {
                         new_ap = ap - 1;
-                        new_u = prop_u;
+                        u1 = prop_u;
                     }
                     prop_u = ( b + sqrt( d ) ) / a;
-                    if ( prop_u > u && prop_u < new_u ) {
+                    if ( prop_u > u0 && prop_u < u1 ) {
                         new_ap = ap - 1;
-                        new_u = prop_u;
+                        u1 = prop_u;
                     }
                 }
             }
@@ -1285,14 +1286,14 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
                 d = R_0;
                 if ( d > 0 ) {
                     TF prop_u = ( b - sqrt( d ) ) / a;
-                    if ( prop_u > u && prop_u < new_u ) {
+                    if ( prop_u > u0 && prop_u < u1 ) {
                         new_ap = ap + 1;
-                        new_u = prop_u;
+                        u1 = prop_u;
                     }
                     prop_u = ( b + sqrt( d ) ) / a;
-                    if ( prop_u > u && prop_u < new_u ) {
+                    if ( prop_u > u0 && prop_u < u1 ) {
                         new_ap = ap + 1;
-                        new_u = prop_u;
+                        u1 = prop_u;
                     }
                 }
             }
@@ -1300,14 +1301,15 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
             // generated using metil src/sdot/PowerDiagram/offline_integration/lib/gen_Arf.met
             // integration on sub part of the line
             static_assert( FunctionEnum::Arfd::nb_coeffs == 4, "" );
-            TF R_0 = ap->coeffs[ 2 ]; TF R_1 = ap->coeffs[ 1 ]; TF R_2 = ap->coeffs[ 4 ]; TF R_3 = ap->coeffs[ 3 ];
+            TF R_0 = ap->integration_coeffs[ 2 ]; TF R_1 = ap->integration_coeffs[ 1 ];
+            TF R_2 = ap->integration_coeffs[ 4 ]; TF R_3 = ap->integration_coeffs[ 3 ];
             TF R_4 = 2.0*R_3; TF R_5 = 4.0*R_3; TF R_6 = 12.0*R_3; TF R_7 = P0.x;
             TF R_8 = (-1.0)*R_7; TF R_9 = P1.x; TF R_10 = (-1.0)*R_9; R_10 = R_7+R_10;
             R_8 = R_9+R_8; TF R_11 = pow(R_8,2); TF R_12 = P0.y; TF R_13 = (-1.0)*R_12;
             TF R_14 = P1.y; R_13 = R_14+R_13; TF R_15 = pow(R_13,2); R_15 = R_11+R_15;
             R_11 = pow(R_15,2); TF R_16 = R_10*R_13; TF R_17 = (-1.0)*R_14; R_17 = R_17+R_12;
-            TF R_18 = R_17*R_8; R_18 = (-1.0)*R_18; R_16 = R_18+R_16; R_18 = u;
-            TF R_19 = (-1.0)*R_18; TF R_20 = new_u; R_18 = R_18+R_20; R_14 = R_14*R_18;
+            TF R_18 = R_17*R_8; R_18 = (-1.0)*R_18; R_16 = R_18+R_16; R_18 = u0;
+            TF R_19 = (-1.0)*R_18; TF R_20 = u1; R_18 = R_18+R_20; R_14 = R_14*R_18;
             R_14 = 0.5*R_14; R_9 = R_9*R_18; R_9 = 0.5*R_9; R_18 = -0.5*R_18;
             R_18 = 1.0+R_18; R_12 = R_12*R_18; R_12 = R_14+R_12; R_10 = R_10*R_12;
             R_14 = pow(R_12,2); R_12 = R_13*R_12; R_18 = R_7*R_18; R_9 = R_18+R_9;
@@ -1329,22 +1331,22 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
             R_19 = pow(R_19,5); R_2 = R_19*R_2; R_2 = (1.0/32.0)*R_2; R_9 = R_2+R_9;
             R_20 = R_9+R_20; res += R_20;
 
-            if ( abs( ap->coeffs[ 0 ] ) > 1e-10 ) {
-                TF a = P0.x, b = P1.x - P0.x;
-                TF c = P0.y, d = P1.y - P0.y;
-                if ( TF den = b * c - a * d ) {
-                    res -= ap->coeffs[ 0 ] * dot( P0, rot90( P1 - P0 ) ) * (
-                        atan( ( c + d *     u ) / ( a + b *     u ) ) -
-                        atan( ( c + d * new_u ) / ( a + b * new_u ) )
-                    ) / den;
-                }
+            if ( abs( ap->integration_coeffs[ 0 ] ) > 1e-10 ) {
+                Pt A = P0 + u0 * ( P1 - P0 );
+                Pt B = P0 + u1 * ( P1 - P0 );
+                TF a0 = atan2( A.y, A.x );
+                TF a1 = atan2( B.y, B.x );
+                if ( a1 < a0 )
+                    a1 += 2 * pi();
+                P( ap->integration_coeffs[ 0 ], a1 - a0, u0, u1 );
+                res += ap->integration_coeffs[ 0 ] * ( a1 - a0 );
             }
 
             // next disc
-            if ( new_u >= 1 )
+            if ( u1 >= 1 )
                 break;
             ap = new_ap;
-            u = new_u;
+            u0 = u1;
         }
 
         return res;
@@ -1885,50 +1887,48 @@ void ConvexPolyhedron2<Pc>::for_each_node( const std::function<void( Pt )> &f ) 
 }
 
 template<class Pc> template<class Fu>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration_ap( const Fu &/*func*/, std::size_t /*n*/ ) const {
-    TODO;
-    return 0;
-    //    auto rd01 = []() {
-    //        return rand() / ( RAND_MAX - 1.0 );
-    //    };
+typename Pc::TF ConvexPolyhedron2<Pc>::integration_ap( const Fu &func, TF w, std::size_t n ) const {
+    auto rd01 = []() {
+        return rand() / ( RAND_MAX - 1.0 );
+    };
 
-    //    auto inside_semi_planes = [&]( PT p ) {
-    //        for( size_t i1 = 0, i0 = _cuts.size() - 1; i1 < _cuts.size(); i0 = i1++ )
-    //            if ( _cuts[ i0 ].seg_type == SegType::line && dot( p - _cuts[ i0 ].point, _cuts[ i1 ].normal[ 0 ] ) > 0 )
-    //                return false;
-    //        return true;
-    //    };
+    auto inside_semi_planes = [&]( Pt p ) {
+        for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ )
+            if ( ! arcs[ i0 ] && dot( p - point( i0 ), normal( i0 ) ) > 0 )
+                return false;
+        return true;
+    };
 
-    //    PT mi, ma;
-    //    TF value{ 0 };
-    //    if ( _sphere_radius >= 0 ) {
-    //        mi = { _sphere_center.x - _sphere_radius, _sphere_center.y - _sphere_radius };
-    //        ma = { _sphere_center.x + _sphere_radius, _sphere_center.y + _sphere_radius };
+    Pt mi, ma;
+    TF value{ 0 };
+    if ( sphere_radius >= 0 ) {
+        mi = { sphere_center.x - sphere_radius, sphere_center.y - sphere_radius };
+        ma = { sphere_center.x + sphere_radius, sphere_center.y + sphere_radius };
 
-    //        for( TI i = 0; i < n; ++i ) {
-    //            PT p{ mi.x + ( ma.x - mi.x ) * rd01(), mi.y + ( ma.y - mi.y ) * rd01() };
-    //            if ( norm_2( p - _sphere_center ) <= _sphere_radius && inside_semi_planes( p ) )
-    //                value += func( p, _sphere_center );
-    //        }
-    //    } else {
-    //        if ( _cuts.empty() )
-    //            return 0;
+        for( TI i = 0; i < n; ++i ) {
+            Pt p{ mi.x + ( ma.x - mi.x ) * rd01(), mi.y + ( ma.y - mi.y ) * rd01() };
+            if ( norm_2( p - sphere_center ) <= sphere_radius && inside_semi_planes( p ) )
+                value += func( p, sphere_center, w );
+        }
+    } else {
+        if ( _nb_points == 0 )
+            return 0;
 
-    //        mi = { + std::numeric_limits<TF>::max(), + std::numeric_limits<TF>::max() };
-    //        ma = { - std::numeric_limits<TF>::max(), - std::numeric_limits<TF>::max() };
-    //        for( size_t i = 0; i < _cuts.size(); ++i ) {
-    //            mi = min( mi, _cuts[ i ].point );
-    //            ma = max( ma, _cuts[ i ].point );
-    //        }
+        mi = { + std::numeric_limits<TF>::max(), + std::numeric_limits<TF>::max() };
+        ma = { - std::numeric_limits<TF>::max(), - std::numeric_limits<TF>::max() };
+        for( size_t i = 0; i < _nb_points; ++i ) {
+            mi = min( mi, point( i ) );
+            ma = max( ma, point( i ) );
+        }
 
-    //        for( TI i = 0; i < n; ++i ) {
-    //            PT p{ mi.x + ( ma.x - mi.x ) * rd01(), mi.y + ( ma.y - mi.y ) * rd01() };
-    //            if ( inside_semi_planes( p ) )
-    //                value += func( p, _sphere_center );
-    //        }
-    //    }
+        for( TI i = 0; i < n; ++i ) {
+            Pt p{ mi.x + ( ma.x - mi.x ) * rd01(), mi.y + ( ma.y - mi.y ) * rd01() };
+            if ( inside_semi_planes( p ) )
+                value += func( p, sphere_center, w );
+        }
+    }
 
-    //    return ( ma.x - mi.x ) * ( ma.y - mi.y ) / n * value;
+    return ( ma.x - mi.x ) * ( ma.y - mi.y ) / n * value;
 }
 
 template<class Pc> template<class Coeffs>

@@ -43,9 +43,9 @@ def centroid()
 
 print( "========= integration" )
 # w := symbol( "w" )
-u0 := symbol( "u" )
-u1 := symbol( "new_u" )
-coeffs := Vec[ Op, 4 ]( p => symbol( "ap->coeffs[ $( p + 1 ) ]" ) )
+u0 := symbol( "u0" )
+u1 := symbol( "u1" )
+coeffs := Vec[ Op, 4 ]( p => symbol( "ap->integration_coeffs[ $( p + 1 ) ]" ) )
 print "static_assert( FunctionEnum::Arfd::nb_coeffs == ${ coeffs.size }, \"\" );"
 part_int( coeffs, u0, u1 )
 

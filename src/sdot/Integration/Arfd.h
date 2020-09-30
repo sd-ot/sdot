@@ -19,15 +19,17 @@ struct Arfd {
     using TF = double;
 
     struct Approximation {
-        std::array<TF,nb_coeffs> integration_coeffs; ///<
-        std::array<TF,nb_coeffs> value_coeffs; ///<
+        std::array<TF,nb_coeffs+1> integration_coeffs; ///< x^(-2), x^0, x^2, ...
+        std::array<TF,nb_coeffs> value_coeffs; ///< x^0, x^2, ...
         TF beg; ///< beg radius
         TF end; ///< end radius
     };
 
     template<class PT,class TF>
-    auto operator()( PT p, PT c, TF /*w*/ ) const {
-        return values( norm_2( p - c ) );
+    auto operator()( PT p, PT c, TF w ) const {
+        TF i = inp_scaling ? inp_scaling( w ) : 1;
+        TF o = out_scaling ? out_scaling( w ) : 1;
+        return values( norm_2( p - c ) * i ) * o;
     }
 
     const char *name() const {
