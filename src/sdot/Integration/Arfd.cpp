@@ -96,8 +96,7 @@ void Arfd::_append_approx( TF &sum, TF beg, TF end, unsigned nb_points ) const {
     }
 
     for( unsigned i = 0; i < nb_coeffs; ++i )
-        M.coeffRef( i, i ) += 1e-4;
-    P( M );
+        M.coeffRef( i, i ) += 1e-9;
 
     // cholesky
     Eigen::LLT<EM> C;
@@ -129,15 +128,14 @@ void Arfd::_append_approx( TF &sum, TF beg, TF end, unsigned nb_points ) const {
     approx.end = end;
     approx.integration_coeffs[ 0 ] = sum;
     for( std::size_t i = 0; i < nb_coeffs; ++i ) {
-        approx.integration_coeffs[ i + 1 ] = D[ i ] * sc( i ) / ( 2 * i + 2 );
-        approx.value_coeffs[ i ] = D[ i ] * sc( i );
+        approx.integration_coeffs[ i + 1 ] = D[ i ] / sc( i ) / ( 2 * i + 2 );
+        approx.value_coeffs[ i ] = D[ i ] / sc( i );
     }
     approximations.push_back( approx );
-    P( beg, end, error );
 
     // update sum
     for( std::size_t i = 0; i < nb_coeffs; ++i )
-        sum += D[ i ] * sc( i ) / ( 2 * i + 2 ) * ( pow( end, 2 * i + 2 ) - pow( beg, 2 * i + 2 ) );
+        sum += D[ i ] / sc( i ) / ( 2 * i + 2 ) * ( pow( end, 2 * i + 2 ) - pow( beg, 2 * i + 2 ) );
 }
 
 Arfd::TF Arfd::approx_value( TF r ) const {
