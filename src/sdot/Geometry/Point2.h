@@ -58,6 +58,13 @@ inline Point2<TF> &operator-=( Point2<TF> &a, Point2<TF> b ) {
 }
 
 template<class TF>
+inline Point2<TF> &operator*=( Point2<TF> &a, TF b ) {
+    a.x *= b;
+    a.y *= b;
+    return a;
+}
+
+template<class TF>
 inline Point2<TF> operator+( Point2<TF> a, Point2<TF> b ) {
     return { a.x + b.x, a.y + b.y };
 }

@@ -24,4 +24,5 @@ results/
 *.pyc
 *.cpython
 scripts/
-
+Untitled.*
+Untitled-checkpoint.*

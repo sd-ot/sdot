@@ -41,13 +41,13 @@ def centroid( coeffs, u0, u1 )
     r_x := polynomial_integration( Pi[ 0 ] * val, v, 0, 1 - u, deg_poly_max = 20 )
     r_y := polynomial_integration( Pi[ 1 ] * val, v, 0, 1 - u, deg_poly_max = 20 )
     mea := polynomial_integration(           val, v, 0, 1 - u, deg_poly_max = 20 )
-    r_x = polynomial_integration( r_x, u, 0, 1, deg_poly_max = 20 ) * os / is ^ 3
-    r_y = polynomial_integration( r_y, u, 0, 1, deg_poly_max = 20 ) * os / is ^ 3
-    mea = polynomial_integration( mea, u, 0, 1, deg_poly_max = 20 ) * os / is ^ 2
+    r_x = polynomial_integration( r_x, u, 0, 1, deg_poly_max = 20 ) # * os / is ^ 3
+    r_y = polynomial_integration( r_y, u, 0, 1, deg_poly_max = 20 ) # * os / is ^ 3
+    mea = polynomial_integration( mea, u, 0, 1, deg_poly_max = 20 ) # * os / is ^ 2
 
     cw := CodeWriter( "TF" )
-    cw.add( "ctd.x", r_x, add )
-    cw.add( "ctd.y", r_y, add )
+    cw.add( "ltd.x", r_x, add )
+    cw.add( "ltd.y", r_y, add )
     cw.add( "lea", mea, add )
     print cw.to_string( 4 )
 
