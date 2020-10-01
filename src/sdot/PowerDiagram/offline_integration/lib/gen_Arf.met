@@ -67,6 +67,9 @@ def segment( coeffs, u0, u1 )
     cw.add( "res", res, add )
     print cw.to_string( 4 )
 
+def approx( ns )
+    vs := Vec[ Op, ns ]( p => symbol( "values( beg + $p * ( end - beg ) )" ) ) 
+
 # symbols
 ns := 4
 u0 := symbol( "u0" )
@@ -85,4 +88,8 @@ centroid( Vec[ Op, ns ]( p => symbol( "ap->value_coeffs[ $p ]" ) ), u0, u1 )
 print( "========= segment" )
 print( sa )
 segment( Vec[ Op, ns ]( p => symbol( "ap->value_coeffs[ $p ]" ) ), u0, u1 )
+
+print( "========= approx" )
+print( sa )
+approx( ns )
 
