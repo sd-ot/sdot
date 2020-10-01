@@ -3,6 +3,7 @@
 #include "../Support/N.h"
 #include <functional>
 #include <vector>
+#include <memory>
 #include <array>
 #include <mutex>
 
@@ -25,8 +26,9 @@ struct Arfd {
         TF end; ///< end radius
     };
 
-    Arfd( const std::function<TF( TF r )> &values, const std::function<TF( TF w )> &inp_scaling, const std::function<TF( TF w )> &out_scaling, const std::vector<TF> &stops );
-    Arfd() {}
+    Arfd( const std::function<TF( TF r )> &values, const std::function<TF( TF w )> &inp_scaling, const std::function<TF( TF w )> &out_scaling,
+          const std::function<TF( TF r )> &der_values, const std::function<TF( TF w )> &der_inp_scaling, const std::function<TF( TF w )> &der_out_scaling, const std::vector<TF> &stops, TF prec = 1e-9 );
+    Arfd();
 
     template<class PT,class TF>
     auto operator()( PT p, PT c, TF w ) const {
@@ -52,6 +54,7 @@ struct Arfd {
 
     void make_approximations_if_not_done() const;
     const Approximation *approx_for( TF r ) const;
+    TF approx_value( TF r ) const;
 
     std::size_t nb_polynomials() const { return approximations.size(); }
 
@@ -60,6 +63,9 @@ struct Arfd {
     std::function<TF( TF w )> out_scaling;
     std::function<TF( TF r )> values;
     std::vector<TF> stops;
+    TF prec;
+
+    std::unique_ptr<Arfd> der_w;
 
 private:
     void _append_approx( TF &sum, TF beg, TF end, unsigned nb_points = 100 ) const;

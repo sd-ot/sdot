@@ -55,7 +55,7 @@ public:
     // traversal
     template<class RF> void   for_each_boundary_measure ( const RF &rf, const std::function<void( TF boundary_measure, CI id )> &f, TF weight = 0 ) const;
 
-    void                      for_each_boundary_item    ( const FunctionEnum::Arfd &r, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const { TODO; }
+    void                      for_each_boundary_item    ( const FunctionEnum::Arfd &r, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const;
     void                      for_each_boundary_item    ( FunctionEnum::ExpWmR2db<TF>, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const;
     void                      for_each_boundary_item    ( FunctionEnum::WmR2         , const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const;
     void                      for_each_boundary_item    ( FunctionEnum::Unit         , const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight = 0 ) const;
@@ -101,9 +101,9 @@ public:
     void                      add_centroid_contrib      ( Pt &ctd, TF &vol, FunctionEnum::R2           , SpaceFunctions::Constant<TF> sf, TF w = 0 ) const;
     void                      add_centroid_contrib      ( Pt &ctd, TF &vol ) const;
 
-    TF                        boundary_measure          ( FunctionEnum::ExpWmR2db<TF> ) const;
-    TF                        boundary_measure          ( FunctionEnum::Unit          ) const;
-    TF                        boundary_measure          () const;
+    //    TF                  boundary_measure          ( FunctionEnum::ExpWmR2db<TF> ) const;
+    //    TF                  boundary_measure          ( FunctionEnum::Unit          ) const;
+    //    TF                  boundary_measure          () const;
 
     template<class FU> Pt     centroid                  ( const FU &f, TF w = 0 ) const;
     Pt                        centroid                  () const;
@@ -122,6 +122,7 @@ public:
     TF                        integration               ( SpaceFunctions::Constant<TF> cst ) const;
 
     TF                        integration_der_wrt_weight( FunctionEnum::ExpWmR2db<TF>, TF weight ) const;
+    TF                        integration_der_wrt_weight( const FunctionEnum::Arfd &a, TF weight ) const;
     TF                        integration_der_wrt_weight( FunctionEnum::WmR2, TF weight ) const;
     template<class FU> TF     integration_der_wrt_weight( const FU &, TF weight ) const;
 
