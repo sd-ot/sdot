@@ -20,8 +20,8 @@ struct Arfd {
     using TF = double;
 
     struct Approximation {
-        std::array<TF,nb_coeffs+1> integration_coeffs; ///< x^(-2), x^0, x^2, ...
-        std::array<TF,nb_coeffs> value_coeffs; ///< x^0, x^2, ...
+        std::array<TF,nb_coeffs> coeffs; ///< x^0, x^2, ...
+        TF off; ///< contribution of the previous integration
         TF beg; ///< beg radius
         TF end; ///< end radius
     };
@@ -68,7 +68,7 @@ struct Arfd {
     std::unique_ptr<Arfd> der_w;
 
 private:
-    void _append_approx( TF &sum, TF beg, TF end, unsigned nb_points = 100 ) const;
+    void _append_approx( TF &off, TF beg, TF end, unsigned nb_points = 100 ) const;
 
     mutable std::vector<Approximation> approximations;
     mutable std::mutex mutex;
