@@ -176,8 +176,14 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( const FunctionEnum::Arfd &ar
 
             // generated using metil src/sdot/PowerDiagram/offline_integration/lib/gen_Arf.met
             static_assert( FunctionEnum::Arfd::nb_coeffs == 4, "" );
+<<<<<<< HEAD
             TF R_0 = ap->value_coeffs[ 2 ]; TF R_1 = 4.0*R_0; TF R_2 = 2.0*R_0; TF R_3 = ap->value_coeffs[ 3 ];
             TF R_4 = ap->value_coeffs[ 1 ]; TF R_5 = ap->value_coeffs[ 0 ]; TF R_6 = P1.y; TF R_7 = P0.y;
+=======
+            static_assert( FunctionEnum::Arfd::nb_coeffs == 4, "" );
+            TF R_0 = ap->coeffs[ 2 ]; TF R_1 = 4.0*R_0; TF R_2 = 2.0*R_0; TF R_3 = ap->coeffs[ 3 ];
+            TF R_4 = ap->coeffs[ 1 ]; TF R_5 = ap->coeffs[ 0 ]; TF R_6 = P1.y; TF R_7 = P0.y;
+>>>>>>> 7b26c8cc65c6f9881d986953e180fb1fc9fe86eb
             TF R_8 = (-1.0)*R_7; R_6 = R_8+R_6; R_8 = pow(R_6,2); TF R_9 = P0.x;
             TF R_10 = (-1.0)*R_9; TF R_11 = P1.x; R_10 = R_11+R_10; R_11 = pow(R_10,2);
             R_8 = R_11+R_8; R_11 = pow(R_8,7/2.0); R_11 = R_3*R_11; TF R_12 = pow(R_8,3/2.0);
@@ -1160,8 +1166,8 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const Functi
             // generated using metil src/sdot/PowerDiagram/offline_integration/lib/gen_Arf.met
             // integration on sub triangle
             static_assert( FunctionEnum::Arfd::nb_coeffs == 4, "" );
-            TF R_0 = ap->value_coeffs[ 0 ]; TF R_1 = ap->value_coeffs[ 1 ]; TF R_2 = ap->value_coeffs[ 2 ]; TF R_3 = 2.0*R_2;
-            TF R_4 = 4.0*R_2; TF R_5 = 12.0*R_2; TF R_6 = ap->value_coeffs[ 3 ]; TF R_7 = P1.x;
+            TF R_0 = ap->coeffs[ 0 ]; TF R_1 = ap->coeffs[ 1 ]; TF R_2 = ap->coeffs[ 2 ]; TF R_3 = 2.0*R_2;
+            TF R_4 = 4.0*R_2; TF R_5 = 12.0*R_2; TF R_6 = ap->coeffs[ 3 ]; TF R_7 = P1.x;
             TF R_8 = u0; TF R_9 = (-1.0)*R_8; TF R_10 = (-30240.0)*R_8; TF R_11 = (-2160.0)*R_8;
             TF R_12 = 0.5*R_8; TF R_13 = P0.x; TF R_14 = (-20160.0)*R_13; TF R_15 = (-4.0)*R_13;
             TF R_16 = (-90720.0)*R_13; TF R_17 = (-3600.0)*R_13; TF R_18 = 0.75*R_13; TF R_19 = 0.5*R_13;
@@ -1434,11 +1440,11 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const Functi
                     TF p_2 = pow( np->end, 2 * nc + 2 ) / ( 2 * nc + 2 );
                     TF p_3 = pow( np->end, 2 * nc + 3 ) / ( 2 * nc + 3 );
 
-                    lea_0 += theta * np[ 0 ].value_coeffs[ nc ] * p_2;
-                    lea_1 += theta * np[ 1 ].value_coeffs[ nc ] * p_2;
+                    lea_0 += theta * np[ 0 ].coeffs[ nc ] * p_2;
+                    lea_1 += theta * np[ 1 ].coeffs[ nc ] * p_2;
 
-                    ctr_0 += np[ 0 ].value_coeffs[ nc ] * p_3;
-                    ctr_1 += np[ 1 ].value_coeffs[ nc ] * p_3;
+                    ctr_0 += np[ 0 ].coeffs[ nc ] * p_3;
+                    ctr_1 += np[ 1 ].coeffs[ nc ] * p_3;
                 }
 
                 //
@@ -1664,49 +1670,17 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
     //
     arf.make_approximations_if_not_done();
 
-    // v = sum_i coeffs[ i ] * r ^ ( 2 * i )
-    auto pie = [&]( auto /*r*/ ) {
-        TODO;
-        return 0;
-        // I += sum_i int coeffs[ i ] * r ^ ( 2 * i + 1 ) dr
-        //    = sum_i 1 / ( 2 * i + 2 ) coeffs[ i ] * r ^ ( 2 * i + 2 ) dr
-        //        const FunctionEnum::Arfd::Approximation *ap = arf.approx_for( r );
-        //        TF res = 0; // ap->start_integration;
-        //        for( unsigned p = 0; p < FunctionEnum::Arf::nb_coeffs; ++p )
-        //            res += ap->coeffs[ p ] / ( 2 * p + 2 ) * ( pow( r, 2 * p + 2 ) - pow( ap->beg, 2 * p + 2 ) );
-        //        return res;
-    };
-
     // full sphere
     if ( _nb_points == 0 ) {
         if ( sphere_radius <= 0 )
             return 0;
         TODO;
-        //        if ( sphere_radius <= 0 )
-        //            return 0;
-        //        TF r = sphere_radius, inp_scaling = 1;
-        //        if ( arf.inp_scaling ) {
-        //            inp_scaling = arf.inp_scaling( w );
-        //            r *= inp_scaling;
-        //        }
-
-        //        TF res = 2 * pi() * pie( r );
-
-        //        if ( arf.out_scaling )
-        //            res *= arf.out_scaling( w );
-        //        if ( arf.inp_scaling )
-        //            res /= inp_scaling * inp_scaling;
-        //        return res;
     }
 
     // arc
-    auto arc_val = [&]( Pt P0, Pt P1 ) {
-        TF a0 = atan2( P0.y, P0.x );
-        TF a1 = atan2( P1.y, P1.x );
-        if ( a1 < a0 )
-            a1 += 2 * pi();
-        TF r2 = dot( P0, P0 );
-        return ( a1 - a0 ) * pie( sqrt( r2 ) );
+    auto arc_val = [&]( Pt /*P0*/, Pt /*P1*/ ) {
+        TODO;
+        return TF( 0 );
     };
 
     // segment
@@ -1766,8 +1740,16 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
                 }
             }
 
+            //
+            Pt Q0 = P0 + u0 * ( P1 - P0 );
+            Pt Q1 = P0 + u1 * ( P1 - P0 );
+            TF a0 = atan2( Q0.y, Q0.x );
+            TF a1 = atan2( Q1.y, Q1.x );
+            TF th = a1 - a0 + ( a1 < a0 - pi() ? 2 * pi() : 0 );
+
             // generated using metil src/sdot/PowerDiagram/offline_integration/lib/gen_Arf.met
             // integration on sub part of the line
+<<<<<<< HEAD
             static_assert( FunctionEnum::Arfd::nb_coeffs == 4, "" );
             TF R_0 = ap->value_coeffs[ 1 ]; TF R_1 = ap->value_coeffs[ 0 ]; TF R_2 = ap->value_coeffs[ 2 ]; TF R_3 = 2.0*R_2;
             TF R_4 = 4.0*R_2; TF R_5 = 12.0*R_2; TF R_6 = ap->value_coeffs[ 3 ]; TF R_7 = P1.y;
@@ -1849,6 +1831,9 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
 
                 mea += theta * ap->sum_int_r;
             }
+=======
+            #include "Internal/('metil $1' '.sh' gen_Arf_integration.met).h"
+>>>>>>> 7b26c8cc65c6f9881d986953e180fb1fc9fe86eb
 
             // next disc
             if ( u1 >= 1 )
