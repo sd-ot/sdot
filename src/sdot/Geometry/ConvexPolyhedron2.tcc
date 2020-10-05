@@ -1754,13 +1754,6 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
                 }
             }
 
-            //
-            Pt Q0 = P0 + u0 * ( P1 - P0 );
-            Pt Q1 = P0 + u1 * ( P1 - P0 );
-            TF a0 = atan2( Q0.y, Q0.x );
-            TF a1 = atan2( Q1.y, Q1.x );
-            TF th = a1 - a0 + ( a1 < a0 - pi() ? 2 * pi() : 0 );
-
             // generated using metil src/sdot/PowerDiagram/offline_integration/lib/gen_Arf.met
             // integration on sub part of the line
             static_assert( FunctionEnum::Arfd::nb_coeffs == 4, "" );
