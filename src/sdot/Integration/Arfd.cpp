@@ -58,7 +58,7 @@ void Arfd::make_approximations_if_not_done() const {
     mutex.unlock();
 }
 
-void Arfd::_append_approx( TF &off, TF beg, TF end, unsigned nb_points ) const {
+void Arfd::_append_approx( TF &sum, TF beg, TF end, unsigned nb_points ) const {
     using EM = Eigen::Matrix<TF,Eigen::Dynamic,Eigen::Dynamic>;
     using EV = Eigen::Matrix<TF,Eigen::Dynamic,1>;
     using std::max;
@@ -114,57 +114,37 @@ void Arfd::_append_approx( TF &off, TF beg, TF end, unsigned nb_points ) const {
 
     if ( error > prec ) {
         TF mid = beg + ( end - beg ) / 2;
-        _append_approx( off, beg, mid, nb_points );
-        _append_approx( off, mid, end, nb_points );
+        _append_approx( sum, beg, mid, nb_points );
+        _append_approx( sum, mid, end, nb_points );
         return;
     }
 
-<<<<<<< HEAD
     for( std::size_t i = 0; i < nb_coeffs; ++i )
         D[ i ] /= sc( i );
 
     // update sum
     for( std::size_t i = 0; i < nb_coeffs; ++i )
         sum -= D[ i ] / ( 2 * i + 2 ) * pow( beg, 2 * i + 2 );
-=======
-    // update D scaling
-    for( std::size_t i = 0; i < nb_coeffs; ++i )
-        D[ i ] /= sc( i );
-
-    // remove contribution of [ 0, beg ] (using off)
-    for( std::size_t i = 0; i < nb_coeffs; ++i )
-        off -= D[ i ] / ( 2 * i + 2 ) * pow( beg, 2 * i + 2 );
->>>>>>> 7b26c8cc65c6f9881d986953e180fb1fc9fe86eb
 
     // save coeffs
     Approximation approx;
     approx.sum_int_r = sum;
     approx.beg = beg;
     approx.end = end;
-<<<<<<< HEAD
     for( std::size_t i = 0; i < nb_coeffs; ++i )
         approx.value_coeffs[ i ] = D[ i ];
-=======
-    approx.off = off;
-    for( std::size_t i = 0; i < nb_coeffs; ++i )
-        approx.coeffs[ i ] = D[ i ];
->>>>>>> 7b26c8cc65c6f9881d986953e180fb1fc9fe86eb
     approximations.push_back( approx );
 
     // update off for the next disc
     for( std::size_t i = 0; i < nb_coeffs; ++i )
-<<<<<<< HEAD
         sum += D[ i ] / ( 2 * i + 2 ) * pow( end, 2 * i + 2 );
-=======
-        off += D[ i ] / ( 2 * i + 2 ) * pow( end, 2 * i + 2 );
->>>>>>> 7b26c8cc65c6f9881d986953e180fb1fc9fe86eb
 }
 
 Arfd::TF Arfd::approx_value( TF r ) const {
     TF res = 0;
     const Approximation *af = approx_for( r );
     for( std::size_t j = 0; j < nb_coeffs; ++j )
-        res += af->coeffs[ j ] * pow( r, 2 * j );
+        res += af->value_coeffs[ j ] * pow( r, 2 * j );
     return res;
 }
 

@@ -20,13 +20,8 @@ struct Arfd {
     using TF = double;
 
     struct Approximation {
-<<<<<<< HEAD
         std::array<TF,nb_coeffs> value_coeffs; ///< x^0, x^2, ...
         TF sum_int_r; ///<
-=======
-        std::array<TF,nb_coeffs> coeffs; ///< x^0, x^2, ...
-        TF off; ///< contribution of the previous integration
->>>>>>> 7b26c8cc65c6f9881d986953e180fb1fc9fe86eb
         TF beg; ///< beg radius
         TF end; ///< end radius
     };

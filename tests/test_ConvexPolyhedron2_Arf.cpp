@@ -2,7 +2,6 @@
 #include "../src/sdot/Geometry/ConvexPolyhedron2.h"
 #include "../src/sdot/Display/VtkOutput.h"
 #include "./catch_main.h"
-//#include <matplotlibcpp.h>
 #include <iostream>
 
 //// nsmake cpp_flag -march=native
@@ -112,39 +111,6 @@ TEST_CASE( "Arf_2_5", "p_2_5" ) {
 
     arf.make_approximations_if_not_done();
 
-<<<<<<< HEAD
     CHECK_THAT( icp.integration( arf, 100 ), WithinAbs( 191826.6660609519, 1e-4 ) );
     CHECK_THAT( icp.integration( arf,  10 ), WithinAbs(    417.04        , 1e-2 ) );
-=======
-    // CHECK_THAT( icp.integration( arf, 100 ), WithinAbs( 191827, 1 ) );
-    P( icp.integration( arf, 100 ), 191827 );
-    P( icp.integration( arf,  60 ),  52021 );
-    P( icp.integration( arf,  40 ),  18230 );
-    P( icp.integration( arf,  20 ),   2902 );
-    P( icp.integration( arf,  10 ),    417 );
-}
-
-TEST_CASE( "Arf_disc", "p_2_5" ) {
-    struct Pc { enum { dim = 2, allow_ball_cut = 0 }; using TI = std::size_t; using TF = double; using CI = std::string; };
-    using  LC = ConvexPolyhedron2<Pc>;
-    using  TF = LC::TF;
-    using  std::sqrt;
-    using  std::pow;
-
-    LC icp( LC::Box{ { 0, 0 }, { 100, 10 } } );
-    icp.sphere_center = { 0, 0 };
-
-    //
-    FunctionEnum::Arfd arf;
-    arf.values = []( double r ) -> double {
-        TF res = 1, th = M_PI / 4;
-        if ( r < 1 ) res +=   1 / ( th * pow( 1, 2 ) );
-        if ( r < 2 ) res +=  10 / ( th * pow( 2, 2 ) );
-        if ( r < 3 ) res += 100 / ( th * pow( 3, 2 ) );
-        return res;
-    };
-    arf.stops = { 1, 2, 3 };
-
-    CHECK_THAT( icp.integration( arf ), WithinAbs( 1111, 1e-6 ) );
->>>>>>> 7b26c8cc65c6f9881d986953e180fb1fc9fe86eb
 }
