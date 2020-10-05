@@ -20,8 +20,8 @@ struct Arfd {
     using TF = double;
 
     struct Approximation {
-        std::array<TF,nb_coeffs+1> integration_coeffs; ///< x^(-2), x^0, x^2, ...
         std::array<TF,nb_coeffs> value_coeffs; ///< x^0, x^2, ...
+        TF sum_int_r; ///<
         TF beg; ///< beg radius
         TF end; ///< end radius
     };
@@ -57,6 +57,8 @@ struct Arfd {
     TF approx_value( TF r ) const;
 
     std::size_t nb_polynomials() const { return approximations.size(); }
+
+    void write_to_stream( std::ostream &os ) const;
 
     //
     std::function<TF( TF w )> inp_scaling;

@@ -127,7 +127,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( const FunctionEnum::Arfd &ar
 
             // test if line is going to cut a circle at a lower index
             if ( ap->beg ) {
-                TF d = ap->beg; d = - d; TF b = P0.y; TF R_2 = pow( b, 2 );
+                TF d = pow( ap->beg, 2 ); d = - d; TF b = P0.y; TF R_2 = pow( b, 2 );
                 TF a = (-1.0)*b; TF R_4 = P1.y; a += R_4; b *= a;
                 a *= a; R_4 = P0.x; TF R_5 = pow(R_4,2); R_2 += R_5;
                 d = R_2+d; R_2 = (-1.0)*R_4; R_5 = P1.x;
@@ -152,7 +152,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( const FunctionEnum::Arfd &ar
             if ( ap->end != std::numeric_limits<TF>::max() ) {
                 TF a; TF b; TF d;
 
-                TF R_0 = ap->end; R_0 = (-1.0)*R_0; TF R_1 = P0.y; TF R_2 = pow(R_1,2);
+                TF R_0 = pow( ap->end, 2 ); R_0 = (-1.0)*R_0; TF R_1 = P0.y; TF R_2 = pow(R_1,2);
                 TF R_3 = (-1.0)*R_1; TF R_4 = P1.y; R_3 = R_4+R_3; R_1 = R_1*R_3;
                 R_3 = pow(R_3,2); R_4 = P0.x; TF R_5 = pow(R_4,2); R_2 = R_5+R_2;
                 R_0 = R_2+R_0; R_2 = (-1.0)*R_4; R_5 = P1.x;
@@ -175,7 +175,6 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( const FunctionEnum::Arfd &ar
             }
 
             // generated using metil src/sdot/PowerDiagram/offline_integration/lib/gen_Arf.met
-            static_assert( FunctionEnum::Arfd::nb_coeffs == 4, "" );
             static_assert( FunctionEnum::Arfd::nb_coeffs == 4, "" );
             TF R_0 = ap->value_coeffs[ 2 ]; TF R_1 = 4.0*R_0; TF R_2 = 2.0*R_0; TF R_3 = ap->value_coeffs[ 3 ];
             TF R_4 = ap->value_coeffs[ 1 ]; TF R_5 = ap->value_coeffs[ 0 ]; TF R_6 = P1.y; TF R_7 = P0.y;
@@ -1111,7 +1110,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const Functi
 
             // test if line is going to cut a circle at a lower index
             if ( ap->beg ) {
-                TF d = ap->beg; d = - d; TF b = P0.y; TF R_2 = pow( b, 2 );
+                TF d = pow( ap->beg, 2 ); d = - d; TF b = P0.y; TF R_2 = pow( b, 2 );
                 TF a = (-1.0)*b; TF R_4 = P1.y; a += R_4; b *= a;
                 a *= a; R_4 = P0.x; TF R_5 = pow(R_4,2); R_2 += R_5;
                 d = R_2+d; R_2 = (-1.0)*R_4; R_5 = P1.x;
@@ -1136,7 +1135,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const Functi
             if ( ap->end != std::numeric_limits<TF>::max() ) {
                 TF a; TF b; TF d;
 
-                TF R_0 = ap->end; R_0 = (-1.0)*R_0; TF R_1 = P0.y; TF R_2 = pow(R_1,2);
+                TF R_0 = pow( ap->end, 2 ); R_0 = (-1.0)*R_0; TF R_1 = P0.y; TF R_2 = pow(R_1,2);
                 TF R_3 = (-1.0)*R_1; TF R_4 = P1.y; R_3 = R_4+R_3; R_1 = R_1*R_3;
                 R_3 = pow(R_3,2); R_4 = P0.x; TF R_5 = pow(R_4,2); R_2 = R_5+R_2;
                 R_0 = R_2+R_0; R_2 = (-1.0)*R_4; R_5 = P1.x;
@@ -1713,14 +1712,14 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
     // segment
     auto seg_val = [&]( Pt P0, Pt P1 ) {
         const FunctionEnum::Arfd::Approximation *ap = arf.approx_for( norm_2( P0 ) );
-        TF res = 0;
+        TF mea = 0;
         for( TF u0 = 0; ; ) {
             const FunctionEnum::Arfd::Approximation *new_ap = ap;
             TF u1 = 1;
 
             // test if line is going to cut a circle at a lower index
             if ( ap->beg ) {
-                TF d = ap->beg; d = - d; TF b = P0.y; TF R_2 = pow( b, 2 );
+                TF d = pow( ap->beg, 2 ); d = - d; TF b = P0.y; TF R_2 = pow( b, 2 );
                 TF a = (-1.0)*b; TF R_4 = P1.y; a += R_4; b *= a;
                 a *= a; R_4 = P0.x; TF R_5 = pow(R_4,2); R_2 += R_5;
                 d = R_2+d; R_2 = (-1.0)*R_4; R_5 = P1.x;
@@ -1745,7 +1744,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
             if ( ap->end != std::numeric_limits<TF>::max() ) {
                 TF a; TF b; TF d;
 
-                TF R_0 = ap->end; R_0 = (-1.0)*R_0; TF R_1 = P0.y; TF R_2 = pow(R_1,2);
+                TF R_0 = pow( ap->end, 2 ); R_0 = (-1.0)*R_0; TF R_1 = P0.y; TF R_2 = pow(R_1,2);
                 TF R_3 = (-1.0)*R_1; TF R_4 = P1.y; R_3 = R_4+R_3; R_1 = R_1*R_3;
                 R_3 = pow(R_3,2); R_4 = P0.x; TF R_5 = pow(R_4,2); R_2 = R_5+R_2;
                 R_0 = R_2+R_0; R_2 = (-1.0)*R_4; R_5 = P1.x;
@@ -1770,46 +1769,85 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
             // generated using metil src/sdot/PowerDiagram/offline_integration/lib/gen_Arf.met
             // integration on sub part of the line
             static_assert( FunctionEnum::Arfd::nb_coeffs == 4, "" );
-            TF R_0 = ap->integration_coeffs[ 2 ]; TF R_1 = ap->integration_coeffs[ 1 ];
-            TF R_2 = ap->integration_coeffs[ 4 ]; TF R_3 = ap->integration_coeffs[ 3 ];
-            TF R_4 = 2.0*R_3; TF R_5 = 4.0*R_3; TF R_6 = 12.0*R_3; TF R_7 = P0.x;
-            TF R_8 = (-1.0)*R_7; TF R_9 = P1.x; TF R_10 = (-1.0)*R_9; R_10 = R_7+R_10;
-            R_8 = R_9+R_8; TF R_11 = pow(R_8,2); TF R_12 = P0.y; TF R_13 = (-1.0)*R_12;
-            TF R_14 = P1.y; R_13 = R_14+R_13; TF R_15 = pow(R_13,2); R_15 = R_11+R_15;
-            R_11 = pow(R_15,2); TF R_16 = R_10*R_13; TF R_17 = (-1.0)*R_14; R_17 = R_17+R_12;
-            TF R_18 = R_17*R_8; R_18 = (-1.0)*R_18; R_16 = R_18+R_16; R_18 = u0;
-            TF R_19 = (-1.0)*R_18; TF R_20 = u1; R_18 = R_18+R_20; R_14 = R_14*R_18;
-            R_14 = 0.5*R_14; R_9 = R_9*R_18; R_9 = 0.5*R_9; R_18 = -0.5*R_18;
-            R_18 = 1.0+R_18; R_12 = R_12*R_18; R_12 = R_14+R_12; R_10 = R_10*R_12;
-            R_14 = pow(R_12,2); R_12 = R_13*R_12; R_18 = R_7*R_18; R_9 = R_18+R_9;
-            R_17 = R_17*R_9; R_17 = (-1.0)*R_17; R_10 = R_17+R_10; R_17 = R_15*R_10;
-            R_17 = 720.0*R_17; R_18 = pow(R_9,2); R_14 = R_18+R_14; R_18 = R_2*R_14;
-            R_7 = 3.0*R_18; R_7 = R_4+R_7; R_7 = R_14*R_7; R_7 = R_0+R_7;
-            R_4 = R_15*R_7; R_13 = 12.0*R_18; R_13 = R_5+R_13; R_3 = R_3+R_18;
-            R_3 = R_14*R_3; R_3 = R_0+R_3; R_3 = R_14*R_3; R_3 = R_1+R_3;
-            R_3 = R_10*R_3; R_18 = 36.0*R_18; R_18 = R_6+R_18; R_18 = R_15*R_18;
-            R_9 = R_8*R_9; R_12 = R_9+R_12; R_9 = R_16*R_12; R_9 = 4320.0*R_9;
-            R_9 = R_17+R_9; R_9 = R_11*R_9; R_9 = R_2*R_9; R_7 = R_12*R_7;
-            R_7 = R_16*R_7; R_7 = 2.0*R_7; R_11 = pow(R_12,2); R_13 = R_13*R_11;
-            R_4 = R_13+R_4; R_4 = R_10*R_4; R_7 = R_4+R_7; R_11 = R_2*R_11;
-            R_2 = 144.0*R_11; R_2 = R_18+R_2; R_2 = R_15*R_2; R_2 = R_10*R_2;
-            R_2 = (1.0/30.0)*R_2; R_11 = 24.0*R_11; R_11 = R_18+R_11; R_11 = R_12*R_11;
-            R_11 = R_16*R_11; R_11 = (2.0/15.0)*R_11; R_2 = R_11+R_2; R_19 = R_20+R_19;
-            R_20 = pow(R_19,7); R_20 = R_9*R_20; R_20 = (1.0/322560.0)*R_20; R_9 = pow(R_19,3);
-            R_9 = R_7*R_9; R_9 = (1.0/12.0)*R_9; R_3 = R_3*R_19; R_9 = R_3+R_9;
-            R_19 = pow(R_19,5); R_2 = R_19*R_2; R_2 = (1.0/32.0)*R_2; R_9 = R_2+R_9;
-            R_20 = R_9+R_20; res += R_20;
+            TF R_0 = ap->value_coeffs[ 1 ]; TF R_1 = ap->value_coeffs[ 0 ]; TF R_2 = ap->value_coeffs[ 2 ]; TF R_3 = 2.0*R_2;
+            TF R_4 = 4.0*R_2; TF R_5 = 12.0*R_2; TF R_6 = ap->value_coeffs[ 3 ]; TF R_7 = P1.y;
+            TF R_8 = u1; TF R_9 = 0.25*R_8; TF R_10 = -0.5*R_8; TF R_11 = P0.y;
+            TF R_12 = 0.75*R_11; TF R_13 = 0.5*R_11; TF R_14 = (-1.0)*R_11; R_14 = R_7+R_14;
+            R_7 = R_8*R_14; R_7 = R_11+R_7; TF R_15 = pow(R_7,2); TF R_16 = P1.x;
+            TF R_17 = u0; TF R_18 = 0.5*R_17; R_9 = R_18+R_9; R_18 = R_14*R_9;
+            R_18 = R_12+R_18; R_12 = pow(R_18,2); TF R_19 = R_7*R_18; R_10 = R_17+R_10;
+            TF R_20 = R_14*R_10; R_20 = R_13+R_20; R_13 = pow(R_20,2); R_18 = R_20*R_18;
+            R_20 = R_7*R_20; R_14 = R_17*R_14; R_14 = R_11+R_14; R_11 = P0.x;
+            TF R_21 = 0.75*R_11; TF R_22 = 0.5*R_11; TF R_23 = (-1.0)*R_11; R_16 = R_23+R_16;
+            R_9 = R_16*R_9; R_9 = R_21+R_9; R_21 = pow(R_9,2); R_12 = R_21+R_12;
+            R_21 = R_6*R_12; R_23 = 3.0*R_21; R_23 = R_3+R_23; R_23 = R_12*R_23;
+            R_23 = R_0+R_23; R_3 = 0.25*R_23; TF R_24 = (-4.0)*R_23; R_2 = R_2+R_21;
+            R_2 = R_12*R_2; R_2 = R_0+R_2; R_2 = R_12*R_2; R_2 = R_1+R_2;
+            R_2 = 0.5*R_2; R_1 = 12.0*R_21; R_1 = R_4+R_1; R_21 = 36.0*R_21;
+            R_21 = R_5+R_21; R_10 = R_16*R_10; R_10 = R_22+R_10; R_22 = pow(R_10,2);
+            R_13 = R_22+R_13; R_22 = (1.0/96.0)*R_13; R_5 = R_13*R_23; R_4 = 36.0*R_13;
+            R_12 = R_13*R_21; R_0 = 2160.0*R_13; TF R_25 = 360.0*R_13; TF R_26 = pow(R_13,2);
+            TF R_27 = 67.5*R_13; TF R_28 = 3240.0*R_13; TF R_29 = R_10*R_9; R_18 = R_29+R_18;
+            R_29 = -0.125*R_18; R_29 = R_22+R_29; R_22 = (-432.0)*R_18; R_22 = R_4+R_22;
+            TF R_30 = R_1*R_18; R_30 = R_24+R_30; R_24 = (-288.0)*R_18; R_24 = R_4+R_24;
+            R_4 = pow(R_18,2); R_4 = R_6*R_4; TF R_31 = 24.0*R_4; R_31 = R_31+R_12;
+            R_31 = R_18*R_31; R_31 = (-8.0)*R_31; R_4 = 144.0*R_4; R_4 = R_12+R_4;
+            R_4 = R_13*R_4; R_31 = R_4+R_31; R_4 = (-8640.0)*R_18; R_0 = R_4+R_0;
+            R_4 = (-4320.0)*R_18; R_4 = R_25+R_4; R_4 = R_26*R_4; R_26 = (-54.0)*R_18;
+            R_26 = R_27+R_26; R_27 = (-2880.0)*R_18; R_28 = R_27+R_28; R_8 = R_8*R_16;
+            R_8 = R_11+R_8; R_27 = pow(R_8,2); R_15 = R_27+R_15; R_29 = R_15*R_29;
+            R_22 = R_15*R_22; R_27 = pow(R_15,2); R_27 = R_6*R_27; R_25 = (3.0/1024.0)*R_27;
+            R_27 = (1.0/57344.0)*R_27; R_23 = R_15*R_23; R_12 = R_15*R_18; TF R_32 = (-144.0)*R_12;
+            R_24 = R_15*R_24; TF R_33 = pow(R_15,3); R_33 = (15.0/64.0)*R_33; R_0 = R_15*R_0;
+            R_21 = R_15*R_21; TF R_34 = 20.0*R_21; TF R_35 = 120.0*R_21; TF R_36 = 5.625*R_15;
+            R_36 = R_26+R_36; R_36 = R_15*R_36; R_28 = R_15*R_28; R_26 = R_15*R_13;
+            R_9 = R_8*R_9; R_19 = R_9+R_19; R_9 = (-1728.0)*R_19; TF R_37 = pow(R_19,2);
+            TF R_38 = R_6*R_37; TF R_39 = (-3.0)*R_38; R_39 = R_30+R_39; R_39 = R_18*R_39;
+            R_38 = 144.0*R_38; R_38 = R_21+R_38; R_38 = (1.0/30720.0)*R_38; R_27 = R_38+R_27;
+            R_27 = R_15*R_27; R_38 = R_1*R_37; R_23 = R_38+R_23; R_23 = (1.0/96.0)*R_23;
+            R_23 = R_2+R_23; R_27 = R_23+R_27; R_37 = (-48.0)*R_37; R_23 = (-576.0)*R_19;
+            R_2 = (-31104.0)*R_19; R_38 = 2880.0*R_19; R_21 = (-216.0)*R_19; R_30 = (-5760.0)*R_19;
+            TF R_40 = R_13*R_19; TF R_41 = 4.0*R_40; R_10 = R_8*R_10; R_20 = R_10+R_20;
+            R_10 = (-1.0)*R_20; R_10 = R_19+R_10; R_10 = R_19*R_10; R_10 = 0.25*R_10;
+            TF R_42 = R_20*R_19; R_42 = 2.0*R_42; R_12 = R_42+R_12; R_42 = R_18*R_12;
+            TF R_43 = (-2.0)*R_12; R_12 = 36.0*R_12; R_12 = R_37+R_12; R_37 = 144.0*R_20;
+            R_9 = R_9+R_37; R_9 = R_20*R_9; R_22 = R_9+R_22; R_22 = 0.5*R_22;
+            R_22 = R_32+R_22; R_23 = R_37+R_23; R_23 = R_20*R_23; R_23 = R_24+R_23;
+            R_23 = R_13*R_23; R_23 = (1.0/48.0)*R_23; R_24 = 8640.0*R_20; R_24 = R_2+R_24;
+            R_24 = R_20*R_24; R_2 = (-576.0)*R_20; R_38 = R_2+R_38; R_38 = R_19*R_38;
+            R_22 = R_22+R_38; R_22 = R_6*R_22; R_22 = R_34+R_22; R_22 = (1.0/7680.0)*R_22;
+            R_3 = R_22+R_3; R_3 = R_25+R_3; R_3 = R_15*R_3; R_38 = 6.0*R_38;
+            R_0 = R_38+R_0; R_24 = R_0+R_24; R_24 = R_6*R_24; R_24 = R_35+R_24;
+            R_24 = R_15*R_24; R_24 = (1.0/1920.0)*R_24; R_31 = R_24+R_31; R_24 = 270.0*R_20;
+            R_24 = R_21+R_24; R_24 = R_20*R_24; R_36 = R_24+R_36; R_36 = R_15*R_36;
+            R_15 = 12960.0*R_20; R_15 = R_30+R_15; R_15 = R_20*R_15; R_28 = R_15+R_28;
+            R_28 = R_13*R_28; R_13 = pow(R_20,2); R_15 = (1.0/48.0)*R_13; R_29 = R_15+R_29;
+            R_10 = R_29+R_10; R_10 = R_1*R_10; R_13 = 2.0*R_13; R_26 = R_13+R_26;
+            R_13 = 1.5*R_26; R_13 = R_43+R_13; R_13 = R_1*R_13; R_1 = (-12.0)*R_26;
+            R_12 = R_1+R_12; R_12 = R_18*R_12; R_26 = R_26*R_18; R_26 = (-5760.0)*R_26;
+            R_18 = R_20*R_18; R_18 = 2.0*R_18; R_40 = R_40+R_18; R_40 = R_19*R_40;
+            R_42 = R_40+R_42; R_42 = R_6*R_42; R_42 = 0.25*R_42; R_42 = R_5+R_42;
+            R_42 = R_3+R_42; R_42 = R_39+R_42; R_10 = R_42+R_10; R_40 = 36.0*R_40;
+            R_41 = R_18+R_41; R_41 = R_20*R_41; R_20 = (-6.0)*R_41; R_20 = R_40+R_20;
+            R_20 = R_23+R_20; R_20 = R_33+R_20; R_12 = R_20+R_12; R_12 = R_6*R_12;
+            R_12 = R_31+R_12; R_13 = R_12+R_13; R_41 = (-2880.0)*R_41; R_26 = R_41+R_26;
+            R_28 = R_26+R_28; R_28 = (1.0/12.0)*R_28; R_36 = R_28+R_36; R_4 = R_36+R_4;
+            R_4 = R_6*R_4; R_14 = R_8*R_14; R_14 = (-1.0)*R_14; R_16 = R_17*R_16;
+            R_16 = R_11+R_16; R_7 = R_16*R_7; R_14 = R_7+R_14; R_10 = R_14*R_10;
+            R_10 = (1.0/24.0)*R_10; R_27 = R_14*R_27; R_10 = R_27+R_10; R_13 = R_14*R_13;
+            R_13 = (1.0/1920.0)*R_13; R_10 = R_13+R_10; R_4 = R_14*R_4; R_4 = (1.0/322560.0)*R_4;
+            R_10 = R_4+R_10; mea += R_10;
 
-            if ( abs( ap->integration_coeffs[ 0 ] ) > 1e-10 ) {
-                Pt A = P0 + u0 * ( P1 - P0 );
-                Pt B = P0 + u1 * ( P1 - P0 );
-                TF a0 = atan2( A.y, A.x );
-                TF a1 = atan2( B.y, B.x );
-                if ( a1 < a0 )
-                    a1 += 2 * pi();
-                if ( a1 - a0 > M_PI )
-                    a1 -= 2 * pi();
-                res += ap->integration_coeffs[ 0 ] * ( a1 - a0 );
+            //
+            if ( ap->beg ) {
+                Pt U0 = P0 + u0 * ( P1 - P0 );
+                Pt U1 = P0 + u1 * ( P1 - P0 );
+
+                TF a0 = atan2( U0.y, U0.x );
+                TF a1 = atan2( U1.y, U1.x );
+                TF theta = a1 + pi() > a0 ? a1 - a0 : a1 - a0 + 2 * pi();
+
+                mea += theta * ap->sum_int_r;
             }
 
             // next disc
@@ -1819,7 +1857,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
             u0 = u1;
         }
 
-        return res;
+        return mea;
     };
 
     TF res = 0, inp_scaling = 1;

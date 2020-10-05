@@ -122,20 +122,25 @@ void Arfd::_append_approx( TF &sum, TF beg, TF end, unsigned nb_points ) const {
         return;
     }
 
+    for( std::size_t i = 0; i < nb_coeffs; ++i )
+        D[ i ] /= sc( i );
+
+    // update sum
+    for( std::size_t i = 0; i < nb_coeffs; ++i )
+        sum -= D[ i ] / ( 2 * i + 2 ) * pow( beg, 2 * i + 2 );
+
     // save coeffs
     Approximation approx;
+    approx.sum_int_r = sum;
     approx.beg = beg;
     approx.end = end;
-    approx.integration_coeffs[ 0 ] = sum;
-    for( std::size_t i = 0; i < nb_coeffs; ++i ) {
-        approx.integration_coeffs[ i + 1 ] = D[ i ] / sc( i ) / ( 2 * i + 2 );
-        approx.value_coeffs[ i ] = D[ i ] / sc( i );
-    }
+    for( std::size_t i = 0; i < nb_coeffs; ++i )
+        approx.value_coeffs[ i ] = D[ i ];
     approximations.push_back( approx );
 
     // update sum
     for( std::size_t i = 0; i < nb_coeffs; ++i )
-        sum += D[ i ] / sc( i ) / ( 2 * i + 2 ) * ( pow( end, 2 * i + 2 ) - pow( beg, 2 * i + 2 ) );
+        sum += D[ i ] / ( 2 * i + 2 ) * pow( end, 2 * i + 2 );
 }
 
 Arfd::TF Arfd::approx_value( TF r ) const {
@@ -144,6 +149,11 @@ Arfd::TF Arfd::approx_value( TF r ) const {
     for( std::size_t j = 0; j < nb_coeffs; ++j )
         res += af->value_coeffs[ j ] * pow( r, 2 * j );
     return res;
+}
+
+void Arfd::write_to_stream( std::ostream &os ) const {
+    for( const Approximation &ap : approximations )
+        os << ap.beg << " -> " << ap.end << ": " << ap.value_coeffs << "\n";
 }
 
 }
