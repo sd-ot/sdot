@@ -1,4 +1,5 @@
 #include "../src/sdot/geometry/SetOfElementaryPolytops.h"
+#include "../src/sdot/geometry/shapes/Triangle.h"
 #include "../src/sdot/support/P.h"
 using TI = std::size_t;
 using namespace sdot;
