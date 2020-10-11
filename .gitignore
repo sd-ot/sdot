@@ -1,4 +1,6 @@
 update_files.sh
+.sdot_kernel.*
+.sdot_elem.*
 .sdot.*
 *.kdev4
 build/
