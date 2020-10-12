@@ -12,6 +12,7 @@ ShapeData::~ShapeData() {
     if ( rese ) {
         ks->free_TF( coordinates );
         ks->free_TI( face_ids );
+        ks->free_TI( scps );
         ks->free_TI( ids );
     }
 }
@@ -23,6 +24,7 @@ void ShapeData::reserve( BI new_rese ) {
     // old values
     void *old_coordinates = coordinates;
     void *old_face_ids = face_ids;
+    void *old_scps = scps;
     void *old_ids = ids;
     BI old_rese = rese;
 
@@ -39,6 +41,7 @@ void ShapeData::reserve( BI new_rese ) {
     // allocate
     coordinates = ks->allocate_TF( shape_type->nb_nodes() * dim * rese );
     face_ids = ks->allocate_TI( shape_type->nb_faces() * rese );
+    scps = ks->allocate_TF( shape_type->nb_nodes() * rese );
     ids = ks->allocate_TI( rese );
 
     // copy old data
@@ -54,6 +57,7 @@ void ShapeData::reserve( BI new_rese ) {
     if ( old_rese ) {
         ks->free_TF( old_coordinates );
         ks->free_TI( old_face_ids );
+        ks->free_TI( old_scps );
         ks->free_TI( old_ids );
     }
 }

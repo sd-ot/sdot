@@ -5,6 +5,21 @@
 namespace sdot {
 
 template<class TF,class TI,class Arch>
+void *KernelSlot_Cpu<TF,TI,Arch>::allocate_TF( BI size ) {
+    if ( SimdSize<TF,Arch>::value > 1 )
+        return aligned_alloc( SimdSize<TF,Arch>::value * sizeof( TF ), sizeof( TF ) * size );
+    return new TF[ size ];
+}
+
+template<class TF,class TI,class Arch>
+void *KernelSlot_Cpu<TF,TI,Arch>::allocate_TI( BI size ) {
+    if ( SimdSize<TI,Arch>::value > 1 )
+        return aligned_alloc( SimdSize<TI,Arch>::value * sizeof( TI ), sizeof( TI ) * size );
+    return new TI[ size ];
+}
+
+
+template<class TF,class TI,class Arch>
 typename KernelSlot_Cpu<TF,TI,Arch>::BI KernelSlot_Cpu<TF,TI,Arch>::init_offsets_for_cut_cases( void *off_0, void *off_1, BI nb_nodes, BI nb_items ) {
     // off_x
     BI nb_cases = 1u << nb_nodes;
@@ -22,7 +37,7 @@ typename KernelSlot_Cpu<TF,TI,Arch>::BI KernelSlot_Cpu<TF,TI,Arch>::init_offsets
 }
 
 template<class TF,class TI,class Arch> template<int dim>
-void KernelSlot_Cpu<TF,TI,Arch>::_get_cut_cases( void *cut_cases, void *offsets, const void *coordinates, const void *ids, BI rese, const void **dirs, const void *sps, BI nb_items, N<dim> ) {
+void KernelSlot_Cpu<TF,TI,Arch>::_get_cut_cases( void *cut_cases, void *offsets, void *out_sps, const void *coordinates, const void *ids, BI rese, const void **dirs, const void *sps, BI nb_items, N<dim> ) {
     constexpr BI nb_nodes = 3;
 
     std::array<std::array<const TF *,dim>,nb_nodes> positions;
@@ -62,9 +77,9 @@ void KernelSlot_Cpu<TF,TI,Arch>::_get_cut_cases( void *cut_cases, void *offsets,
         for( TI n = 0; n < nb_nodes; ++n )
             nc = nc + ( as_SimdVec<VI>( scp[ n ] > SD ) & TI( 1 << n ) );
 
-        //        // store scalar product
-        //        for( TI n = 0; n < nb_nodes; ++n )
-        //            VF::store_aligned( scp_ptr[ n ] + beg_num_elem, scp[ n ] - SD );
+        // store scalar product
+        for( TI n = 0; n < nb_nodes; ++n )
+            VF::store_aligned( reinterpret_cast<TF *>( out_sps ) + n * rese + beg_num_item, scp[ n ] - SD );
 
         // store indices
         for( TI i = 0; i < simd_size.value; ++i )

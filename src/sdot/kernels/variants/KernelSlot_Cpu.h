@@ -22,8 +22,8 @@ public:
     virtual void     write_to_stream           ( std::ostream &os ) const { os << "Kernel(" << slot_name << "," << Arch::name() << ")"; }
     virtual void     assign_iota_TI            ( void *dst, BI dst_off, BI src_off, BI len ) override { std::iota( reinterpret_cast<TI *>( dst ) + dst_off, reinterpret_cast<TI *>( dst ) + dst_off + len, src_off ); }
     virtual BI       nb_multiprocs             () override { return 1; }
-    virtual void*    allocate_TF               ( BI size ) override { return new TF[ size ]; }
-    virtual void*    allocate_TI               ( BI size ) override { return new TI[ size ]; }
+    virtual void*    allocate_TF               ( BI size ) override;
+    virtual void*    allocate_TI               ( BI size ) override;
     virtual void     display_TF                ( std::ostream &os, const void *ptr, BI off, BI len ) { for( TI i = 0; i < len; ++i ) os << ( i ? "," : "" ) << reinterpret_cast<const TF *>( ptr )[ off + i ]; }
     virtual void     display_TI                ( std::ostream &os, const void *ptr, BI off, BI len ) { for( TI i = 0; i < len; ++i ) os << ( i ? "," : "" ) << reinterpret_cast<const TI *>( ptr )[ off + i ]; }
     virtual void     assign_TF                 ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) { for( TI n = 0; n < len; ++n ) reinterpret_cast<TF *>( dst )[ n + dst_off ] = reinterpret_cast<const TF *>( src )[ n + src_off ]; }
@@ -48,13 +48,13 @@ public:
     virtual BI       init_offsets_for_cut_cases( void *off_0, void *off_1, BI nb_nodes, BI nb_items ) override;
 
     #define          POSSIBLE_DIM( DIM )       \
-    virtual void     get_cut_cases             ( void *cut_cases, void *offsets, const void *coordinates, const void *ids, BI rese, const void **normals, const void *scalar_products, BI nb_items, N<DIM> nd ) override { _get_cut_cases( cut_cases, offsets, coordinates, ids, rese, normals, scalar_products, nb_items, nd ); }
+    virtual void     get_cut_cases             ( void *cut_cases, void *offsets, void *out_sps, const void *coordinates, const void *ids, BI rese, const void **normals, const void *scalar_products, BI nb_items, N<DIM> nd ) override { _get_cut_cases( cut_cases, offsets, out_sps, coordinates, ids, rese, normals, scalar_products, nb_items, nd ); }
     #include         "../possible_DIMs.h"
     #undef           POSSIBLE_DIM
 
 private:
     template         <int dim>
-    void             _get_cut_cases            ( void *cut_cases, void *offsets, const void *coordinates, const void *ids, BI rese, const void **normals, const void *scalar_products, BI nb_items, N<dim> );
+    void             _get_cut_cases            ( void *cut_cases, void *offsets, void *out_sps, const void *coordinates, const void *ids, BI rese, const void **normals, const void *scalar_products, BI nb_items, N<dim> );
     void             _get_local                ( const std::function<void( const double **tfs, const BI **tis )> &f, const std::tuple<const void *,BI,BI> *tfs_data, BI tfs_size, const std::tuple<const void *,BI,BI> *tis_data, BI tis_size, std::vector<const double *> &tfs_vec, std::vector<const BI *> &tis_vec );
 
     double           _score;

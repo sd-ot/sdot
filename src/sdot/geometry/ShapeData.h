@@ -25,6 +25,10 @@ struct ShapeData {
     void*              coordinates; ///< all the x for node 0, all the y for node 0, ... all the x for node 1, ...
     void*              face_ids;    ///< all the ids for node 0, all the ids for node 1, ...
     void*              ids;         ///<
+
+    void*              tmp_off_0;   ///<
+    void*              tmp_off_1;   ///<
+    void*              tmp_scps;    ///< scalar products
 };
 
 }

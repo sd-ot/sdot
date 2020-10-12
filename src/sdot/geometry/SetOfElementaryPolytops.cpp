@@ -68,15 +68,13 @@ void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, SetOfElementa
     ks->assign_iota_TI( sd->ids, os, beg_ids, count );
 }
 
-void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &new_face_ids ) {
-    // => construire des vecteurs avec les index pour chaque cas de coupe et pour chaque multiprocesseur
-    // chaque multiprocesseurs prend une partie des items
-    // on initialise les offsets avec
-
+void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &/*new_face_ids*/ ) {
+    // conversion of normals to void pointers
     std::vector<const void *> normals_data( normals.size() );
     for( BI i = 0; i < normals.size(); ++i )
         normals_data[ i ] = normals[ i ].data();
 
+    // get scalar product and cases
     for( const auto &p : shape_map ) {
         const ShapeData &sd = p.second;
 
@@ -88,12 +86,8 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
         // cases
         VecTI cut_cases( ks, re_cases );
         for_dim( dim, [&]( auto nd ) {
-            ks->get_cut_cases( cut_cases.data(), off_1.data(), sd.coordinates, sd.ids, sd.rese, normals_data.data(), scalar_products.data(), sd.size, nd );
+            ks->get_cut_cases( cut_cases.data(), off_1.data(), sd.scps, sd.coordinates, sd.ids, sd.rese, normals_data.data(), scalar_products.data(), sd.size, nd );
         } );
-
-        P( cut_cases );
-        P( off_0 );
-        P( off_1 );
     }
 
 }
