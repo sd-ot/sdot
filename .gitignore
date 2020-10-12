@@ -18,13 +18,11 @@ callgrind.out*
 oprofile_data/
 tmp/
 data/
-hugo/
 vtk/
 *.pdf
 *.user
 results/
 *.pyc
 *.cpython
-scripts/
 Untitled.*
 Untitled-checkpoint.*
