@@ -7,18 +7,18 @@ namespace sdot {
 SetOfElementaryPolytops::SetOfElementaryPolytops( KernelSlot *ks, unsigned dim ) : dim( dim ), ks( ks ) {
 }
 
-void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
-    os << "SetOfElementaryPolytops([";
+void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::string &sp ) const {
+    os << sp << "SetOfElementaryPolytops([";
     for( const auto &p : shape_map ) {
         const ShapeData &sd = p.second;
-        os << "\n  " << sd.shape_type->name();
+        os << "\n" << sp << "  " << sd.shape_type->name();
         for( std::size_t i = 0; i < sd.size(); ++i ) {
-            os << "\n   ";
+            os << "\n" << sp << "   ";
             for( std::size_t d = 0; d < sd.coordinates.size(); ++d )
                 sd.coordinates[ d ].display( os << " ", i, 1 );
         }
     }
-    os << "])";
+    os << "\n" << sp << "])";
 }
 
 void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, SetOfElementaryPolytops::BI count, const VecTF &coordinates ) {
@@ -29,7 +29,7 @@ void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, SetOfElementa
     sd->resize( os + count );
 
     for( std::size_t i = 0; i < coordinates.size(); ++i )
-        ks->assign_repeated_TF( sd->coordinates[ i ].data(), 0, coordinates.data(), i, count );
+        ks->assign_repeated_TF( sd->coordinates[ i ].data(), os, coordinates.data(), i, count );
 }
 
 ShapeData *SetOfElementaryPolytops::shape_data( ShapeType *shape_type ) {

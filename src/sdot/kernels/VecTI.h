@@ -6,20 +6,20 @@ namespace sdot {
 
 /**
 */
-class VecTF {
+class VecTI {
 public:
     using       BI             = KernelSlot::BI;
 
     template    <class TV>
-    /**/        VecTF          ( KernelSlot *ks, const std::vector<TV> &values );
-    /**/        VecTF          ( KernelSlot *ks, BI rese = 0, BI size = 0 );
-    /**/        VecTF          ( const VecTF &that );
-    /**/        VecTF          ( VecTF &&that );
+    /**/        VecTI          ( KernelSlot *ks, const std::vector<TV> &values );
+    /**/        VecTI          ( KernelSlot *ks, BI rese = 0, BI size = 0 );
+    /**/        VecTI          ( const VecTI &that );
+    /**/        VecTI          ( VecTI &&that );
 
-    /**/       ~VecTF          ();
+    /**/       ~VecTI          ();
 
-    VecTF&      operator=      ( const VecTF &that );
-    VecTF&      operator=      ( VecTF &&that );
+    VecTI&      operator=      ( const VecTI &that );
+    VecTI&      operator=      ( VecTI &&that );
 
     void        write_to_stream( std::ostream &os ) const;
     void        display        ( std::ostream &os, BI off, BI len ) const;
@@ -41,8 +41,8 @@ private:
 
 // ======================================================================
 template<class TV>
-VecTF::VecTF( KernelSlot *ks, const std::vector<TV> &values ) : VecTF( ks, values.size(), values.size() ) {
-    ks->assign_TF( _data, 0, values.data(), 0, values.size() );
+VecTI::VecTI( KernelSlot *ks, const std::vector<TV> &values ) : VecTI( ks, values.size(), values.size() ) {
+    ks->assign_TI( _data, 0, values.data(), 0, values.size() );
 }
 
 } // namespace sdot

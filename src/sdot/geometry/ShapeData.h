@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../kernels/VecTF.h"
+#include "../kernels/VecTI.h"
 #include "ShapeType.h"
 #include <vector>
 
@@ -18,9 +19,8 @@ struct ShapeData {
 
     std::vector<VecTF> coordinates; ///< all the x for node 0, all the y for node 0, ... all the x for node 1, ...
     ShapeType*         shape_type;  ///<
-    std::vector<VecTF> face_ids;    ///< all the ids for node 0, all the ids for node 1, ...
-    BI                 nb_items;    ///<
-    VecTF              ids;         ///<
+    std::vector<VecTI> face_ids;    ///< all the ids for node 0, all the ids for node 1, ...
+    VecTI              ids;         ///<
 };
 
 }

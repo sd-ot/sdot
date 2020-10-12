@@ -5,6 +5,7 @@
 
 #include "shape_types/Triangle.h"
 #include "ShapeData.h"
+#include "VtkOutput.h"
 
 #include <map>
 
@@ -18,7 +19,7 @@ public:
 
     /**/        SetOfElementaryPolytops( KernelSlot *ks, unsigned dim );
 
-    void        write_to_stream        ( std::ostream &os ) const;
+    void        write_to_stream        ( std::ostream &os, const std::string &sp = {} ) const;
     void        add_repeated           ( ShapeType *shape_type, BI count, const VecTF &coordinates );
 
 private:
