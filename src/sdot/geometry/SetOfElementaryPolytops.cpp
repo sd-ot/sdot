@@ -74,22 +74,44 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
     for( BI i = 0; i < normals.size(); ++i )
         normals_data[ i ] = normals[ i ].data();
 
-    // get scalar product and cases
+    // indices in sd.tmp
+    enum { out_scps, offset_0, offset_1 };
+
+    // get scalar product, cases and new_item_count
+    std::map<ShapeType *,BI> new_item_count;
     for( const auto &p : shape_map ) {
         const ShapeData &sd = p.second;
+        sd.tmp[ out_scps ] = ks->allocate_TF( sd.shape_type->nb_nodes() * sd.rese );
 
         // distribute work to multiprocessors, init offsets to cases
         BI nb_offsets = ks->nb_multiprocs() * ( 1u << sd.shape_type->nb_nodes() );
-        VecTI off_0( ks, nb_offsets ), off_1( ks, nb_offsets );
-        BI re_cases = ks->init_offsets_for_cut_cases( off_0.data(), off_1.data(), sd.shape_type->nb_nodes(), sd.size );
+        sd.tmp[ offset_0 ] = ks->allocate_TI( nb_offsets );
+        sd.tmp[ offset_1 ] = ks->allocate_TI( nb_offsets );
+        BI re_cases = ks->init_offsets_for_cut_cases( sd.tmp[ offset_0 ], sd.tmp[ offset_1 ], sd.shape_type->nb_nodes(), sd.size );
 
         // cases
         VecTI cut_cases( ks, re_cases );
-        for_dim( dim, [&]( auto nd ) {
-            ks->get_cut_cases( cut_cases.data(), off_1.data(), sd.scps, sd.coordinates, sd.ids, sd.rese, normals_data.data(), scalar_products.data(), sd.size, nd );
-        } );
+        for_dim( dim, [&]( auto nd ) { ks->get_cut_cases(
+               cut_cases.data(), sd.tmp[ offset_1 ], sd.tmp[ out_scps ],
+               sd.coordinates, sd.ids, sd.rese, normals_data.data(), scalar_products.data(), sd.size, nd
+        ); } );
+
+        // new item count
+        std::tuple<const void *,BI,BI> gos[] = { { sd.tmp[ offset_0 ], 0, nb_offsets }, { sd.tmp[ offset_1 ], 0, nb_offsets } };
+        ks->get_local( [&]( const double **, const BI **offsets ) {
+            sd.shape_type->cut_count( [&]( std::string shape_name, BI count ) {
+                P( shape_name, count );
+            }, offsets );
+        }, {}, 0, gos, 2 );
     }
 
+    // free tmp data
+    for( const auto &p : shape_map ) {
+        const ShapeData &sd = p.second;
+        ks->free_TF( sd.tmp[ out_scps ] );
+        ks->free_TF( sd.tmp[ offset_0 ] );
+        ks->free_TF( sd.tmp[ offset_1 ] );
+    }
 }
 
 ShapeData *SetOfElementaryPolytops::shape_data( ShapeType *shape_type ) {

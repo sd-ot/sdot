@@ -13,6 +13,7 @@ public:
     using               BI         = std::uint64_t;
 
     virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items ) = 0;
+    virtual void        cut_count  ( const std::function<void(std::string,BI)> &fc, const BI **offsets ) = 0;
     virtual unsigned    nb_nodes   () const = 0;
     virtual unsigned    nb_faces   () const = 0;
     virtual void        cut_ops    (  ) const = 0;

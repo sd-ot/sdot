@@ -26,9 +26,7 @@ struct ShapeData {
     void*              face_ids;    ///< all the ids for node 0, all the ids for node 1, ...
     void*              ids;         ///<
 
-    void*              tmp_off_0;   ///<
-    void*              tmp_off_1;   ///<
-    void*              tmp_scps;    ///< scalar products
+    mutable void*      tmp[ 3 ];    ///<
 };
 
 }
