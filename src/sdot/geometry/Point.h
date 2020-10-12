@@ -6,6 +6,8 @@
 #include <ostream>
 #include <vector>
 
+namespace sdot {
+
 /**
 */
 template<class TF_,int dim_>
@@ -71,6 +73,8 @@ template<class TF>         Point<TF,3>                ortho_rand( Point<TF,3> a 
 template<class TF,int dim> Point<TF,dim>              ortho_norm( Point<TF,dim> D, Point<TF,dim> N );
 template<class TF,int dim> std::vector<Point<TF,dim>> base_from ( const std::vector<Point<TF,dim>> &dirs );
 template<class TF,int dim> int                        rank_pts  ( const std::vector<Point<TF,dim>> &dirs );
+
+}
 
 #include "Point.tcc"
 

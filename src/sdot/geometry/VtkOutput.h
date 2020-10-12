@@ -21,7 +21,6 @@ public:
     /**/            VtkOutput   ();
 
     void            save        ( std::string filename ) const;
-
     void            save        ( std::ostream &os ) const;
 
     void            add_triangle( std::array<Pt,3> pts );

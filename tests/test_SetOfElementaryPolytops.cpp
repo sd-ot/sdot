@@ -12,5 +12,5 @@ int main() {
     sp.add_repeated( triangle(), 10, { ks, std::vector<double>{ 1, 2,  3, 4,  5, 6 } } );
     P( sp );
 
-    sp.display_vtk( vo );
+    //sp.display_vtk( vo );
 }

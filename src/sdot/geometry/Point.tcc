@@ -2,6 +2,8 @@
 #include "../support/conv.h"
 #include "Point.h"
 
+namespace sdot {
+
 template<class TF,int dim> template<class TG>
 Point<TF,dim>::Point( const Point<TG,dim> &p ) {
     for( int i = 0; i < dim; ++i )
@@ -363,4 +365,6 @@ int rank_pts( const std::vector<Point<TF,dim>> &pts ) {
     } );
 
     return res;
+}
+
 }
