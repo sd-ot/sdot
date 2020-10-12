@@ -19,8 +19,10 @@ public:
 
     /**/        SetOfElementaryPolytops( KernelSlot *ks, unsigned dim );
 
-    void        write_to_stream        ( std::ostream &os, const std::string &sp = {} ) const;
     void        add_repeated           ( ShapeType *shape_type, BI count, const VecTF &coordinates );
+
+    void        write_to_stream        ( std::ostream &os, const std::string &sp = {} ) const;
+    void        display_vtk            ( VtkOutput &vo ) const;
 
 private:
     using       ShapeMap               = std::map<ShapeType *,ShapeData>;
