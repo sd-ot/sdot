@@ -7,7 +7,8 @@ namespace sdot {
 */
 template<int n>
 struct N {
-    enum { val = n };
+    enum { value = n };
+
     operator int() const { return n; }
 
     template<class OS>

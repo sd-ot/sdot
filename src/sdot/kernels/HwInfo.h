@@ -6,7 +6,9 @@ namespace sdot {
 */
 class HwInfo {
 public:
-    HwInfo();
+    /**/ HwInfo  ();
+
+    bool has_AVX2() const;
 };
 
 }

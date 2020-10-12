@@ -51,7 +51,7 @@ public:
     virtual BI       init_offsets_for_cut_cases( void *off_0, void *off_1, BI nb_nodes, BI nb_items ) = 0;
 
     #define          POSSIBLE_DIM( DIM )       \
-      virtual void   get_cut_cases             ( void *cut_cases, void *offsets, const void *coordinates, const void *ids, const void **normals, const void *scalar_products, BI nb_items, N<DIM> nd ) = 0;
+      virtual void   get_cut_cases             ( void *cut_cases, void *offsets, const void *coordinates, const void *ids, BI rese, const void **normals, const void *scalar_products, BI nb_items, N<DIM> nd ) = 0;
     #include         "possible_DIMs.h"
     #undef           POSSIBLE_DIM
 

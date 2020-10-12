@@ -88,9 +88,12 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
         // cases
         VecTI cut_cases( ks, re_cases );
         for_dim( dim, [&]( auto nd ) {
-            ks->get_cut_cases( cut_cases.data(), off_1.data(), sd.coordinates, sd.ids, normals_data.data(), scalar_products.data(), sd.size, nd );
+            ks->get_cut_cases( cut_cases.data(), off_1.data(), sd.coordinates, sd.ids, sd.rese, normals_data.data(), scalar_products.data(), sd.size, nd );
         } );
+
         P( cut_cases );
+        P( off_0 );
+        P( off_1 );
     }
 
 }

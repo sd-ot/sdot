@@ -2,6 +2,7 @@
 #include <map>
 
 #include "../support/ERROR.h"
+#include "../support/P.h"
 #include "KernelSlot.h"
 #include "HwType.h"
 #include "HwInfo.h"
