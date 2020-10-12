@@ -99,14 +99,25 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
         // new item count
         std::tuple<const void *,BI,BI> gos[] = { { sd.tmp[ offset_0 ], 0, nb_offsets }, { sd.tmp[ offset_1 ], 0, nb_offsets } };
         ks->get_local( [&]( const double **, const BI **offsets ) {
-            sd.shape_type->cut_count( [&]( std::string shape_name, BI count ) {
-                P( shape_name, count );
+            sd.shape_type->cut_count( [&]( ShapeType *shape_type, BI count ) {
+                auto iter = new_item_count.find( shape_type );
+                if ( iter == new_item_count.end() )
+                    new_item_count.insert( iter, { shape_type, count } );
+                else
+                    iter->second += count;
             }, offsets );
         }, {}, 0, gos, 2 );
     }
 
-    // free tmp data
-    for( const auto &p : shape_map ) {
+    // new shape map
+    ShapeMap old_shape_map = std::exchange( shape_map, {} );
+    for( auto p : new_item_count )
+        shape_data( p.first )->reserve( p.second );
+
+
+
+    // free tmp data from old shape map
+    for( const auto &p : old_shape_map ) {
         const ShapeData &sd = p.second;
         ks->free_TF( sd.tmp[ out_scps ] );
         ks->free_TF( sd.tmp[ offset_0 ] );

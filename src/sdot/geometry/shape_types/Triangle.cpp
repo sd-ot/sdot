@@ -7,10 +7,10 @@ namespace sdot {
 class Triangle : public ShapeType {
 public:
     virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items ) override;
-    virtual void        cut_count  ( const std::function<void(std::string,BI)> &fc, const BI **offsets ) override;
+    virtual void        cut_count  ( const std::function<void(ShapeType *,BI)> &fc, const BI **offsets ) override;
     virtual unsigned    nb_nodes   () const override { return 3; }
     virtual unsigned    nb_faces   () const override { return 3; }
-    virtual void        cut_ops    () const override {}
+    virtual void        cut_ops    ( const std::function<void(ShapeType *,BI)> &fc, const BI **offsets ) const override;
     virtual std::string name       () const override { return "triangle"; }
 };
 
@@ -25,8 +25,8 @@ void Triangle::display_vtk( VtkOutput &vo, const double **tfs, const BI **/*tis*
     }
 }
 
-void Triangle::cut_count( const std::function<void(std::string,BI)> &fc, const BI **offsets ) {
-    fc( "triangle",
+void Triangle::cut_count( const std::function<void(ShapeType *,BI)> &fc, const BI **offsets ) {
+    fc( this,
         ( offsets[ 1 ][ 0 ] - offsets[ 0 ][ 0 ] ) * 1 +
         ( offsets[ 1 ][ 1 ] - offsets[ 0 ][ 1 ] ) * 1 +
         ( offsets[ 1 ][ 2 ] - offsets[ 0 ][ 2 ] ) * 2 +
@@ -36,6 +36,11 @@ void Triangle::cut_count( const std::function<void(std::string,BI)> &fc, const B
         ( offsets[ 1 ][ 6 ] - offsets[ 0 ][ 6 ] ) * 1 +
         ( offsets[ 1 ][ 7 ] - offsets[ 0 ][ 7 ] ) * 0
     );
+}
+
+void Triangle::cut_ops( KernelSlot *ks, const BI **offsets ) const {
+    // case 0: copy coordinates
+    //ks->assign_TF(  );
 }
 
 // =======================================================================================
