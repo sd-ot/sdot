@@ -2,6 +2,7 @@
 
 #include "../kernels/KernelSlot.h"
 #include "../kernels/VecTF.h"
+#include "../kernels/VecTI.h"
 
 #include "shape_types/Triangle.h"
 #include "ShapeData.h"

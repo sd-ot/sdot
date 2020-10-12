@@ -1,8 +1,19 @@
 #include "SetOfElementaryPolytops.h"
 #include "../support/ASSERT.h"
+#include "../support/TODO.h"
 #include "../support/P.h"
 
 namespace sdot {
+
+namespace {
+    template<class FU>
+    void for_dim( unsigned dim, const FU &fu ) {
+        #define POSSIBLE_DIM( DIM ) if ( dim == DIM ) return fu( N<DIM>() );
+        #include "../kernels/possible_DIMs.h"
+        #undef POSSIBLE_DIM
+        TODO;
+    }
+}
 
 SetOfElementaryPolytops::SetOfElementaryPolytops( KernelSlot *ks, unsigned dim ) : dim( dim ), ks( ks ) {
 }
@@ -12,17 +23,17 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::stri
     for( const auto &p : shape_map ) {
         const ShapeData &sd = p.second;
         os << "\n" << sp << "  " << sd.shape_type->name();
-        for( std::size_t i = 0; i < sd.size(); ++i ) {
+        for( std::size_t i = 0; i < sd.size; ++i ) {
             os << "\n" << sp << "   ";
             // coordinates
-            for( std::size_t d = 0; d < sd.coordinates.size(); ++d )
-                sd.coordinates[ d ].display( os << " ", i, 1 );
+            for( std::size_t d = 0; d < sd.shape_type->nb_nodes() * dim; ++d )
+                ks->display_TF( os << " ", sd.coordinates, sd.rese * d + i, 1 );
             // faces
             os << ",";
-            for( std::size_t d = 0; d < sd.face_ids.size(); ++d )
-                sd.face_ids[ d ].display( os << " ", i, 1 );
+            for( std::size_t d = 0; d < sd.shape_type->nb_faces(); ++d )
+                ks->display_TI( os << " ", sd.face_ids, sd.rese * d + i, 1 );
             // ids
-            sd.ids.display( os << ", ", i, 1 );
+            ks->display_TI( os << ", ", sd.ids, i, 1 );
         }
     }
     os << "\n" << sp << "])";
@@ -34,11 +45,11 @@ void SetOfElementaryPolytops::display_vtk( VtkOutput &vo ) const {
 
         std::vector<std::tuple<const void *,BI,BI>> tfs;
         std::vector<std::tuple<const void *,BI,BI>> tis;
-        for( const VecTF &c : sd.coordinates )
-            tfs.emplace_back( c.data(), 0, c.size() );
+        for( std::size_t d = 0; d < sd.shape_type->nb_nodes() * dim; ++d )
+            tfs.emplace_back( sd.coordinates, sd.rese * d, sd.size );
 
         ks->get_local( [&]( const double **tfs, const BI **tis ) {
-            sd.shape_type->display_vtk( vo, tfs, tis, dim, sd.size() );
+            sd.shape_type->display_vtk( vo, tfs, tis, dim, sd.size );
         }, tfs.data(), tfs.size(), tis.data(), tis.size() );
     }
 }
@@ -47,20 +58,41 @@ void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, SetOfElementa
     ASSERT( coordinates.size() == dim * shape_type->nb_nodes(), "wrong coordinates size" );
     ShapeData *sd = shape_data( shape_type );
 
-    BI os = sd->size();
+    BI os = sd->size;
     sd->resize( os + count );
 
-    for( std::size_t i = 0; i < coordinates.size(); ++i )
-        ks->assign_repeated_TF( sd->coordinates[ i ].data(), os, coordinates.data(), i, count );
-    for( std::size_t i = 0; i < sd->face_ids.size(); ++i )
-        ks->assign_repeated_TI( sd->face_ids[ i ].data(), os, face_ids.data(), i, count );
-    ks->assign_iota_TI( sd->ids.data(), os, beg_ids, count );
+    for( std::size_t i = 0; i < sd->shape_type->nb_nodes() * dim; ++i )
+        ks->assign_repeated_TF( sd->coordinates, os + i * sd->rese, coordinates.data(), i, count );
+    for( std::size_t i = 0; i < sd->shape_type->nb_faces(); ++i )
+        ks->assign_repeated_TI( sd->face_ids, os + i * sd->rese, face_ids.data(), i, count );
+    ks->assign_iota_TI( sd->ids, os, beg_ids, count );
 }
 
 void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &new_face_ids ) {
-    P( normals );
-    P( scalar_products );
-    P( new_face_ids );
+    // => construire des vecteurs avec les index pour chaque cas de coupe et pour chaque multiprocesseur
+    // chaque multiprocesseurs prend une partie des items
+    // on initialise les offsets avec
+
+    std::vector<const void *> normals_data( normals.size() );
+    for( BI i = 0; i < normals.size(); ++i )
+        normals_data[ i ] = normals[ i ].data();
+
+    for( const auto &p : shape_map ) {
+        const ShapeData &sd = p.second;
+
+        // distribute work to multiprocessors, init offsets to cases
+        BI nb_offsets = ks->nb_multiprocs() * ( 1u << sd.shape_type->nb_nodes() );
+        VecTI off_0( ks, nb_offsets ), off_1( ks, nb_offsets );
+        BI re_cases = ks->init_offsets_for_cut_cases( off_0.data(), off_1.data(), sd.shape_type->nb_nodes(), sd.size );
+
+        // cases
+        VecTI cut_cases( ks, re_cases );
+        for_dim( dim, [&]( auto nd ) {
+            ks->get_cut_cases( cut_cases.data(), off_1.data(), sd.coordinates, sd.ids, normals_data.data(), scalar_products.data(), sd.size, nd );
+        } );
+        P( cut_cases );
+    }
+
 }
 
 ShapeData *SetOfElementaryPolytops::shape_data( ShapeType *shape_type ) {

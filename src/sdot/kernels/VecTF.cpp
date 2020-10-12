@@ -10,6 +10,9 @@ VecTF::VecTF( KernelSlot *ks, BI rese, BI size ) : ks( ks ) {
     _size = size;
 }
 
+VecTF::VecTF( KernelSlot *ks, BI size ) : VecTF( ks, size, size ) {
+}
+
 VecTF::VecTF( const VecTF &that ) : VecTF( that.ks, that.size(), that.size() ) {
     ks->assign_TF( _data, 0, that._data, 0, _size );
 }

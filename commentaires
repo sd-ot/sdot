@@ -1,0 +1,7 @@
+Prop: comme on gère tout en interne, pour les coordonnées on pourrait faire un seul tableau
+* ou bien avec tous les x, puis tous les y, etc...
+* ou bien 1024 x, 1024 y, ...
+
+La première solution serait plus simple... De toutes façon le 1024 devra être mis dans un registre... sauf instructions spéciales. Mais il est peu probable qu'elle soit présente sur GPU.
+
+

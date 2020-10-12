@@ -1,26 +1,30 @@
 #pragma once
 
-#include "../kernels/VecTF.h"
-#include "../kernels/VecTI.h"
 #include "ShapeType.h"
-#include <vector>
 
 namespace sdot {
 
 /**
 */
 struct ShapeData {
-    using              BI           = VecTF::BI;
+    using              BI           = ShapeType::BI;
 
     /**/               ShapeData    ( KernelSlot *ks, ShapeType *shape_type, unsigned dim );
+    /**/              ~ShapeData    ();
 
+    void               reserve      ( BI new_size );
     void               resize       ( BI new_size );
-    BI                 size         () const;
 
-    std::vector<VecTF> coordinates; ///< all the x for node 0, all the y for node 0, ... all the x for node 1, ...
     ShapeType*         shape_type;  ///<
-    std::vector<VecTI> face_ids;    ///< all the ids for node 0, all the ids for node 1, ...
-    VecTI              ids;         ///<
+    BI                 log2_rese;   ///<
+    BI                 rese;        ///<
+    BI                 size;        ///<
+    unsigned           dim;         ///<
+    KernelSlot*        ks;          ///<
+
+    void*              coordinates; ///< all the x for node 0, all the y for node 0, ... all the x for node 1, ...
+    void*              face_ids;    ///< all the ids for node 0, all the ids for node 1, ...
+    void*              ids;         ///<
 };
 
 }

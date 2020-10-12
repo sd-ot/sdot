@@ -12,7 +12,8 @@ public:
 
     template    <class TV>
     /**/        VecTI          ( KernelSlot *ks, const std::vector<TV> &values );
-    /**/        VecTI          ( KernelSlot *ks, BI rese = 0, BI size = 0 );
+    /**/        VecTI          ( KernelSlot *ks, BI rese, BI size );
+    /**/        VecTI          ( KernelSlot *ks, BI size = 0 );
     /**/        VecTI          ( const VecTI &that );
     /**/        VecTI          ( VecTI &&that );
 
