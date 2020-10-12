@@ -10,7 +10,7 @@ VecTT::VecTT( KernelSlot *ks, BI rese, BI size ) : ks( ks ) {
     _size = size;
 }
 
-VecTT::VecTT( const VecTT &that ) : VecTT( that.ks, that.size() ) {
+VecTT::VecTT( const VecTT &that ) : VecTT( that.ks, that.size(), that.size() ) {
     ks->assign_TT( _data, 0, that._data, 0, _size );
 }
 

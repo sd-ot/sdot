@@ -14,8 +14,15 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::stri
         os << "\n" << sp << "  " << sd.shape_type->name();
         for( std::size_t i = 0; i < sd.size(); ++i ) {
             os << "\n" << sp << "   ";
+            // coordinates
             for( std::size_t d = 0; d < sd.coordinates.size(); ++d )
                 sd.coordinates[ d ].display( os << " ", i, 1 );
+            // faces
+            os << ",";
+            for( std::size_t d = 0; d < sd.face_ids.size(); ++d )
+                sd.face_ids[ d ].display( os << " ", i, 1 );
+            // ids
+            sd.ids.display( os << ", ", i, 1 );
         }
     }
     os << "\n" << sp << "])";
@@ -34,13 +41,9 @@ void SetOfElementaryPolytops::display_vtk( VtkOutput &vo ) const {
             sd.shape_type->display_vtk( vo, tfs, tis, dim, sd.size() );
         }, tfs.data(), tfs.size(), tis.data(), tis.size() );
     }
-    //    std::vector<VecTF> coordinates; ///< all the x for node 0, all the y for node 0, ... all the x for node 1, ...
-    //    ShapeType*         shape_type;  ///<
-    //    std::vector<VecTI> face_ids;    ///< all the ids for node 0, all the ids for node 1, ...
-    //    VecTI              ids;         ///<
 }
 
-void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, SetOfElementaryPolytops::BI count, const VecTF &coordinates ) {
+void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, SetOfElementaryPolytops::BI count, const VecTF &coordinates, const VecTI &face_ids, BI beg_ids ) {
     ASSERT( coordinates.size() == dim * shape_type->nb_nodes(), "wrong coordinates size" );
     ShapeData *sd = shape_data( shape_type );
 
@@ -49,6 +52,15 @@ void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, SetOfElementa
 
     for( std::size_t i = 0; i < coordinates.size(); ++i )
         ks->assign_repeated_TF( sd->coordinates[ i ].data(), os, coordinates.data(), i, count );
+    for( std::size_t i = 0; i < sd->face_ids.size(); ++i )
+        ks->assign_repeated_TI( sd->face_ids[ i ].data(), os, face_ids.data(), i, count );
+    ks->assign_iota_TI( sd->ids.data(), os, beg_ids, count );
+}
+
+void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &new_face_ids ) {
+    P( normals );
+    P( scalar_products );
+    P( new_face_ids );
 }
 
 ShapeData *SetOfElementaryPolytops::shape_data( ShapeType *shape_type ) {

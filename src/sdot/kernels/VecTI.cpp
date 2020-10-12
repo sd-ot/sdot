@@ -10,7 +10,7 @@ VecTI::VecTI( KernelSlot *ks, BI rese, BI size ) : ks( ks ) {
     _size = size;
 }
 
-VecTI::VecTI( const VecTI &that ) : VecTI( that.ks, that.size() ) {
+VecTI::VecTI( const VecTI &that ) : VecTI( that.ks, that.size(), that.size() ) {
     ks->assign_TI( _data, 0, that._data, 0, _size );
 }
 

@@ -22,6 +22,7 @@ public:
     virtual void    assign_repeated_TF( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
     virtual void    assign_repeated_TI( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
     virtual void    write_to_stream   ( std::ostream &os ) const = 0;
+    virtual void    assign_iota_TI    ( void *dst, BI dst_off, BI src_off, BI len ) = 0;
     virtual void*   allocate_TF       ( BI size ) = 0;
     virtual void*   allocate_TI       ( BI size ) = 0;
     virtual void    display_TF        ( std::ostream &os, const void *data, BI off, BI len ) = 0;
