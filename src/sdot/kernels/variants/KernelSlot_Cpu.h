@@ -57,7 +57,7 @@ public:
     #include         "../possible_DIMs.h"
     #undef           POSSIBLE_DIM
 
-    virtual void     mk_items_0_0_1_1_2_2      ( ShapeData &new_shape_data, const std::array<BI,3> &new_node_indices, const ShapeData &old_shape_data, const std::array<BI,3> &old_node_indices, BI num_case, BI cut_id, N<2> dim ) override {
+    virtual void     mk_items_0_0_1_1_2_2      ( ShapeData &new_shape_data, const std::array<BI,3> &new_node_indices, const ShapeData &old_shape_data, const std::array<BI,3> &old_node_indices, BI num_case, const void */*cut_ids*/, N<2> dim ) override {
         TF *new_x_0 = reinterpret_cast<TF *>( new_shape_data.coordinates ) + ( new_node_indices[ 0 ] * dim + 0 ) * new_shape_data.rese;
         TF *new_y_0 = reinterpret_cast<TF *>( new_shape_data.coordinates ) + ( new_node_indices[ 0 ] * dim + 1 ) * new_shape_data.rese;
         TF *new_x_1 = reinterpret_cast<TF *>( new_shape_data.coordinates ) + ( new_node_indices[ 1 ] * dim + 0 ) * new_shape_data.rese;

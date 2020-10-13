@@ -13,10 +13,10 @@ public:
     virtual unsigned    nb_faces   () const override { return 3; }
     virtual std::string name       () const override { return "triangle"; }
 
-    virtual void        cut_ops    ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, BI cut_id, BI /*dim*/ ) const override {
+    virtual void        cut_ops    ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override {
         ShapeData &nsd = new_shape_map.find( this )->second;
 
-        ks->mk_items_0_0_1_1_2_2( nsd, { 0, 1, 2 }, old_shape_data, { 0, 1, 2 }, 0, cut_id, N<2>() );
+        ks->mk_items_0_0_1_1_2_2( nsd, { 0, 1, 2 }, old_shape_data, { 0, 1, 2 }, 0, cut_ids, N<2>() );
     }
 };
 

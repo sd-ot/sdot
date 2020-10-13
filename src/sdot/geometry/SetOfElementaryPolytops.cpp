@@ -68,7 +68,7 @@ void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, SetOfElementa
     ks->assign_iota_TI( sd->ids, os, beg_ids, count );
 }
 
-void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &/*new_face_ids*/ ) {
+void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &cut_ids ) {
     // conversion of normals to void pointers
     std::vector<const void *> normals_data( normals.size() );
     for( BI i = 0; i < normals.size(); ++i )
@@ -116,7 +116,7 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
 
     for( const auto &p : old_shape_map ) {
         const ShapeData &sd = p.second;
-        sd.shape_type->cut_ops( ks, shape_map, sd, 0, dim );
+        sd.shape_type->cut_ops( ks, shape_map, sd, cut_ids.data(), dim );
     }
 
     // free tmp data from old shape map

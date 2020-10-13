@@ -22,7 +22,7 @@ public:
 
     void        add_repeated           ( ShapeType *shape_type, BI count, const VecTF &coordinates, const VecTI &face_ids, BI beg_ids = 0 );
 
-    void        plane_cut              ( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &new_face_ids );
+    void        plane_cut              ( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &cut_ids );
 
     void        write_to_stream        ( std::ostream &os, const std::string &sp = {} ) const;
     void        display_vtk            ( VtkOutput &vo ) const;
