@@ -12,6 +12,9 @@ namespace sdot {
 KernelSlot::KernelSlot( std::string slot_name ) : slot_name( slot_name ) {
 }
 
+KernelSlot::~KernelSlot() {
+}
+
 // =====================================================================
 KernelSlot::VK KernelSlot::available_slots( std::string TF, std::string TI ) {
     HwInfo hw_info;

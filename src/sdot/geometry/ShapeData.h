@@ -6,16 +6,17 @@ namespace sdot {
 
 /**
 */
-struct ShapeData {
+class ShapeData {
+public:
     using              BI           = ShapeType::BI;
 
-    /**/               ShapeData    ( KernelSlot *ks, ShapeType *shape_type, unsigned dim );
+    /**/               ShapeData    ( KernelSlot *ks, const ShapeType *shape_type, unsigned dim );
     /**/              ~ShapeData    ();
 
     void               reserve      ( BI new_size );
     void               resize       ( BI new_size );
 
-    ShapeType*         shape_type;  ///<
+    const ShapeType*   shape_type;  ///<
     BI                 log2_rese;   ///<
     BI                 rese;        ///<
     BI                 size;        ///<
@@ -26,7 +27,8 @@ struct ShapeData {
     void*              face_ids;    ///< all the ids for node 0, all the ids for node 1, ...
     void*              ids;         ///<
 
-    mutable void*      tmp[ 3 ];    ///<
+    enum {             out_scps, cut_case, offset_0, offset_1 };
+    mutable void*      tmp[ 4 ];    ///<
 };
 
 }

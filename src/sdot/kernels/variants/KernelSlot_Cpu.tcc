@@ -20,9 +20,8 @@ void *KernelSlot_Cpu<TF,TI,Arch>::allocate_TI( BI size ) {
 
 
 template<class TF,class TI,class Arch>
-typename KernelSlot_Cpu<TF,TI,Arch>::BI KernelSlot_Cpu<TF,TI,Arch>::init_offsets_for_cut_cases( void *off_0, void *off_1, BI nb_nodes, BI nb_items ) {
+typename KernelSlot_Cpu<TF,TI,Arch>::BI KernelSlot_Cpu<TF,TI,Arch>::init_offsets_for_cut_cases( void *off_0, void *off_1, BI nb_cases, BI nb_items ) {
     // off_x
-    BI nb_cases = 1u << nb_nodes;
     BI re_items = ceil( nb_items, 1 );
     for( BI n = 0, i = 0; n < nb_cases; ++n ) {
         for( BI m = 0; m < nb_multiprocs(); ++m, ++i ) {

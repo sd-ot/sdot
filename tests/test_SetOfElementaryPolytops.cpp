@@ -31,10 +31,12 @@ int main() {
         Pt p = { std::cos( a ), std::sin( a ) };
         cxs.push_back( p[ 0 ] );
         cys.push_back( p[ 1 ] );
-        css.push_back( dot( p, Pt{ 0.33, 0.33 } ) );
+        css.push_back( dot( p, Pt{ -1.33, 0.33 } ) );
         new_face_ids.push_back( i );
     }
+
     sp.plane_cut( { { ks, cxs }, { ks, cys } }, { ks, css }, { ks, new_face_ids } );
+    P( sp );
 
     //
     VtkOutput vo;

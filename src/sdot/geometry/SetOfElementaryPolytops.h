@@ -28,9 +28,9 @@ public:
     void        display_vtk            ( VtkOutput &vo ) const;
 
 private:
-    using       ShapeMap               = std::map<ShapeType *,ShapeData>;
+    using       ShapeMap               = std::map<const ShapeType *,ShapeData>;
 
-    ShapeData*  shape_data             ( ShapeType *shape_type );
+    ShapeData*  shape_data             ( const ShapeType *shape_type );
 
     ShapeMap    shape_map;             ///<
     unsigned    dim;                   ///<

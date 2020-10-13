@@ -74,32 +74,32 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
     for( BI i = 0; i < normals.size(); ++i )
         normals_data[ i ] = normals[ i ].data();
 
-    // indices in sd.tmp
-    enum { out_scps, offset_0, offset_1 };
-
     // get scalar product, cases and new_item_count
-    std::map<ShapeType *,BI> new_item_count;
+    std::map<const ShapeType *,BI> new_item_count;
     for( const auto &p : shape_map ) {
         const ShapeData &sd = p.second;
-        sd.tmp[ out_scps ] = ks->allocate_TF( sd.shape_type->nb_nodes() * sd.rese );
+
+        // reservation
+        BI nb_cases = 1u << sd.shape_type->nb_nodes();
+        BI nb_offsets = ks->nb_multiprocs() * nb_cases;
+        sd.tmp[ ShapeData::out_scps ] = ks->allocate_TF( sd.shape_type->nb_nodes() * sd.rese );
+        sd.tmp[ ShapeData::offset_0 ] = ks->allocate_TI( nb_offsets );
+        sd.tmp[ ShapeData::offset_1 ] = ks->allocate_TI( nb_offsets );
 
         // distribute work to multiprocessors, init offsets to cases
-        BI nb_offsets = ks->nb_multiprocs() * ( 1u << sd.shape_type->nb_nodes() );
-        sd.tmp[ offset_0 ] = ks->allocate_TI( nb_offsets );
-        sd.tmp[ offset_1 ] = ks->allocate_TI( nb_offsets );
-        BI re_cases = ks->init_offsets_for_cut_cases( sd.tmp[ offset_0 ], sd.tmp[ offset_1 ], sd.shape_type->nb_nodes(), sd.size );
+        BI re_cases = ks->init_offsets_for_cut_cases( sd.tmp[ ShapeData::offset_0 ], sd.tmp[ ShapeData::offset_1 ], nb_cases, sd.size );
+        sd.tmp[ ShapeData::cut_case ] = ks->allocate_TI( nb_cases * re_cases );
 
-        // cases
-        VecTI cut_cases( ks, re_cases );
+        // cut_cases
         for_dim( dim, [&]( auto nd ) { ks->get_cut_cases(
-               cut_cases.data(), sd.tmp[ offset_1 ], sd.tmp[ out_scps ],
+               sd.tmp[ ShapeData::cut_case ], sd.tmp[ ShapeData::offset_1 ], sd.tmp[ ShapeData::out_scps ],
                sd.coordinates, sd.ids, sd.rese, normals_data.data(), scalar_products.data(), sd.size, nd
         ); } );
 
         // new item count
-        std::tuple<const void *,BI,BI> gos[] = { { sd.tmp[ offset_0 ], 0, nb_offsets }, { sd.tmp[ offset_1 ], 0, nb_offsets } };
+        std::tuple<const void *,BI,BI> gos[] = { { sd.tmp[ ShapeData::offset_0 ], 0, nb_offsets }, { sd.tmp[ ShapeData::offset_1 ], 0, nb_offsets } };
         ks->get_local( [&]( const double **, const BI **offsets ) {
-            sd.shape_type->cut_count( [&]( ShapeType *shape_type, BI count ) {
+            sd.shape_type->cut_count( [&]( const ShapeType *shape_type, BI count ) {
                 auto iter = new_item_count.find( shape_type );
                 if ( iter == new_item_count.end() )
                     new_item_count.insert( iter, { shape_type, count } );
@@ -114,18 +114,22 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
     for( auto p : new_item_count )
         shape_data( p.first )->reserve( p.second );
 
-
+    for( const auto &p : old_shape_map ) {
+        const ShapeData &sd = p.second;
+        sd.shape_type->cut_ops( ks, shape_map, sd, 0, dim );
+    }
 
     // free tmp data from old shape map
     for( const auto &p : old_shape_map ) {
         const ShapeData &sd = p.second;
-        ks->free_TF( sd.tmp[ out_scps ] );
-        ks->free_TF( sd.tmp[ offset_0 ] );
-        ks->free_TF( sd.tmp[ offset_1 ] );
+        ks->free_TF( sd.tmp[ ShapeData::out_scps ] );
+        ks->free_TF( sd.tmp[ ShapeData::cut_case ] );
+        ks->free_TF( sd.tmp[ ShapeData::offset_0 ] );
+        ks->free_TF( sd.tmp[ ShapeData::offset_1 ] );
     }
 }
 
-ShapeData *SetOfElementaryPolytops::shape_data( ShapeType *shape_type ) {
+ShapeData *SetOfElementaryPolytops::shape_data( const ShapeType *shape_type ) {
     auto iter = shape_map.find( shape_type );
     if ( iter == shape_map.end() )
         iter = shape_map.insert( iter, { shape_type, ShapeData{ ks, shape_type, dim } } );

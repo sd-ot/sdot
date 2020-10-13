@@ -10,6 +10,7 @@
 #include <string>
 
 namespace sdot {
+class ShapeData;
 
 /**
 */
@@ -19,6 +20,7 @@ public:
     using            BI                        = std::uint64_t;
 
     /**/             KernelSlot                ( std::string slot_name );
+    virtual         ~KernelSlot                ();
 
     virtual void     assign_repeated_TF        ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
     virtual void     assign_repeated_TI        ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
@@ -48,12 +50,14 @@ public:
     #include         "possible_TIs.h"
     #undef           POSSIBLE_TI
 
-    virtual BI       init_offsets_for_cut_cases( void *off_0, void *off_1, BI nb_nodes, BI nb_items ) = 0;
+    virtual BI       init_offsets_for_cut_cases( void *off_0, void *off_1, BI nb_cases, BI nb_items ) = 0;
 
     #define          POSSIBLE_DIM( DIM )       \
       virtual void   get_cut_cases             ( void *cut_cases, void *offsets, void *out_sps, const void *coordinates, const void *ids, BI rese, const void **normals, const void *scalar_products, BI nb_items, N<DIM> nd ) = 0;
     #include         "possible_DIMs.h"
     #undef           POSSIBLE_DIM
+
+    virtual void     mk_items_0_0_1_1_2_2      ( ShapeData &new_shape_data, const std::array<BI,3> &new_node_indices, const ShapeData &old_shape_data, const std::array<BI,3> &old_node_indices, BI num_case, BI cut_id, N<2> ) = 0;
 
     template         <class TF,class TI>
     static  VK       available_slots           ( S<TF>, S<TI> ) { return available_slots( TypeName<TF>::name(), TypeName<TI>::name() ); }
