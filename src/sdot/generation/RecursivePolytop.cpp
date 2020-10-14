@@ -1,61 +1,35 @@
-#include "Point.h"
-#include "conv.h"
+#include "../support/generic_ostream_output.h"
+#include "RecursivePolytop.h"
 
-template<class TF,int dim> template<class TG>
-Point<TF,dim>::Point( const Point<TG,dim> &p ) {
-    for( int i = 0; i < dim; ++i )
-        data[ i ] = conv( p.data[ i ], S<TF>() );
+namespace sdot {
+
+RecursivePolytop::RecursivePolytop( TI nvi ) : connectivity( nvi ) {
 }
 
-template<class TF,int dim> template<class TG>
-Point<TF,dim>::Point( const TG *v ) {
-    for( int i = 0; i < dim; ++i )
-        data[ i ] = TF( v[ i ] );
-}
+RecursivePolytop RecursivePolytop::convex_hull( const std::vector<Pt> &points ) {
+    RecursivePolytop res( points[ 0 ].size() );
+    res.points = points;
 
-template<class TF,int dim> template<class TG>
-Point<TF,dim>::Point( TG x, TG y, TG z ) {
-    data[ 0 ] = TF( x );
-    data[ 1 ] = TF( y );
-    data[ 2 ] = TF( z );
-}
+    for( TI var = 0; var < points.size(); ++var )
+        res.connectivity.nodes.push_back( var );
 
-template<class TF,int dim> template<class TG>
-Point<TF,dim>::Point( TG x, TG y ) {
-    data[ 0 ] = TF( x );
-    data[ 1 ] = TF( y );
-}
-
-template<class TF,int dim>
-Point<TF,dim>::Point( TF x ) {
-    for( int i = 0; i < dim; ++i )
-        data[ i ] = x;
-}
-
-template<class TF,int dim>
-Point<TF,dim>::Point() {
-}
-
-// IO
-template<class TF,int dim> template<class Bq>
-Point<TF,dim> Point<TF,dim>::read_from( Bq &bq )  {
-    Point<TF,dim> res;
-    for( int i = 0; i < dim; ++i )
-        res.data[ i ] = bq.read();
     return res;
 }
 
-template<class TF,int dim> template<class Bq>
-void Point<TF,dim>::write_to( Bq &bq ) const {
-    for( int i = 0; i < dim; ++i )
-        bq << data[ i ];
+void RecursivePolytop::write_to_stream( std::ostream &os ) const {
+    os << "points:";
+    for( const Pt &p : points  ) {
+        os << " ";
+        for( TI i = 0; i < p.size(); ++i )
+            os << ( i ? "," : "" ) << p[ i ];
+    }
+    os << "\n";
+
+    connectivity.write_to_stream( os );
 }
 
-template<class TF,int dim>
-bool Point<TF,dim>::operator<( const Point &that ) const {
-    for( int i = 0; i < dim; ++i )
-        if ( data[ i ] != that.data[ i ] )
-            return data[ i ] < that.data[ i ];
-    return false;
+RecursivePolytop::TI RecursivePolytop::nb_faces() const {
+    return points.size();
 }
 
+} // namespace sdot

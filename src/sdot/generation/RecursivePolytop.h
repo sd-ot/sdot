@@ -1,35 +1,27 @@
-#ifndef SDOT_generation_Shape_H
-#define SDOT_generation_Shape_H
+#pragma once
 
-#include "../geometry/Point.h"
-#include "Rational.h"
+#include "RecursivePolytopConnectivity.h"
 
 namespace sdot {
 
 /**
 */
-template<int dim,int nvi>
-struct Shape {
-    using TF             = Rational;
-    using Pt             = Point<TF,dim>;
+struct RecursivePolytop {
+    using           Connectivity    = RecursivePolytopConnectivity;
+    using           Pt              = std::vector<Rational>;
+    using           Rp              = RecursivePolytop;
+    using           TI              = std::size_t;
+    using           TF              = Rational;
 
-    void  write_to_stream( std::ostream &os ) const {}
-};
+    /**/            RecursivePolytop( TI nvi );
 
-/**
-*/
-template<int dim>
-struct Shape<dim,2> {
-    using TF             = Rational;
-    using Pt             = Point<TF,dim>;
+    static Rp       convex_hull     ( const std::vector<Pt> &points );
 
-    void  write_to_stream( std::ostream &os ) const {}
+    void            write_to_stream ( std::ostream &os ) const;
+    TI              nb_faces        () const;
 
-
+    Connectivity    connectivity;
+    std::vector<Pt> points;
 };
 
 } // namespace sdot
-
-#include "Shape.tcc"
-
-#endif // SDOT_generation_Shape_H
