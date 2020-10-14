@@ -29,10 +29,10 @@ int main() {
     std::vector<NamedRecursivePolytop> primitive_shapes;
     init_of_primitive_shapes( primitive_shapes );
 
-    std::string directory = "src/sdot/geometry/shape_types/";
 
     // summary.h
-    std::ofstream summary( directory + "summary.h" );
+    std::string shape_directory = "src/sdot/geometry/shape_types/";
+    std::ofstream summary( shape_directory + "summary.h" );
     summary << "// generated file\n";
     summary << "#pragma once\n";
     summary << "#include \"../ShapeType.h\"\n";
@@ -41,8 +41,8 @@ int main() {
     // shape.cpp + summary.h
     GlobGeneGeomData gggd;
     for( const NamedRecursivePolytop &ps : primitive_shapes ) {
-        std::ofstream incl( directory + ps.name + ".h" );
-        std::ofstream impl( directory + ps.name + ".cpp" );
+        std::ofstream incl( shape_directory + ps.name + ".h" );
+        std::ofstream impl( shape_directory + ps.name + ".cpp" );
         ps.write_primitive_shape_incl( incl );
         ps.write_primitive_shape_impl( impl, gggd, primitive_shapes );
 
@@ -50,4 +50,9 @@ int main() {
         summary << "#include \"" << ps.name << ".h\"\n";
     }
     summary << "\n}\n";
+
+    // KernelSlot_gen_decl.h
+    gggd.write_gen_defs( "src/sdot/kernels/variants/KernelSlot_gen_def_cpu.h", false );
+    gggd.write_gen_defs( "src/sdot/kernels/variants/KernelSlot_gen_def_gpu.h", true );
+    gggd.write_gen_decls( "src/sdot/kernels/KernelSlot_gen_decl.h" );
 }
