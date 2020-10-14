@@ -32,4 +32,8 @@ RecursivePolytop::TI RecursivePolytop::nb_faces() const {
     return points.size();
 }
 
+RecursivePolytop::TI RecursivePolytop::dim() const {
+    return points.size() ? points[ 0 ].size() : 0;
+}
+
 } // namespace sdot

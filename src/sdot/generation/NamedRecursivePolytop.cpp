@@ -1,5 +1,6 @@
 #include "../support/generic_ostream_output.h"
 #include "NamedRecursivePolytop.h"
+#include "GlobGeneGeomData.h"
 #include "CutCase.h"
 using TI = std::size_t;
 
@@ -18,12 +19,12 @@ void NamedRecursivePolytop::write_primitive_shape_incl( std::ostream &os ) const
     os << "}\n";
 }
 
-void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, const std::vector<NamedRecursivePolytop> &/*available_primitive_shapes*/ ) const {
+void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGeneGeomData &gggd, const std::vector<NamedRecursivePolytop> &/*available_primitive_shapes*/ ) const {
     std::vector<CutCase> cut_cases( std::uint64_t( 1 ) << polytop.points.size() );
-    for( std::uint64_t n = 0; n < cut_cases.size(); ++n ) {
+    for( TI n = 0; n < cut_cases.size(); ++n ) {
         std::vector<bool> outside( polytop.points.size() );
         for( std::uint64_t j = 0; j < polytop.points.size(); ++j )
-            outside[ j ] = n & ( std::uint64_t( 1 ) << j );
+            outside[ j ] = n & ( TI( 1 ) << j );
         cut_cases[ n ].init( polytop, outside );
     }
 
@@ -46,11 +47,13 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, const 
     os << "    virtual unsigned    nb_faces   () const override { return " << polytop.nb_faces() << "; }\n";
     os << "    virtual std::string name       () const override { return \"" << name << "\"; }\n";
     os << "\n";
+
     // cut ops
     os << "    virtual void        cut_ops    ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override {\n";
     os << "        ShapeData &nsd = new_shape_map.find( this )->second;\n";
     os << "\n";
-    os << "        ks->mk_items_0_0_1_1_2_2( nsd, { 0, 1, 2 }, old_shape_data, { 0, 1, 2 }, 0, cut_ids, N<2>() );\n";
+    for( std::uint64_t n = 0; n < cut_cases.size(); ++n )
+        write_cut_op( os, gggd, cut_cases[ n ], n );
     os << "    }\n";
     os << "};\n";
     os << "\n";
@@ -73,14 +76,8 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, const 
     // cut count
     os << "void " << name << "::cut_count( const std::function<void(const ShapeType *,BI)> &fc, const BI **offsets ) const {\n";
     os << "    fc( this,\n";
-    os << "        ( offsets[ 1 ][ 0 ] - offsets[ 0 ][ 0 ] ) * 1 +\n";
-    os << "        ( offsets[ 1 ][ 1 ] - offsets[ 0 ][ 1 ] ) * 0 +\n";
-    os << "        ( offsets[ 1 ][ 2 ] - offsets[ 0 ][ 2 ] ) * 0 +\n";
-    os << "        ( offsets[ 1 ][ 3 ] - offsets[ 0 ][ 3 ] ) * 0 +\n";
-    os << "        ( offsets[ 1 ][ 4 ] - offsets[ 0 ][ 4 ] ) * 0 +\n";
-    os << "        ( offsets[ 1 ][ 5 ] - offsets[ 0 ][ 5 ] ) * 0 +\n";
-    os << "        ( offsets[ 1 ][ 6 ] - offsets[ 0 ][ 6 ] ) * 0 +\n";
-    os << "        ( offsets[ 1 ][ 7 ] - offsets[ 0 ][ 7 ] ) * 0\n";
+    for( std::uint64_t n = 0; n < cut_cases.size(); ++n )
+        os << "        ( offsets[ 1 ][ " << n << " ] - offsets[ 0 ][ " << n << " ] ) * " << cut_cases[ n ].nb_created( name ) << ( n + 1 < cut_cases.size() ? " +" : "" ) << "\n";
     os << "    );\n";
     os << "}\n";
     os << "\n";
@@ -94,6 +91,17 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, const 
     os << "} // namespace sdot\n";
 
 
+}
+
+void NamedRecursivePolytop::write_cut_op( std::ostream &os, GlobGeneGeomData &gggd, CutCase &cut_case, TI num_case ) const {
+    if ( cut_case.all_inside() ) {
+        std::vector<TI> inds;
+        for( TI i = 0; i < polytop.points.size(); ++i )
+            for( TI j = 0; j < 2; ++j )
+                inds.push_back( i );
+        os << "        ks->" << gggd.mk_item_name( inds ) << "( nsd, { 0, 1, 2 }, old_shape_data, { 0, 1, 2 }, " << num_case << ", cut_ids, N<" << polytop.dim() << ">() );\n";
+        return;
+    }
 }
 
 }

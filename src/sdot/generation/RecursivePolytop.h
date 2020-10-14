@@ -19,6 +19,7 @@ struct RecursivePolytop {
 
     void            write_to_stream ( std::ostream &os ) const;
     TI              nb_faces        () const;
+    TI              dim             () const;
 
     Connectivity    connectivity;
     std::vector<Pt> points;

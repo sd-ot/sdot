@@ -1,4 +1,5 @@
 #include "NamedRecursivePolytop.h"
+#include "GlobGeneGeomData.h"
 #include "../support/P.h"
 #include <fstream>
 
@@ -38,11 +39,12 @@ int main() {
     summary << "namespace sdot {\n\n";
 
     // shape.cpp + summary.h
+    GlobGeneGeomData gggd;
     for( const NamedRecursivePolytop &ps : primitive_shapes ) {
         std::ofstream incl( directory + ps.name + ".h" );
         std::ofstream impl( directory + ps.name + ".cpp" );
         ps.write_primitive_shape_incl( incl );
-        ps.write_primitive_shape_impl( impl, primitive_shapes );
+        ps.write_primitive_shape_impl( impl, gggd, primitive_shapes );
 
         // summary.h
         summary << "#include \"" << ps.name << ".h\"\n";

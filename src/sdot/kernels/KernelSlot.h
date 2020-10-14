@@ -57,7 +57,8 @@ public:
     #include         "possible_DIMs.h"
     #undef           POSSIBLE_DIM
 
-    virtual void     mk_items_0_0_1_1_2_2      ( ShapeData &new_shape_data, const std::array<BI,3> &new_node_indices, const ShapeData &old_shape_data, const std::array<BI,3> &old_node_indices, BI num_case, const void *cut_ids, N<2> ) = 0;
+    #include "KernelSlot_gen_decl.h"
+    // virtual void     mk_items_0_0_1_1_2_2      ( ShapeData &new_shape_data, const std::array<BI,3> &new_node_indices, const ShapeData &old_shape_data, const std::array<BI,3> &old_node_indices, BI num_case, const void *cut_ids, N<2> ) = 0;
 
     template         <class TF,class TI>
     static  VK       available_slots           ( S<TF>, S<TI> ) { return available_slots( TypeName<TF>::name(), TypeName<TI>::name() ); }
