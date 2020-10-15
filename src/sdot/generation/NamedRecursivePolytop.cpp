@@ -94,12 +94,14 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
 }
 
 void NamedRecursivePolytop::write_cut_op( std::ostream &os, GlobGeneGeomData &gggd, CutCase &cut_case, TI num_case ) const {
-    if ( cut_case.all_inside() ) {
+    if ( cut_case.cownai.cut_op ) {
         std::vector<TI> inds;
         for( TI i = 0; i < polytop.points.size(); ++i )
             for( TI j = 0; j < 2; ++j )
                 inds.push_back( i );
-        os << "        ks->" << gggd.mk_item_name( inds ) << "( nsd, { 0, 1, 2 }, old_shape_data, { 0, 1, 2 }, " << num_case << ", cut_ids, N<" << polytop.dim() << ">() );\n";
+
+        gggd.needed_cut_ops.insert( cut_case.cownai.cut_op );
+        os << "        ks->" << cut_case.cownai.cut_op.mk_item_func_name() << "( nsd, { 0, 1, 2 }, old_shape_data, { 0, 1, 2 }, " << num_case << ", cut_ids, N<" << polytop.dim() << ">() );\n";
         return;
     }
 }

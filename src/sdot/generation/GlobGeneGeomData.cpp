@@ -3,32 +3,23 @@
 
 namespace sdot {
 
-std::string GlobGeneGeomData::mk_item_name( std::vector<TI> inds ) {
-    needed_cut_ops.insert( inds );
-
-    std::string res = "mk_items";
-    for( TI i : inds )
-        res += "_" + std::to_string( i );
-    return res;
-}
-
-void GlobGeneGeomData::write_gen_decl( std::ostream &os, std::vector<TI> inds, std::string prefix, std::string suffix ) {
-    os << prefix << "void " << mk_item_name( inds ) << "( ";
+void GlobGeneGeomData::write_gen_decl( std::ostream &os, const CutOp &cut_op, std::string prefix, std::string suffix ) {
+    os << prefix << "void " << cut_op.mk_item_func_name() << "( ";
     os << "ShapeData &new_shape_data, const std::array<BI," << 3 << "> &new_node_indices, ";
     os << "const ShapeData &old_shape_data, const std::array<BI,3> &old_node_indices, BI num_case, const void *cut_ids, N<2> dim )" << suffix;
 }
 
 void GlobGeneGeomData::write_gen_decls( std::string filename ) {
     std::ofstream os( filename );
-    for( std::vector<TI> inds : needed_cut_ops )
-        write_gen_decl( os, inds, "virtual ", " = 0;\n" );
+    for( const CutOp &cut_op : needed_cut_ops )
+        write_gen_decl( os, cut_op, "virtual ", " = 0;\n" );
 }
 
 void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
     std::ofstream os( filename );
 
-    for( std::vector<TI> inds : needed_cut_ops ) {
-        write_gen_decl( os, inds, {}, " override {\n" );
+    for( const CutOp &cut_op : needed_cut_ops ) {
+        write_gen_decl( os, cut_op, {}, " override {\n" );
 
         os << "    TF *new_x_0 = reinterpret_cast<TF *>( new_shape_data.coordinates ) + ( new_node_indices[ 0 ] * dim + 0 ) * new_shape_data.rese;\n";
         os << "    TF *new_y_0 = reinterpret_cast<TF *>( new_shape_data.coordinates ) + ( new_node_indices[ 0 ] * dim + 1 ) * new_shape_data.rese;\n";
