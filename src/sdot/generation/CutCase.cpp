@@ -2,7 +2,7 @@
 
 namespace sdot {
 
-void CutCase::init( const RecursivePolytop &/*rp*/, const std::vector<bool> &out_points ) {
+void CutCase::init( const NamedRecursivePolytop &rp, const std::vector<bool> &out_points, const std::vector<NamedRecursivePolytop> &/*primitive_shapes*/ ) {
     this->out_points = out_points;
 
     nb_new_edges = 0;
@@ -11,6 +11,7 @@ void CutCase::init( const RecursivePolytop &/*rp*/, const std::vector<bool> &out
         nb_new_edges += out_points[ i ] == 0 && out_points[ j ] == 1;
     }
 
+    // cownai ======================================================================
     // simple case: all_inside
     if ( std::find( out_points.begin(), out_points.end(), true ) == out_points.end() ) {
         CutItem cut_item;
@@ -19,9 +20,14 @@ void CutCase::init( const RecursivePolytop &/*rp*/, const std::vector<bool> &out
                 cut_item.node_inds.push_back( i );
         cownai.cut_op.cut_items.push_back( cut_item );
 
-        cownai.outputs.push_back( { "shape_name", {} } );
         for( TI i = 0; i < out_points.size(); ++i )
-            TODO;
+            cownai.inputs.push_back( i );
+
+        CutOpWithNamesAndInds::Out output;
+        output.shape_name = rp.name;
+        for( TI i = 0; i < out_points.size(); ++i )
+            output.inds.push_back( i );
+        cownai.outputs.push_back( output );
 
         return;
     }
@@ -30,7 +36,7 @@ void CutCase::init( const RecursivePolytop &/*rp*/, const std::vector<bool> &out
 }
 
 CutCase::TI CutCase::nb_created( std::string /*name*/ ) const {
-    return cut_op.cut_items.size();
+    return cownai.cut_op.cut_items.size();
 }
 
 }

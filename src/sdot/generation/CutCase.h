@@ -12,9 +12,11 @@ public:
     using                TI        = std::size_t;
     using                CC        = CutOpWithNamesAndInds;
 
-    void                 init      ( const RecursivePolytop &rp, const std::vector<bool> &out_points );
+    void                 init      ( const NamedRecursivePolytop &rp, const std::vector<bool> &out_points, const std::vector<NamedRecursivePolytop> &primitive_shapes );
 
     TI                   nb_created( std::string name ) const;
+
+
 
     TI                   nb_new_edges;
     std::vector<bool>    out_points;

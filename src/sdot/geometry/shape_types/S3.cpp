@@ -2,6 +2,8 @@
 #include "../ShapeData.h"
 #include "../VtkOutput.h"
 #include "S3.h"
+#include "S4.h"
+#include "S5.h"
 
 namespace sdot {
 
@@ -14,9 +16,9 @@ public:
     virtual std::string name       () const override { return "S3"; }
 
     virtual void        cut_ops    ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override {
-        ShapeData &nsd = new_shape_map.find( this )->second;
+        ShapeData &nsd_S3 = new_shape_map.find( s3() )->second;
 
-        ks->mk_items_0_0_1_1_2_2( nsd, { 0, 1, 2 }, old_shape_data, { 0, 1, 2 }, 0, cut_ids, N<2>() );
+        ks->mk_items_0_0_1_1_2_2( nsd_S3, { 0, 1, 2 }, old_shape_data, { 0, 1, 2 }, 0, cut_ids, N<2>() );
     }
 };
 
