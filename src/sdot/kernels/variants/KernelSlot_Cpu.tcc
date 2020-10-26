@@ -5,6 +5,11 @@
 namespace sdot {
 
 template<class TF,class TI,class Arch>
+KernelSlot::BI KernelSlot_Cpu<TF,TI,Arch>::nb_lanes_TF() {
+    return SimdSize<TF,Arch>::value;
+}
+
+template<class TF,class TI,class Arch>
 void *KernelSlot_Cpu<TF,TI,Arch>::allocate_TF( BI size ) {
     if ( SimdSize<TF,Arch>::value > 1 )
         return aligned_alloc( SimdSize<TF,Arch>::value * sizeof( TF ), sizeof( TF ) * size );
@@ -16,23 +21,6 @@ void *KernelSlot_Cpu<TF,TI,Arch>::allocate_TI( BI size ) {
     if ( SimdSize<TI,Arch>::value > 1 )
         return aligned_alloc( SimdSize<TI,Arch>::value * sizeof( TI ), sizeof( TI ) * size );
     return new TI[ size ];
-}
-
-
-template<class TF,class TI,class Arch>
-typename KernelSlot_Cpu<TF,TI,Arch>::BI KernelSlot_Cpu<TF,TI,Arch>::init_offsets_for_cut_cases( void *off_0, void *off_1, BI nb_cases, BI nb_items ) {
-    // off_x
-    BI re_items = ceil( nb_items, 1 );
-    for( BI n = 0, i = 0; n < nb_cases; ++n ) {
-        for( BI m = 0; m < nb_multiprocs(); ++m, ++i ) {
-            BI off = re_items * n + m * nb_items / nb_multiprocs();
-            reinterpret_cast<TI *>( off_0 )[ i ] = off;
-            reinterpret_cast<TI *>( off_1 )[ i ] = off;
-        }
-    }
-
-    //
-    return re_items * nb_cases;
 }
 
 template<class TF,class TI,class Arch> template<int dim>

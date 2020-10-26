@@ -14,9 +14,10 @@ int main() {
     std::vector<std::unique_ptr<KernelSlot>> ak = KernelSlot::available_slots();
     KernelSlot *ks = ak[ 0 ].get();
 
+    SetOfElementaryPolytops sp( ks, 2 );
+
     TI nb_triangles = 10;
 
-    SetOfElementaryPolytops sp( ks, 2 );
     sp.add_repeated( triangle(), nb_triangles,
         { ks, std::vector<TF>{ 0, 0, 1, 0, 0, 1 } },
         { ks, std::vector<TI>{ 0, 1, 2 } }

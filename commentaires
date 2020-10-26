@@ -1,7 +1,12 @@
-Prop: comme on gère tout en interne, pour les coordonnées on pourrait faire un seul tableau
-* ou bien avec tous les x, puis tous les y, etc...
-* ou bien 1024 x, 1024 y, ...
+Prop: en première phase, le but est d'obtenir:
+- les produits scalaires
+- les numéros de cas
+- une liste avec les nombre de cas pour chaque "thread"
 
-La première solution serait plus simple... De toutes façon le 1024 devra être mis dans un registre... sauf instructions spéciales. Mais il est peu probable qu'elle soit présente sur GPU.
+En deuxième phase, on met à jour les offsets.
+
+En troisième phase, on fait un parcourt des produits scalaires et on colle les index triés à partir des offsets.
+
+
 
 

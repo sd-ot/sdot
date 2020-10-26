@@ -27,6 +27,7 @@ public:
     virtual void     write_to_stream           ( std::ostream &os ) const { os << "Kernel(" << slot_name << "," << Arch::name() << ")"; }
     virtual void     assign_iota_TI            ( void *dst, BI dst_off, BI src_off, BI len ) override { std::iota( reinterpret_cast<TI *>( dst ) + dst_off, reinterpret_cast<TI *>( dst ) + dst_off + len, src_off ); }
     virtual BI       nb_multiprocs             () override { return 1; }
+    virtual BI       nb_lanes_TF               () override;
     virtual void*    allocate_TF               ( BI size ) override;
     virtual void*    allocate_TI               ( BI size ) override;
     virtual void     display_TF                ( std::ostream &os, const void *ptr, BI off, BI len ) { for( TI i = 0; i < len; ++i ) os << ( i ? "," : "" ) << reinterpret_cast<const TF *>( ptr )[ off + i ]; }
@@ -49,8 +50,6 @@ public:
       virtual void   assign_TI                 ( T *dst, BI dst_off, const void *src, BI src_off, BI len ) { for( TI n = 0; n < len; ++n ) dst[ n + dst_off ] = reinterpret_cast<const TI *>( src )[ n + src_off ]; }
     #include         "../possible_TIs.h"
     #undef           POSSIBLE_TI
-
-    virtual BI       init_offsets_for_cut_cases( void *off_0, void *off_1, BI nb_nodes, BI nb_items ) override;
 
     #define          POSSIBLE_DIM( DIM )       \
     virtual void     get_cut_cases             ( void *cut_cases, void *offsets, void *out_sps, const void *coordinates, const void *ids, BI rese, const void **normals, const void *scalar_products, BI nb_items, N<DIM> nd ) override { _get_cut_cases( cut_cases, offsets, out_sps, coordinates, ids, rese, normals, scalar_products, nb_items, nd ); }
