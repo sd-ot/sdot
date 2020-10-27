@@ -120,11 +120,18 @@ void KernelSlot_Cpu<TF,TI,Arch>::_get_cut_cases( void *cut_cases, void *counts, 
 }
 
 template<class TF, class TI,class Arch>
+void KernelSlot_Cpu<TF,TI,Arch>::read_TI( BI *dst, const void *src, BI src_off, BI len ) {
+    for( BI i = 0; i < len; ++i )
+        dst[ i ] = reinterpret_cast<const TI *>( src )[ src_off + i ];
+}
+
+template<class TF, class TI,class Arch>
 void KernelSlot_Cpu<TF,TI,Arch>::get_local( const std::function<void( const double **tfs, const BI **tis )> &f, const std::tuple<const void *,BI,BI> *tfs_data, BI tfs_size, const std::tuple<const void *,BI,BI> *tis_data, BI tis_size ) {
     std::vector<const BI *> tis_vec;
     std::vector<const double *> tfs_vec;
     _get_local( f, tfs_data, tfs_size, tis_data, tis_size, tfs_vec, tis_vec );
 }
+
 
 template<class TF,class TI,class Arch>
 void KernelSlot_Cpu<TF,TI,Arch>::_get_local( const std::function<void( const double **tfs, const BI **tis )> &f, const std::tuple<const void *,BI,BI> *tfs_data, BI tfs_size, const std::tuple<const void *,BI,BI> *tis_data, BI tis_size, std::vector<const double *> &tfs_vec, std::vector<const BI *> &tis_vec ) {

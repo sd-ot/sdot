@@ -13,8 +13,11 @@ void GlobGeneGeomData::write_gen_decl( std::ostream &os, const CutOp &cut_op, st
 
 void GlobGeneGeomData::write_gen_decls( std::string filename ) {
     std::ofstream os( filename );
-    for( const CutOp &cut_op : needed_cut_ops )
+    for( const CutOp &cut_op : needed_cut_ops ) {
+        if ( cut_op.cut_items.empty() )
+            continue;
         write_gen_decl( os, cut_op, "virtual ", " = 0;\n" );
+    }
 }
 
 void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
@@ -22,6 +25,8 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
     std::ofstream os( filename );
 
     for( const CutOp &cut_op : needed_cut_ops ) {
+        if ( cut_op.cut_items.empty() )
+            continue;
         write_gen_decl( os, cut_op, {}, " override {\n" );
 
         // ptr to new items
@@ -54,15 +59,12 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
         os << "\n";
 
         // ptr to indices
-        os << "    const TI *o0 = reinterpret_cast<const TI *>( osd.tmp[ ShapeData::offset_0 ] );\n";
-        os << "    const TI *o1 = reinterpret_cast<const TI *>( osd.tmp[ ShapeData::offset_1 ] );\n";
-        os << "    const TI *cc = reinterpret_cast<const TI *>( osd.tmp[ ShapeData::cut_case ] );\n";
+        os << "    const TI *indices = reinterpret_cast<const TI *>( osd.tmp[ ShapeData::indices ] );\n";
 
         // loop over indices
         os << "\n";
-        os << "    for( BI nmp = 0; nmp < nb_multiprocs(); ++nmp ) {\n";
-        os << "        for( BI ind = o0[ num_case * nb_multiprocs() + nmp ], end = o1[ num_case * nb_multiprocs() + nmp ]; ind < end; ++ind ) {\n";
-        os << "            TI off = cc[ ind ];\n";
+        os << "    for( BI num_ind = osd.case_offsets[ num_case + 0 ]; num_ind < osd.case_offsets[ num_case + 1 ]; ++num_ind ) {\n";
+        os << "        TI off = indices[ num_ind ];\n";
         os << "\n";
 
         // needed values
@@ -72,34 +74,36 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
                 if ( nn[ 0 ] != nn[ 1 ] )
                     cs.insert( { nn[ 0 ], nn[ 1 ] } );
 
+        if ( cs.size() )
+            os << " const TF *out_scps = reinterpret_cast<const TF *>( osd.tmp[ ShapeData::out_scps ] );\n";
+
         // compute them
         for( TI nn = 0; nn < cut_op.nb_input_nodes(); ++nn )
             for( TI d = 0; d < cut_op.dim; ++d )
-                os << "            TF " << nd[ d ] << "_" << nn << "_" << nn << " = old_" << nd[ d ] << "_" << nn << "[ off ];\n";
+                os << "        TF " << nd[ d ] << "_" << nn << "_" << nn << " = old_" << nd[ d ] << "_" << nn << "[ off ];\n";
         for( std::array<TI,2> c : cs )
             for( TI d = 0; d < cut_op.dim; ++d )
-                os << "            TF " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 1 ] << " = TF( 1 ) / 2 * ( " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 0 ] << " + " << nd[ d ] << "_" << c[ 1 ] << "_" << c[ 1 ] << " );\n";
+                os << "        TF " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 1 ] << " = TF( 1 ) / 2 * ( " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 0 ] << " + " << nd[ d ] << "_" << c[ 1 ] << "_" << c[ 1 ] << " );\n";
         os << "\n";
 
         // store them
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
             for( TI nn = 0; nn < cut_op.cut_items[ no ].nodes.size(); ++nn )
                 for( TI d = 0; d < cut_op.dim; ++d )
-                    os << "            new_" << nd[ d ] << "_" << nn << "_" << no << "[ nsd_" << no << ".size ] = " << nd[ d ] << "_" << cut_op.cut_items[ no ].nodes[ nn ][ 0 ] << "_" << cut_op.cut_items[ no ].nodes[ nn ][ 1 ] << ";\n";
+                    os << "        new_" << nd[ d ] << "_" << nn << "_" << no << "[ nsd_" << no << ".size ] = " << nd[ d ] << "_" << cut_op.cut_items[ no ].nodes[ nn ][ 0 ] << "_" << cut_op.cut_items[ no ].nodes[ nn ][ 1 ] << ";\n";
         os << "\n";
 
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
             for( TI nn = 0; nn < cut_op.cut_items[ no ].nodes.size(); ++nn )
-                os << "            new_f_" << nn << "_" << no << "[ nsd_" << no << ".size ] = old_f_" << nn << "[ off ];\n";
+                os << "        new_f_" << nn << "_" << no << "[ nsd_" << no << ".size ] = old_f_" << nn << "[ off ];\n";
         os << "\n";
 
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
-            os << "            new_ids_" << no << "[ nsd_" << no << ".size ] = old_ids[ off ];\n";
+            os << "        new_ids_" << no << "[ nsd_" << no << ".size ] = old_ids[ off ];\n";
         os << "\n";
 
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
-            os << "            ++nsd_" << no << ".size;\n";
-        os << "        }\n";
+            os << "        ++nsd_" << no << ".size;\n";
         os << "    }\n";
         os << "}\n";
     }

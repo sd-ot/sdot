@@ -19,8 +19,8 @@ int main() {
     TI nb_triangles = 10;
 
     sp.add_repeated( triangle(), nb_triangles,
-        { ks, std::vector<TF>{ 0, 0, 1, 0, 0, 1 } },
-        { ks, std::vector<TI>{ 0, 1, 2 } }
+        { ks, std::vector<TF>{ 0, 0, 1, 0, 0, 1 } }, // positions
+        { ks, std::vector<TI>{ 0, 1, 2 } } // face ids
     );
     P( sp );
 

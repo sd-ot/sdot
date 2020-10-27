@@ -92,44 +92,40 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
         BI nb_offsets = nb_cases * ks->nb_lanes_TF();
 
         sd.tmp[ ShapeData::out_scps ] = ks->allocate_TF( nb_scalar_products ); // scalar products for each element
-        sd.tmp[ ShapeData::cut_case ] = ks->allocate_TI( sd.size ); // cut case for each element
-        sd.tmp[ ShapeData::offsets  ] = ks->allocate_TI( nb_offsets ); // nb element for each cut case and for each thread
-        sd.tmp[ ShapeData::indices  ] = ks->allocate_TI( sd.size ); // num elem, sorted by case number
+        sd.tmp[ ShapeData::indices ] = ks->allocate_TI( sd.size ); // num elem, sorted by case number
+
+        void *cut_cases = ks->allocate_TI( sd.size ); // cut case for each element
+        void *offsets = ks->allocate_TI( nb_offsets ); // nb element for each cut case and for each thread
 
         // get scalar products, cut_cases and counts
         for_nb_nodes_and_dim( sd.shape_type->nb_nodes(), dim, [&]( auto nn, auto nd ) { ks->get_cut_cases(
-            sd.tmp[ ShapeData::cut_case ], sd.tmp[ ShapeData::offsets ], sd.tmp[ ShapeData::out_scps ],
-            sd.coordinates, sd.ids, sd.rese, normals_data.data(), scalar_products.data(), sd.size, nn, nd
+            cut_cases, offsets, sd.tmp[ ShapeData::out_scps ], sd.coordinates, sd.ids, sd.rese,
+            normals_data.data(), scalar_products.data(), sd.size, nn, nd
         ); } );
 
         // transform counts to offsets (scan)
-        ks->count_to_offsets( sd.tmp[ ShapeData::offsets ], sd.shape_type->nb_nodes() );
+        ks->count_to_offsets( offsets, sd.shape_type->nb_nodes() );
 
         // get nb created items
-        std::tuple<const void *,BI,BI> gos{ sd.tmp[ ShapeData::offsets ], 0, nb_cases };
-        ks->get_local( [&]( const double **, const BI **tis ) {
-            // get nb input items for each case
-            const BI *cum_offsets = tis[ 0 ];
-            std::vector<BI> count_by_case( nb_cases );
-            for( BI num_case = 0; num_case < nb_cases; ++num_case )
-                count_by_case[ num_case ] = num_case + 1 < nb_cases ? cum_offsets[ num_case + 1 ] - cum_offsets[ num_case ] : sd.size - cum_offsets[ num_case ];
+        sd.case_offsets.resize( nb_cases + 1 );
+        ks->read_TI( sd.case_offsets.data(), offsets, 0, nb_cases );
+        sd.case_offsets[ nb_cases ] = sd.size;
 
-            // get nb output items
-            sd.shape_type->cut_count( [&]( const ShapeType *shape_type, BI count ) {
-                auto iter = new_item_count.find( shape_type );
-                if ( iter == new_item_count.end() )
-                    new_item_count.insert( iter, { shape_type, count } );
-                else
-                    iter->second += count;
-            }, count_by_case.data() );
-        }, nullptr, 0, &gos, 1 );
+        // update nb items to create for each type
+        sd.shape_type->cut_count( [&]( const ShapeType *shape_type, BI count ) {
+            auto iter = new_item_count.find( shape_type );
+            if ( iter == new_item_count.end() )
+                new_item_count.insert( iter, { shape_type, count } );
+            else
+                iter->second += count;
+        }, sd.case_offsets.data() );
 
         // make indices
-        ks->sorted_indices( sd.tmp[ ShapeData::indices ], sd.tmp[ ShapeData::offsets ], sd.tmp[ ShapeData::cut_case ], sd.size, sd.shape_type->nb_nodes() );
+        ks->sorted_indices( sd.tmp[ ShapeData::indices ], offsets, cut_cases, sd.size, sd.shape_type->nb_nodes() );
 
         // free local data
-        ks->free_TI( sd.tmp[ ShapeData::cut_case ] );
-        ks->free_TI( sd.tmp[ ShapeData::offsets  ] );
+        ks->free_TI( cut_cases );
+        ks->free_TI( offsets );
     }
 
     // new shape map (using the new item counts)

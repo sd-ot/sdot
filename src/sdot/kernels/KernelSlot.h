@@ -45,6 +45,7 @@ public:
     virtual void     assign_TF                ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
     virtual void     assign_TI                ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
     virtual void     get_local                ( const std::function<void( const double **tfs, const BI **tis )> &f, const std::tuple<const void *,BI,BI> *tfs_data, BI tfs_size, const std::tuple<const void *,BI,BI> *tis_data, BI tis_size ) = 0;
+    virtual void     read_TI                  ( BI *dst, const void *src, BI src_off, BI len ) = 0;
 
     #define          POSSIBLE_TF( T )         \
     virtual void     assign_TF                ( void *dst, BI dst_off, const T *src, BI src_off, BI len ) = 0; \
