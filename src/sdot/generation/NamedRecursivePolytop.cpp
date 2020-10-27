@@ -117,14 +117,20 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
             for( TI num_output = 0; num_output < cut_case.cownai.outputs.size(); ++num_output ) {
                 CutOpWithNamesAndInds::Out &output = cut_case.cownai.outputs[ num_output ];
                 os << "nsd_" << output.shape_name << ", {";
-                for( TI n = 0; n < output.inds.size(); ++n )
-                    os << ( n ? ", " : " " ) << output.inds[ n ];
+                for( TI n = 0; n < output.output_node_inds.size(); ++n )
+                    os << ( n ? ", " : " " ) << output.output_node_inds[ n ];
+                os << " }, {";
+                for( TI n = 0; n < output.output_face_inds.size(); ++n )
+                    os << ( n ? ", " : " " ) << output.output_face_inds[ n ];
                 os << " }, ";
             }
 
             os << "old_shape_data, {";
-            for( TI n = 0; n < cut_case.cownai.inputs.size(); ++n )
-                os << ( n ? ", " : " " ) << cut_case.cownai.inputs[ n ];
+            for( TI n = 0; n < cut_case.cownai.input_node_inds.size(); ++n )
+                os << ( n ? ", " : " " ) << cut_case.cownai.input_node_inds[ n ];
+            os << " }, {";
+            for( TI n = 0; n < cut_case.cownai.input_face_inds.size(); ++n )
+                os << ( n ? ", " : " " ) << cut_case.cownai.input_face_inds[ n ];
             os << " }, " << num_cut_case << ", cut_ids, N<" << polytop.dim() << ">() );\n";
         }
     }

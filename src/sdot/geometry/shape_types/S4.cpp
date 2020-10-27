@@ -18,7 +18,7 @@ public:
     virtual void        cut_ops    ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override {
         ShapeData &nsd_S4 = new_shape_map.find( s4() )->second;
 
-        ks->mk_items_0_0_1_1_2_2_3_3( nsd_S4, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, 0, cut_ids, N<2>() );
+        ks->mk_items_n4_0_0_1_1_2_2_3_3_f4_0_1_2_3( nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, 0, cut_ids, N<2>() );
     }
 };
 

@@ -1,3 +1,3 @@
-virtual void mk_items_0_0_1_1_2_2( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const ShapeData &osd, const std::array<BI,3> &oni, BI num_case, const void *cut_ids, N<2> dim ) = 0;
-virtual void mk_items_0_0_1_1_2_2_3_3( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const ShapeData &osd, const std::array<BI,4> &oni, BI num_case, const void *cut_ids, N<2> dim ) = 0;
-virtual void mk_items_0_0_1_1_2_2_3_3_4_4( ShapeData &nsd_0, const std::array<BI,5> &nni_0, const ShapeData &osd, const std::array<BI,5> &oni, BI num_case, const void *cut_ids, N<2> dim ) = 0;
+virtual void mk_items_n3_0_0_1_1_2_2_f3_0_1_2( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI num_case, const void *cut_ids, N<2> dim ) = 0;
+virtual void mk_items_n4_0_0_1_1_2_2_3_3_f4_0_1_2_3( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) = 0;
+virtual void mk_items_n5_0_0_1_1_2_2_3_3_4_4_f5_0_1_2_3_4( ShapeData &nsd_0, const std::array<BI,5> &nni_0, const std::array<BI,5> &nfi_0, const ShapeData &osd, const std::array<BI,5> &oni, const std::array<BI,5> &ofi, BI num_case, const void *cut_ids, N<2> dim ) = 0;

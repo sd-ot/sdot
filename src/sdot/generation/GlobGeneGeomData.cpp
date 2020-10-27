@@ -7,8 +7,8 @@ namespace sdot {
 void GlobGeneGeomData::write_gen_decl( std::ostream &os, const CutOp &cut_op, std::string prefix, std::string suffix ) {
     os << prefix << "void " << cut_op.mk_item_func_name() << "( ";
     for( TI i = 0; i < cut_op.cut_items.size(); ++i )
-        os << "ShapeData &nsd_" << i << ", const std::array<BI," << cut_op.cut_items[ i ].nodes.size() << "> &nni_" << i << ", ";
-    os << "const ShapeData &osd, const std::array<BI," << cut_op.nb_input_nodes() << "> &oni, BI num_case, const void *cut_ids, N<" << cut_op.dim << "> dim )" << suffix;
+        os << "ShapeData &nsd_" << i << ", const std::array<BI," << cut_op.cut_items[ i ].nodes.size() << "> &nni_" << i << ", const std::array<BI," << cut_op.cut_items[ i ].faces.size() << "> &nfi_" << i << ", ";
+    os << "const ShapeData &osd, const std::array<BI," << cut_op.nb_input_nodes() << "> &oni, const std::array<BI," << cut_op.nb_input_faces() << "> &ofi, BI num_case, const void *cut_ids, N<" << cut_op.dim << "> dim )" << suffix;
 }
 
 void GlobGeneGeomData::write_gen_decls( std::string filename ) {
