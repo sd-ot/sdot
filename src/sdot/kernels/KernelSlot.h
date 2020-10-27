@@ -16,54 +16,55 @@ class ShapeData;
 */
 class KernelSlot {
 public:
-    using            VK                        = std::vector<std::unique_ptr<KernelSlot>>;
-    using            BI                        = std::uint64_t;
+    using            VK                       = std::vector<std::unique_ptr<KernelSlot>>;
+    using            BI                       = std::uint64_t;
 
-    /**/             KernelSlot                ( std::string slot_name );
-    virtual         ~KernelSlot                ();
+    /**/             KernelSlot               ( std::string slot_name );
+    virtual         ~KernelSlot               ();
 
     // display
-    virtual void     write_to_stream           ( std::ostream &os ) const = 0;
-    virtual void     display_TF                ( std::ostream &os, const void *data, BI off, BI len ) = 0;
-    virtual void     display_TI                ( std::ostream &os, const void *data, BI off, BI len ) = 0;
+    virtual void     write_to_stream          ( std::ostream &os ) const = 0;
+    virtual void     display_TF               ( std::ostream &os, const void *data, BI off, BI len ) = 0;
+    virtual void     display_TI               ( std::ostream &os, const void *data, BI off, BI len ) = 0;
 
     // hw info
-    virtual BI       nb_multiprocs             () = 0;
-    virtual BI       nb_lanes_TF               () = 0;
-    virtual double   score                     () = 0; ///<
+    virtual BI       nb_multiprocs            () = 0;
+    virtual BI       nb_lanes_TF              () = 0;
+    virtual double   score                    () = 0; ///<
 
     // allocation
-    virtual void*    allocate_TF               ( BI size ) = 0;
-    virtual void*    allocate_TI               ( BI size ) = 0;
-    virtual void     free_TF                   ( void *ptr ) = 0;
-    virtual void     free_TI                   ( void *ptr ) = 0;
+    virtual void*    allocate_TF              ( BI size ) = 0;
+    virtual void*    allocate_TI              ( BI size ) = 0;
+    virtual void     free_TF                  ( void *ptr ) = 0;
+    virtual void     free_TI                  ( void *ptr ) = 0;
 
     //
-    virtual void     assign_repeated_TF        ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
-    virtual void     assign_repeated_TI        ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
-    virtual void     assign_iota_TI            ( void *dst, BI dst_off, BI src_off, BI len ) = 0;
-    virtual void     assign_TF                 ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
-    virtual void     assign_TI                 ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
-    virtual void     get_local                 ( const std::function<void( const double **tfs, const BI **tis )> &f, const std::tuple<const void *,BI,BI> *tfs_data, BI tfs_size, const std::tuple<const void *,BI,BI> *tis_data, BI tis_size ) = 0;
+    virtual void     assign_repeated_TF       ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
+    virtual void     assign_repeated_TI       ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
+    virtual void     assign_iota_TI           ( void *dst, BI dst_off, BI src_off, BI len ) = 0;
+    virtual void     assign_TF                ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
+    virtual void     assign_TI                ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
+    virtual void     get_local                ( const std::function<void( const double **tfs, const BI **tis )> &f, const std::tuple<const void *,BI,BI> *tfs_data, BI tfs_size, const std::tuple<const void *,BI,BI> *tis_data, BI tis_size ) = 0;
 
-    #define          POSSIBLE_TF( T )          \
-      virtual void   assign_TF                 ( void *dst, BI dst_off, const T *src, BI src_off, BI len ) = 0; \
-      virtual void   assign_TF                 ( T *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
+    #define          POSSIBLE_TF( T )         \
+    virtual void     assign_TF                ( void *dst, BI dst_off, const T *src, BI src_off, BI len ) = 0; \
+    virtual void     assign_TF                ( T *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
     #include         "possible_TFs.h"
     #undef           POSSIBLE_TF
 
-    #define          POSSIBLE_TI( T )          \
-      virtual void   assign_TI                 ( void *dst, BI dst_off, const T *src, BI src_off, BI len ) = 0; \
-      virtual void   assign_TI                 ( T *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
+    #define          POSSIBLE_TI( T )         \
+    virtual void     assign_TI                ( void *dst, BI dst_off, const T *src, BI src_off, BI len ) = 0; \
+    virtual void     assign_TI                ( T *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
     #include         "possible_TIs.h"
     #undef           POSSIBLE_TI
 
-    virtual BI       init_offsets_for_cut_cases( void *off_0, void *off_1, BI nb_cases, BI nb_items ) = 0;
+    #define          POSSIBLE_NB_NODES_AND_DIM( NB_NODES, DIM ) \
+    virtual void     get_cut_cases            ( void *cut_cases, void *counts, void *out_sps, const void *coordinates, const void *ids, BI rese, const void **normals, const void *scalar_products, BI nb_items, N<NB_NODES>, N<DIM> ) = 0;
+    #include         "possible_NB_NODES_AND_DIMs.h"
+    #undef           POSSIBLE_NB_NODES_AND_DIM
 
-    #define          POSSIBLE_DIM( DIM )       \
-      virtual void   get_cut_cases             ( void *cut_cases, void *offsets, void *out_sps, const void *coordinates, const void *ids, BI rese, const void **normals, const void *scalar_products, BI nb_items, N<DIM> nd ) = 0;
-    #include         "possible_DIMs.h"
-    #undef           POSSIBLE_DIM
+    virtual void     count_to_offsets         ( void *counts, BI nb_nodes ) = 0;
+    virtual void     sorted_indices           ( void *indices, const void *offsets, const void *cut_cases, BI nb_items ) = 0;
 
     #include         "KernelSlot_gen_decl.h"
 

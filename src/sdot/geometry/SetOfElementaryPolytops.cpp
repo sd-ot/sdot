@@ -13,6 +13,13 @@ namespace {
         #undef POSSIBLE_DIM
         TODO;
     }
+    template<class FU>
+    void for_nb_nodes_and_dim( unsigned nb_nodes, unsigned dim, const FU &fu ) {
+        #define POSSIBLE_NB_NODES_AND_DIM( NB_NODES, DIM ) if ( nb_nodes == NB_NODES && dim == DIM ) return fu( N<NB_NODES>(), N<DIM>() );
+        #include "../kernels/possible_NB_NODES_AND_DIMs.h"
+        #undef POSSIBLE_NB_NODES_AND_DIM
+        TODO;
+    }
 }
 
 SetOfElementaryPolytops::SetOfElementaryPolytops( KernelSlot *ks, unsigned dim ) : dim( dim ), ks( ks ) {
@@ -87,17 +94,20 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
         sd.tmp[ ShapeData::out_scps ] = ks->allocate_TF( nb_scalar_products ); // scalar products for each element
         sd.tmp[ ShapeData::offset_0 ] = ks->allocate_TI( nb_offsets ); // nb element for each cut case and for each thread
         sd.tmp[ ShapeData::cut_case ] = ks->allocate_TI( sd.size ); // cut case for each element
+        sd.tmp[ ShapeData::offset_1 ] = ks->allocate_TI( sd.size ); // num elem, sorted by case number
 
-        // cut_cases
-        for_dim( dim, [&]( auto nd ) { ks->get_cut_cases(
+        // get scalar products, cut_cases and counts
+        for_nb_nodes_and_dim( sd.shape_type->nb_nodes(), dim, [&]( auto nn, auto nd ) { ks->get_cut_cases(
             sd.tmp[ ShapeData::cut_case ], sd.tmp[ ShapeData::offset_0 ], sd.tmp[ ShapeData::out_scps ],
-            sd.coordinates, sd.ids, sd.rese, normals_data.data(), scalar_products.data(), sd.size, nd
+            sd.coordinates, sd.ids, sd.rese, normals_data.data(), scalar_products.data(), sd.size, nn, nd
         ); } );
 
-        // new item count
-        ks->display_TF( std::cout << "scps:", sd.tmp[ ShapeData::out_scps ], 0, nb_scalar_products );
-        ks->display_TF( std::cout << "offs:", sd.tmp[ ShapeData::offset_0 ], 0, nb_offsets );
-        TODO;
+        // transform counts to offsets
+        ks->count_to_offsets( sd.tmp[ ShapeData::offset_0 ], sd.shape_type->nb_nodes() );
+
+        // make indices
+        ks->sorted_indices( sd.tmp[ ShapeData::offset_1 ], sd.tmp[ ShapeData::offset_0 ], sd.tmp[ ShapeData::cut_case ], sd.size );
+
         //        std::tuple<const void *,BI,BI> gos[] = { { sd.tmp[ ShapeData::offset_0 ], 0, nb_offsets }, { sd.tmp[ ShapeData::offset_1 ], 0, nb_offsets } };
         //        ks->get_local( [&]( const double **, const BI **offsets ) {
         //            sd.shape_type->cut_count( [&]( const ShapeType *shape_type, BI count ) {
@@ -125,9 +135,9 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
     for( const auto &p : old_shape_map ) {
         const ShapeData &sd = p.second;
         ks->free_TF( sd.tmp[ ShapeData::out_scps ] );
-        ks->free_TF( sd.tmp[ ShapeData::cut_case ] );
-        ks->free_TF( sd.tmp[ ShapeData::offset_0 ] );
-        ks->free_TF( sd.tmp[ ShapeData::offset_1 ] );
+        ks->free_TI( sd.tmp[ ShapeData::cut_case ] );
+        ks->free_TI( sd.tmp[ ShapeData::offset_0 ] );
+        ks->free_TI( sd.tmp[ ShapeData::offset_1 ] );
     }
 }
 

@@ -3,7 +3,7 @@ Prop: en première phase, le but est d'obtenir:
 - les numéros de cas
 - une liste avec les nombre de cas pour chaque "thread"
 
-En deuxième phase, on met à jour les offsets.
+En deuxième phase, on transforme les comptes en offsets.
 
 En troisième phase, on fait un parcourt des produits scalaires et on colle les index triés à partir des offsets.
 

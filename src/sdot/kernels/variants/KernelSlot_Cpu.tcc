@@ -23,15 +23,53 @@ void *KernelSlot_Cpu<TF,TI,Arch>::allocate_TI( BI size ) {
     return new TI[ size ];
 }
 
-template<class TF,class TI,class Arch> template<int dim>
-void KernelSlot_Cpu<TF,TI,Arch>::_get_cut_cases( void *cut_cases, void *offsets, void *out_sps, const void *coordinates, const void *ids, BI rese, const void **dirs, const void *sps, BI nb_items, N<dim> ) {
-    constexpr BI nb_nodes = 3;
+template<class TF,class TI,class Arch>
+void KernelSlot_Cpu<TF,TI,Arch>::count_to_offsets( void *counts, BI nb_nodes ) {
+    TI off = 0;
+    BI nb_cases = BI( 1 ) << nb_nodes;
+    for( BI num_case = 0; num_case < nb_cases; ++num_case ) {
+        for( BI num_lane = 0; num_lane < nb_lanes_TF(); ++num_lane ) {
+            TI *ptr = reinterpret_cast<TI *>( counts ) + num_lane * nb_cases + num_case;
+            TI val = *ptr;
+            *ptr = off;
+            off += val;
+        }
+    }
+}
 
+template<class TF,class TI,class Arch>
+void KernelSlot_Cpu<TF,TI,Arch>::sorted_indices( void *indices, const void *offsets, const void *cut_cases, BI nb_items ) {
+    constexpr BI nb_cases = BI( 1 ) << nb_nodes;
+
+    // ...
+    SimdRange<SimdSize<TF,Arch>::value>::for_each( nb_items, [&]( TI beg_num_item, auto simd_size ) {
+        using VI = SimdVec<TI,simd_size.value,Arch>;
+
+        VI nc = VI::load_aligned( reinterpret_cast<const TI *>( cut_cases ) + beg_num_item );
+
+        VI oc = VI::iota() * nb_cases + nc;
+        VI::scatter( reinterpret_cast<TI *>( counts ), oc, VI::gather( reinterpret_cast<const TI *>( counts ), oc ) + 1 );
+    } );
+
+}
+
+template<class TF,class TI,class Arch> template<int nb_nodes,int dim>
+void KernelSlot_Cpu<TF,TI,Arch>::_get_cut_cases( void *cut_cases, void *counts, void *out_sps, const void *coordinates, const void *ids, BI rese, const void **dirs, const void *sps, BI nb_items, N<nb_nodes>, N<dim> ) {
+    constexpr BI nb_cases = BI( 1 ) << nb_nodes;
+
+    // get ptrs
     std::array<std::array<const TF *,dim>,nb_nodes> positions;
     for( BI n = 0, i = 0; n < nb_nodes; ++n )
         for( BI d = 0; d < dim; ++d, ++i )
             positions[ n ][ d ] = reinterpret_cast<const TF *>( coordinates ) + i * rese;
 
+    // clear counts
+    SimdRange<SimdSize<TI,Arch>::value>::for_each( nb_cases * nb_lanes_TF(), [&]( TI beg_num_item, auto simd_size ) {
+        using VI = SimdVec<TI,simd_size.value,Arch>;
+        VI::store_aligned( reinterpret_cast<TI *>( counts ) + beg_num_item, TI( 0 ) );
+    } );
+
+    // get scalar product, cut cases and counts
     SimdRange<SimdSize<TF,Arch>::value>::for_each( nb_items, [&]( TI beg_num_item, auto simd_size ) {
         using VF = SimdVec<TF,simd_size.value,Arch>;
         using VI = SimdVec<TI,simd_size.value,Arch>;
@@ -59,7 +97,7 @@ void KernelSlot_Cpu<TF,TI,Arch>::_get_cut_cases( void *cut_cases, void *offsets,
                 scp[ n ] = scp[ n ] + pos[ n ][ d ] * PD[ d ];
         }
 
-        // num case
+        // cut case
         VI nc = 0;
         for( TI n = 0; n < nb_nodes; ++n )
             nc = nc + ( as_SimdVec<VI>( scp[ n ] > SD ) & TI( 1 << n ) );
@@ -68,9 +106,12 @@ void KernelSlot_Cpu<TF,TI,Arch>::_get_cut_cases( void *cut_cases, void *offsets,
         for( TI n = 0; n < nb_nodes; ++n )
             VF::store_aligned( reinterpret_cast<TF *>( out_sps ) + n * rese + beg_num_item, scp[ n ] - SD );
 
-        // store indices
-        for( TI i = 0; i < simd_size.value; ++i )
-            reinterpret_cast<TI *>( cut_cases )[ reinterpret_cast<TI *>( offsets )[ nc[ i ] ]++ ] = beg_num_item + i;
+        // store cut case
+        VI::store_aligned( reinterpret_cast<TI *>( cut_cases ) + beg_num_item, nc );
+
+        // update count
+        VI oc = VI::iota() * nb_cases + nc;
+        VI::scatter( reinterpret_cast<TI *>( counts ), oc, VI::gather( reinterpret_cast<const TI *>( counts ), oc ) + 1 );
     } );
 }
 
