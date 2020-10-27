@@ -38,8 +38,8 @@ void KernelSlot_Cpu<TF,TI,Arch>::count_to_offsets( void *counts, BI nb_nodes ) {
 }
 
 template<class TF,class TI,class Arch>
-void KernelSlot_Cpu<TF,TI,Arch>::sorted_indices( void *indices, const void *offsets, const void *cut_cases, BI nb_items ) {
-    constexpr BI nb_cases = BI( 1 ) << nb_nodes;
+void KernelSlot_Cpu<TF,TI,Arch>::sorted_indices( void *indices, void *offsets, const void *cut_cases, BI nb_items, BI nb_nodes ) {
+    BI nb_cases = BI( 1 ) << nb_nodes;
 
     // ...
     SimdRange<SimdSize<TF,Arch>::value>::for_each( nb_items, [&]( TI beg_num_item, auto simd_size ) {
@@ -47,8 +47,12 @@ void KernelSlot_Cpu<TF,TI,Arch>::sorted_indices( void *indices, const void *offs
 
         VI nc = VI::load_aligned( reinterpret_cast<const TI *>( cut_cases ) + beg_num_item );
 
-        VI oc = VI::iota() * nb_cases + nc;
-        VI::scatter( reinterpret_cast<TI *>( counts ), oc, VI::gather( reinterpret_cast<const TI *>( counts ), oc ) + 1 );
+        VI io = VI::iota();
+        VI oc = io * nb_cases + nc;
+        VI of = VI::gather( reinterpret_cast<const TI *>( offsets ), oc );
+
+        VI::scatter( reinterpret_cast<TI *>( indices ), of, VI( beg_num_item ) + io );
+        VI::scatter( reinterpret_cast<TI *>( offsets ), oc, of + 1 );
     } );
 
 }

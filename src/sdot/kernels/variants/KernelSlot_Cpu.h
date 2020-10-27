@@ -35,8 +35,8 @@ public:
     virtual void     assign_TF                ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) { for( TI n = 0; n < len; ++n ) reinterpret_cast<TF *>( dst )[ n + dst_off ] = reinterpret_cast<const TF *>( src )[ n + src_off ]; }
     virtual void     assign_TI                ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) { for( TI n = 0; n < len; ++n ) reinterpret_cast<TI *>( dst )[ n + dst_off ] = reinterpret_cast<const TI *>( src )[ n + src_off ]; }
     virtual void     get_local                ( const std::function<void( const double **tfs, const BI **tis )> &f, const std::tuple<const void *,BI,BI> *tfs_data, BI tfs_size, const std::tuple<const void *,BI,BI> *tis_data, BI tis_size ) override;
-    virtual void     free_TF                  ( void *ptr ) override { delete [] reinterpret_cast<TF *>( ptr ); }
-    virtual void     free_TI                  ( void *ptr ) override { delete [] reinterpret_cast<TI *>( ptr ); }
+    virtual void     free_TF                  ( void *ptr ) override { free( reinterpret_cast<TF *>( ptr ) ); }
+    virtual void     free_TI                  ( void *ptr ) override { free( reinterpret_cast<TI *>( ptr ) ); }
     virtual double   score                    () { return _score; }
 
     #define          POSSIBLE_TF( T )         \
@@ -57,7 +57,7 @@ public:
     #undef           POSSIBLE_NB_NODES_AND_DIM
 
     virtual void     count_to_offsets         ( void *counts, BI nb_nodes );
-    virtual void     sorted_indices           ( void *indices, const void *offsets, const void *cut_cases, BI nb_items );
+    virtual void     sorted_indices           ( void *indices, void *offsets, const void *cut_cases, BI nb_items, BI nb_nodes );
 
     #include         "KernelSlot_gen_def_cpu.h"
 

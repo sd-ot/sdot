@@ -10,8 +10,8 @@ std::string CutOp::mk_item_func_name() const {
     for( TI n = 0; n < cut_items.size(); ++n ) {
         if ( n )
             res += "_";
-        for( TI i : cut_items[ n ].node_inds )
-            res += "_" + std::to_string( i );
+        for( auto inds : cut_items[ n ].nodes )
+            res += "_" + std::to_string( inds[ 0 ] ) + "_" + std::to_string( inds[ 1 ] );
     }
     return res;
 
@@ -28,8 +28,9 @@ CutOp::operator bool() const {
 std::size_t sdot::CutOp::nb_input_nodes() const {
     TI res = 0;
     for( const CutItem &ci : cut_items )
-        for( TI ind : ci.node_inds )
-            res = max( res, ind + 1 );
+        for( auto inds : ci.nodes )
+            for( auto ind : inds )
+                res = max( res, ind + 1 );
     return res;
 }
 

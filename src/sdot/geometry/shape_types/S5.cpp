@@ -10,7 +10,7 @@ namespace sdot {
 class S5 : public ShapeType {
 public:
     virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items ) const override;
-    virtual void        cut_count  ( const std::function<void(const ShapeType *,BI)> &fc, const BI **offsets ) const override;
+    virtual void        cut_count  ( const std::function<void(const ShapeType *,BI)> &fc, const BI *count_by_case ) const override;
     virtual unsigned    nb_nodes   () const override { return 5; }
     virtual unsigned    nb_faces   () const override { return 5; }
     virtual std::string name       () const override { return "S5"; }
@@ -35,40 +35,40 @@ void S5::display_vtk( VtkOutput &vo, const double **tfs, const BI **/*tis*/, uns
     }
 }
 
-void S5::cut_count( const std::function<void(const ShapeType *,BI)> &fc, const BI **offsets ) const {
+void S5::cut_count( const std::function<void(const ShapeType *,BI)> &fc, const BI *count_by_case ) const {
     fc( this,
-        ( offsets[ 1 ][ 0 ] - offsets[ 0 ][ 0 ] ) * 1 +
-        ( offsets[ 1 ][ 1 ] - offsets[ 0 ][ 1 ] ) * 0 +
-        ( offsets[ 1 ][ 2 ] - offsets[ 0 ][ 2 ] ) * 0 +
-        ( offsets[ 1 ][ 3 ] - offsets[ 0 ][ 3 ] ) * 0 +
-        ( offsets[ 1 ][ 4 ] - offsets[ 0 ][ 4 ] ) * 0 +
-        ( offsets[ 1 ][ 5 ] - offsets[ 0 ][ 5 ] ) * 0 +
-        ( offsets[ 1 ][ 6 ] - offsets[ 0 ][ 6 ] ) * 0 +
-        ( offsets[ 1 ][ 7 ] - offsets[ 0 ][ 7 ] ) * 0 +
-        ( offsets[ 1 ][ 8 ] - offsets[ 0 ][ 8 ] ) * 0 +
-        ( offsets[ 1 ][ 9 ] - offsets[ 0 ][ 9 ] ) * 0 +
-        ( offsets[ 1 ][ 10 ] - offsets[ 0 ][ 10 ] ) * 0 +
-        ( offsets[ 1 ][ 11 ] - offsets[ 0 ][ 11 ] ) * 0 +
-        ( offsets[ 1 ][ 12 ] - offsets[ 0 ][ 12 ] ) * 0 +
-        ( offsets[ 1 ][ 13 ] - offsets[ 0 ][ 13 ] ) * 0 +
-        ( offsets[ 1 ][ 14 ] - offsets[ 0 ][ 14 ] ) * 0 +
-        ( offsets[ 1 ][ 15 ] - offsets[ 0 ][ 15 ] ) * 0 +
-        ( offsets[ 1 ][ 16 ] - offsets[ 0 ][ 16 ] ) * 0 +
-        ( offsets[ 1 ][ 17 ] - offsets[ 0 ][ 17 ] ) * 0 +
-        ( offsets[ 1 ][ 18 ] - offsets[ 0 ][ 18 ] ) * 0 +
-        ( offsets[ 1 ][ 19 ] - offsets[ 0 ][ 19 ] ) * 0 +
-        ( offsets[ 1 ][ 20 ] - offsets[ 0 ][ 20 ] ) * 0 +
-        ( offsets[ 1 ][ 21 ] - offsets[ 0 ][ 21 ] ) * 0 +
-        ( offsets[ 1 ][ 22 ] - offsets[ 0 ][ 22 ] ) * 0 +
-        ( offsets[ 1 ][ 23 ] - offsets[ 0 ][ 23 ] ) * 0 +
-        ( offsets[ 1 ][ 24 ] - offsets[ 0 ][ 24 ] ) * 0 +
-        ( offsets[ 1 ][ 25 ] - offsets[ 0 ][ 25 ] ) * 0 +
-        ( offsets[ 1 ][ 26 ] - offsets[ 0 ][ 26 ] ) * 0 +
-        ( offsets[ 1 ][ 27 ] - offsets[ 0 ][ 27 ] ) * 0 +
-        ( offsets[ 1 ][ 28 ] - offsets[ 0 ][ 28 ] ) * 0 +
-        ( offsets[ 1 ][ 29 ] - offsets[ 0 ][ 29 ] ) * 0 +
-        ( offsets[ 1 ][ 30 ] - offsets[ 0 ][ 30 ] ) * 0 +
-        ( offsets[ 1 ][ 31 ] - offsets[ 0 ][ 31 ] ) * 0
+        count_by_case[ 0 ] * 1 +
+        count_by_case[ 1 ] * 0 +
+        count_by_case[ 2 ] * 0 +
+        count_by_case[ 3 ] * 0 +
+        count_by_case[ 4 ] * 0 +
+        count_by_case[ 5 ] * 0 +
+        count_by_case[ 6 ] * 0 +
+        count_by_case[ 7 ] * 0 +
+        count_by_case[ 8 ] * 0 +
+        count_by_case[ 9 ] * 0 +
+        count_by_case[ 10 ] * 0 +
+        count_by_case[ 11 ] * 0 +
+        count_by_case[ 12 ] * 0 +
+        count_by_case[ 13 ] * 0 +
+        count_by_case[ 14 ] * 0 +
+        count_by_case[ 15 ] * 0 +
+        count_by_case[ 16 ] * 0 +
+        count_by_case[ 17 ] * 0 +
+        count_by_case[ 18 ] * 0 +
+        count_by_case[ 19 ] * 0 +
+        count_by_case[ 20 ] * 0 +
+        count_by_case[ 21 ] * 0 +
+        count_by_case[ 22 ] * 0 +
+        count_by_case[ 23 ] * 0 +
+        count_by_case[ 24 ] * 0 +
+        count_by_case[ 25 ] * 0 +
+        count_by_case[ 26 ] * 0 +
+        count_by_case[ 27 ] * 0 +
+        count_by_case[ 28 ] * 0 +
+        count_by_case[ 29 ] * 0 +
+        count_by_case[ 30 ] * 0 +
+        count_by_case[ 31 ] * 0
     );
 }
 

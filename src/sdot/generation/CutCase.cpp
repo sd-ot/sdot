@@ -16,8 +16,7 @@ void CutCase::init( const NamedRecursivePolytop &rp, const std::vector<bool> &ou
     if ( std::find( out_points.begin(), out_points.end(), true ) == out_points.end() ) {
         CutItem cut_item;
         for( TI i = 0; i < out_points.size(); ++i )
-            for( TI j = 0; j < 2; ++j )
-                cut_item.node_inds.push_back( i );
+            cut_item.nodes.push_back( { i, i } );
         cownai.cut_op.cut_items.push_back( cut_item );
 
         for( TI i = 0; i < out_points.size(); ++i )

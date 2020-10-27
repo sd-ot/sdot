@@ -16,10 +16,11 @@ public:
 
     TI                   nb_created( std::string name ) const;
 
-
-
-    TI                   nb_new_edges;
+    // input
     std::vector<bool>    out_points;
+
+    // output
+    TI                   nb_new_edges;
     CC                   cownai;
 };
 

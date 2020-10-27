@@ -27,7 +27,7 @@ public:
     void*              face_ids;    ///< all the ids for node 0, all the ids for node 1, ...
     void*              ids;         ///<
 
-    enum {             out_scps, cut_case, offset_0, offset_1 };
+    enum {             out_scps, cut_case, offsets, indices };
     mutable void*      tmp[ 4 ];    ///<
 };
 

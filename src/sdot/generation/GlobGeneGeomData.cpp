@@ -7,7 +7,7 @@ namespace sdot {
 void GlobGeneGeomData::write_gen_decl( std::ostream &os, const CutOp &cut_op, std::string prefix, std::string suffix ) {
     os << prefix << "void " << cut_op.mk_item_func_name() << "( ";
     for( TI i = 0; i < cut_op.cut_items.size(); ++i )
-        os << "ShapeData &nsd_" << i << ", const std::array<BI," << cut_op.cut_items[ i ].node_inds.size() / 2 << "> &nni_" << i << ", ";
+        os << "ShapeData &nsd_" << i << ", const std::array<BI," << cut_op.cut_items[ i ].nodes.size() << "> &nni_" << i << ", ";
     os << "const ShapeData &osd, const std::array<BI," << cut_op.nb_input_nodes() << "> &oni, BI num_case, const void *cut_ids, N<" << cut_op.dim << "> dim )" << suffix;
 }
 
@@ -26,13 +26,13 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
 
         // ptr to new items
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
-            for( TI nn = 0; nn < cut_op.cut_items[ no ].node_inds.size() / 2; ++nn )
+            for( TI nn = 0; nn < cut_op.cut_items[ no ].nodes.size(); ++nn )
                 for( TI d = 0; d < cut_op.dim; ++d )
                     os << "    TF *new_" << nd[ d ] << "_" << nn << "_" << no << " = reinterpret_cast<TF *>( nsd_" << no << ".coordinates ) + ( nni_" << no << "[ " << nn << " ] * dim + " << d << " ) * nsd_" << no << ".rese;\n";
         os << "\n";
 
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
-            for( TI nn = 0; nn < cut_op.cut_items[ no ].node_inds.size() / 2; ++nn )
+            for( TI nn = 0; nn < cut_op.cut_items[ no ].nodes.size(); ++nn )
                 os << "    TI *new_f_" << nn << "_" << no << " = reinterpret_cast<TI *>( nsd_" << no << ".face_ids ) + nni_" << no << "[ " << nn << " ] * nsd_" << no << ".rese;\n";
         os << "\n";
 
@@ -68,9 +68,9 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
         // needed values
         std::set<std::array<TI,2>> cs;
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
-            for( TI nn = 0; nn < cut_op.cut_items[ no ].node_inds.size() / 2; ++nn )
-                if ( cut_op.cut_items[ no ].node_inds[ 2 * nn + 0 ] != cut_op.cut_items[ no ].node_inds[ 2 * nn + 1 ] )
-                    cs.insert( { cut_op.cut_items[ no ].node_inds[ 2 * nn + 0 ], cut_op.cut_items[ no ].node_inds[ 2 * nn + 1 ] } );
+            for( auto nn : cut_op.cut_items[ no ].nodes )
+                if ( nn[ 0 ] != nn[ 1 ] )
+                    cs.insert( { nn[ 0 ], nn[ 1 ] } );
 
         // compute them
         for( TI nn = 0; nn < cut_op.nb_input_nodes(); ++nn )
@@ -83,13 +83,13 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
 
         // store them
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
-            for( TI nn = 0; nn < cut_op.cut_items[ no ].node_inds.size() / 2; ++nn )
+            for( TI nn = 0; nn < cut_op.cut_items[ no ].nodes.size(); ++nn )
                 for( TI d = 0; d < cut_op.dim; ++d )
-                    os << "            new_" << nd[ d ] << "_" << nn << "_" << no << "[ nsd_" << no << ".size ] = " << nd[ d ] << "_" << cut_op.cut_items[ no ].node_inds[ 2 * nn + 0 ] << "_" << cut_op.cut_items[ no ].node_inds[ 2 * nn + 1 ] << ";\n";
+                    os << "            new_" << nd[ d ] << "_" << nn << "_" << no << "[ nsd_" << no << ".size ] = " << nd[ d ] << "_" << cut_op.cut_items[ no ].nodes[ nn ][ 0 ] << "_" << cut_op.cut_items[ no ].nodes[ nn ][ 1 ] << ";\n";
         os << "\n";
 
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
-            for( TI nn = 0; nn < cut_op.cut_items[ no ].node_inds.size() / 2; ++nn )
+            for( TI nn = 0; nn < cut_op.cut_items[ no ].nodes.size(); ++nn )
                 os << "            new_f_" << nn << "_" << no << "[ nsd_" << no << ".size ] = old_f_" << nn << "[ off ];\n";
         os << "\n";
 

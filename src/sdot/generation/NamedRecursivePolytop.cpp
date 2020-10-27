@@ -44,7 +44,7 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
     os << "class " << name << " : public ShapeType {\n";
     os << "public:\n";
     os << "    virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items ) const override;\n";
-    os << "    virtual void        cut_count  ( const std::function<void(const ShapeType *,BI)> &fc, const BI **offsets ) const override;\n";
+    os << "    virtual void        cut_count  ( const std::function<void(const ShapeType *,BI)> &fc, const BI *count_by_case ) const override;\n";
     os << "    virtual unsigned    nb_nodes   () const override { return " << polytop.points.size() << "; }\n";
     os << "    virtual unsigned    nb_faces   () const override { return " << polytop.nb_faces() << "; }\n";
     os << "    virtual std::string name       () const override { return \"" << name << "\"; }\n";
@@ -73,10 +73,10 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
     os << "\n";
 
     // cut count
-    os << "void " << name << "::cut_count( const std::function<void(const ShapeType *,BI)> &fc, const BI **offsets ) const {\n";
+    os << "void " << name << "::cut_count( const std::function<void(const ShapeType *,BI)> &fc, const BI *count_by_case ) const {\n";
     os << "    fc( this,\n";
     for( std::uint64_t n = 0; n < cut_cases.size(); ++n )
-        os << "        ( offsets[ 1 ][ " << n << " ] - offsets[ 0 ][ " << n << " ] ) * " << cut_cases[ n ].nb_created( name ) << ( n + 1 < cut_cases.size() ? " +" : "" ) << "\n";
+        os << "        count_by_case[ " << n << " ] * " << cut_cases[ n ].nb_created( name ) << ( n + 1 < cut_cases.size() ? " +" : "" ) << "\n";
     os << "    );\n";
     os << "}\n";
     os << "\n";

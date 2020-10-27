@@ -10,7 +10,7 @@ namespace sdot {
 class S3 : public ShapeType {
 public:
     virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items ) const override;
-    virtual void        cut_count  ( const std::function<void(const ShapeType *,BI)> &fc, const BI **offsets ) const override;
+    virtual void        cut_count  ( const std::function<void(const ShapeType *,BI)> &fc, const BI *count_by_case ) const override;
     virtual unsigned    nb_nodes   () const override { return 3; }
     virtual unsigned    nb_faces   () const override { return 3; }
     virtual std::string name       () const override { return "S3"; }
@@ -33,16 +33,16 @@ void S3::display_vtk( VtkOutput &vo, const double **tfs, const BI **/*tis*/, uns
     }
 }
 
-void S3::cut_count( const std::function<void(const ShapeType *,BI)> &fc, const BI **offsets ) const {
+void S3::cut_count( const std::function<void(const ShapeType *,BI)> &fc, const BI *count_by_case ) const {
     fc( this,
-        ( offsets[ 1 ][ 0 ] - offsets[ 0 ][ 0 ] ) * 1 +
-        ( offsets[ 1 ][ 1 ] - offsets[ 0 ][ 1 ] ) * 0 +
-        ( offsets[ 1 ][ 2 ] - offsets[ 0 ][ 2 ] ) * 0 +
-        ( offsets[ 1 ][ 3 ] - offsets[ 0 ][ 3 ] ) * 0 +
-        ( offsets[ 1 ][ 4 ] - offsets[ 0 ][ 4 ] ) * 0 +
-        ( offsets[ 1 ][ 5 ] - offsets[ 0 ][ 5 ] ) * 0 +
-        ( offsets[ 1 ][ 6 ] - offsets[ 0 ][ 6 ] ) * 0 +
-        ( offsets[ 1 ][ 7 ] - offsets[ 0 ][ 7 ] ) * 0
+        count_by_case[ 0 ] * 1 +
+        count_by_case[ 1 ] * 0 +
+        count_by_case[ 2 ] * 0 +
+        count_by_case[ 3 ] * 0 +
+        count_by_case[ 4 ] * 0 +
+        count_by_case[ 5 ] * 0 +
+        count_by_case[ 6 ] * 0 +
+        count_by_case[ 7 ] * 0
     );
 }
 

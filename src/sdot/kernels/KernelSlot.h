@@ -64,7 +64,7 @@ public:
     #undef           POSSIBLE_NB_NODES_AND_DIM
 
     virtual void     count_to_offsets         ( void *counts, BI nb_nodes ) = 0;
-    virtual void     sorted_indices           ( void *indices, const void *offsets, const void *cut_cases, BI nb_items ) = 0;
+    virtual void     sorted_indices           ( void *indices, void *offsets, const void *cut_cases, BI nb_items, BI nb_nodes ) = 0;
 
     #include         "KernelSlot_gen_decl.h"
 
