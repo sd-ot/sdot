@@ -43,7 +43,26 @@ void CutCase::init( const NamedRecursivePolytop &rp, const std::vector<bool> &ou
 }
 
 void CutCase::_init_2D( const NamedRecursivePolytop &rp, const std::vector<bool> &out_points, const std::vector<NamedRecursivePolytop> &primitive_shapes ) {
-    TODO;
+    std::vector<bool> co = out_points;
+    auto outside = [&]( std::size_t i ) { return co[ i ]; };
+    auto inside = [&]( std::size_t i ) { return ! outside( i ); };
+
+    while ( true ) {
+        // find an in => out edge
+        std::size_t io = co.size();
+        for( TI i = 0; i < co.size(); ++i ) {
+            TI j = ( i + 1 ) % co.size();
+            if ( inside( i ) && outside( j ) ) {
+                io = i;
+                break;
+            }
+        }
+        if ( io == co.size() )
+            break;
+
+        //
+    }
+
 }
 
 }

@@ -112,7 +112,7 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
         sd.case_offsets[ nb_cases ] = sd.size;
 
         // update nb items to create for each type
-        sd.shape_type->cut_count( [&]( const ShapeType *shape_type, BI count ) {
+        sd.shape_type->cut_rese( [&]( const ShapeType *shape_type, BI count ) {
             auto iter = new_item_count.find( shape_type );
             if ( iter == new_item_count.end() )
                 new_item_count.insert( iter, { shape_type, count } );

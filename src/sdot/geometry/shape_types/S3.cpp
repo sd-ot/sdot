@@ -10,17 +10,18 @@ namespace sdot {
 class S3 : public ShapeType {
 public:
     virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items ) const override;
-    virtual void        cut_count  ( const std::function<void(const ShapeType *,BI)> &fc, const BI *case_offsets ) const override;
+    virtual void        cut_rese   ( const std::function<void(const ShapeType *,BI)> &fc, const BI *case_offsets ) const override;
     virtual unsigned    nb_nodes   () const override { return 3; }
     virtual unsigned    nb_faces   () const override { return 3; }
+    virtual void        cut_ops    ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override;
     virtual std::string name       () const override { return "S3"; }
-
-    virtual void        cut_ops    ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override {
-        ShapeData &nsd_S3 = new_shape_map.find( s3() )->second;
-
-        ks->mk_items_n3_0_0_1_1_2_2_f3_0_1_2( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, old_shape_data, { 0, 1, 2 }, { 0, 1, 2 }, 0, cut_ids, N<2>() );
-    }
 };
+
+void S3::cut_ops( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const {
+    ShapeData &nsd_S3 = new_shape_map.find( s3() )->second;
+
+    ks->mk_items_n3_0_0_1_1_2_2_f3_0_1_2( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, old_shape_data, { 0, 1, 2 }, { 0, 1, 2 }, 0, cut_ids, N<2>() );
+}
 
 void S3::display_vtk( VtkOutput &vo, const double **tfs, const BI **/*tis*/, unsigned /*dim*/, BI nb_items ) const {
     using Pt = VtkOutput::Pt;
@@ -33,18 +34,12 @@ void S3::display_vtk( VtkOutput &vo, const double **tfs, const BI **/*tis*/, uns
     }
 }
 
-void S3::cut_count( const std::function<void(const ShapeType *,BI)> &fc, const BI *case_offsets ) const {
-    fc( this,
-        ( case_offsets[ 1 ] - case_offsets[ 0 ] ) * 1 +
-        ( case_offsets[ 2 ] - case_offsets[ 1 ] ) * 0 +
-        ( case_offsets[ 3 ] - case_offsets[ 2 ] ) * 0 +
-        ( case_offsets[ 4 ] - case_offsets[ 3 ] ) * 0 +
-        ( case_offsets[ 5 ] - case_offsets[ 4 ] ) * 0 +
-        ( case_offsets[ 6 ] - case_offsets[ 5 ] ) * 0 +
-        ( case_offsets[ 7 ] - case_offsets[ 6 ] ) * 0 +
-        ( case_offsets[ 8 ] - case_offsets[ 7 ] ) * 0
+void S3::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, const BI *case_offsets ) const {
+    fc( s3(),
+        ( case_offsets[ 1 ] - case_offsets[ 0 ] ) * 1
     );
 }
+
 
 
 // =======================================================================================
