@@ -16,7 +16,7 @@ struct CutOp {
     operator             bool             () const;
 
     std::vector<CutItem> cut_items;
-    std::size_t          dim = 2;
+    std::size_t          dim;
 };
 
 } // namespace sdot
