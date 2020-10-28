@@ -10,7 +10,7 @@ namespace sdot {
 class CutCase {
 public:
     using             TI            = std::size_t;
-    struct            IndOut        { TI index; bool outside; };
+    struct            IndOut        { TI ind_0, ind_1; bool outside; };
     using             Upp           = std::unique_ptr<CutOpWithNamesAndInds>;
 
     void              init          ( const NamedRecursivePolytop &rp, const std::vector<bool> &out_points, const std::vector<NamedRecursivePolytop> &primitive_shapes );
