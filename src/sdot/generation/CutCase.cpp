@@ -35,7 +35,7 @@ void CutCase::_init_2D( const NamedRecursivePolytop &rp, const std::vector<bool>
 }
 
 void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vector<IndOut> &points, const std::vector<NamedRecursivePolytop> &primitive_shapes ) {
-    // find an in => out edge
+    // look up for an in -> out edge
     std::size_t io = points.size();
     for( TI i = 0; i < points.size(); ++i ) {
         TI j = ( i + 1 ) % points.size();
@@ -51,20 +51,30 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
 
     // => all inside ?
     if ( io == points.size() && points.size() && points[ 0 ].outside == false ) {
+        if ( ! _has_2D_shape( points.size(), primitive_shapes ) )
+            return; // TODO
+
+        // output shape name
         CutOpWithNamesAndInds::Out output;
         output.shape_name = "S" + std::to_string( points.size() );
-        for( TI i = 0; i < points.size(); ++i ) {
-            output.output_node_inds.push_back( i );
-            output.output_face_inds.push_back( i );
-        }
-        possibility.outputs.push_back( std::move( output ) );
 
+        // make a cut function
         CutItem cut_item;
-        for( const IndOut &p : points ) {
+        for( TI i = 0; i < points.size(); ++i ) {
+            TI j = ( i + 1 ) % points.size();
+            const IndOut &p = points[ i ], &q = points[ j ];
+
             cut_item.nodes.push_back( { p.ind_0, p.ind_1 } );
-            cut_item.faces.push_back( p.ind_0 == p.ind_1 ? p.ind_0 : TI( -1 ) );
+
+            if ( p.mid() && q.mid() )
+                cut_item.faces.push_back( TI( -1 ) );
+            else if ( p.mid() )
+                cut_item.faces.push_back( q.ind_0 );
+            else
+                cut_item.faces.push_back( p.ind_0 );
         }
-        possibility.cut_op.cut_items.push_back( std::move( cut_item ) );
+        possibility.cut_op.cut_items.push_back( cut_item );
+
         return;
     }
 
