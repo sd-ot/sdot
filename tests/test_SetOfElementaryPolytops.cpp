@@ -17,7 +17,7 @@ int main() {
     SetOfElementaryPolytops sp( ks, 2 );
 
     // construct
-    TI nb_triangles = 5;
+    TI nb_triangles = 15;
     sp.add_repeated( triangle(), nb_triangles,
         { ks, std::vector<TF>{ 0, 0, 1, 0, 0, 1 } }, // positions
         { ks, std::vector<TI>{ 0, 1, 2 } } // face ids
@@ -32,7 +32,7 @@ int main() {
         Pt p = { std::cos( a ), std::sin( a ) };
         cxs.push_back( p[ 0 ] );
         cys.push_back( p[ 1 ] );
-        css.push_back( dot( p, Pt{ -0.33, 0.33 } ) );
+        css.push_back( dot( p, Pt{ 0.33, 0.33 } ) );
         new_face_ids.push_back( 100 + i );
     }
 
@@ -42,9 +42,9 @@ int main() {
     // display
     std::vector<VtkOutput::Pt> off_vtk;
     for( std::size_t i = 0; i < nb_triangles; ++i )
-        off_vtk.push_back( VtkOutput::Pt{ 0, 0, i } );
+        off_vtk.push_back( VtkOutput::Pt{ 0.0, 0.0, 0.2 * i } );
 
     VtkOutput vo;
-    sp.display_vtk( vo );
+    sp.display_vtk( vo, off_vtk.data() );
     vo.save( "cut.vtk" );
 }

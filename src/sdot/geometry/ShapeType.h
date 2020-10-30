@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../kernels/KernelSlot.h"
+#include "VtkOutput.h"
 #include <string>
 #include <map>
 
 namespace sdot {
-class VtkOutput;
 
 /**
 */
@@ -13,7 +13,7 @@ class ShapeType {
 public:
     using               BI         = std::uint64_t;
 
-    virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items ) const = 0;
+    virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items, VtkOutput::Pt *offsets ) const = 0;
     virtual void        cut_rese  ( const std::function<void(const ShapeType *,BI)> &fc, const BI *count_by_case ) const = 0;
     virtual unsigned    nb_nodes   () const = 0;
     virtual unsigned    nb_faces   () const = 0;

@@ -61,29 +61,44 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
         // ptr to indices
         os << "    const TI *indices = reinterpret_cast<const TI *>( osd.tmp[ ShapeData::indices ] );\n";
 
-        // needed values
+        // needed intersection points
         std::set<std::array<TI,2>> cs;
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
             for( auto nn : cut_op.cut_items[ no ].nodes )
                 if ( nn[ 0 ] != nn[ 1 ] )
                     cs.insert( { nn[ 0 ], nn[ 1 ] } );
 
-        if ( cs.size() )
-            os << "    const TF *out_scps = reinterpret_cast<const TF *>( osd.tmp[ ShapeData::out_scps ] );\n";
+        if ( cs.size() ) {
+            os << "\n";
+            for( TI nn = 0; nn < cut_op.nb_input_nodes(); ++nn )
+                os << "    const TF *old_scp_" << nn << " = reinterpret_cast<const TF *>( osd.tmp[ ShapeData::out_scps ] ) + oni[ " << nn << " ] * osd.rese;\n";
+        }
 
         // loop over indices
         os << "\n";
         os << "    for( BI num_ind = osd.case_offsets[ num_case + 0 ]; num_ind < osd.case_offsets[ num_case + 1 ]; ++num_ind ) {\n";
         os << "        TI off = indices[ num_ind ];\n";
-        os << "\n";
+
+        // needed scps
+        std::set<TI> needed_scps;
+        for( std::array<TI,2> c : cs )
+            for( TI v : c )
+                needed_scps.insert( v );
+
+        if ( needed_scps.size() ) {
+            os << "\n";
+            for( TI nn : needed_scps )
+                os << "    TF scp_" << nn << " = old_scp_" << nn << "[ off ];\n";
+        }
 
         // compute the new node positions
+        os << "\n";
         for( TI nn = 0; nn < cut_op.nb_input_nodes(); ++nn )
             for( TI d = 0; d < cut_op.dim; ++d )
                 os << "        TF " << nd[ d ] << "_" << nn << "_" << nn << " = old_" << nd[ d ] << "_" << nn << "[ off ];\n";
         for( std::array<TI,2> c : cs )
             for( TI d = 0; d < cut_op.dim; ++d )
-                os << "        TF " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 1 ] << " = TF( 1 ) / 2 * ( " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 0 ] << " + " << nd[ d ] << "_" << c[ 1 ] << "_" << c[ 1 ] << " );\n";
+                os << "        TF " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 1 ] << " = " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 0 ] << " + scp_" << c[ 0 ] << " / ( scp_" << c[ 0 ] << " - scp_" << c[ 1 ] << " ) * ( " << nd[ d ] << "_" << c[ 1 ] << "_" << c[ 1 ] << " - " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 0 ] << " );\n";
         os << "\n";
 
         // store them

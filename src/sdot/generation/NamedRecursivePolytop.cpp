@@ -28,6 +28,7 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
         std::vector<bool> outside( polytop.points.size() );
         for( std::uint64_t j = 0; j < polytop.points.size(); ++j )
             outside[ j ] = n & ( TI( 1 ) << j );
+        P( n );
         cut_cases[ n ].init( *this, outside, available_primitive_shapes );
     }
 
@@ -45,7 +46,7 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
     // class decl
     os << "class " << name << " : public ShapeType {\n";
     os << "public:\n";
-    os << "    virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items ) const override;\n";
+    os << "    virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items, VtkOutput::Pt *offsets ) const override;\n";
     os << "    virtual void        cut_rese   ( const std::function<void(const ShapeType *,BI)> &fc, const BI *case_offsets ) const override;\n";
     os << "    virtual unsigned    nb_nodes   () const override { return " << polytop.points.size() << "; }\n";
     os << "    virtual unsigned    nb_faces   () const override { return " << polytop.nb_faces() << "; }\n";
@@ -162,16 +163,26 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
 }
 
 void NamedRecursivePolytop::write_dsp_vtk( std::ostream &os ) const {
-    os << "void " << name << "::display_vtk( VtkOutput &vo, const double **tfs, const BI **/*tis*/, unsigned /*dim*/, BI nb_items ) const {\n";
-    os << "    using Pt = VtkOutput::Pt;\n";
-    os << "    for( BI i = 0; i < nb_items; ++i ) {\n";
     std::string vtk_name = "polygon";
     if ( name == "S3" ) vtk_name = "triangle";
     if ( name == "S4" ) vtk_name = "quad";
-    os << "        vo.add_" << vtk_name << "( {\n";
+
+    os << "void " << name << "::display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned /*dim*/, BI nb_items, VtkOutput::Pt *offsets ) const {\n";
+    os << "    using Pt = VtkOutput::Pt;\n";
+    os << "    if ( offsets ) {\n";
+    os << "        for( BI i = 0; i < nb_items; ++i ) {\n";
+    os << "            vo.add_" << vtk_name << "( {\n";
     for( TI i = 0; i < polytop.points.size(); ++i )
-        os << "             Pt{ tfs[ " << 2 * i + 0 << " ][ i ], tfs[ " << 2 * i + 1 << " ][ i ], 0.0 },\n";
-    os << "        } );\n";
+        os << "                 Pt{ tfs[ " << 2 * i + 0 << " ][ i ], tfs[ " << 2 * i + 1 << " ][ i ], 0.0 } + offsets[ tis[ 0 ][ i ] ],\n";
+    os << "            } );\n";
+    os << "        }\n";
+    os << "    } else {\n";
+    os << "        for( BI i = 0; i < nb_items; ++i ) {\n";
+    os << "            vo.add_" << vtk_name << "( {\n";
+    for( TI i = 0; i < polytop.points.size(); ++i )
+        os << "                 Pt{ tfs[ " << 2 * i + 0 << " ][ i ], tfs[ " << 2 * i + 1 << " ][ i ], 0.0 },\n";
+    os << "            } );\n";
+    os << "        }\n";
     os << "    }\n";
     os << "}\n";
     os << "\n";

@@ -46,7 +46,7 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::stri
     os << "\n" << sp << "])";
 }
 
-void SetOfElementaryPolytops::display_vtk( VtkOutput &vo ) const {
+void SetOfElementaryPolytops::display_vtk( VtkOutput &vo, VtkOutput::Pt *offsets ) const {
     for( const auto &p : shape_map ) {
         const ShapeData &sd = p.second;
 
@@ -54,9 +54,10 @@ void SetOfElementaryPolytops::display_vtk( VtkOutput &vo ) const {
         std::vector<std::tuple<const void *,BI,BI>> tis;
         for( std::size_t d = 0; d < sd.shape_type->nb_nodes() * dim; ++d )
             tfs.emplace_back( sd.coordinates, sd.rese * d, sd.size );
+        tis.emplace_back( sd.ids, 0, sd.size );
 
         ks->get_local( [&]( const double **tfs, const BI **tis ) {
-            sd.shape_type->display_vtk( vo, tfs, tis, dim, sd.size );
+            sd.shape_type->display_vtk( vo, tfs, tis, dim, sd.size, offsets );
         }, tfs.data(), tfs.size(), tis.data(), tis.size() );
     }
 }

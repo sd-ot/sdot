@@ -48,26 +48,24 @@ void CutCase::_init_2D( const NamedRecursivePolytop &rp, const std::vector<bool>
 }
 
 void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vector<IndOut> &points, const std::vector<NamedRecursivePolytop> &primitive_shapes ) {
-    CutOpWithNamesAndInds cp_possibility = possibility;
+    // if everything is outside, there's nothing to do
+    for( TI ni = 0;; ++ni ) {
+        if ( ni == points.size() )
+            return;
+        if ( points[ ni ].outside == false )
+            break;
+    }
 
-    // find all the in -> out edges
-    for( TI ni = 0, np = 0; ; ++ni ) {
-        // all out or all in
+    // if everything is inside, add a cut_item with all the points
+    for( TI ni = 0;; ++ni ) {
         if ( ni == points.size() ) {
-            // => all outside or no point ?
-            if ( points.empty() || points[ 0 ].outside )
+            if ( ! _has_2D_shape( points.size(), primitive_shapes ) )
                 return;
 
-            // => all inside ?
-            if ( ! _has_2D_shape( points.size(), primitive_shapes ) )
-                return; // TODO
-
-            // output shape name
             CutOpWithNamesAndInds::Out output;
             output.shape_name = "S" + std::to_string( points.size() );
             possibility.outputs.push_back( output );
 
-            // add a cut_item with all the points
             CutItem cut_item;
             for( TI i = 0; i < points.size(); ++i ) {
                 TI j = ( i + 1 ) % points.size();
@@ -83,8 +81,15 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
             possibility.cut_op.cut_items.push_back( cut_item );
             return;
         }
+        if ( points[ ni ].outside )
+            break;
+    }
 
-        // can make a cut
+    // we're going to cut, with eventually several possibilities
+    // => find all the in -> out edges
+    CutOpWithNamesAndInds cp_possibility = possibility;
+    for( TI ni = 0, np = 0; ni < points.size(); ++ni ) {
+        // can make a cut ?
         TI nj = ( ni + 1 ) % points.size();
         if ( points[ ni ].outside == false && points[ nj ].outside ) {
             // find all the out -> in edges
