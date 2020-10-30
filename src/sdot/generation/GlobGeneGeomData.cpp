@@ -51,7 +51,7 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
                 os << "    const TF *old_" << nd[ d ] << "_" << nn << " = reinterpret_cast<const TF *>( osd.coordinates ) + ( oni[ " << nn << " ] * dim + " << d << " ) * osd.rese;\n";
         os << "\n";
 
-        for( TI nn = 0; nn < cut_op.nb_input_nodes(); ++nn )
+        for( TI nn = 0; nn < cut_op.nb_input_faces(); ++nn )
             os << "    const TI *old_f_" << nn << " = reinterpret_cast<const TI *>( osd.face_ids ) + oni[ " << nn << " ] * osd.rese;\n";
         os << "\n";
 
@@ -61,12 +61,6 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
         // ptr to indices
         os << "    const TI *indices = reinterpret_cast<const TI *>( osd.tmp[ ShapeData::indices ] );\n";
 
-        // loop over indices
-        os << "\n";
-        os << "    for( BI num_ind = osd.case_offsets[ num_case + 0 ]; num_ind < osd.case_offsets[ num_case + 1 ]; ++num_ind ) {\n";
-        os << "        TI off = indices[ num_ind ];\n";
-        os << "\n";
-
         // needed values
         std::set<std::array<TI,2>> cs;
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
@@ -75,9 +69,15 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
                     cs.insert( { nn[ 0 ], nn[ 1 ] } );
 
         if ( cs.size() )
-            os << " const TF *out_scps = reinterpret_cast<const TF *>( osd.tmp[ ShapeData::out_scps ] );\n";
+            os << "    const TF *out_scps = reinterpret_cast<const TF *>( osd.tmp[ ShapeData::out_scps ] );\n";
 
-        // compute them
+        // loop over indices
+        os << "\n";
+        os << "    for( BI num_ind = osd.case_offsets[ num_case + 0 ]; num_ind < osd.case_offsets[ num_case + 1 ]; ++num_ind ) {\n";
+        os << "        TI off = indices[ num_ind ];\n";
+        os << "\n";
+
+        // compute the new node positions
         for( TI nn = 0; nn < cut_op.nb_input_nodes(); ++nn )
             for( TI d = 0; d < cut_op.dim; ++d )
                 os << "        TF " << nd[ d ] << "_" << nn << "_" << nn << " = old_" << nd[ d ] << "_" << nn << "[ off ];\n";
@@ -94,8 +94,11 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
         os << "\n";
 
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
-            for( TI nn = 0; nn < cut_op.cut_items[ no ].nodes.size(); ++nn )
-                os << "        new_f_" << nn << "_" << no << "[ nsd_" << no << ".size ] = old_f_" << nn << "[ off ];\n";
+            for( TI nn = 0; nn < cut_op.cut_items[ no ].faces.size(); ++nn )
+                if ( cut_op.cut_items[ no ].faces[ nn ] == TI( -1 ) )
+                    os << "        new_f_" << nn << "_" << no << "[ nsd_" << no << ".size ] = reinterpret_cast<const TI *>( cut_ids )[ old_ids[ off ] ];\n";
+                else
+                    os << "        new_f_" << nn << "_" << no << "[ nsd_" << no << ".size ] = old_f_" << cut_op.cut_items[ no ].faces[ nn ] << "[ off ];\n";
         os << "\n";
 
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )

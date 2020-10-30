@@ -78,8 +78,8 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
     // get (needed) output shape ptrs
     std::set<std::string> output_shape_names;
     for( CutCase &cut_case : cut_cases )
-        for( CutOpWithNamesAndInds &cownai : cut_case.possibilities )
-            for( CutOpWithNamesAndInds::Out &output : cownai.outputs )
+        for( std::unique_ptr<CutOpWithNamesAndInds> &cownai : cut_case.possibilities )
+            for( CutOpWithNamesAndInds::Out &output : cownai->outputs )
                 output_shape_names.insert( output.shape_name );
     for( std::string output_shape_name : output_shape_names )
         os << "    ShapeData &nsd_" << output_shape_name << " = new_shape_map.find( s" << output_shape_name.substr( 1 ) << "() )->second;\n";
@@ -87,8 +87,8 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
 
     // reg needed functions in global generated code info
     for( CutCase &cut_case : cut_cases )
-        for( CutOpWithNamesAndInds &cownai : cut_case.possibilities )
-            gggd.needed_cut_ops.insert( cownai.cut_op );
+        for( std::unique_ptr<CutOpWithNamesAndInds> &cownai : cut_case.possibilities )
+            gggd.needed_cut_ops.insert( cownai->cut_op );
 
     // code for each case
     for( std::size_t num_cut_case = 0; num_cut_case < cut_cases.size(); ++num_cut_case ) {
@@ -100,7 +100,7 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
 
         // one possibility => just call the corresponding function
         if ( cut_case.possibilities.size() == 1 ) {
-            CutOpWithNamesAndInds &cownai = cut_case.possibilities[ 0 ];
+            CutOpWithNamesAndInds &cownai = *cut_case.possibilities[ 0 ];
             os << "    ks->" << cownai.cut_op.mk_item_func_name() << "( ";
             for( TI num_output = 0; num_output < cownai.outputs.size(); ++num_output ) {
                 CutOpWithNamesAndInds::Out &output = cownai.outputs[ num_output ];
@@ -124,7 +124,6 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
         }
 
         // several possibilities => need to get the best
-        TODO;
     }
 
     os << "}\n";
@@ -135,8 +134,8 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
     // type of produced shapes
     std::set<std::string> produced_shapes;
     for( const CutCase &cut_case : cut_cases )
-        for( const CutOpWithNamesAndInds &cownai : cut_case.possibilities )
-            for( const CutOpWithNamesAndInds::Out &out : cownai.outputs )
+        for( const std::unique_ptr<CutOpWithNamesAndInds> &cownai : cut_case.possibilities )
+            for( const CutOpWithNamesAndInds::Out &out : cownai->outputs )
                 produced_shapes.insert( out.shape_name );
 
     //
@@ -145,8 +144,8 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
         os << "    fc( s" << shape_name.substr( 1 ) << "(),";
         for( std::uint64_t n = 0, c = 0; n < cut_cases.size(); ++n ) {
             std::size_t v = 0;
-            for( const CutOpWithNamesAndInds &possibilitie : cut_cases[ n ].possibilities )
-                v = std::max( v, possibilitie.nb_created( name ) );
+            for( const std::unique_ptr<CutOpWithNamesAndInds> &possibilitie : cut_cases[ n ].possibilities )
+                v = std::max( v, possibilitie->nb_created( name ) );
             if ( v ) {
                 if ( c++ )
                     os << " +";

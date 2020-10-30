@@ -130,10 +130,8 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
 
     // new shape map (using the new item counts)
     ShapeMap old_shape_map = std::exchange( shape_map, {} );
-    for( auto p : new_item_count ) {
-        P( p.first->name(), p.second );
+    for( auto p : new_item_count )
         shape_data( p.first )->reserve( p.second );
-    }
 
     //
     for( const auto &p : old_shape_map ) {
