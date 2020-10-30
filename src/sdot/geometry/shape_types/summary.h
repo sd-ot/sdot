@@ -4,6 +4,5 @@
 namespace sdot {
 
 #include "S3.h"
-#include "S4.h"
 
 }

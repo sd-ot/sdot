@@ -18,7 +18,7 @@ void CutCase::init( const NamedRecursivePolytop &rp, const std::vector<bool> &ou
 void CutCase::_init_2D( const NamedRecursivePolytop &rp, const std::vector<bool> &out_points, const std::vector<NamedRecursivePolytop> &primitive_shapes ) {
     std::vector<IndOut> points;
     for( TI i = 0; i < out_points.size(); ++i )
-        points.push_back( { i, i, out_points[ i ] } );
+        points.push_back( { i, i, i, out_points[ i ] } );
 
     possibilities.push_back( std::make_unique<CutOpWithNamesAndInds>( rp.polytop.dim() ) );
     _init_2D_rec( *possibilities.back(), points, primitive_shapes );
@@ -59,24 +59,31 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
     // if everything is inside, add a cut_item with all the points
     for( TI ni = 0;; ++ni ) {
         if ( ni == points.size() ) {
-            if ( ! _has_2D_shape( points.size(), primitive_shapes ) )
+            // if too many points, split in two parts
+            if ( ! _has_2D_shape( points.size(), primitive_shapes ) ) {
+                TI ns = points.size() / 2;
+                std::vector<IndOut> new_points[ 2 ];
+                for( TI nn = 0; nn < ns; ++nn )
+                    new_points[ 0 ].push_back( { points[ nn ].ind_0, points[ nn ].ind_1, points[ nn ].face_id, false } );
+                new_points[ 0 ].push_back( { points[ ns ].ind_0, points[ ns ].ind_1, TI( CutItem::internal_face ), false } );
+
+                for( TI nn = ns; nn < points.size(); ++nn )
+                    new_points[ 1 ].push_back( { points[ nn ].ind_0, points[ nn ].ind_1, points[ nn ].face_id, false } );
+                new_points[ 1 ].push_back( { points[ 0 ].ind_0, points[ 0 ].ind_1, TI( CutItem::internal_face ), false } );
+
+                for( TI z = 0; z < 2; ++z )
+                    _init_2D_rec( possibility, new_points[ z ], primitive_shapes );
                 return;
+            }
 
             CutOpWithNamesAndInds::Out output;
             output.shape_name = "S" + std::to_string( points.size() );
             possibility.outputs.push_back( output );
 
             CutItem cut_item;
-            for( TI i = 0; i < points.size(); ++i ) {
-                TI j = ( i + 1 ) % points.size();
-                const IndOut &p = points[ i ], &q = points[ j ];
-
+            for( const IndOut &p : points ) {
                 cut_item.nodes.push_back( { p.ind_0, p.ind_1 } );
-
-                if ( p.mid() && q.mid() )
-                    cut_item.faces.push_back( TI( -1 ) );
-                else
-                    cut_item.faces.push_back( p.ind_0 );
+                cut_item.faces.push_back( p.face_id );
             }
             possibility.cut_op.cut_items.push_back( cut_item );
             return;
@@ -100,24 +107,24 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
                     std::vector<IndOut> new_points[ 2 ];
 
                     // outside part
-                    new_points[ 0 ].push_back( { ni, nj, true } );
+                    new_points[ 0 ].push_back( { points[ ni ].ind_0, points[ nj ].ind_0, points[ ni ].face_id, true } );
                     for( TI nn = nj; ; ++nn ) {
                         TI nm = nn % points.size();
-                        new_points[ 0 ].push_back( { nm, nm, points[ nm ].outside } );
+                        new_points[ 0 ].push_back( { points[ nm ].ind_0, points[ nm ].ind_0, points[ nm ].face_id, points[ nm ].outside } );
                         if ( nm == nk )
                             break;
                     }
-                    new_points[ 0 ].push_back( { nk, nl, true } );
+                    new_points[ 0 ].push_back( { points[ nk ].ind_0, points[ nl ].ind_0, points[ nk ].face_id, true } );
 
                     // inside part
-                    new_points[ 1 ].push_back( { nk, nl, false } );
+                    new_points[ 1 ].push_back( { points[ nk ].ind_0, points[ nl ].ind_0, points[ nk ].face_id, false } );
                     for( TI nn = nl; ; ++nn ) {
                         TI nm = nn % points.size();
-                        new_points[ 1 ].push_back( { nm, nm, points[ nm ].outside } );
+                        new_points[ 1 ].push_back( { points[ nm ].ind_0, points[ nm ].ind_0, points[ nm ].face_id, points[ nm ].outside } );
                         if ( nm == ni )
                             break;
                     }
-                    new_points[ 1 ].push_back( { ni, nj, false } );
+                    new_points[ 1 ].push_back( { points[ ni ].ind_0, points[ nj ].ind_0, points[ ni ].face_id, false } );
 
                     if ( np++ ) {
                         possibilities.push_back( std::make_unique<CutOpWithNamesAndInds>( cp_possibility ) );

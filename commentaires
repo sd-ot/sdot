@@ -7,6 +7,12 @@ En deuxième phase, on transforme les comptes en offsets.
 
 En troisième phase, on fait un parcourt des produits scalaires et on colle les index triés à partir des offsets.
 
+========================================================================================================================================
+Si on a besoin de diviser
 
+========================================================================================================================================
+Cas où on a plusieurs possibilités de coupes
+
+=> cas test avec quads
 
 

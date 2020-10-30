@@ -77,7 +77,7 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
         // loop over indices
         os << "\n";
         os << "    for( BI num_ind = osd.case_offsets[ num_case + 0 ]; num_ind < osd.case_offsets[ num_case + 1 ]; ++num_ind ) {\n";
-        os << "        TI off = indices[ num_ind ];\n";
+        os << "        TI index = indices[ num_ind ];\n";
 
         // needed scps
         std::set<TI> needed_scps;
@@ -88,40 +88,50 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
         if ( needed_scps.size() ) {
             os << "\n";
             for( TI nn : needed_scps )
-                os << "    TF scp_" << nn << " = old_scp_" << nn << "[ off ];\n";
+                os << "        TF scp_" << nn << " = old_scp_" << nn << "[ index ];\n";
+
+            os << "\n";
+            for( std::array<TI,2> c : cs )
+                    os << "        TF d_" << c[ 0 ] << "_" << c[ 1 ] << " = scp_" << c[ 0 ] << " / ( scp_" << c[ 0 ] << " - scp_" << c[ 1 ] << " );\n";
         }
 
         // compute the new node positions
         os << "\n";
         for( TI nn = 0; nn < cut_op.nb_input_nodes(); ++nn )
             for( TI d = 0; d < cut_op.dim; ++d )
-                os << "        TF " << nd[ d ] << "_" << nn << "_" << nn << " = old_" << nd[ d ] << "_" << nn << "[ off ];\n";
+                os << "        TF " << nd[ d ] << "_" << nn << "_" << nn << " = old_" << nd[ d ] << "_" << nn << "[ index ];\n";
+        os << "\n";
         for( std::array<TI,2> c : cs )
             for( TI d = 0; d < cut_op.dim; ++d )
-                os << "        TF " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 1 ] << " = " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 0 ] << " + scp_" << c[ 0 ] << " / ( scp_" << c[ 0 ] << " - scp_" << c[ 1 ] << " ) * ( " << nd[ d ] << "_" << c[ 1 ] << "_" << c[ 1 ] << " - " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 0 ] << " );\n";
-        os << "\n";
+                os << "        TF " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 1 ] << " = " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 0 ] << " + d_" << c[ 0 ] << "_" << c[ 1 ] << " * ( " << nd[ d ] << "_" << c[ 1 ] << "_" << c[ 1 ] << " - " << nd[ d ] << "_" << c[ 0 ] << "_" << c[ 0 ] << " );\n";
 
-        // store them
+        // new indices
+        os << "\n";
+        for( TI no = 0; no < cut_op.cut_items.size(); ++no )
+            os << "        TI ni_" << no << " = nsd_" << no << ".size++;\n";
+
+        // store the points
+        os << "\n";
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
             for( TI nn = 0; nn < cut_op.cut_items[ no ].nodes.size(); ++nn )
                 for( TI d = 0; d < cut_op.dim; ++d )
-                    os << "        new_" << nd[ d ] << "_" << nn << "_" << no << "[ nsd_" << no << ".size ] = " << nd[ d ] << "_" << cut_op.cut_items[ no ].nodes[ nn ][ 0 ] << "_" << cut_op.cut_items[ no ].nodes[ nn ][ 1 ] << ";\n";
-        os << "\n";
+                    os << "        new_" << nd[ d ] << "_" << nn << "_" << no << "[ ni_" << no << " ] = " << nd[ d ] << "_" << cut_op.cut_items[ no ].nodes[ nn ][ 0 ] << "_" << cut_op.cut_items[ no ].nodes[ nn ][ 1 ] << ";\n";
 
+        // store the faces
+        os << "\n";
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
             for( TI nn = 0; nn < cut_op.cut_items[ no ].faces.size(); ++nn )
-                if ( cut_op.cut_items[ no ].faces[ nn ] == TI( -1 ) )
-                    os << "        new_f_" << nn << "_" << no << "[ nsd_" << no << ".size ] = reinterpret_cast<const TI *>( cut_ids )[ old_ids[ off ] ];\n";
+                if ( cut_op.cut_items[ no ].faces[ nn ] == TI( CutItem::cut_id ) )
+                    os << "        new_f_" << nn << "_" << no << "[ ni_" << no << " ] = reinterpret_cast<const TI *>( cut_ids )[ old_ids[ index ] ];\n";
+                else if ( cut_op.cut_items[ no ].faces[ nn ] == TI( CutItem::internal_face ) )
+                    os << "        new_f_" << nn << "_" << no << "[ ni_" << no << " ] = TI( -1 );\n";
                 else
-                    os << "        new_f_" << nn << "_" << no << "[ nsd_" << no << ".size ] = old_f_" << cut_op.cut_items[ no ].faces[ nn ] << "[ off ];\n";
-        os << "\n";
+                    os << "        new_f_" << nn << "_" << no << "[ ni_" << no << " ] = old_f_" << cut_op.cut_items[ no ].faces[ nn ] << "[ index ];\n";
 
-        for( TI no = 0; no < cut_op.cut_items.size(); ++no )
-            os << "        new_ids_" << no << "[ nsd_" << no << ".size ] = old_ids[ off ];\n";
+        // store the ids
         os << "\n";
-
         for( TI no = 0; no < cut_op.cut_items.size(); ++no )
-            os << "        ++nsd_" << no << ".size;\n";
+            os << "        new_ids_" << no << "[ ni_" << no << " ] = old_ids[ index ];\n";
         os << "    }\n";
         os << "}\n";
     }
