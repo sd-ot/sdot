@@ -1,5 +1,6 @@
 #include "../support/generic_ostream_output.h"
 #include "../support/TODO.h"
+#include "../support/P.h"
 #include "NamedRecursivePolytop.h"
 #include "GlobGeneGeomData.h"
 #include "CutCase.h"
@@ -94,6 +95,8 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
     for( std::size_t num_cut_case = 0; num_cut_case < cut_cases.size(); ++num_cut_case ) {
         CutCase &cut_case = cut_cases[ num_cut_case ];
 
+        P( num_cut_case, cut_case.possibilities.size() );
+
         // nothing to create
         if ( cut_case.possibilities.empty() )
             continue;
@@ -144,8 +147,8 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
         os << "    fc( s" << shape_name.substr( 1 ) << "(),";
         for( std::uint64_t n = 0, c = 0; n < cut_cases.size(); ++n ) {
             std::size_t v = 0;
-            for( const std::unique_ptr<CutOpWithNamesAndInds> &possibilitie : cut_cases[ n ].possibilities )
-                v = std::max( v, possibilitie->nb_created( name ) );
+            for( const std::unique_ptr<CutOpWithNamesAndInds> &possibility : cut_cases[ n ].possibilities )
+                v = std::max( v, possibility->nb_created( shape_name ) );
             if ( v ) {
                 if ( c++ )
                     os << " +";

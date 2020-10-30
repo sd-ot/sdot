@@ -137,7 +137,7 @@ template<class TF,class TI,class Arch>
 void KernelSlot_Cpu<TF,TI,Arch>::_get_local( const std::function<void( const double **tfs, const BI **tis )> &f, const std::tuple<const void *,BI,BI> *tfs_data, BI tfs_size, const std::tuple<const void *,BI,BI> *tis_data, BI tis_size, std::vector<const double *> &tfs_vec, std::vector<const BI *> &tis_vec ) {
     if ( tfs_size ) {
         if ( local && std::is_same<TF,double>::value ) {
-            tfs_vec.push_back( reinterpret_cast<const double *>( std::get<0>( *tfs_data ) ) );
+            tfs_vec.push_back( reinterpret_cast<const double *>( std::get<0>( *tfs_data ) ) + std::get<1>( *tfs_data ) );
             return _get_local( f, tfs_data + 1, tfs_size - 1, tis_data, tis_size, tfs_vec, tis_vec );
         }
 
@@ -148,7 +148,7 @@ void KernelSlot_Cpu<TF,TI,Arch>::_get_local( const std::function<void( const dou
     }
     if ( tis_size ) {
         if ( local && std::is_same<TI,BI>::value ) {
-            tis_vec.push_back( reinterpret_cast<const BI *>( std::get<0>( *tis_data ) ) );
+            tis_vec.push_back( reinterpret_cast<const BI *>( std::get<0>( *tis_data ) ) + std::get<1>( *tis_data ) );
             return _get_local( f, tfs_data, tfs_size, tis_data + 1, tis_size - 1, tfs_vec, tis_vec );
         }
 
