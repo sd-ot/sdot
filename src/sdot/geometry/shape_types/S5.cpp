@@ -10,7 +10,7 @@ namespace sdot {
 class S5 : public ShapeType {
 public:
     virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items, VtkOutput::Pt *offsets ) const override;
-    virtual void        cut_rese   ( const std::function<void(const ShapeType *,BI)> &fc, const BI *case_offsets ) const override;
+    virtual void        cut_rese   ( const std::function<void(const ShapeType *,BI)> &fc, const BI *cut_case_offsets ) const override;
     virtual unsigned    nb_nodes   () const override { return 5; }
     virtual unsigned    nb_faces   () const override { return 5; }
     virtual void        cut_ops    ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override;
@@ -69,58 +69,58 @@ void S5::display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigne
     }
 }
 
-void S5::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, const BI *case_offsets ) const {
+void S5::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, const BI *cut_case_offsets ) const {
     fc( s3(),
-        ( case_offsets[ 6 ] - case_offsets[ 5 ] ) * 1 +
-        ( case_offsets[ 10 ] - case_offsets[ 9 ] ) * 1 +
-        ( case_offsets[ 11 ] - case_offsets[ 10 ] ) * 1 +
-        ( case_offsets[ 12 ] - case_offsets[ 11 ] ) * 2 +
-        ( case_offsets[ 14 ] - case_offsets[ 13 ] ) * 2 +
-        ( case_offsets[ 16 ] - case_offsets[ 15 ] ) * 1 +
-        ( case_offsets[ 19 ] - case_offsets[ 18 ] ) * 1 +
-        ( case_offsets[ 21 ] - case_offsets[ 20 ] ) * 1 +
-        ( case_offsets[ 22 ] - case_offsets[ 21 ] ) * 2 +
-        ( case_offsets[ 23 ] - case_offsets[ 22 ] ) * 2 +
-        ( case_offsets[ 24 ] - case_offsets[ 23 ] ) * 1 +
-        ( case_offsets[ 27 ] - case_offsets[ 26 ] ) * 2 +
-        ( case_offsets[ 28 ] - case_offsets[ 27 ] ) * 1 +
-        ( case_offsets[ 30 ] - case_offsets[ 29 ] ) * 1 +
-        ( case_offsets[ 31 ] - case_offsets[ 30 ] ) * 1
+        ( cut_case_offsets[ 6 ] - cut_case_offsets[ 5 ] ) * 1 +
+        ( cut_case_offsets[ 10 ] - cut_case_offsets[ 9 ] ) * 1 +
+        ( cut_case_offsets[ 11 ] - cut_case_offsets[ 10 ] ) * 1 +
+        ( cut_case_offsets[ 12 ] - cut_case_offsets[ 11 ] ) * 2 +
+        ( cut_case_offsets[ 14 ] - cut_case_offsets[ 13 ] ) * 2 +
+        ( cut_case_offsets[ 16 ] - cut_case_offsets[ 15 ] ) * 1 +
+        ( cut_case_offsets[ 19 ] - cut_case_offsets[ 18 ] ) * 1 +
+        ( cut_case_offsets[ 21 ] - cut_case_offsets[ 20 ] ) * 1 +
+        ( cut_case_offsets[ 22 ] - cut_case_offsets[ 21 ] ) * 2 +
+        ( cut_case_offsets[ 23 ] - cut_case_offsets[ 22 ] ) * 2 +
+        ( cut_case_offsets[ 24 ] - cut_case_offsets[ 23 ] ) * 1 +
+        ( cut_case_offsets[ 27 ] - cut_case_offsets[ 26 ] ) * 2 +
+        ( cut_case_offsets[ 28 ] - cut_case_offsets[ 27 ] ) * 1 +
+        ( cut_case_offsets[ 30 ] - cut_case_offsets[ 29 ] ) * 1 +
+        ( cut_case_offsets[ 31 ] - cut_case_offsets[ 30 ] ) * 1
     );
     fc( s4(),
-        ( case_offsets[ 6 ] - case_offsets[ 5 ] ) * 1 +
-        ( case_offsets[ 8 ] - case_offsets[ 7 ] ) * 1 +
-        ( case_offsets[ 10 ] - case_offsets[ 9 ] ) * 1 +
-        ( case_offsets[ 11 ] - case_offsets[ 10 ] ) * 1 +
-        ( case_offsets[ 15 ] - case_offsets[ 14 ] ) * 1 +
-        ( case_offsets[ 19 ] - case_offsets[ 18 ] ) * 1 +
-        ( case_offsets[ 20 ] - case_offsets[ 19 ] ) * 1 +
-        ( case_offsets[ 21 ] - case_offsets[ 20 ] ) * 1 +
-        ( case_offsets[ 26 ] - case_offsets[ 25 ] ) * 1 +
-        ( case_offsets[ 29 ] - case_offsets[ 28 ] ) * 1
+        ( cut_case_offsets[ 6 ] - cut_case_offsets[ 5 ] ) * 1 +
+        ( cut_case_offsets[ 8 ] - cut_case_offsets[ 7 ] ) * 1 +
+        ( cut_case_offsets[ 10 ] - cut_case_offsets[ 9 ] ) * 1 +
+        ( cut_case_offsets[ 11 ] - cut_case_offsets[ 10 ] ) * 1 +
+        ( cut_case_offsets[ 15 ] - cut_case_offsets[ 14 ] ) * 1 +
+        ( cut_case_offsets[ 19 ] - cut_case_offsets[ 18 ] ) * 1 +
+        ( cut_case_offsets[ 20 ] - cut_case_offsets[ 19 ] ) * 1 +
+        ( cut_case_offsets[ 21 ] - cut_case_offsets[ 20 ] ) * 1 +
+        ( cut_case_offsets[ 26 ] - cut_case_offsets[ 25 ] ) * 1 +
+        ( cut_case_offsets[ 29 ] - cut_case_offsets[ 28 ] ) * 1
     );
     fc( s5(),
-        ( case_offsets[ 1 ] - case_offsets[ 0 ] ) * 1 +
-        ( case_offsets[ 3 ] - case_offsets[ 2 ] ) * 1 +
-        ( case_offsets[ 4 ] - case_offsets[ 3 ] ) * 1 +
-        ( case_offsets[ 5 ] - case_offsets[ 4 ] ) * 1 +
-        ( case_offsets[ 7 ] - case_offsets[ 6 ] ) * 2 +
-        ( case_offsets[ 9 ] - case_offsets[ 8 ] ) * 1 +
-        ( case_offsets[ 11 ] - case_offsets[ 10 ] ) * 1 +
-        ( case_offsets[ 12 ] - case_offsets[ 11 ] ) * 1 +
-        ( case_offsets[ 13 ] - case_offsets[ 12 ] ) * 2 +
-        ( case_offsets[ 14 ] - case_offsets[ 13 ] ) * 1 +
-        ( case_offsets[ 15 ] - case_offsets[ 14 ] ) * 1 +
-        ( case_offsets[ 17 ] - case_offsets[ 16 ] ) * 1 +
-        ( case_offsets[ 18 ] - case_offsets[ 17 ] ) * 1 +
-        ( case_offsets[ 19 ] - case_offsets[ 18 ] ) * 1 +
-        ( case_offsets[ 21 ] - case_offsets[ 20 ] ) * 1 +
-        ( case_offsets[ 22 ] - case_offsets[ 21 ] ) * 1 +
-        ( case_offsets[ 23 ] - case_offsets[ 22 ] ) * 2 +
-        ( case_offsets[ 25 ] - case_offsets[ 24 ] ) * 2 +
-        ( case_offsets[ 27 ] - case_offsets[ 26 ] ) * 1 +
-        ( case_offsets[ 29 ] - case_offsets[ 28 ] ) * 1 +
-        ( case_offsets[ 31 ] - case_offsets[ 30 ] ) * 1
+        ( cut_case_offsets[ 1 ] - cut_case_offsets[ 0 ] ) * 1 +
+        ( cut_case_offsets[ 3 ] - cut_case_offsets[ 2 ] ) * 1 +
+        ( cut_case_offsets[ 4 ] - cut_case_offsets[ 3 ] ) * 1 +
+        ( cut_case_offsets[ 5 ] - cut_case_offsets[ 4 ] ) * 1 +
+        ( cut_case_offsets[ 7 ] - cut_case_offsets[ 6 ] ) * 2 +
+        ( cut_case_offsets[ 9 ] - cut_case_offsets[ 8 ] ) * 1 +
+        ( cut_case_offsets[ 11 ] - cut_case_offsets[ 10 ] ) * 1 +
+        ( cut_case_offsets[ 12 ] - cut_case_offsets[ 11 ] ) * 1 +
+        ( cut_case_offsets[ 13 ] - cut_case_offsets[ 12 ] ) * 2 +
+        ( cut_case_offsets[ 14 ] - cut_case_offsets[ 13 ] ) * 1 +
+        ( cut_case_offsets[ 15 ] - cut_case_offsets[ 14 ] ) * 1 +
+        ( cut_case_offsets[ 17 ] - cut_case_offsets[ 16 ] ) * 1 +
+        ( cut_case_offsets[ 18 ] - cut_case_offsets[ 17 ] ) * 1 +
+        ( cut_case_offsets[ 19 ] - cut_case_offsets[ 18 ] ) * 1 +
+        ( cut_case_offsets[ 21 ] - cut_case_offsets[ 20 ] ) * 1 +
+        ( cut_case_offsets[ 22 ] - cut_case_offsets[ 21 ] ) * 1 +
+        ( cut_case_offsets[ 23 ] - cut_case_offsets[ 22 ] ) * 2 +
+        ( cut_case_offsets[ 25 ] - cut_case_offsets[ 24 ] ) * 2 +
+        ( cut_case_offsets[ 27 ] - cut_case_offsets[ 26 ] ) * 1 +
+        ( cut_case_offsets[ 29 ] - cut_case_offsets[ 28 ] ) * 1 +
+        ( cut_case_offsets[ 31 ] - cut_case_offsets[ 30 ] ) * 1
     );
 }
 

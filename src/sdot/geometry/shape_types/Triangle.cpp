@@ -1,3 +1,4 @@
+#include "Triangle.h"
 #include "S3.h"
 
 namespace sdot {

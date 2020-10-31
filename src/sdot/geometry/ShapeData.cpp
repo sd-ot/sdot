@@ -29,7 +29,7 @@ void ShapeData::reserve( BI new_rese ) {
     // update rese
     if ( ! rese ) {
         log2_rese = 5;
-        rese = 32; // for alignement
+        rese = 32; // for base alignement
     }
     while ( rese < new_rese ) {
         log2_rese += 1;

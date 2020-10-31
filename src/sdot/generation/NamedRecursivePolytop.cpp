@@ -47,7 +47,7 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
     os << "class " << name << " : public ShapeType {\n";
     os << "public:\n";
     os << "    virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items, VtkOutput::Pt *offsets ) const override;\n";
-    os << "    virtual void        cut_rese   ( const std::function<void(const ShapeType *,BI)> &fc, const BI *case_offsets ) const override;\n";
+    os << "    virtual void        cut_rese   ( const std::function<void(const ShapeType *,BI)> &fc, const BI *cut_case_offsets ) const override;\n";
     os << "    virtual unsigned    nb_nodes   () const override { return " << polytop.points.size() << "; }\n";
     os << "    virtual unsigned    nb_faces   () const override { return " << polytop.nb_faces() << "; }\n";
     os << "    virtual void        cut_ops    ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override;\n";
@@ -143,7 +143,7 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
                 produced_shapes.insert( out.shape_name );
 
     //
-    os << "void " << name << "::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, const BI *case_offsets ) const {\n";
+    os << "void " << name << "::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, const BI *cut_case_offsets ) const {\n";
     for( std::string shape_name : produced_shapes ) {
         os << "    fc( s" << shape_name.substr( 1 ) << "(),";
         for( std::uint64_t n = 0, c = 0; n < cut_cases.size(); ++n ) {
@@ -153,7 +153,7 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
             if ( v ) {
                 if ( c++ )
                     os << " +";
-                os << "\n        ( case_offsets[ " << n + 1 << " ] - case_offsets[ " << n << " ] ) * " << v;
+                os << "\n        ( cut_case_offsets[ " << n + 1 << " ] - cut_case_offsets[ " << n << " ] ) * " << v;
             }
         }
         os << "\n    );\n";

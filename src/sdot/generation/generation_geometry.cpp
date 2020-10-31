@@ -12,7 +12,7 @@ using TF = Rational;
 
 void init_of_primitive_shapes( std::vector<NamedRecursivePolytop> &primitive_shapes ) {
     // 2D
-    for( TI nb_pts_circle = 3; nb_pts_circle < 4; ++nb_pts_circle ) {
+    for( TI nb_pts_circle = 3; nb_pts_circle < 5; ++nb_pts_circle ) {
         std::vector<std::vector<TF>> points;
         for( TI i = 0; i < nb_pts_circle; ++i ) {
             double a = 2 * M_PI * i / nb_pts_circle;

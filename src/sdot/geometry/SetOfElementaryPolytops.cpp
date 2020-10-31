@@ -92,25 +92,25 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
         BI nb_cases = 1u << sd.shape_type->nb_nodes();
         BI nb_offsets = nb_cases * ks->nb_lanes_TF();
 
-        sd.tmp[ ShapeData::out_scps ] = ks->allocate_TF( nb_scalar_products ); // scalar products for each element
-        sd.tmp[ ShapeData::indices ] = ks->allocate_TI( sd.size ); // num elem, sorted by case number
+        sd.cut_out_scps = ks->allocate_TF( nb_scalar_products ); // scalar products for each element
+        sd.cut_indices  = ks->allocate_TI( sd.size ); // num elem, sorted by case number
 
         void *cut_cases = ks->allocate_TI( sd.size ); // cut case for each element
         void *offsets = ks->allocate_TI( nb_offsets ); // nb element for each cut case and for each thread
 
         // get scalar products, cut_cases and counts
         for_nb_nodes_and_dim( sd.shape_type->nb_nodes(), dim, [&]( auto nn, auto nd ) { ks->get_cut_cases(
-            cut_cases, offsets, sd.tmp[ ShapeData::out_scps ], sd.coordinates, sd.ids, sd.rese,
+            cut_cases, offsets, sd.cut_out_scps, sd.coordinates, sd.ids, sd.rese,
             normals_data.data(), scalar_products.data(), sd.size, nn, nd
         ); } );
 
         // transform counts to offsets (scan)
         ks->count_to_offsets( offsets, sd.shape_type->nb_nodes() );
 
-        // get nb created items
-        sd.case_offsets.resize( nb_cases + 1 );
-        ks->read_TI( sd.case_offsets.data(), offsets, 0, nb_cases );
-        sd.case_offsets[ nb_cases ] = sd.size;
+        // get sd.cut_case_offsets
+        sd.cut_case_offsets.resize( nb_cases + 1 );
+        ks->read_TI( sd.cut_case_offsets.data(), offsets, 0, nb_cases );
+        sd.cut_case_offsets[ nb_cases ] = sd.size;
 
         // update nb items to create for each type
         sd.shape_type->cut_rese( [&]( const ShapeType *shape_type, BI count ) {
@@ -119,10 +119,10 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
                 new_item_count.insert( iter, { shape_type, count } );
             else
                 iter->second += count;
-        }, sd.case_offsets.data() );
+        }, sd.cut_case_offsets.data() );
 
-        // make indices
-        ks->sorted_indices( sd.tmp[ ShapeData::indices ], offsets, cut_cases, sd.size, sd.shape_type->nb_nodes() );
+        // make indices (which modifies offsets)
+        ks->sorted_indices( sd.cut_indices, offsets, cut_cases, sd.size, sd.shape_type->nb_nodes() );
 
         // free local data
         ks->free_TI( cut_cases );
@@ -140,8 +140,8 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
         sd.shape_type->cut_ops( ks, shape_map, sd, cut_ids.data(), dim );
 
         // free tmp data from old shape map
-        ks->free_TF( sd.tmp[ ShapeData::out_scps ] );
-        ks->free_TI( sd.tmp[ ShapeData::indices  ] );
+        ks->free_TF( sd.cut_out_scps );
+        ks->free_TI( sd.cut_indices  );
     }
 }
 

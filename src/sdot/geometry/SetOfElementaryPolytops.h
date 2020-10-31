@@ -5,6 +5,7 @@
 #include "../kernels/VecTI.h"
 
 #include "shape_types/Triangle.h"
+#include "shape_types/Quad.h"
 #include "ShapeData.h"
 #include "VtkOutput.h"
 

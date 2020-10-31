@@ -114,7 +114,7 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
                         if ( nm == nk )
                             break;
                     }
-                    new_points[ 0 ].push_back( { points[ nk ].ind_0, points[ nl ].ind_0, points[ nk ].face_id, true } );
+                    new_points[ 0 ].push_back( { points[ nk ].ind_0, points[ nl ].ind_0, TI( CutItem::cut_id ), true } );
 
                     // inside part
                     new_points[ 1 ].push_back( { points[ nk ].ind_0, points[ nl ].ind_0, points[ nk ].face_id, false } );
@@ -124,7 +124,7 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
                         if ( nm == ni )
                             break;
                     }
-                    new_points[ 1 ].push_back( { points[ ni ].ind_0, points[ nj ].ind_0, points[ ni ].face_id, false } );
+                    new_points[ 1 ].push_back( { points[ ni ].ind_0, points[ nj ].ind_0, TI( CutItem::cut_id ), false } );
 
                     if ( np++ ) {
                         possibilities.push_back( std::make_unique<CutOpWithNamesAndInds>( cp_possibility ) );

@@ -8,11 +8,16 @@ En deuxième phase, on transforme les comptes en offsets.
 En troisième phase, on fait un parcourt des produits scalaires et on colle les index triés à partir des offsets.
 
 ========================================================================================================================================
-Si on a besoin de diviser
-
-========================================================================================================================================
 Cas où on a plusieurs possibilités de coupes
 
-=> cas test avec quads
+* Cas test
 
+==
 
+Prop: on fait un tri à l'intérieur du tri déjà fait dans les cas où plusieurs possibilités de coupes sont présentes
+
+Pb: il faudrait obtenir le numéro de cas avant de faire la réservation.
+
+UNe solution bourrine pourrait être dans shape_type->cut_rese: on fait juste un compte en donnant le meilleur cas 
+  => on a une list de scalaire pour le score et une liste d'index (taille = nb items pour ce cas) pour le numéro du meilleur cas qu'on met à jour pour chaque cas 
+    il faut donc réserver nb_items_pour_ce_cas * nb_lane localement

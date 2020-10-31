@@ -59,7 +59,7 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
         os << "\n";
 
         // ptr to indices
-        os << "    const TI *indices = reinterpret_cast<const TI *>( osd.tmp[ ShapeData::indices ] );\n";
+        os << "    const TI *indices = reinterpret_cast<const TI *>( osd.cut_indices );\n";
 
         // needed intersection points
         std::set<std::array<TI,2>> cs;
@@ -71,12 +71,12 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
         if ( cs.size() ) {
             os << "\n";
             for( TI nn = 0; nn < cut_op.nb_input_nodes(); ++nn )
-                os << "    const TF *old_scp_" << nn << " = reinterpret_cast<const TF *>( osd.tmp[ ShapeData::out_scps ] ) + oni[ " << nn << " ] * osd.rese;\n";
+                os << "    const TF *old_scp_" << nn << " = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ " << nn << " ] * osd.rese;\n";
         }
 
         // loop over indices
         os << "\n";
-        os << "    for( BI num_ind = osd.case_offsets[ num_case + 0 ]; num_ind < osd.case_offsets[ num_case + 1 ]; ++num_ind ) {\n";
+        os << "    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {\n";
         os << "        TI index = indices[ num_ind ];\n";
 
         // needed scps
