@@ -19,5 +19,11 @@ Prop: on fait un tri à l'intérieur du tri déjà fait dans les cas où plusieu
 Pb: il faudrait obtenir le numéro de cas avant de faire la réservation.
 
 UNe solution bourrine pourrait être dans shape_type->cut_rese: on fait juste un compte en donnant le meilleur cas 
-  => on a une list de scalaire pour le score et une liste d'index (taille = nb items pour ce cas) pour le numéro du meilleur cas qu'on met à jour pour chaque cas 
+  => on a une liste de scalaire pour le score et une liste d'index (taille = nb items pour ce cas) pour le numéro du meilleur cas qu'on met à jour pour chaque cas 
     il faut donc réserver nb_items_pour_ce_cas * nb_lane localement
+
+Rq: je ne sait pas encore comment sélectionner la meilleure possibilité, mais ça donnera de toutes façons un numéro avec lequel on pourra faire un tri, etc...
+
+=> creation des sous cas dans dans cut_rese 
+
+Prop: on fait cut_off[ num_case ][ num_poss ] tout du long.

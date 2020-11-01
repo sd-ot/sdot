@@ -10,7 +10,7 @@ namespace sdot {
 class S5 : public ShapeType {
 public:
     virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items, VtkOutput::Pt *offsets ) const override;
-    virtual void        cut_rese   ( const std::function<void(const ShapeType *,BI)> &fc, const BI *cut_case_offsets ) const override;
+    virtual void        cut_rese   ( const std::function<void(const ShapeType *,BI)> &fc, ShapeData &sd, const BI *cut_case_offsets ) const override;
     virtual unsigned    nb_nodes   () const override { return 5; }
     virtual unsigned    nb_faces   () const override { return 5; }
     virtual void        cut_ops    ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override;
@@ -69,7 +69,7 @@ void S5::display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigne
     }
 }
 
-void S5::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, const BI *cut_case_offsets ) const {
+void S5::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, ShapeData &sd, const BI *cut_case_offsets ) const {
     fc( s3(),
         ( cut_case_offsets[ 6 ] - cut_case_offsets[ 5 ] ) * 1 +
         ( cut_case_offsets[ 10 ] - cut_case_offsets[ 9 ] ) * 1 +

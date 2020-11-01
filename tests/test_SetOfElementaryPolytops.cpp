@@ -85,6 +85,6 @@ void test_quad() {
 }
 
 int main() {
-    // test_triangle();
-    test_quad();
+    test_triangle();
+    //    test_quad();
 }

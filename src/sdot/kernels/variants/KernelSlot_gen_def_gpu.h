@@ -1,4 +1,4 @@
-void mk_items_n3_0_0_1_1_2_2_f3_0_1_2( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_0_0_1_1_2_2_f3_0_1_2( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -27,7 +27,7 @@ void mk_items_n3_0_0_1_1_2_2_f3_0_1_2( ShapeData &nsd_0, const std::array<BI,3> 
 
     const TI *indices = reinterpret_cast<const TI *>( osd.cut_indices );
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF x_0_0 = old_x_0[ index ];
@@ -54,7 +54,7 @@ void mk_items_n3_0_0_1_1_2_2_f3_0_1_2( ShapeData &nsd_0, const std::array<BI,3> 
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_0_0_1_1_2_2_3_3_f4_0_1_2_3( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_0_0_1_1_2_2_3_3_f4_0_1_2_3( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -89,7 +89,7 @@ void mk_items_n4_0_0_1_1_2_2_3_3_f4_0_1_2_3( ShapeData &nsd_0, const std::array<
 
     const TI *indices = reinterpret_cast<const TI *>( osd.cut_indices );
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF x_0_0 = old_x_0[ index ];
@@ -121,7 +121,7 @@ void mk_items_n4_0_0_1_1_2_2_3_3_f4_0_1_2_3( ShapeData &nsd_0, const std::array<
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_0_1_1_1_1_1_2_2_f4_0_1_c_i_n4_2_2_3_3_3_0_0_1_f4_2_3_c_i( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_0_1_1_1_1_1_2_2_f4_0_1_c_i_n4_2_2_3_3_3_0_0_1_f4_2_3_c_i( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -174,7 +174,7 @@ void mk_items_n4_0_1_1_1_1_1_2_2_f4_0_1_c_i_n4_2_2_3_3_3_0_0_1_f4_2_3_c_i( Shape
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -231,7 +231,7 @@ void mk_items_n4_0_1_1_1_1_1_2_2_f4_0_1_c_i_n4_2_2_3_3_3_0_0_1_f4_2_3_c_i( Shape
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_0_1_1_1_1_2_f3_0_1_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,2> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_0_1_1_1_1_2_f3_0_1_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,2> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -263,7 +263,7 @@ void mk_items_n3_0_1_1_1_1_2_f3_0_1_c( ShapeData &nsd_0, const std::array<BI,3> 
     const TF *old_scp_1 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 1 ] * osd.rese;
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -301,7 +301,7 @@ void mk_items_n3_0_1_1_1_1_2_f3_0_1_c( ShapeData &nsd_0, const std::array<BI,3> 
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_0_1_1_1_1_2_f3_0_1_c_n3_2_3_3_3_3_0_f3_2_3_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,3> &nni_1, const std::array<BI,3> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_0_1_1_1_1_2_f3_0_1_c_n3_2_3_3_3_3_0_f3_2_3_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,3> &nni_1, const std::array<BI,3> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -348,7 +348,7 @@ void mk_items_n3_0_1_1_1_1_2_f3_0_1_c_n3_2_3_3_3_3_0_f3_2_3_c( ShapeData &nsd_0,
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -406,7 +406,7 @@ void mk_items_n3_0_1_1_1_1_2_f3_0_1_c_n3_2_3_3_3_3_0_f3_2_3_c( ShapeData &nsd_0,
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_0_1_1_1_2_2_f3_0_1_i_n4_2_2_3_3_3_0_0_1_f4_2_3_c_i( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_0_1_1_1_2_2_f3_0_1_i_n4_2_2_3_3_3_0_0_1_f4_2_3_c_i( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -456,7 +456,7 @@ void mk_items_n3_0_1_1_1_2_2_f3_0_1_i_n4_2_2_3_3_3_0_0_1_f4_2_3_c_i( ShapeData &
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -510,7 +510,7 @@ void mk_items_n3_0_1_1_1_2_2_f3_0_1_i_n4_2_2_3_3_3_0_0_1_f4_2_3_c_i( ShapeData &
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_0_1_1_1_2_2_2_0_f4_0_1_2_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_0_1_1_1_2_2_2_0_f4_0_1_2_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -546,7 +546,7 @@ void mk_items_n4_0_1_1_1_2_2_2_0_f4_0_1_2_c( ShapeData &nsd_0, const std::array<
     const TF *old_scp_1 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 1 ] * osd.rese;
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -587,7 +587,7 @@ void mk_items_n4_0_1_1_1_2_2_2_0_f4_0_1_2_c( ShapeData &nsd_0, const std::array<
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_0_1_1_1_2_2_2_3_f4_0_1_2_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,3> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_0_1_1_1_2_2_2_3_f4_0_1_2_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,3> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -626,7 +626,7 @@ void mk_items_n4_0_1_1_1_2_2_2_3_f4_0_1_2_c( ShapeData &nsd_0, const std::array<
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -670,7 +670,7 @@ void mk_items_n4_0_1_1_1_2_2_2_3_f4_0_1_2_c( ShapeData &nsd_0, const std::array<
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_1_2_2_2_0_0_0_1_f4_1_2_0_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_1_2_2_2_0_0_0_1_f4_1_2_0_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -706,7 +706,7 @@ void mk_items_n4_1_2_2_2_0_0_0_1_f4_1_2_0_c( ShapeData &nsd_0, const std::array<
     const TF *old_scp_1 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 1 ] * osd.rese;
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -747,7 +747,7 @@ void mk_items_n4_1_2_2_2_0_0_0_1_f4_1_2_0_c( ShapeData &nsd_0, const std::array<
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_1_2_2_2_2_0_f3_1_2_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_1_2_2_2_2_0_f3_1_2_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -780,7 +780,7 @@ void mk_items_n3_1_2_2_2_2_0_f3_1_2_c( ShapeData &nsd_0, const std::array<BI,3> 
     const TF *old_scp_1 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 1 ] * osd.rese;
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -818,7 +818,7 @@ void mk_items_n3_1_2_2_2_2_0_f3_1_2_c( ShapeData &nsd_0, const std::array<BI,3> 
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_1_2_2_2_2_2_3_3_f4_1_2_c_i_n4_3_3_0_0_0_1_1_2_f4_3_0_c_i( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_1_2_2_2_2_2_3_3_f4_1_2_c_i_n4_3_3_0_0_0_1_1_2_f4_3_0_c_i( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -871,7 +871,7 @@ void mk_items_n4_1_2_2_2_2_2_3_3_f4_1_2_c_i_n4_3_3_0_0_0_1_1_2_f4_3_0_c_i( Shape
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -928,7 +928,7 @@ void mk_items_n4_1_2_2_2_2_2_3_3_f4_1_2_c_i_n4_3_3_0_0_0_1_1_2_f4_3_0_c_i( Shape
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_1_2_2_2_2_3_f3_1_2_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,3> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_1_2_2_2_2_3_f3_1_2_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,3> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -964,7 +964,7 @@ void mk_items_n3_1_2_2_2_2_3_f3_1_2_c( ShapeData &nsd_0, const std::array<BI,3> 
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_1 = old_scp_1[ index ];
@@ -1004,7 +1004,7 @@ void mk_items_n3_1_2_2_2_2_3_f3_1_2_c( ShapeData &nsd_0, const std::array<BI,3> 
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_1_2_2_2_2_3_f3_1_2_c_n3_3_0_0_0_0_1_f3_3_0_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,3> &nni_1, const std::array<BI,3> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_1_2_2_2_2_3_f3_1_2_c_n3_3_0_0_0_0_1_f3_3_0_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,3> &nni_1, const std::array<BI,3> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -1051,7 +1051,7 @@ void mk_items_n3_1_2_2_2_2_3_f3_1_2_c_n3_3_0_0_0_0_1_f3_3_0_c( ShapeData &nsd_0,
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -1109,7 +1109,7 @@ void mk_items_n3_1_2_2_2_2_3_f3_1_2_c_n3_3_0_0_0_0_1_f3_3_0_c( ShapeData &nsd_0,
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_1_2_2_2_3_3_f3_1_2_i_n4_3_3_0_0_0_1_1_2_f4_3_0_c_i( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_1_2_2_2_3_3_f3_1_2_i_n4_3_3_0_0_0_1_1_2_f4_3_0_c_i( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -1159,7 +1159,7 @@ void mk_items_n3_1_2_2_2_3_3_f3_1_2_i_n4_3_3_0_0_0_1_1_2_f4_3_0_c_i( ShapeData &
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -1213,7 +1213,7 @@ void mk_items_n3_1_2_2_2_3_3_f3_1_2_i_n4_3_3_0_0_0_1_1_2_f4_3_0_c_i( ShapeData &
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_1_2_2_2_3_3_3_0_f4_1_2_3_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_1_2_2_2_3_3_3_0_f4_1_2_3_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -1253,7 +1253,7 @@ void mk_items_n4_1_2_2_2_3_3_3_0_f4_1_2_3_c( ShapeData &nsd_0, const std::array<
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -1297,7 +1297,7 @@ void mk_items_n4_1_2_2_2_3_3_3_0_f4_1_2_3_c( ShapeData &nsd_0, const std::array<
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_2_0_0_0_0_1_f3_2_0_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_2_0_0_0_0_1_f3_2_0_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -1330,7 +1330,7 @@ void mk_items_n3_2_0_0_0_0_1_f3_2_0_c( ShapeData &nsd_0, const std::array<BI,3> 
     const TF *old_scp_1 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 1 ] * osd.rese;
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -1368,7 +1368,7 @@ void mk_items_n3_2_0_0_0_0_1_f3_2_0_c( ShapeData &nsd_0, const std::array<BI,3> 
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_2_0_0_0_1_1_1_2_f4_2_0_1_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_2_0_0_0_1_1_1_2_f4_2_0_1_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,3> &oni, const std::array<BI,3> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -1404,7 +1404,7 @@ void mk_items_n4_2_0_0_0_1_1_1_2_f4_2_0_1_c( ShapeData &nsd_0, const std::array<
     const TF *old_scp_1 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 1 ] * osd.rese;
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -1445,7 +1445,7 @@ void mk_items_n4_2_0_0_0_1_1_1_2_f4_2_0_1_c( ShapeData &nsd_0, const std::array<
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_2_3_3_3_0_0_f3_2_3_i_n4_0_0_1_1_1_2_2_3_f4_0_1_c_i( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_2_3_3_3_0_0_f3_2_3_i_n4_0_0_1_1_1_2_2_3_f4_0_1_c_i( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -1495,7 +1495,7 @@ void mk_items_n3_2_3_3_3_0_0_f3_2_3_i_n4_0_0_1_1_1_2_2_3_f4_0_1_c_i( ShapeData &
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_1 = old_scp_1[ index ];
@@ -1549,7 +1549,7 @@ void mk_items_n3_2_3_3_3_0_0_f3_2_3_i_n4_0_0_1_1_1_2_2_3_f4_0_1_c_i( ShapeData &
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_2_3_3_3_0_0_0_1_f4_2_3_0_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_2_3_3_3_0_0_0_1_f4_2_3_0_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -1589,7 +1589,7 @@ void mk_items_n4_2_3_3_3_0_0_0_1_f4_2_3_0_c( ShapeData &nsd_0, const std::array<
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -1633,7 +1633,7 @@ void mk_items_n4_2_3_3_3_0_0_0_1_f4_2_3_0_c( ShapeData &nsd_0, const std::array<
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_2_3_3_3_3_0_f3_2_3_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_2_3_3_3_3_0_f3_2_3_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -1670,7 +1670,7 @@ void mk_items_n3_2_3_3_3_3_0_f3_2_3_c( ShapeData &nsd_0, const std::array<BI,3> 
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -1710,7 +1710,7 @@ void mk_items_n3_2_3_3_3_3_0_f3_2_3_c( ShapeData &nsd_0, const std::array<BI,3> 
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_2_3_3_3_3_0_f3_2_3_c_n3_0_1_1_1_1_2_f3_0_1_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,3> &nni_1, const std::array<BI,3> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_2_3_3_3_3_0_f3_2_3_c_n3_0_1_1_1_1_2_f3_0_1_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,3> &nni_1, const std::array<BI,3> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -1757,7 +1757,7 @@ void mk_items_n3_2_3_3_3_3_0_f3_2_3_c_n3_0_1_1_1_1_2_f3_0_1_c( ShapeData &nsd_0,
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -1815,7 +1815,7 @@ void mk_items_n3_2_3_3_3_3_0_f3_2_3_c_n3_0_1_1_1_1_2_f3_0_1_c( ShapeData &nsd_0,
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_2_3_3_3_3_3_0_0_f4_2_3_c_i_n4_0_0_1_1_1_2_2_3_f4_0_1_c_i( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_2_3_3_3_3_3_0_0_f4_2_3_c_i_n4_0_0_1_1_1_2_2_3_f4_0_1_c_i( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -1868,7 +1868,7 @@ void mk_items_n4_2_3_3_3_3_3_0_0_f4_2_3_c_i_n4_0_0_1_1_1_2_2_3_f4_0_1_c_i( Shape
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_1 = old_scp_1[ index ];
@@ -1925,7 +1925,7 @@ void mk_items_n4_2_3_3_3_3_3_0_0_f4_2_3_c_i_n4_0_0_1_1_1_2_2_3_f4_0_1_c_i( Shape
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_3_0_0_0_0_0_1_1_f4_3_0_c_i_n4_1_1_2_2_2_3_3_0_f4_1_2_c_i( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_3_0_0_0_0_0_1_1_f4_3_0_c_i_n4_1_1_2_2_2_3_3_0_f4_1_2_c_i( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -1978,7 +1978,7 @@ void mk_items_n4_3_0_0_0_0_0_1_1_f4_3_0_c_i_n4_1_1_2_2_2_3_3_0_f4_1_2_c_i( Shape
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -2035,7 +2035,7 @@ void mk_items_n4_3_0_0_0_0_0_1_1_f4_3_0_c_i_n4_1_1_2_2_2_3_3_0_f4_1_2_c_i( Shape
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_3_0_0_0_0_1_f3_3_0_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_3_0_0_0_0_1_f3_3_0_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -2072,7 +2072,7 @@ void mk_items_n3_3_0_0_0_0_1_f3_3_0_c( ShapeData &nsd_0, const std::array<BI,3> 
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -2112,7 +2112,7 @@ void mk_items_n3_3_0_0_0_0_1_f3_3_0_c( ShapeData &nsd_0, const std::array<BI,3> 
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_3_0_0_0_0_1_f3_3_0_c_n3_1_2_2_2_2_3_f3_1_2_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,3> &nni_1, const std::array<BI,3> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_3_0_0_0_0_1_f3_3_0_c_n3_1_2_2_2_2_3_f3_1_2_c( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,3> &nni_1, const std::array<BI,3> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -2159,7 +2159,7 @@ void mk_items_n3_3_0_0_0_0_1_f3_3_0_c_n3_1_2_2_2_2_3_f3_1_2_c( ShapeData &nsd_0,
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -2217,7 +2217,7 @@ void mk_items_n3_3_0_0_0_0_1_f3_3_0_c_n3_1_2_2_2_2_3_f3_1_2_c( ShapeData &nsd_0,
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n3_3_0_0_0_1_1_f3_3_0_i_n4_1_1_2_2_2_3_3_0_f4_1_2_c_i( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n3_3_0_0_0_1_1_f3_3_0_i_n4_1_1_2_2_2_3_3_0_f4_1_2_c_i( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -2267,7 +2267,7 @@ void mk_items_n3_3_0_0_0_1_1_f3_3_0_i_n4_1_1_2_2_2_3_3_0_f4_1_2_c_i( ShapeData &
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];
@@ -2321,7 +2321,7 @@ void mk_items_n3_3_0_0_0_1_1_f3_3_0_i_n4_1_1_2_2_2_3_3_0_f4_1_2_c_i( ShapeData &
         new_ids_1[ ni_1 ] = old_ids[ index ];
     }
 }
-void mk_items_n4_3_0_0_0_1_1_1_2_f4_3_0_1_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI num_case, const void *cut_ids, N<2> dim ) override {
+void mk_items_n4_3_0_0_0_1_1_1_2_f4_3_0_1_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) override {
     TF *new_x_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 0 ) * nsd_0.rese;
     TF *new_y_0_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 0 ] * dim + 1 ) * nsd_0.rese;
     TF *new_x_1_0 = reinterpret_cast<TF *>( nsd_0.coordinates ) + ( nni_0[ 1 ] * dim + 0 ) * nsd_0.rese;
@@ -2361,7 +2361,7 @@ void mk_items_n4_3_0_0_0_1_1_1_2_f4_3_0_1_c( ShapeData &nsd_0, const std::array<
     const TF *old_scp_2 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 2 ] * osd.rese;
     const TF *old_scp_3 = reinterpret_cast<const TF *>( osd.cut_out_scps ) + oni[ 3 ] * osd.rese;
 
-    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {
+    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
         TI index = indices[ num_ind ];
 
         TF scp_0 = old_scp_0[ index ];

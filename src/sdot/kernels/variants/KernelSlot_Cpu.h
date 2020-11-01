@@ -27,6 +27,8 @@ public:
     virtual void     assign_iota_TI           ( void *dst, BI dst_off, BI src_off, BI len ) override { std::iota( reinterpret_cast<TI *>( dst ) + dst_off, reinterpret_cast<TI *>( dst ) + dst_off + len, src_off ); }
     virtual void     assign_TF                ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) { for( TI n = 0; n < len; ++n ) reinterpret_cast<TF *>( dst )[ n + dst_off ] = reinterpret_cast<const TF *>( src )[ n + src_off ]; }
     virtual void     assign_TI                ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) { for( TI n = 0; n < len; ++n ) reinterpret_cast<TI *>( dst )[ n + dst_off ] = reinterpret_cast<const TI *>( src )[ n + src_off ]; }
+    virtual void     assign_TF                ( void *dst, BI dst_off, BF src_val, BI len ) { for( TI n = 0; n < len; ++n ) reinterpret_cast<TF *>( dst )[ n + dst_off ] = src_val; }
+    virtual void     assign_TI                ( void *dst, BI dst_off, BI src_val, BI len ) { for( TI n = 0; n < len; ++n ) reinterpret_cast<TI *>( dst )[ n + dst_off ] = src_val; }
     virtual void     get_local                ( const std::function<void( const double **tfs, const BI **tis )> &f, const std::tuple<const void *,BI,BI> *tfs_data, BI tfs_size, const std::tuple<const void *,BI,BI> *tis_data, BI tis_size ) override;
     virtual void     read_TI                  ( BI *dst, const void *src, BI src_off, BI len );
 
@@ -39,8 +41,8 @@ public:
 
     virtual void*    allocate_TF              ( BI size ) override;
     virtual void*    allocate_TI              ( BI size ) override;
-    virtual void     free_TF                  ( void *ptr ) override { free( reinterpret_cast<TF *>( ptr ) ); }
-    virtual void     free_TI                  ( void *ptr ) override { free( reinterpret_cast<TI *>( ptr ) ); }
+    virtual void     free_TF                  ( void *ptr ) override { if ( ptr ) free( reinterpret_cast<TF *>( ptr ) ); }
+    virtual void     free_TI                  ( void *ptr ) override { if ( ptr ) free( reinterpret_cast<TI *>( ptr ) ); }
 
     virtual double   score                    () { return _score; }
 

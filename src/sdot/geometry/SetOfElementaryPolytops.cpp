@@ -108,9 +108,19 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
         ks->count_to_offsets( offsets, sd.shape_type->nb_nodes() );
 
         // get sd.cut_case_offsets
-        sd.cut_case_offsets.resize( nb_cases + 1 );
-        ks->read_TI( sd.cut_case_offsets.data(), offsets, 0, nb_cases );
-        sd.cut_case_offsets[ nb_cases ] = sd.size;
+        std::vector<BI> cut_poss_count = sd.shape_type->cut_poss_count();
+        sd.cut_case_offsets.clear();
+        sd.cut_case_offsets.resize( cut_poss_count.size() );
+
+        std::vector<BI> loc_cut_case_offsets( nb_cases );
+        ks->read_TI( loc_cut_case_offsets.data(), offsets, 0, nb_cases );
+        for( BI n = 0; n < nb_cases; ++n ) {
+            sd.cut_case_offsets[ n ].resize( cut_poss_count[ n ] + 1, n + 1 < nb_cases ? loc_cut_case_offsets[ n + 1 ] : sd.size );
+            sd.cut_case_offsets[ n ][ 0 ] = loc_cut_case_offsets[ n ];
+        }
+
+        // make indices
+        ks->sorted_indices( sd.cut_indices, offsets, cut_cases, sd.size, sd.shape_type->nb_nodes() );
 
         // update nb items to create for each type
         sd.shape_type->cut_rese( [&]( const ShapeType *shape_type, BI count ) {
@@ -119,10 +129,7 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
                 new_item_count.insert( iter, { shape_type, count } );
             else
                 iter->second += count;
-        }, sd.cut_case_offsets.data() );
-
-        // make indices (which modifies offsets)
-        ks->sorted_indices( sd.cut_indices, offsets, cut_cases, sd.size, sd.shape_type->nb_nodes() );
+        }, ks, sd );
 
         // free local data
         ks->free_TI( cut_cases );

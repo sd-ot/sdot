@@ -28,7 +28,6 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
         std::vector<bool> outside( polytop.points.size() );
         for( std::uint64_t j = 0; j < polytop.points.size(); ++j )
             outside[ j ] = n & ( TI( 1 ) << j );
-        P( n );
         cut_cases[ n ].init( *this, outside, available_primitive_shapes );
     }
 
@@ -46,16 +45,18 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
     // class decl
     os << "class " << name << " : public ShapeType {\n";
     os << "public:\n";
-    os << "    virtual void        display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items, VtkOutput::Pt *offsets ) const override;\n";
-    os << "    virtual void        cut_rese   ( const std::function<void(const ShapeType *,BI)> &fc, const BI *cut_case_offsets ) const override;\n";
-    os << "    virtual unsigned    nb_nodes   () const override { return " << polytop.points.size() << "; }\n";
-    os << "    virtual unsigned    nb_faces   () const override { return " << polytop.nb_faces() << "; }\n";
-    os << "    virtual void        cut_ops    ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override;\n";
-    os << "    virtual std::string name       () const override { return \"" << name << "\"; }\n";
+    os << "    virtual std::vector<BI> cut_poss_count() const override;\n";
+    os << "    virtual void            display_vtk   ( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items, VtkOutput::Pt *offsets ) const override;\n";
+    os << "    virtual void            cut_rese      ( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const override;\n";
+    os << "    virtual unsigned        nb_nodes      () const override { return " << polytop.points.size() << "; }\n";
+    os << "    virtual unsigned        nb_faces      () const override { return " << polytop.nb_faces() << "; }\n";
+    os << "    virtual void            cut_ops       ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override;\n";
+    os << "    virtual std::string     name          () const override { return \"" << name << "\"; }\n";
     os << "};\n";
     os << "\n";
 
     // definitions
+    write_cut_p_c( os, cut_cases );
     write_cut_ops( os, gggd, cut_cases );
     write_dsp_vtk( os );
     write_cut_cnt( os, cut_cases );
@@ -74,7 +75,20 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
 
 }
 
+void NamedRecursivePolytop::write_cut_p_c( std::ostream &os, std::vector<CutCase> &cut_cases ) const {
+    os << "\n";
+    os << "std::vector<ShapeType::BI> " << name << "::cut_poss_count() const {\n";
+    os << "    return {";
+
+    for( std::size_t n = 0; n < cut_cases.size(); ++n )
+        os << ( n ? ", " : " " ) << cut_cases[ n ].possibilities.size();
+    os << " };\n";
+
+    os << "}\n";
+}
+
 void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &gggd, std::vector<CutCase> &cut_cases ) const {
+    os << "\n";
     os << "void " << name << "::cut_ops( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const {\n";
 
     // get (needed) output shape ptrs
@@ -95,8 +109,6 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
     // code for each case
     for( std::size_t num_cut_case = 0; num_cut_case < cut_cases.size(); ++num_cut_case ) {
         CutCase &cut_case = cut_cases[ num_cut_case ];
-
-        P( num_cut_case, cut_case.possibilities.size() );
 
         // nothing to create
         if ( cut_case.possibilities.empty() )
@@ -123,7 +135,7 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
             os << " }, {";
             for( TI n = 0; n < cownai.input_face_inds.size(); ++n )
                 os << ( n ? ", " : " " ) << cownai.input_face_inds[ n ];
-            os << " }, " << num_cut_case << ", cut_ids, N<" << polytop.dim() << ">() );\n";
+            os << " }, old_shape_data.cut_case_offsets[ " << num_cut_case << " ][ 0 ], old_shape_data.cut_case_offsets[ " << num_cut_case << " ][ 1 ], cut_ids, N<" << polytop.dim() << ">() );\n";
             continue;
         }
 
@@ -131,10 +143,12 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
     }
 
     os << "}\n";
-    os << "\n";
 }
 
 void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase> &cut_cases ) const {
+    os << "\n";
+    os << "void " << name << "::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const {\n";
+
     // type of produced shapes
     std::set<std::string> produced_shapes;
     for( const CutCase &cut_case : cut_cases )
@@ -142,24 +156,32 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
             for( const CutOpWithNamesAndInds::Out &out : cownai->outputs )
                 produced_shapes.insert( out.shape_name );
 
+    // when there are several possibilities, get the best one
+    for( std::uint64_t n = 0; n < cut_cases.size(); ++n ) {
+        CutCase &cc = cut_cases[ n ];
+        if ( cc.possibilities.size() <= 1 )
+            continue;
+        os << "\n";
+        //        os << "    sd.cut_poss_numbers[ " << n << " ] = ks->allocate_TI( cut_case_offsets[ " << n + 1 << " ] - cut_case_offsets[ " << n << " ] );\n";
+        //        // get possibility number
+        //        os << "    ks->assign_TI( sd.cut_poss_numbers[ " << n << " ], 0, cut_case_offsets[ " << n + 1 << " ] - cut_case_offsets[ " << n << " ] );\n";
+        // sort by possibility number
+    }
+
     //
-    os << "void " << name << "::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, const BI *cut_case_offsets ) const {\n";
+
+    //
     for( std::string shape_name : produced_shapes ) {
+        os << "\n";
         os << "    fc( s" << shape_name.substr( 1 ) << "(),";
-        for( std::uint64_t n = 0, c = 0; n < cut_cases.size(); ++n ) {
-            std::size_t v = 0;
-            for( const std::unique_ptr<CutOpWithNamesAndInds> &possibility : cut_cases[ n ].possibilities )
-                v = std::max( v, possibility->nb_created( shape_name ) );
-            if ( v ) {
-                if ( c++ )
-                    os << " +";
-                os << "\n        ( cut_case_offsets[ " << n + 1 << " ] - cut_case_offsets[ " << n << " ] ) * " << v;
-            }
-        }
+        for( std::uint64_t n = 0, c = 0; n < cut_cases.size(); ++n )
+            for( std::size_t p = 0; p < cut_cases[ n ].possibilities.size(); ++p )
+                if ( std::size_t co = cut_cases[ n ].possibilities[ p ]->nb_created( shape_name ) )
+                    os << ( c++ ? " +" : "" ) << "\n        ( sd.cut_case_offsets[ " << n << " ][ " << p + 1 << " ] - sd.cut_case_offsets[ " << n << " ][ " << p << " ] ) * " << co;
         os << "\n    );\n";
     }
+
     os << "}\n";
-    os << "\n";
 }
 
 void NamedRecursivePolytop::write_dsp_vtk( std::ostream &os ) const {
@@ -167,6 +189,7 @@ void NamedRecursivePolytop::write_dsp_vtk( std::ostream &os ) const {
     if ( name == "S3" ) vtk_name = "triangle";
     if ( name == "S4" ) vtk_name = "quad";
 
+    os << "\n";
     os << "void " << name << "::display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned /*dim*/, BI nb_items, VtkOutput::Pt *offsets ) const {\n";
     os << "    using Pt = VtkOutput::Pt;\n";
     os << "    if ( offsets ) {\n";
@@ -185,7 +208,6 @@ void NamedRecursivePolytop::write_dsp_vtk( std::ostream &os ) const {
     os << "        }\n";
     os << "    }\n";
     os << "}\n";
-    os << "\n";
 }
 
 }

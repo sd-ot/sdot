@@ -18,6 +18,7 @@ class KernelSlot {
 public:
     using            VK                       = std::vector<std::unique_ptr<KernelSlot>>;
     using            BI                       = std::uint64_t;
+    using            BF                       = double;
 
     /**/             KernelSlot               ( std::string slot_name );
     virtual         ~KernelSlot               ();
@@ -44,6 +45,8 @@ public:
     virtual void     assign_iota_TI           ( void *dst, BI dst_off, BI src_off, BI len ) = 0;
     virtual void     assign_TF                ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
     virtual void     assign_TI                ( void *dst, BI dst_off, const void *src, BI src_off, BI len ) = 0;
+    virtual void     assign_TF                ( void *dst, BI dst_off, BF src_val, BI len ) = 0;
+    virtual void     assign_TI                ( void *dst, BI dst_off, BI src_val, BI len ) = 0;
     virtual void     get_local                ( const std::function<void( const double **tfs, const BI **tis )> &f, const std::tuple<const void *,BI,BI> *tfs_data, BI tfs_size, const std::tuple<const void *,BI,BI> *tis_data, BI tis_size ) = 0;
     virtual void     read_TI                  ( BI *dst, const void *src, BI src_off, BI len ) = 0;
 
@@ -70,8 +73,8 @@ public:
     #include         "KernelSlot_gen_decl.h"
 
     template         <class TF,class TI>
-    static  VK       available_slots           ( S<TF>, S<TI> ) { return available_slots( TypeName<TF>::name(), TypeName<TI>::name() ); }
-    static  VK       available_slots           ( std::string TF = TypeName<double>::name(), std::string TI = TypeName<std::uint64_t>::name() );
+    static VK        available_slots           ( S<TF>, S<TI> ) { return available_slots( TypeName<TF>::name(), TypeName<TI>::name() ); }
+    static VK        available_slots           ( std::string TF = TypeName<double>::name(), std::string TI = TypeName<std::uint64_t>::name() );
 
     std::string      slot_name;
 };

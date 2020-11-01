@@ -8,7 +8,7 @@ void GlobGeneGeomData::write_gen_decl( std::ostream &os, const CutOp &cut_op, st
     os << prefix << "void " << cut_op.mk_item_func_name() << "( ";
     for( TI i = 0; i < cut_op.cut_items.size(); ++i )
         os << "ShapeData &nsd_" << i << ", const std::array<BI," << cut_op.cut_items[ i ].nodes.size() << "> &nni_" << i << ", const std::array<BI," << cut_op.cut_items[ i ].faces.size() << "> &nfi_" << i << ", ";
-    os << "const ShapeData &osd, const std::array<BI," << cut_op.nb_input_nodes() << "> &oni, const std::array<BI," << cut_op.nb_input_faces() << "> &ofi, BI num_case, const void *cut_ids, N<" << cut_op.dim << "> dim )" << suffix;
+    os << "const ShapeData &osd, const std::array<BI," << cut_op.nb_input_nodes() << "> &oni, const std::array<BI," << cut_op.nb_input_faces() << "> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<" << cut_op.dim << "> dim )" << suffix;
 }
 
 void GlobGeneGeomData::write_gen_decls( std::string filename ) {
@@ -76,7 +76,7 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool /*gpu*/ ) {
 
         // loop over indices
         os << "\n";
-        os << "    for( BI num_ind = osd.cut_case_offsets[ num_case + 0 ]; num_ind < osd.cut_case_offsets[ num_case + 1 ]; ++num_ind ) {\n";
+        os << "    for( BI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {\n";
         os << "        TI index = indices[ num_ind ];\n";
 
         // needed scps
