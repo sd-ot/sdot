@@ -1,4 +1,4 @@
-all: src/sdot/kernels/VecTF.h src/sdot/kernels/VecTF.cpp src/sdot/kernels/VecTI.h src/sdot/kernels/VecTI.cpp # gen
+all: src/sdot/kernels/VecTF.h src/sdot/kernels/VecTF.cpp src/sdot/kernels/VecTI.h src/sdot/kernels/VecTI.cpp gen
 	nsmake run -g3 tests/test_SetOfElementaryPolytops.cpp
 
 gen: 

@@ -2,6 +2,7 @@
 #include "../../kernels/VecTI.h"
 #include "../ShapeData.h"
 #include "../VtkOutput.h"
+#include <iostream>
 #include "S3.h"
 #include "S4.h"
 

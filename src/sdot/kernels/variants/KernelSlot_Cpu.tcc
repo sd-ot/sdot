@@ -74,14 +74,19 @@ void KernelSlot_Cpu<TF,TI,Arch>::_update_scores( void *score_best_sub_case, void
         for( TI num_edge = 0; num_edge < len_edges; ++num_edge ) {
             Pt pts[ 2 ];
             for( TI np = 0; np < 2; ++np ) {
-                TF s0 = reinterpret_cast<const TF *>( sd.cut_out_scps )[ inn[ 4 * num_edge + 2 * np + 0 ] * sd.rese + num_item ];
-                TF s1 = reinterpret_cast<const TF *>( sd.cut_out_scps )[ inn[ 4 * num_edge + 2 * np + 1 ] * sd.rese + num_item ];
+                TI n0 = inn[ 4 * num_edge + 2 * np + 0 ];
+                TI n1 = inn[ 4 * num_edge + 2 * np + 1 ];
+                TF s0 = reinterpret_cast<const TF *>( sd.cut_out_scps )[ n0 * sd.rese + num_item ];
+                TF s1 = reinterpret_cast<const TF *>( sd.cut_out_scps )[ n1 * sd.rese + num_item ];
                 TF di = s0 / ( s0 - s1 );
                 for( TI d = 0; d < dim; ++d )
-                    pts[ np ][ d ] = pos[ ( dim * inn[ 4 * num_edge + 2 * np + 0 ] + d ) * sd.rese + num_item ];
+                    pts[ np ][ d ] = pos[ ( dim * n0 + d ) * sd.rese + num_item ] +
+                              di * ( pos[ ( dim * n1 + d ) * sd.rese + num_item ] -
+                                     pos[ ( dim * n0 + d ) * sd.rese + num_item ] );
             }
             length += norm_2( pts[ 1 ] - pts[ 0 ] );
         }
+
 
         TF score = 1 / ( length + 1e-40 );
         if ( sv[ ind_item - beg ] < score ) {

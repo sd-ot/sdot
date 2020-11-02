@@ -2,6 +2,7 @@
 #include "../../kernels/VecTI.h"
 #include "../ShapeData.h"
 #include "../VtkOutput.h"
+#include <iostream>
 #include "S3.h"
 #include "S4.h"
 
@@ -82,7 +83,7 @@ void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSl
     void *index_best_sub_case = ks->allocate_TI( max_nb_item_with_sub_case );
 
     if ( sd.cut_case_offsets[ 5 ][ 1 ] - sd.cut_case_offsets[ 5 ][ 0 ] ) {
-        static VecTI nn{ ks, std::vector<BI>{
+        static std::vector<BI> nv{
             3, 0, 2, 3,
             1, 2, 0, 1,
             1, 2, 2, 3,
@@ -91,18 +92,21 @@ void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSl
             1, 2, 2, 3,
             1, 2, 0, 1,
             3, 0, 2, 3,
-        } };
+        };
 
+        VecTI nn{ ks, nv };
         ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ 5 ][ 1 ] - sd.cut_case_offsets[ 5 ][ 0 ] );
 
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 0, nn.data(), 0, 2, N<2>() );
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 1, nn.data(), 8, 2, N<2>() );
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 2, nn.data(), 16, 2, N<2>() );
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 3, nn.data(), 24, 2, N<2>() );
+        ks->display_TI( std::cout, index_best_sub_case, 0, 1 ); std::cout << std::endl;
+        ks->display_TF( std::cout, score_best_sub_case, 0, 1 ); std::cout << std::endl;
     }
 
     if ( sd.cut_case_offsets[ 10 ][ 1 ] - sd.cut_case_offsets[ 10 ][ 0 ] ) {
-        static VecTI nn{ ks, std::vector<BI>{
+        static std::vector<BI> nv{
             0, 1, 1, 2,
             2, 3, 3, 0,
             2, 3, 1, 2,
@@ -111,14 +115,17 @@ void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSl
             2, 3, 1, 2,
             2, 3, 3, 0,
             0, 1, 1, 2,
-        } };
+        };
 
+        VecTI nn{ ks, nv };
         ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ 10 ][ 1 ] - sd.cut_case_offsets[ 10 ][ 0 ] );
 
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 0, nn.data(), 0, 2, N<2>() );
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 1, nn.data(), 8, 2, N<2>() );
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 2, nn.data(), 16, 2, N<2>() );
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 3, nn.data(), 24, 2, N<2>() );
+        ks->display_TI( std::cout, index_best_sub_case, 0, 1 ); std::cout << std::endl;
+        ks->display_TF( std::cout, score_best_sub_case, 0, 1 ); std::cout << std::endl;
     }
 
     fc( s3(),

@@ -36,6 +36,7 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
     os << "#include \"../../kernels/VecTI.h\"\n";
     os << "#include \"../ShapeData.h\"\n";
     os << "#include \"../VtkOutput.h\"\n";
+    os << "#include <iostream>\n";
     for( const NamedRecursivePolytop &ps : available_primitive_shapes )
         os << "#include \"" << ps.name << ".h\"\n";
     os << "\n";
@@ -172,8 +173,7 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
             // scores
             os << "\n";
             os << "    if ( sd.cut_case_offsets[ " << n << " ][ 1 ] - sd.cut_case_offsets[ " << n << " ][ 0 ] ) {\n";
-
-            os << "        static VecTI nn{ ks, std::vector<BI>{";
+            os << "        static std::vector<BI> nv{";
             std::vector<TI> off_scores;
             for( TI p = 0, off = 0; p < cut_cases[ n ].possibilities.size(); ++p ) {
                 CutOpWithNamesAndInds &poss = *cut_cases[ n ].possibilities[ p ];
@@ -185,9 +185,10 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
                 }
                 off_scores.push_back( off );
             }
-            os << "\n        } };\n";
+            os << "\n        };\n";
 
             os << "\n";
+            os << "        VecTI nn{ ks, nv };\n";
             os << "        ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ " << n << " ][ 1 ] - sd.cut_case_offsets[ " << n << " ][ 0 ] );\n";
 
             os << "\n";
@@ -196,6 +197,9 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
                 os << "        ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ " << n << " ][ 0 ], sd.cut_case_offsets[ " << n << " ][ 1 ], " << p << ", nn.data(), "
                    << o << ", " << ( off_scores[ p ] - o ) / 4 << ", N<" << polytop.dim() << ">() );\n";
             }
+
+            os << "        ks->display_TI( std::cout, index_best_sub_case, 0, 1 ); std::cout << std::endl;\n";
+            os << "        ks->display_TF( std::cout, score_best_sub_case, 0, 1 ); std::cout << std::endl;\n";
 
             os << "    }\n";
 

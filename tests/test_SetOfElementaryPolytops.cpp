@@ -73,18 +73,18 @@ void test_quad() {
     P( sp );
 
 
-//    // cut
-//    std::vector<TF> cxs{ 0 }, cys{ 1 }, css{ 0 };
-//    std::vector<TI> new_face_ids{ 10 };
+    // cut
+    std::vector<TF> cxs{ 0 }, cys{ 1 }, css{ 0 };
+    std::vector<TI> new_face_ids{ 10 };
 
-//    sp.plane_cut( { { ks, cxs }, { ks, cys } }, { ks, css }, { ks, new_face_ids } );
+    sp.plane_cut( { { ks, cxs }, { ks, cys } }, { ks, css }, { ks, new_face_ids } );
 
-//    std::vector<VtkOutput::Pt> off_vtk = { { 1, 0, 0 } };
-//    sp.display_vtk( vo, off_vtk.data() );
-//    P( sp );
+    std::vector<VtkOutput::Pt> off_vtk = { { 1, 0, 0 } };
+    sp.display_vtk( vo, off_vtk.data() );
+    P( sp );
 
-//    // display
-//    vo.save( "cut.vtk" );
+    // display
+    vo.save( "cut.vtk" );
 }
 
 int main() {
