@@ -10,20 +10,7 @@ En troisième phase, on fait un parcourt des produits scalaires et on colle les 
 ========================================================================================================================================
 Cas où on a plusieurs possibilités de coupes
 
-* Cas test
+Il faut mettre à jour les offsets pour trouver les cas de coupe. Prop: on fait pour chaque cut case un vecteur avec score et un vecteur avec 
 
-==
-
-Prop: on fait un tri à l'intérieur du tri déjà fait dans les cas où plusieurs possibilités de coupes sont présentes
-
-Pb: il faudrait obtenir le numéro de cas avant de faire la réservation.
-
-UNe solution bourrine pourrait être dans shape_type->cut_rese: on fait juste un compte en donnant le meilleur cas 
-  => on a une liste de scalaire pour le score et une liste d'index (taille = nb items pour ce cas) pour le numéro du meilleur cas qu'on met à jour pour chaque cas 
-    il faut donc réserver nb_items_pour_ce_cas * nb_lane localement
-
-Rq: je ne sait pas encore comment sélectionner la meilleure possibilité, mais ça donnera de toutes façons un numéro avec lequel on pourra faire un tri, etc...
-
-=> creation des sous cas dans dans cut_rese 
-
-Prop: on fait cut_off[ num_case ][ num_poss ] tout du long.
+Calcul du score: 
+Prop 1: longueur des interfaces crées

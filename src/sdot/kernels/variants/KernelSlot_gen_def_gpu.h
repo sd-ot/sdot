@@ -2433,3 +2433,27 @@ void mk_items_n4_3_0_0_0_1_1_1_2_f4_3_0_1_c( ShapeData &nsd_0, const std::array<
         new_ids_0[ ni_0 ] = old_ids[ index ];
     }
 }
+void update_score_0_1_1_1_2_3_3_3( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case ) {
+proute
+}
+void update_score_0_1_3_3_2_3_1_1( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case ) {
+proute
+}
+void update_score_1_2_0_0_3_0_2_2( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case ) {
+proute
+}
+void update_score_1_2_2_2_3_0_0_0( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case ) {
+proute
+}
+void update_score_2_3_1_1_0_1_3_3( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case ) {
+proute
+}
+void update_score_2_3_3_3_0_1_1_1( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case ) {
+proute
+}
+void update_score_3_0_0_0_1_2_2_2( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case ) {
+proute
+}
+void update_score_3_0_2_2_1_2_0_0( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case ) {
+proute
+}

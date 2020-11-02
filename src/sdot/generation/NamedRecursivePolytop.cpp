@@ -59,7 +59,7 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
     write_cut_p_c( os, cut_cases );
     write_cut_ops( os, gggd, cut_cases );
     write_dsp_vtk( os );
-    write_cut_cnt( os, cut_cases );
+    write_cut_cnt( os, gggd, cut_cases );
 
     // singleton
     os << "\n";
@@ -136,7 +136,7 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
     os << "}\n";
 }
 
-void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase> &cut_cases ) const {
+void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, GlobGeneGeomData &gggd, std::vector<CutCase> &cut_cases ) const {
     os << "\n";
     os << "void " << name << "::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const {\n";
 
@@ -147,19 +147,35 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
             for( const CutOpWithNamesAndInds::Out &out : cownai->outputs )
                 produced_shapes.insert( out.shape_name );
 
-    // when there are several possibilities, get the best one
-    for( std::uint64_t n = 0; n < cut_cases.size(); ++n ) {
-        CutCase &cc = cut_cases[ n ];
-        if ( cc.possibilities.size() <= 1 )
-            continue;
-        os << "\n";
-        //        os << "    sd.cut_poss_numbers[ " << n << " ] = ks->allocate_TI( cut_case_offsets[ " << n + 1 << " ] - cut_case_offsets[ " << n << " ] );\n";
-        //        // get possibility number
-        //        os << "    ks->assign_TI( sd.cut_poss_numbers[ " << n << " ], 0, cut_case_offsets[ " << n + 1 << " ] - cut_case_offsets[ " << n << " ] );\n";
-        // sort by possibility number
-    }
+    // there are cases with several possibilities
+    bool need_sep_sub_cases = false;
+    for( CutCase &cc : cut_cases )
+        need_sep_sub_cases |= cc.possibilities.size() > 1;
 
-    //
+    // reservation for score_best_sub_case and index_best_sub_case
+    if ( need_sep_sub_cases ) {
+        os << "    BI max_nb_item_with_sub_case = 0;\n";
+        for( std::size_t n = 0; n < cut_cases.size(); ++n )
+            if ( cut_cases[ n ].possibilities.size() > 1 )
+                os << "    max_nb_item_with_sub_case = std::max( max_nb_item_with_sub_case, sd.cut_case_offsets[ " << n << " ][ 1 ] - sd.cut_case_offsets[ " << n << " ][ 0 ] );\n";
+
+        os << "\n";
+        os << "    void *score_best_sub_case = ks->allocate_TF( max_nb_item_with_sub_case );\n";
+        os << "    void *index_best_sub_case = ks->allocate_TI( max_nb_item_with_sub_case );\n";
+
+        for( std::uint64_t n = 0; n < cut_cases.size(); ++n ) {
+            CutCase &cc = cut_cases[ n ];
+            if ( cc.possibilities.size() <= 1 )
+                continue;
+            // scores
+            os << "\n";
+            os << "    ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ " << n << " ][ 1 ] - sd.cut_case_offsets[ " << n << " ][ 0 ] );\n";
+            for( std::size_t p = 0; p < cut_cases[ n ].possibilities.size(); ++p )
+                os << "    ks->" << gggd.name_udpate_score_func( *cut_cases[ n ].possibilities[ p ] ) << "( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ " << n << " ][ 0 ], sd.cut_case_offsets[ " << n << " ][ 1 ], " << p << " );\n";
+
+            // sort by possibility number
+        }
+    }
 
     //
     for( std::string shape_name : produced_shapes ) {
@@ -170,6 +186,12 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
                 if ( std::size_t co = cut_cases[ n ].possibilities[ p ]->nb_created( shape_name ) )
                     os << ( c++ ? " +" : "" ) << "\n        ( sd.cut_case_offsets[ " << n << " ][ " << p + 1 << " ] - sd.cut_case_offsets[ " << n << " ][ " << p << " ] ) * " << co;
         os << "\n    );\n";
+    }
+
+    // free memory for score_best_sub_case and index_best_sub_case
+    if ( need_sep_sub_cases ) {
+        os << "    ks->free_TF( score_best_sub_case );\n";
+        os << "    ks->free_TI( index_best_sub_case );\n";
     }
 
     os << "}\n";

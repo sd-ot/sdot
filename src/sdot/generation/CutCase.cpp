@@ -88,6 +88,15 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
                 cut_item.nodes.push_back( { p.ind_0, p.ind_1 } );
                 cut_item.faces.push_back( p.face_id );
             }
+
+            // length of created edge
+            for( TI i = 0; i < points.size(); ++i ) {
+                if ( points[ i ].face_id == TI( CutItem::cut_face ) ) {
+                    TI j = ( i + 1 ) % points.size();
+                    cut_item.lengths.push_back( { std::array<TI,2>{ points[ i ].ind_0, points[ i ].ind_1 }, std::array<TI,2>{ points[ j ].ind_0, points[ j ].ind_1 } } );
+                }
+            }
+
             possibility.cut_op.cut_items.push_back( cut_item );
             return;
         }
@@ -119,7 +128,7 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
                         if ( nm == nk )
                             break;
                     }
-                    new_points[ 0 ].push_back( { points[ nk ].ind_0, points[ nl ].ind_0, TI( CutItem::cut_id ), true } );
+                    new_points[ 0 ].push_back( { points[ nk ].ind_0, points[ nl ].ind_0, TI( CutItem::cut_face ), true } );
 
                     if ( new_points[ 0 ].size() == 6 ) {
                         P( new_points[ 0 ].size() );
@@ -137,8 +146,9 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
                         if ( nm == ni )
                             break;
                     }
-                    new_points[ 1 ].push_back( { points[ ni ].ind_0, points[ nj ].ind_0, TI( CutItem::cut_id ), false } );
+                    new_points[ 1 ].push_back( { points[ ni ].ind_0, points[ nj ].ind_0, TI( CutItem::cut_face ), false } );
 
+                    // recursion
                     if ( np++ ) {
                         possibilities.push_back( std::make_unique<CutOpWithNamesAndInds>( cp_possibility ) );
                         CutOpWithNamesAndInds &new_possibility = *possibilities.back();

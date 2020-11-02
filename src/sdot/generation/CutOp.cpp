@@ -15,7 +15,7 @@ std::string CutOp::mk_item_func_name() const {
         // faces
         res += "_f" + std::to_string( cut_items[ n ].faces.size() );
         for( TI face : cut_items[ n ].faces ) {
-            if ( face == TI( CutItem::cut_id ) )
+            if ( face == TI( CutItem::cut_face ) )
                 res += "_c";
             else if ( face == TI( CutItem::internal_face ) )
                 res += "_i";
@@ -48,7 +48,7 @@ std::size_t CutOp::nb_input_faces() const {
     TI res = 0;
     for( const CutItem &ci : cut_items )
         for( auto ind : ci.faces )
-            if ( ind != TI( CutItem::internal_face ) && ind != TI( CutItem::cut_id ) )
+            if ( ind != TI( CutItem::internal_face ) && ind != TI( CutItem::cut_face ) )
                 res = max( res, ind + 1 );
     return res;
 }

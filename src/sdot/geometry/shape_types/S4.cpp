@@ -73,8 +73,24 @@ void S4::display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigne
 }
 
 void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const {
+    BI max_nb_item_with_sub_case = 0;
+    max_nb_item_with_sub_case = std::max( max_nb_item_with_sub_case, sd.cut_case_offsets[ 5 ][ 1 ] - sd.cut_case_offsets[ 5 ][ 0 ] );
+    max_nb_item_with_sub_case = std::max( max_nb_item_with_sub_case, sd.cut_case_offsets[ 10 ][ 1 ] - sd.cut_case_offsets[ 10 ][ 0 ] );
 
+    void *score_best_sub_case = ks->allocate_TF( max_nb_item_with_sub_case );
+    void *index_best_sub_case = ks->allocate_TI( max_nb_item_with_sub_case );
 
+    ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ 5 ][ 1 ] - sd.cut_case_offsets[ 5 ][ 0 ] );
+    ks->update_score_3_0_2_2_1_2_0_0( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 0 );
+    ks->update_score_1_2_2_2_3_0_0_0( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 1 );
+    ks->update_score_3_0_0_0_1_2_2_2( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 2 );
+    ks->update_score_1_2_0_0_3_0_2_2( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 3 );
+
+    ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ 10 ][ 1 ] - sd.cut_case_offsets[ 10 ][ 0 ] );
+    ks->update_score_0_1_1_1_2_3_3_3( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 0 );
+    ks->update_score_2_3_1_1_0_1_3_3( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 1 );
+    ks->update_score_0_1_3_3_2_3_1_1( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 2 );
+    ks->update_score_2_3_3_3_0_1_1_1( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 3 );
 
     fc( s3(),
         ( sd.cut_case_offsets[ 1 ][ 1 ] - sd.cut_case_offsets[ 1 ][ 0 ] ) * 1 +
@@ -106,6 +122,8 @@ void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSl
         ( sd.cut_case_offsets[ 10 ][ 4 ] - sd.cut_case_offsets[ 10 ][ 3 ] ) * 2 +
         ( sd.cut_case_offsets[ 12 ][ 1 ] - sd.cut_case_offsets[ 12 ][ 0 ] ) * 1
     );
+    ks->free_TF( score_best_sub_case );
+    ks->free_TI( index_best_sub_case );
 }
 
 

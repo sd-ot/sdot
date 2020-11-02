@@ -25,3 +25,12 @@ virtual void mk_items_n3_3_0_0_0_0_1_f3_3_0_c_n3_1_2_2_2_2_3_f3_1_2_c( ShapeData
 virtual void mk_items_n4_3_0_0_0_0_1_1_2_f4_3_0_c_i_n4_1_2_2_2_2_3_3_0_f4_1_2_c_i( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) = 0;
 virtual void mk_items_n3_3_0_0_0_1_1_f3_3_0_i_n4_1_1_2_2_2_3_3_0_f4_1_2_c_i( ShapeData &nsd_0, const std::array<BI,3> &nni_0, const std::array<BI,3> &nfi_0, ShapeData &nsd_1, const std::array<BI,4> &nni_1, const std::array<BI,4> &nfi_1, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) = 0;
 virtual void mk_items_n4_3_0_0_0_1_1_1_2_f4_3_0_1_c( ShapeData &nsd_0, const std::array<BI,4> &nni_0, const std::array<BI,4> &nfi_0, const ShapeData &osd, const std::array<BI,4> &oni, const std::array<BI,4> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<2> dim ) = 0;
+
+virtual void update_score_0_1_1_1_2_3_3_3( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case );
+virtual void update_score_0_1_3_3_2_3_1_1( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case );
+virtual void update_score_1_2_0_0_3_0_2_2( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case );
+virtual void update_score_1_2_2_2_3_0_0_0( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case );
+virtual void update_score_2_3_1_1_0_1_3_3( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case );
+virtual void update_score_2_3_3_3_0_1_1_1( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case );
+virtual void update_score_3_0_0_0_1_2_2_2( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case );
+virtual void update_score_3_0_2_2_1_2_0_0( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case );
