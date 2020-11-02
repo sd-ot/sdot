@@ -109,17 +109,11 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
     // code for each case
     for( std::size_t num_cut_case = 0; num_cut_case < cut_cases.size(); ++num_cut_case ) {
         CutCase &cut_case = cut_cases[ num_cut_case ];
-
-        // nothing to create
-        if ( cut_case.possibilities.empty() )
-            continue;
-
-        // one possibility => just call the corresponding function
-        if ( cut_case.possibilities.size() == 1 ) {
-            CutOpWithNamesAndInds &cownai = *cut_case.possibilities[ 0 ];
-            os << "    ks->" << cownai.cut_op.mk_item_func_name() << "( ";
-            for( TI num_output = 0; num_output < cownai.outputs.size(); ++num_output ) {
-                CutOpWithNamesAndInds::Out &output = cownai.outputs[ num_output ];
+        for( std::size_t num_poss = 0; num_poss < cut_case.possibilities.size(); ++num_poss ) {
+            std::unique_ptr<CutOpWithNamesAndInds> &cownai = cut_case.possibilities[ num_poss ];
+            os << "    ks->" << cownai->cut_op.mk_item_func_name() << "( ";
+            for( TI num_output = 0; num_output < cownai->outputs.size(); ++num_output ) {
+                CutOpWithNamesAndInds::Out &output = cownai->outputs[ num_output ];
                 os << "nsd_" << output.shape_name << ", {";
                 for( TI n = 0; n < output.output_node_inds.size(); ++n )
                     os << ( n ? ", " : " " ) << output.output_node_inds[ n ];
@@ -130,16 +124,13 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
             }
 
             os << "old_shape_data, {";
-            for( TI n = 0; n < cownai.input_node_inds.size(); ++n )
-                os << ( n ? ", " : " " ) << cownai.input_node_inds[ n ];
+            for( TI n = 0; n < cownai->input_node_inds.size(); ++n )
+                os << ( n ? ", " : " " ) << cownai->input_node_inds[ n ];
             os << " }, {";
-            for( TI n = 0; n < cownai.input_face_inds.size(); ++n )
-                os << ( n ? ", " : " " ) << cownai.input_face_inds[ n ];
-            os << " }, old_shape_data.cut_case_offsets[ " << num_cut_case << " ][ 0 ], old_shape_data.cut_case_offsets[ " << num_cut_case << " ][ 1 ], cut_ids, N<" << polytop.dim() << ">() );\n";
-            continue;
+            for( TI n = 0; n < cownai->input_face_inds.size(); ++n )
+                os << ( n ? ", " : " " ) << cownai->input_face_inds[ n ];
+            os << " }, old_shape_data.cut_case_offsets[ " << num_cut_case << " ][ " << num_poss << " ], old_shape_data.cut_case_offsets[ " << num_cut_case << " ][ " << num_poss + 1 << " ], cut_ids, N<" << polytop.dim() << ">() );\n";
         }
-
-        // several possibilities => need to get the best
     }
 
     os << "}\n";
