@@ -1,3 +1,4 @@
+#include "../support/ASSERT.h"
 #include "../support/TODO.h"
 #include "../support/P.h"
 #include "CutCase.h"
@@ -30,6 +31,7 @@ void CutCase::_init_2D( const NamedRecursivePolytop &rp, const std::vector<bool>
             possibility->input_node_inds.push_back( inp_node );
         for( TI inp_face = 0; inp_face < possibility->cut_op.nb_input_faces(); ++inp_face )
             possibility->input_face_inds.push_back( inp_face );
+
         // output indices
         for( TI n = 0; n < possibility->outputs.size(); ++n ) {
             CutOpWithNamesAndInds::Out &out = possibility->outputs[ n ];
@@ -76,6 +78,7 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
                 return;
             }
 
+            // else, simply add the shape
             CutOpWithNamesAndInds::Out output;
             output.shape_name = "S" + std::to_string( points.size() );
             possibility.outputs.push_back( output );
@@ -107,20 +110,30 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
                     std::vector<IndOut> new_points[ 2 ];
 
                     // outside part
+                    ASSERT( points[ ni ].plain(), "" );
+                    ASSERT( points[ nj ].plain(), "" );
                     new_points[ 0 ].push_back( { points[ ni ].ind_0, points[ nj ].ind_0, points[ ni ].face_id, true } );
                     for( TI nn = nj; ; ++nn ) {
                         TI nm = nn % points.size();
-                        new_points[ 0 ].push_back( { points[ nm ].ind_0, points[ nm ].ind_0, points[ nm ].face_id, points[ nm ].outside } );
+                        new_points[ 0 ].push_back( { points[ nm ].ind_0, points[ nm ].ind_1, points[ nm ].face_id, points[ nm ].outside } );
                         if ( nm == nk )
                             break;
                     }
                     new_points[ 0 ].push_back( { points[ nk ].ind_0, points[ nl ].ind_0, TI( CutItem::cut_id ), true } );
 
+                    if ( new_points[ 0 ].size() == 6 ) {
+                        P( new_points[ 0 ].size() );
+                        for( auto p : new_points[ 0 ] )
+                            P( p.ind_0, p.ind_1 );
+                    }
+
                     // inside part
+                    ASSERT( points[ nk ].plain(), "" );
+                    ASSERT( points[ nl ].plain(), "" );
                     new_points[ 1 ].push_back( { points[ nk ].ind_0, points[ nl ].ind_0, points[ nk ].face_id, false } );
                     for( TI nn = nl; ; ++nn ) {
                         TI nm = nn % points.size();
-                        new_points[ 1 ].push_back( { points[ nm ].ind_0, points[ nm ].ind_0, points[ nm ].face_id, points[ nm ].outside } );
+                        new_points[ 1 ].push_back( { points[ nm ].ind_0, points[ nm ].ind_1, points[ nm ].face_id, points[ nm ].outside } );
                         if ( nm == ni )
                             break;
                     }
