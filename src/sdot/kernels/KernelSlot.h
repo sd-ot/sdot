@@ -67,6 +67,11 @@ public:
     #include         "possible_NB_NODES_AND_DIMs.h"
     #undef           POSSIBLE_NB_NODES_AND_DIM
 
+    #define          POSSIBLE_DIM( DIM )      \
+    virtual void     update_scores            ( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case, const void *num_nodes, BI off_edges, BI len_edges, N<DIM> ) = 0;
+    #include         "possible_DIMs.h"
+    #undef           POSSIBLE_DIM
+
     virtual void     count_to_offsets         ( void *counts, BI nb_nodes ) = 0;
     virtual void     sorted_indices           ( void *indices, void *offsets, const void *cut_cases, BI nb_items, BI nb_nodes ) = 0;
 

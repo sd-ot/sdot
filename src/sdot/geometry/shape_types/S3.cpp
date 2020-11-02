@@ -1,4 +1,5 @@
 // generated file
+#include "../../kernels/VecTI.h"
 #include "../ShapeData.h"
 #include "../VtkOutput.h"
 #include "S3.h"

@@ -63,6 +63,11 @@ public:
     #include         "../possible_NB_NODES_AND_DIMs.h"
     #undef           POSSIBLE_NB_NODES_AND_DIM
 
+    #define          POSSIBLE_DIM( DIM )      \
+    virtual void     update_scores            ( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case, const void *num_nodes, BI off_edges, BI len_edges, N<DIM> nd ) { _update_scores( score_best_sub_case, index_best_sub_case, sd, beg, end, index_sub_case, num_nodes, off_edges, len_edges, nd ); }
+    #include         "../possible_DIMs.h"
+    #undef           POSSIBLE_DIM
+
     virtual void     count_to_offsets         ( void *counts, BI nb_nodes );
     virtual void     sorted_indices           ( void *indices, void *offsets, const void *cut_cases, BI nb_items, BI nb_nodes );
 
@@ -71,6 +76,8 @@ public:
 private:
     template         <int nb_nodes,int dim>
     void             _get_cut_cases           ( void *cut_cases, void *counts, void *out_sps, const void *coordinates, const void *ids, BI rese, const void **normals, const void *scalar_products, BI nb_items, N<nb_nodes>, N<dim> );
+    template         <int dim>
+    void             _update_scores           ( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case, const void *num_nodes, BI off_edges, BI len_edges, N<dim> );
     void             _get_local               ( const std::function<void( const double **tfs, const BI **tis )> &f, const std::tuple<const void *,BI,BI> *tfs_data, BI tfs_size, const std::tuple<const void *,BI,BI> *tis_data, BI tis_size, std::vector<const double *> &tfs_vec, std::vector<const BI *> &tis_vec );
 
     double           _score;

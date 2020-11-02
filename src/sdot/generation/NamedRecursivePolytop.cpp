@@ -33,6 +33,7 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
 
     //
     os << "// generated file\n";
+    os << "#include \"../../kernels/VecTI.h\"\n";
     os << "#include \"../ShapeData.h\"\n";
     os << "#include \"../VtkOutput.h\"\n";
     for( const NamedRecursivePolytop &ps : available_primitive_shapes )
@@ -59,7 +60,7 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
     write_cut_p_c( os, cut_cases );
     write_cut_ops( os, gggd, cut_cases );
     write_dsp_vtk( os );
-    write_cut_cnt( os, gggd, cut_cases );
+    write_cut_cnt( os, cut_cases );
 
     // singleton
     os << "\n";
@@ -136,7 +137,7 @@ void NamedRecursivePolytop::write_cut_ops( std::ostream &os, GlobGeneGeomData &g
     os << "}\n";
 }
 
-void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, GlobGeneGeomData &gggd, std::vector<CutCase> &cut_cases ) const {
+void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase> &cut_cases ) const {
     os << "\n";
     os << "void " << name << "::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const {\n";
 
@@ -167,11 +168,36 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, GlobGeneGeomData &g
             CutCase &cc = cut_cases[ n ];
             if ( cc.possibilities.size() <= 1 )
                 continue;
+
             // scores
             os << "\n";
-            os << "    ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ " << n << " ][ 1 ] - sd.cut_case_offsets[ " << n << " ][ 0 ] );\n";
-            for( std::size_t p = 0; p < cut_cases[ n ].possibilities.size(); ++p )
-                os << "    ks->" << gggd.name_udpate_score_func( *cut_cases[ n ].possibilities[ p ] ) << "( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ " << n << " ][ 0 ], sd.cut_case_offsets[ " << n << " ][ 1 ], " << p << " );\n";
+            os << "    if ( sd.cut_case_offsets[ " << n << " ][ 1 ] - sd.cut_case_offsets[ " << n << " ][ 0 ] ) {\n";
+
+            os << "        static VecTI nn{ ks, std::vector<BI>{";
+            std::vector<TI> off_scores;
+            for( TI p = 0, off = 0; p < cut_cases[ n ].possibilities.size(); ++p ) {
+                CutOpWithNamesAndInds &poss = *cut_cases[ n ].possibilities[ p ];
+                for( const CutItem &cut_item : poss.cut_op.cut_items ) {
+                    for( const std::array<std::array<TI,2>,2> &p : cut_item.lengths ) {
+                        os << "\n            " << p[ 0 ][ 0 ] << ", " << p[ 0 ][ 1 ] << ", " << p[ 1 ][ 0 ] << ", " << p[ 1 ][ 1 ] << ",";
+                        off += 4;
+                    }
+                }
+                off_scores.push_back( off );
+            }
+            os << "\n        } };\n";
+
+            os << "\n";
+            os << "        ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ " << n << " ][ 1 ] - sd.cut_case_offsets[ " << n << " ][ 0 ] );\n";
+
+            os << "\n";
+            for( std::size_t p = 0; p < cc.possibilities.size(); ++p ) {
+                TI o = p ? off_scores[ p - 1 ] : 0;
+                os << "        ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ " << n << " ][ 0 ], sd.cut_case_offsets[ " << n << " ][ 1 ], " << p << ", nn.data(), "
+                   << o << ", " << ( off_scores[ p ] - o ) / 4 << ", N<" << polytop.dim() << ">() );\n";
+            }
+
+            os << "    }\n";
 
             // sort by possibility number
         }

@@ -13,20 +13,6 @@ void GlobGeneGeomData::write_gen_decl( std::ostream &os, const CutOp &cut_op, st
     os << "const ShapeData &osd, const std::array<BI," << cut_op.nb_input_nodes() << "> &oni, const std::array<BI," << cut_op.nb_input_faces() << "> &ofi, BI beg_ind, BI end_ind, const void *cut_ids, N<" << cut_op.dim << "> dim )" << suffix;
 }
 
-std::string GlobGeneGeomData::name_udpate_score_func( CutOpWithNamesAndInds &p ) {
-    std::string res = "update_score";
-    std::vector<std::array<std::array<TI,2>,2>> usd;
-    for( const CutItem &cut_item : p.cut_op.cut_items ) {
-        for( auto length : cut_item.lengths ) {
-            res += "_" + std::to_string( length[ 0 ][ 0 ] ) + "_" + std::to_string( length[ 0 ][ 1 ] ) + "_" + std::to_string( length[ 1 ][ 0 ] ) + "_" + std::to_string( length[ 1 ][ 0 ] );
-            usd.push_back( length );
-        }
-    }
-
-    needed_update_score_funcs.insert( { { usd, p.cut_op.dim }, res } );
-    return res;
-}
-
 void GlobGeneGeomData::write_gen_decls( std::string filename ) {
     std::ofstream os( filename );
 
@@ -34,11 +20,6 @@ void GlobGeneGeomData::write_gen_decls( std::string filename ) {
     for( const CutOp &cut_op : needed_cut_ops )
         if ( ! cut_op.cut_items.empty() )
             write_gen_decl( os, cut_op, "virtual ", " = 0;\n" );
-
-    // udpate_score_...
-    os << "\n";
-    for( const auto &p : needed_update_score_funcs )
-        os << "virtual void " << p.second << "( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case );\n";
 }
 
 void GlobGeneGeomData::write_gen_defs( std::string filename, bool gpu ) {
@@ -51,12 +32,6 @@ void GlobGeneGeomData::write_gen_defs( std::string filename, bool gpu ) {
             write_gen_def_mk_item( os, gpu, cut_op );
             os << "}\n";
         }
-    }
-
-    for( const auto &p : needed_update_score_funcs ) {
-        os << "void " << p.second << "( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case ) {\n";
-        write_gen_def_update_score( os, gpu, p.first );
-        os << "}\n";
     }
 }
 
@@ -168,29 +143,6 @@ void GlobGeneGeomData::write_gen_def_mk_item( std::ostream &os, bool /*gpu*/, co
     for( TI no = 0; no < cut_op.cut_items.size(); ++no )
         os << "        new_ids_" << no << "[ ni_" << no << " ] = old_ids[ index ];\n";
     os << "    }\n";
-}
-
-void GlobGeneGeomData::write_gen_def_update_score( std::ostream &os, bool /*gpu*/, const Usd &usd ) {
-    os << "    using Pt = Point<TF," << usd.dim << ">;\n";
-
-    // needed points
-    std::set<std::array<TI,2>> needed_points;
-    for( const auto &p : usd.points )
-        for( const auto &v : p )
-            needed_points.insert( v );
-
-    for( std::array<TI,2> p : needed_points ) {
-        os << "    Pt p{";
-        os << "};";
-    }
-
-    //
-    os << "    TF length = 0;\n";
-    //    for( const auto &p : usd.points ) {
-    //        os << "    length += sqrt(";
-    //        os << ");\n";
-    //    }
-
 }
 
 } // namespace sdot

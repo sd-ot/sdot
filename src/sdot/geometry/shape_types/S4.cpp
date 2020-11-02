@@ -1,4 +1,5 @@
 // generated file
+#include "../../kernels/VecTI.h"
 #include "../ShapeData.h"
 #include "../VtkOutput.h"
 #include "S3.h"
@@ -80,17 +81,45 @@ void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSl
     void *score_best_sub_case = ks->allocate_TF( max_nb_item_with_sub_case );
     void *index_best_sub_case = ks->allocate_TI( max_nb_item_with_sub_case );
 
-    ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ 5 ][ 1 ] - sd.cut_case_offsets[ 5 ][ 0 ] );
-    ks->update_score_3_0_2_2_1_2_0_0( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 0 );
-    ks->update_score_1_2_2_2_3_0_0_0( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 1 );
-    ks->update_score_3_0_0_0_1_2_2_2( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 2 );
-    ks->update_score_1_2_0_0_3_0_2_2( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 3 );
+    if ( sd.cut_case_offsets[ 5 ][ 1 ] - sd.cut_case_offsets[ 5 ][ 0 ] ) {
+        static VecTI nn{ ks, std::vector<BI>{
+            3, 0, 2, 3,
+            1, 2, 0, 1,
+            1, 2, 2, 3,
+            3, 0, 0, 1,
+            3, 0, 0, 1,
+            1, 2, 2, 3,
+            1, 2, 0, 1,
+            3, 0, 2, 3,
+        } };
 
-    ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ 10 ][ 1 ] - sd.cut_case_offsets[ 10 ][ 0 ] );
-    ks->update_score_0_1_1_1_2_3_3_3( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 0 );
-    ks->update_score_2_3_1_1_0_1_3_3( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 1 );
-    ks->update_score_0_1_3_3_2_3_1_1( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 2 );
-    ks->update_score_2_3_3_3_0_1_1_1( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 3 );
+        ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ 5 ][ 1 ] - sd.cut_case_offsets[ 5 ][ 0 ] );
+
+        ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 0, nn.data(), 0, 2, N<2>() );
+        ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 1, nn.data(), 8, 2, N<2>() );
+        ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 2, nn.data(), 16, 2, N<2>() );
+        ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 3, nn.data(), 24, 2, N<2>() );
+    }
+
+    if ( sd.cut_case_offsets[ 10 ][ 1 ] - sd.cut_case_offsets[ 10 ][ 0 ] ) {
+        static VecTI nn{ ks, std::vector<BI>{
+            0, 1, 1, 2,
+            2, 3, 3, 0,
+            2, 3, 1, 2,
+            0, 1, 3, 0,
+            0, 1, 3, 0,
+            2, 3, 1, 2,
+            2, 3, 3, 0,
+            0, 1, 1, 2,
+        } };
+
+        ks->assign_TF( score_best_sub_case, 0, 0.0, sd.cut_case_offsets[ 10 ][ 1 ] - sd.cut_case_offsets[ 10 ][ 0 ] );
+
+        ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 0, nn.data(), 0, 2, N<2>() );
+        ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 1, nn.data(), 8, 2, N<2>() );
+        ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 2, nn.data(), 16, 2, N<2>() );
+        ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 3, nn.data(), 24, 2, N<2>() );
+    }
 
     fc( s3(),
         ( sd.cut_case_offsets[ 1 ][ 1 ] - sd.cut_case_offsets[ 1 ][ 0 ] ) * 1 +

@@ -56,6 +56,40 @@ void KernelSlot_Cpu<TF,TI,Arch>::sorted_indices( void *indices, void *offsets, c
     } );
 
 }
+template<class TF,class TI,class Arch> template<int dim>
+void KernelSlot_Cpu<TF,TI,Arch>::_update_scores( void *score_best_sub_case, void *index_best_sub_case, const ShapeData &sd, BI beg, BI end, BI index_sub_case, const void *num_nodes, BI off_edges, BI len_edges, N<dim> ) {
+    using Pt = Point<TF,dim>;
+
+    const TI *inn = reinterpret_cast<const TI *>( num_nodes ) + off_edges;
+    const TF *pos = reinterpret_cast<const TF *>( sd.coordinates );
+
+    TF *sv = reinterpret_cast<TF *>( score_best_sub_case );
+    TI *iv = reinterpret_cast<TI *>( index_best_sub_case );
+
+    // for each item
+    for( TI ind_item = beg; ind_item < end; ++ind_item ) {
+        TI num_item = reinterpret_cast<const TI *>( sd.cut_indices )[ ind_item ];
+
+        TF length = 0;
+        for( TI num_edge = 0; num_edge < len_edges; ++num_edge ) {
+            Pt pts[ 2 ];
+            for( TI np = 0; np < 2; ++np ) {
+                TF s0 = reinterpret_cast<const TF *>( sd.cut_out_scps )[ inn[ 4 * num_edge + 2 * np + 0 ] * sd.rese + num_item ];
+                TF s1 = reinterpret_cast<const TF *>( sd.cut_out_scps )[ inn[ 4 * num_edge + 2 * np + 1 ] * sd.rese + num_item ];
+                TF di = s0 / ( s0 - s1 );
+                for( TI d = 0; d < dim; ++d )
+                    pts[ np ][ d ] = pos[ ( dim * inn[ 4 * num_edge + 2 * np + 0 ] + d ) * sd.rese + num_item ];
+            }
+            length += norm_2( pts[ 1 ] - pts[ 0 ] );
+        }
+
+        TF score = 1 / ( length + 1e-40 );
+        if ( sv[ ind_item - beg ] < score ) {
+            sv[ ind_item - beg ] = score;
+            iv[ ind_item - beg ] = index_sub_case;
+        }
+    }
+}
 
 template<class TF,class TI,class Arch> template<int nb_nodes,int dim>
 void KernelSlot_Cpu<TF,TI,Arch>::_get_cut_cases( void *cut_cases, void *counts, void *out_sps, const void *coordinates, const void *ids, BI rese, const void **dirs, const void *sps, BI nb_items, N<nb_nodes>, N<dim> ) {
