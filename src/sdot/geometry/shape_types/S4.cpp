@@ -5,6 +5,8 @@
 #include <iostream>
 #include "S3.h"
 #include "S4.h"
+#include "S5.h"
+#include "S6.h"
 
 namespace sdot {
 
@@ -27,24 +29,26 @@ std::vector<ShapeType::BI> S4::cut_poss_count() const {
 void S4::cut_ops( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const {
     ShapeData &nsd_S3 = new_shape_map.find( s3() )->second;
     ShapeData &nsd_S4 = new_shape_map.find( s4() )->second;
+    ShapeData &nsd_S5 = new_shape_map.find( s5() )->second;
+    ShapeData &nsd_S6 = new_shape_map.find( s6() )->second;
 
     ks->mk_items_n4_0_0_1_1_2_2_3_3_f4_0_1_2_3( nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 0 ][ 0 ], old_shape_data.cut_case_offsets[ 0 ][ 1 ], cut_ids, N<2>() );
-    ks->mk_items_n3_0_1_1_1_2_2_f3_0_1_i_n4_2_2_3_3_3_0_0_1_f4_2_3_c_i( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 1 ][ 0 ], old_shape_data.cut_case_offsets[ 1 ][ 1 ], cut_ids, N<2>() );
-    ks->mk_items_n3_1_2_2_2_3_3_f3_1_2_i_n4_3_3_0_0_0_1_1_2_f4_3_0_c_i( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 2 ][ 0 ], old_shape_data.cut_case_offsets[ 2 ][ 1 ], cut_ids, N<2>() );
+    ks->mk_items_n5_0_1_1_1_2_2_3_3_3_0_f5_0_1_2_3_c( nsd_S5, { 0, 1, 2, 3, 4 }, { 0, 1, 2, 3, 4 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 1 ][ 0 ], old_shape_data.cut_case_offsets[ 1 ][ 1 ], cut_ids, N<2>() );
+    ks->mk_items_n5_1_2_2_2_3_3_0_0_0_1_f5_1_2_3_0_c( nsd_S5, { 0, 1, 2, 3, 4 }, { 0, 1, 2, 3, 4 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 2 ][ 0 ], old_shape_data.cut_case_offsets[ 2 ][ 1 ], cut_ids, N<2>() );
     ks->mk_items_n4_1_2_2_2_3_3_3_0_f4_1_2_3_c( nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 3 ][ 0 ], old_shape_data.cut_case_offsets[ 3 ][ 1 ], cut_ids, N<2>() );
-    ks->mk_items_n3_2_3_3_3_0_0_f3_2_3_i_n4_0_0_1_1_1_2_2_3_f4_0_1_c_i( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 4 ][ 0 ], old_shape_data.cut_case_offsets[ 4 ][ 1 ], cut_ids, N<2>() );
+    ks->mk_items_n5_2_3_3_3_0_0_1_1_1_2_f5_2_3_0_1_c( nsd_S5, { 0, 1, 2, 3, 4 }, { 0, 1, 2, 3, 4 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 4 ][ 0 ], old_shape_data.cut_case_offsets[ 4 ][ 1 ], cut_ids, N<2>() );
     ks->mk_items_n3_2_3_3_3_3_0_f3_2_3_c_n3_0_1_1_1_1_2_f3_0_1_c( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 5 ][ 0 ], old_shape_data.cut_case_offsets[ 5 ][ 1 ], cut_ids, N<2>() );
-    ks->mk_items_n4_0_1_1_1_1_2_2_3_f4_0_1_c_i_n4_2_3_3_3_3_0_0_1_f4_2_3_c_i( nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 5 ][ 1 ], old_shape_data.cut_case_offsets[ 5 ][ 2 ], cut_ids, N<2>() );
-    ks->mk_items_n4_2_3_3_3_3_0_0_1_f4_2_3_c_i_n4_0_1_1_1_1_2_2_3_f4_0_1_c_i( nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 5 ][ 2 ], old_shape_data.cut_case_offsets[ 5 ][ 3 ], cut_ids, N<2>() );
+    ks->mk_items_n6_0_1_1_1_1_2_2_3_3_3_3_0_f6_0_1_c_2_3_c( nsd_S6, { 0, 1, 2, 3, 4, 5 }, { 0, 1, 2, 3, 4, 5 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 5 ][ 1 ], old_shape_data.cut_case_offsets[ 5 ][ 2 ], cut_ids, N<2>() );
+    ks->mk_items_n6_2_3_3_3_3_0_0_1_1_1_1_2_f6_2_3_c_0_1_c( nsd_S6, { 0, 1, 2, 3, 4, 5 }, { 0, 1, 2, 3, 4, 5 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 5 ][ 2 ], old_shape_data.cut_case_offsets[ 5 ][ 3 ], cut_ids, N<2>() );
     ks->mk_items_n3_0_1_1_1_1_2_f3_0_1_c_n3_2_3_3_3_3_0_f3_2_3_c( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 5 ][ 3 ], old_shape_data.cut_case_offsets[ 5 ][ 4 ], cut_ids, N<2>() );
     ks->mk_items_n4_2_3_3_3_0_0_0_1_f4_2_3_0_c( nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 6 ][ 0 ], old_shape_data.cut_case_offsets[ 6 ][ 1 ], cut_ids, N<2>() );
     ks->mk_items_n3_2_3_3_3_3_0_f3_2_3_c( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 7 ][ 0 ], old_shape_data.cut_case_offsets[ 7 ][ 1 ], cut_ids, N<2>() );
-    ks->mk_items_n3_3_0_0_0_1_1_f3_3_0_i_n4_1_1_2_2_2_3_3_0_f4_1_2_c_i( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 8 ][ 0 ], old_shape_data.cut_case_offsets[ 8 ][ 1 ], cut_ids, N<2>() );
+    ks->mk_items_n5_3_0_0_0_1_1_2_2_2_3_f5_3_0_1_2_c( nsd_S5, { 0, 1, 2, 3, 4 }, { 0, 1, 2, 3, 4 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 8 ][ 0 ], old_shape_data.cut_case_offsets[ 8 ][ 1 ], cut_ids, N<2>() );
     ks->mk_items_n4_0_1_1_1_2_2_2_3_f4_0_1_2_c( nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2 }, old_shape_data.cut_case_offsets[ 9 ][ 0 ], old_shape_data.cut_case_offsets[ 9 ][ 1 ], cut_ids, N<2>() );
-    ks->mk_items_n4_3_0_0_0_0_1_1_2_f4_3_0_c_i_n4_1_2_2_2_2_3_3_0_f4_1_2_c_i( nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 10 ][ 0 ], old_shape_data.cut_case_offsets[ 10 ][ 1 ], cut_ids, N<2>() );
+    ks->mk_items_n6_3_0_0_0_0_1_1_2_2_2_2_3_f6_3_0_c_1_2_c( nsd_S6, { 0, 1, 2, 3, 4, 5 }, { 0, 1, 2, 3, 4, 5 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 10 ][ 0 ], old_shape_data.cut_case_offsets[ 10 ][ 1 ], cut_ids, N<2>() );
     ks->mk_items_n3_1_2_2_2_2_3_f3_1_2_c_n3_3_0_0_0_0_1_f3_3_0_c( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 10 ][ 1 ], old_shape_data.cut_case_offsets[ 10 ][ 2 ], cut_ids, N<2>() );
     ks->mk_items_n3_3_0_0_0_0_1_f3_3_0_c_n3_1_2_2_2_2_3_f3_1_2_c( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 10 ][ 2 ], old_shape_data.cut_case_offsets[ 10 ][ 3 ], cut_ids, N<2>() );
-    ks->mk_items_n4_1_2_2_2_2_3_3_0_f4_1_2_c_i_n4_3_0_0_0_0_1_1_2_f4_3_0_c_i( nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 10 ][ 3 ], old_shape_data.cut_case_offsets[ 10 ][ 4 ], cut_ids, N<2>() );
+    ks->mk_items_n6_1_2_2_2_2_3_3_0_0_0_0_1_f6_1_2_c_3_0_c( nsd_S6, { 0, 1, 2, 3, 4, 5 }, { 0, 1, 2, 3, 4, 5 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 10 ][ 3 ], old_shape_data.cut_case_offsets[ 10 ][ 4 ], cut_ids, N<2>() );
     ks->mk_items_n3_1_2_2_2_2_3_f3_1_2_c( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2 }, old_shape_data.cut_case_offsets[ 11 ][ 0 ], old_shape_data.cut_case_offsets[ 11 ][ 1 ], cut_ids, N<2>() );
     ks->mk_items_n4_3_0_0_0_1_1_1_2_f4_3_0_1_c( nsd_S4, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 12 ][ 0 ], old_shape_data.cut_case_offsets[ 12 ][ 1 ], cut_ids, N<2>() );
     ks->mk_items_n3_0_1_1_1_1_2_f3_0_1_c( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, old_shape_data, { 0, 1, 2 }, { 0, 1 }, old_shape_data.cut_case_offsets[ 13 ][ 0 ], old_shape_data.cut_case_offsets[ 13 ][ 1 ], cut_ids, N<2>() );
@@ -127,13 +131,9 @@ void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSl
     }
 
     fc( s3(),
-        ( sd.cut_case_offsets[ 1 ][ 1 ] - sd.cut_case_offsets[ 1 ][ 0 ] ) * 1 +
-        ( sd.cut_case_offsets[ 2 ][ 1 ] - sd.cut_case_offsets[ 2 ][ 0 ] ) * 1 +
-        ( sd.cut_case_offsets[ 4 ][ 1 ] - sd.cut_case_offsets[ 4 ][ 0 ] ) * 1 +
         ( sd.cut_case_offsets[ 5 ][ 1 ] - sd.cut_case_offsets[ 5 ][ 0 ] ) * 2 +
         ( sd.cut_case_offsets[ 5 ][ 4 ] - sd.cut_case_offsets[ 5 ][ 3 ] ) * 2 +
         ( sd.cut_case_offsets[ 7 ][ 1 ] - sd.cut_case_offsets[ 7 ][ 0 ] ) * 1 +
-        ( sd.cut_case_offsets[ 8 ][ 1 ] - sd.cut_case_offsets[ 8 ][ 0 ] ) * 1 +
         ( sd.cut_case_offsets[ 10 ][ 2 ] - sd.cut_case_offsets[ 10 ][ 1 ] ) * 2 +
         ( sd.cut_case_offsets[ 10 ][ 3 ] - sd.cut_case_offsets[ 10 ][ 2 ] ) * 2 +
         ( sd.cut_case_offsets[ 11 ][ 1 ] - sd.cut_case_offsets[ 11 ][ 0 ] ) * 1 +
@@ -143,18 +143,24 @@ void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSl
 
     fc( s4(),
         ( sd.cut_case_offsets[ 0 ][ 1 ] - sd.cut_case_offsets[ 0 ][ 0 ] ) * 1 +
+        ( sd.cut_case_offsets[ 3 ][ 1 ] - sd.cut_case_offsets[ 3 ][ 0 ] ) * 1 +
+        ( sd.cut_case_offsets[ 6 ][ 1 ] - sd.cut_case_offsets[ 6 ][ 0 ] ) * 1 +
+        ( sd.cut_case_offsets[ 9 ][ 1 ] - sd.cut_case_offsets[ 9 ][ 0 ] ) * 1 +
+        ( sd.cut_case_offsets[ 12 ][ 1 ] - sd.cut_case_offsets[ 12 ][ 0 ] ) * 1
+    );
+
+    fc( s5(),
         ( sd.cut_case_offsets[ 1 ][ 1 ] - sd.cut_case_offsets[ 1 ][ 0 ] ) * 1 +
         ( sd.cut_case_offsets[ 2 ][ 1 ] - sd.cut_case_offsets[ 2 ][ 0 ] ) * 1 +
-        ( sd.cut_case_offsets[ 3 ][ 1 ] - sd.cut_case_offsets[ 3 ][ 0 ] ) * 1 +
         ( sd.cut_case_offsets[ 4 ][ 1 ] - sd.cut_case_offsets[ 4 ][ 0 ] ) * 1 +
-        ( sd.cut_case_offsets[ 5 ][ 2 ] - sd.cut_case_offsets[ 5 ][ 1 ] ) * 2 +
-        ( sd.cut_case_offsets[ 5 ][ 3 ] - sd.cut_case_offsets[ 5 ][ 2 ] ) * 2 +
-        ( sd.cut_case_offsets[ 6 ][ 1 ] - sd.cut_case_offsets[ 6 ][ 0 ] ) * 1 +
-        ( sd.cut_case_offsets[ 8 ][ 1 ] - sd.cut_case_offsets[ 8 ][ 0 ] ) * 1 +
-        ( sd.cut_case_offsets[ 9 ][ 1 ] - sd.cut_case_offsets[ 9 ][ 0 ] ) * 1 +
-        ( sd.cut_case_offsets[ 10 ][ 1 ] - sd.cut_case_offsets[ 10 ][ 0 ] ) * 2 +
-        ( sd.cut_case_offsets[ 10 ][ 4 ] - sd.cut_case_offsets[ 10 ][ 3 ] ) * 2 +
-        ( sd.cut_case_offsets[ 12 ][ 1 ] - sd.cut_case_offsets[ 12 ][ 0 ] ) * 1
+        ( sd.cut_case_offsets[ 8 ][ 1 ] - sd.cut_case_offsets[ 8 ][ 0 ] ) * 1
+    );
+
+    fc( s6(),
+        ( sd.cut_case_offsets[ 5 ][ 2 ] - sd.cut_case_offsets[ 5 ][ 1 ] ) * 1 +
+        ( sd.cut_case_offsets[ 5 ][ 3 ] - sd.cut_case_offsets[ 5 ][ 2 ] ) * 1 +
+        ( sd.cut_case_offsets[ 10 ][ 1 ] - sd.cut_case_offsets[ 10 ][ 0 ] ) * 1 +
+        ( sd.cut_case_offsets[ 10 ][ 4 ] - sd.cut_case_offsets[ 10 ][ 3 ] ) * 1
     );
     ks->free_TF( score_best_sub_case );
     ks->free_TI( index_best_sub_case );

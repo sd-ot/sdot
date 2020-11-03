@@ -5,6 +5,8 @@
 #include <iostream>
 #include "S3.h"
 #include "S4.h"
+#include "S5.h"
+#include "S6.h"
 
 namespace sdot {
 
