@@ -1,4 +1,6 @@
+#include "../src/sdot/ParEx/Scheduler.h"
 #include "../src/sdot/ParEx/Kernel.h"
+#include "../src/sdot/ParEx/Node.h"
 #include "../src/sdot/support/P.h"
 
 using namespace parex;
@@ -10,7 +12,11 @@ int main() {
     // MinMax[ dim ]
     // Display
     // MinMax[ dim ]
-    int dim = 2;
-    int nb_diracs = 200;
-    Node p = Node::New( uniform( "FP64" ), dim * nb_diracs );
+    //    int dim = 2;
+    //    int nb_diracs = 200;
+    Scheduler sch;
+    //    Node p = Node::New( uniform( "FP64" ), 10 );
+    //    sch << Node::New( display(), &std::cout );
+    Node p = Node::New( "", 10 );
+    //    sch << Node::New( display(), &std::cout );
 }

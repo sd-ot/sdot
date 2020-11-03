@@ -1,8 +1,8 @@
-#include "Node.h"
+#include "Task.h"
 
 namespace parex {
 
-Node::Node() {
+Task::Task() {
     cpt_use = 0;
 }
 
