@@ -101,8 +101,7 @@ void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSl
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 1, nn.data(), 8, 2, N<2>() );
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 2, nn.data(), 16, 2, N<2>() );
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 5 ][ 0 ], sd.cut_case_offsets[ 5 ][ 1 ], 3, nn.data(), 24, 2, N<2>() );
-        ks->display_TI( std::cout, index_best_sub_case, 0, 1 ); std::cout << std::endl;
-        ks->display_TF( std::cout, score_best_sub_case, 0, 1 ); std::cout << std::endl;
+        ks->sort_TI_in_range( sd.cut_case_offsets[ 5 ].data(), index_best_sub_case, sd.cut_case_offsets[ 5 ][ 1 ] - sd.cut_case_offsets[ 5 ][ 0 ], 4, sd.cut_indices, sd.cut_case_offsets[ 5 ][ 0 ] );
     }
 
     if ( sd.cut_case_offsets[ 10 ][ 1 ] - sd.cut_case_offsets[ 10 ][ 0 ] ) {
@@ -124,8 +123,7 @@ void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSl
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 1, nn.data(), 8, 2, N<2>() );
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 2, nn.data(), 16, 2, N<2>() );
         ks->update_scores( score_best_sub_case, index_best_sub_case, sd, sd.cut_case_offsets[ 10 ][ 0 ], sd.cut_case_offsets[ 10 ][ 1 ], 3, nn.data(), 24, 2, N<2>() );
-        ks->display_TI( std::cout, index_best_sub_case, 0, 1 ); std::cout << std::endl;
-        ks->display_TF( std::cout, score_best_sub_case, 0, 1 ); std::cout << std::endl;
+        ks->sort_TI_in_range( sd.cut_case_offsets[ 10 ].data(), index_best_sub_case, sd.cut_case_offsets[ 10 ][ 1 ] - sd.cut_case_offsets[ 10 ][ 0 ], 4, sd.cut_indices, sd.cut_case_offsets[ 10 ][ 0 ] );
     }
 
     fc( s3(),

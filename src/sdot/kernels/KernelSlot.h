@@ -73,7 +73,7 @@ public:
     #undef           POSSIBLE_DIM
 
     virtual void     count_to_offsets         ( void *counts, BI nb_nodes ) = 0;
-    virtual void     sort_TI_in_range         ( void *index_best_sub_case, BI nb_items, BI TI_range, void *aux_TI_ptr, BI aux_TI_off ) = 0;
+    virtual void     sort_TI_in_range         ( BI *out_offsets, void *index_best_sub_case, BI nb_items, BI TI_range, void *aux_TI_ptr, BI aux_TI_off ) = 0;
     virtual void     sorted_indices           ( void *indices, void *offsets, const void *cut_cases, BI nb_items, BI nb_nodes ) = 0;
 
     #include         "KernelSlot_gen_decl.h"

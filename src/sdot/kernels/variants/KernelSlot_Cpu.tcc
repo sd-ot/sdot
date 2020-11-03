@@ -38,8 +38,30 @@ void KernelSlot_Cpu<TF,TI,Arch>::count_to_offsets( void *counts, BI nb_nodes ) {
 }
 
 template<class TF,class TI,class Arch>
-void KernelSlot_Cpu<TF,TI,Arch>::sort_TI_in_range( void *index_best_sub_case, BI nb_items, BI TI_range, void *aux_TI_ptr, BI aux_TI_off ) {
-    TODO;
+void KernelSlot_Cpu<TF,TI,Arch>::sort_TI_in_range( BI *out_offsets, void *index_best_sub_case, BI nb_items, BI TI_range, void *aux_TI_ptr, BI aux_TI_off ) {
+    const TI *num_case = reinterpret_cast<TI *>( index_best_sub_case );
+    for( TI i = 0; i < nb_items; ++i )
+        P( num_case[ i ] );
+
+    // count
+    std::vector<TI> offsets( TI_range, 0 );
+    for( TI i = 0; i < nb_items; ++i )
+        ++offsets[ num_case[ i ] ];
+    P( offsets );
+
+    // scan
+    for( TI i = 0, o = 0; i < TI_range; ++i )
+        offsets[ i ] = std::exchange( o, o + offsets[ i ] );
+
+    // out_offset
+    for( TI i = 0; i < TI_range; ++i )
+        out_offsets[ i ] = offsets[ i ];
+
+    // write
+    TI *aux = reinterpret_cast<TI *>( aux_TI_ptr ) + aux_TI_off;
+    std::vector<TI> aux_cp( aux, aux + nb_items );
+    for( TI i = 0; i < nb_items; ++i )
+        aux[ offsets[ num_case[ i ] ]++ ] = aux_cp[ i ];
 }
 
 template<class TF,class TI,class Arch>
@@ -89,11 +111,13 @@ void KernelSlot_Cpu<TF,TI,Arch>::_update_scores( void *score_best_sub_case, void
                               di * ( pos[ ( dim * n1 + d ) * sd.rese + num_item ] -
                                      pos[ ( dim * n0 + d ) * sd.rese + num_item ] );
             }
+            P( pts[ 0 ], pts[ 1 ] );
             length += norm_2( pts[ 1 ] - pts[ 0 ] );
         }
 
 
         TF score = 1 / ( length + 1e-40 );
+        P( score, length );
         if ( sv[ ind_item - beg ] < score ) {
             sv[ ind_item - beg ] = score;
             iv[ ind_item - beg ] = index_sub_case;
