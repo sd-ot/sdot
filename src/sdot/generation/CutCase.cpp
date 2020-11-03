@@ -47,6 +47,17 @@ void CutCase::_init_2D( const NamedRecursivePolytop &rp, const std::vector<bool>
     possibilities.erase( std::remove_if( possibilities.begin(), possibilities.end(), []( const std::unique_ptr<CutOpWithNamesAndInds> &p ) {
         return p->outputs.empty();
     } ), possibilities.end() );
+
+    // make unique
+    if ( possibilities.size() > 1 ) {
+        std::sort( possibilities.begin(), possibilities.end(), []( const std::unique_ptr<CutOpWithNamesAndInds> &a, const std::unique_ptr<CutOpWithNamesAndInds> &b ) {
+            return a->created_shapes() < b->created_shapes();
+        } );
+
+        possibilities.erase( std::unique( possibilities.begin(), possibilities.end(), []( const std::unique_ptr<CutOpWithNamesAndInds> &a, const std::unique_ptr<CutOpWithNamesAndInds> &b ) {
+            return a->created_shapes() == b->created_shapes();
+        } ), possibilities.end() );
+    }
 }
 
 void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vector<IndOut> &points, const std::vector<NamedRecursivePolytop> &primitive_shapes ) {
@@ -61,39 +72,52 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
     // if everything is inside, add a cut_item with all the points
     for( TI ni = 0;; ++ni ) {
         if ( ni == points.size() ) {
-            // if too many points, split in two parts
-            if ( ! _has_2D_shape( points.size(), primitive_shapes ) ) {
-                TI ns = points.size() / 2;
-                std::vector<IndOut> new_points[ 2 ];
-                for( TI nn = 0; nn < ns; ++nn )
-                    new_points[ 0 ].push_back( { points[ nn ].ind_0, points[ nn ].ind_1, points[ nn ].face_id, false } );
-                new_points[ 0 ].push_back( { points[ ns ].ind_0, points[ ns ].ind_1, TI( CutItem::internal_face ), false } );
+            // start with the "lowest" point
+            std::vector<IndOut> new_points = points;
+            for( IndOut &io : new_points ) {
+                TI a = std::min( io.ind_0, io.ind_1 );
+                TI b = std::max( io.ind_0, io.ind_1 );
+                io.ind_0 = a;
+                io.ind_1 = b;
+            }
 
-                for( TI nn = ns; nn < points.size(); ++nn )
-                    new_points[ 1 ].push_back( { points[ nn ].ind_0, points[ nn ].ind_1, points[ nn ].face_id, false } );
-                new_points[ 1 ].push_back( { points[ 0 ].ind_0, points[ 0 ].ind_1, TI( CutItem::internal_face ), false } );
+
+            auto first = std::min_element( new_points.begin(), new_points.end() );
+            std::rotate( new_points.begin(), first, new_points.end() );
+
+            // if too many points, split in two parts
+            if ( ! _has_2D_shape( new_points.size(), primitive_shapes ) ) {
+                TI ns = new_points.size() / 2;
+                std::vector<IndOut> spl_points[ 2 ];
+                for( TI nn = 0; nn < ns; ++nn )
+                    spl_points[ 0 ].push_back( { new_points[ nn ].ind_0, new_points[ nn ].ind_1, new_points[ nn ].face_id, false } );
+                spl_points[ 0 ].push_back( { new_points[ ns ].ind_0, new_points[ ns ].ind_1, TI( CutItem::internal_face ), false } );
+
+                for( TI nn = ns; nn < new_points.size(); ++nn )
+                    spl_points[ 1 ].push_back( { new_points[ nn ].ind_0, new_points[ nn ].ind_1, new_points[ nn ].face_id, false } );
+                spl_points[ 1 ].push_back( { new_points[ 0 ].ind_0, new_points[ 0 ].ind_1, TI( CutItem::internal_face ), false } );
 
                 for( TI z = 0; z < 2; ++z )
-                    _init_2D_rec( possibility, new_points[ z ], primitive_shapes );
+                    _init_2D_rec( possibility, spl_points[ z ], primitive_shapes );
                 return;
             }
 
             // else, simply add the shape
             CutOpWithNamesAndInds::Out output;
-            output.shape_name = "S" + std::to_string( points.size() );
+            output.shape_name = "S" + std::to_string( new_points.size() );
             possibility.outputs.push_back( output );
 
             CutItem cut_item;
-            for( const IndOut &p : points ) {
+            for( const IndOut &p : new_points ) {
                 cut_item.nodes.push_back( { p.ind_0, p.ind_1 } );
                 cut_item.faces.push_back( p.face_id );
             }
 
             // length of created edge
-            for( TI i = 0; i < points.size(); ++i ) {
-                if ( points[ i ].face_id == TI( CutItem::cut_face ) ) {
-                    TI j = ( i + 1 ) % points.size();
-                    cut_item.lengths.push_back( { std::array<TI,2>{ points[ i ].ind_0, points[ i ].ind_1 }, std::array<TI,2>{ points[ j ].ind_0, points[ j ].ind_1 } } );
+            for( TI i = 0; i < new_points.size(); ++i ) {
+                if ( new_points[ i ].face_id == TI( CutItem::cut_face ) ) {
+                    TI j = ( i + 1 ) % new_points.size();
+                    cut_item.lengths.push_back( { std::array<TI,2>{ new_points[ i ].ind_0, new_points[ i ].ind_1 }, std::array<TI,2>{ new_points[ j ].ind_0, new_points[ j ].ind_1 } } );
                 }
             }
 
@@ -130,12 +154,6 @@ void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std::vecto
                     }
                     new_points[ 0 ].push_back( { points[ nk ].ind_0, points[ nl ].ind_0, TI( CutItem::cut_face ), true } );
 
-                    if ( new_points[ 0 ].size() == 6 ) {
-                        P( new_points[ 0 ].size() );
-                        for( auto p : new_points[ 0 ] )
-                            P( p.ind_0, p.ind_1 );
-                    }
-
                     // inside part
                     ASSERT( points[ nk ].plain(), "" );
                     ASSERT( points[ nl ].plain(), "" );
@@ -169,6 +187,18 @@ bool CutCase::_has_2D_shape( TI nb_points, const std::vector<NamedRecursivePolyt
         if ( ps.polytop.points.size() == nb_points )
             return true;
     return false;
+}
+
+bool CutCase::IndOut::operator<( const IndOut &that ) const {
+    return std::tie( ind_0, ind_1, face_id, outside ) < std::tie( that.ind_0, that.ind_1, that.face_id, that.outside );
+}
+
+void CutCase::IndOut::write_to_stream( std::ostream &os ) const {
+    os << ind_0 << "_" << ind_1 << "_" << face_id << "_" << ( outside ? 'o' : 'i' );
+}
+
+bool CutCase::IndOut::plain() const {
+    return ind_0 == ind_1;
 }
 
 }

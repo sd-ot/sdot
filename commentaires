@@ -8,9 +8,6 @@ En deuxième phase, on transforme les comptes en offsets.
 En troisième phase, on fait un parcourt des produits scalaires et on colle les index triés à partir des offsets.
 
 ========================================================================================================================================
-Cas où on a plusieurs possibilités de coupes
+Cas similaires
 
-Il faut mettre à jour les offsets pour trouver les cas de coupe. Prop: on fait pour chaque cut case un vecteur avec score et un vecteur avec 
-
-Calcul du score: 
-Prop 1: longueur des interfaces crées
+Prop: on travaille avec 
