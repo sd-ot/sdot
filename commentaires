@@ -8,6 +8,17 @@ En deuxième phase, on transforme les comptes en offsets.
 En troisième phase, on fait un parcourt des produits scalaires et on colle les index triés à partir des offsets.
 
 ========================================================================================================================================
-Cas similaires
+Optimisations ? L'idéal serait de travailler sur un cas réel, avec les diagramme de puissance
 
-Prop: on travaille avec 
+========================================================================================================================================
+Interface de powerdiagram
+
+-> c'est l'endroit où il faut faire du out of core
+-> il faut trier les diracs dans des boites de ~ 30
+-> on pourrait chronométrer le temps de récupération 
+
+Prop: on fait des histogrammes pour déterminer la répartition en out-of core.
+
+A priori, on doit faire un premier passage pour avoir
+- nb elements
+- min max
