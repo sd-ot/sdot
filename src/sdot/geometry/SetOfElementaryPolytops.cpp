@@ -132,7 +132,7 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
         }, ks, sd );
 
         int cpt = 0;
-        for( auto v : sd.cut_case_offsets  )
+        for( auto v : sd.cut_case_offsets )
             P( cpt++, v );
 
         // free local data

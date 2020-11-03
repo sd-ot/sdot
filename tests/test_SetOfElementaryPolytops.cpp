@@ -57,33 +57,37 @@ void test_quad() {
     KernelSlot *ks = ak[ 0 ].get();
 
     SetOfElementaryPolytops sp( ks, 2 );
-    VtkOutput vo;
 
     // construct
-    sp.add_repeated( quad(), 1,
+    TI nb_quads = 36;
+    sp.add_repeated( quad(), nb_quads,
         { ks, std::vector<TF>{ 0, -1, 1, 1, 0, -2, -1, 1 } }, // positions
         { ks, std::vector<TI>{ 0, 1, 2, 3 } }, // face ids
         0 // beg item id
     );
-    //    sp.add_repeated( quad(), 1,
-    //        { ks, std::vector<TF>{ 0, -1, 1, 1, 0, -2, -1, 1 } }, // positions
-    //        { ks, std::vector<TI>{ 0, 1, 2, 3 } } // face ids
-    //    );
-    sp.display_vtk( vo );
-    P( sp );
-
 
     // cut
-    std::vector<TF> cxs{ 0 }, cys{ 1 }, css{ 0 };
-    std::vector<TI> new_face_ids{ 10 };
+    std::vector<TF> cxs, cys, css;
+    std::vector<TI> new_face_ids;
+    for( std::size_t i = 0; i < nb_quads; ++i ) {
+        TF a = 2 * M_PI * i / nb_quads;
+        Pt p = { std::cos( a ), std::sin( a ) };
+        cxs.push_back( p[ 0 ] );
+        cys.push_back( p[ 1 ] );
+        css.push_back( dot( p, Pt{ 0.01, 0.0 } ) );
+        new_face_ids.push_back( 100 + i );
+    }
 
     sp.plane_cut( { { ks, cxs }, { ks, cys } }, { ks, css }, { ks, new_face_ids } );
-
-    std::vector<VtkOutput::Pt> off_vtk = { { 1, 0, 0 } };
-    sp.display_vtk( vo, off_vtk.data() );
     P( sp );
 
     // display
+    std::vector<VtkOutput::Pt> off_vtk;
+    for( std::size_t i = 0; i < nb_quads; ++i )
+        off_vtk.push_back( VtkOutput::Pt{ 3.5 * ( i % 6 ), - 3.5 * ( i / 6 ), 0.0 } );
+
+    VtkOutput vo;
+    sp.display_vtk( vo, off_vtk.data() );
     vo.save( "cut.vtk" );
 }
 

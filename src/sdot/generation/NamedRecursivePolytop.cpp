@@ -198,6 +198,7 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
                    << o << ", " << ( off_scores[ p ] - o ) / 4 << ", N<" << polytop.dim() << ">() );\n";
             }
 
+            os << "\n";
             os << "        ks->sort_TI_in_range( sd.cut_case_offsets[ " << n << " ].data(), index_best_sub_case, sd.cut_case_offsets[ " << n << " ][ 1 ] - sd.cut_case_offsets[ " << n << " ][ 0 ], " << cc.possibilities.size() << ", sd.cut_indices, sd.cut_case_offsets[ " << n << " ][ 0 ] );\n";
 
             os << "    }\n";
@@ -219,6 +220,7 @@ void NamedRecursivePolytop::write_cut_cnt( std::ostream &os, std::vector<CutCase
 
     // free memory for score_best_sub_case and index_best_sub_case
     if ( need_sep_sub_cases ) {
+        os << "\n";
         os << "    ks->free_TF( score_best_sub_case );\n";
         os << "    ks->free_TI( index_best_sub_case );\n";
     }
