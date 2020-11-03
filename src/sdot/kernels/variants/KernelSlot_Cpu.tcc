@@ -38,6 +38,11 @@ void KernelSlot_Cpu<TF,TI,Arch>::count_to_offsets( void *counts, BI nb_nodes ) {
 }
 
 template<class TF,class TI,class Arch>
+void KernelSlot_Cpu<TF,TI,Arch>::sort_TI_in_range( void *index_best_sub_case, BI nb_items, BI TI_range, void *aux_TI_ptr, BI aux_TI_off ) {
+    TODO;
+}
+
+template<class TF,class TI,class Arch>
 void KernelSlot_Cpu<TF,TI,Arch>::sorted_indices( void *indices, void *offsets, const void *cut_cases, BI nb_items, BI nb_nodes ) {
     BI nb_cases = BI( 1 ) << nb_nodes;
 

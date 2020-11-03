@@ -119,9 +119,6 @@ void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, cons
             sd.cut_case_offsets[ n ][ 0 ] = loc_cut_case_offsets[ n ];
         }
 
-        // n4_3_0 0_0 0_0 1_1 f4_3_0_c_i
-        // n4_1_1 2_2 2_3 3_0 f4_1_2_c_i
-
         // make indices
         ks->sorted_indices( sd.cut_indices, offsets, cut_cases, sd.size, sd.shape_type->nb_nodes() );
 
