@@ -17,7 +17,7 @@ Scheduler &Scheduler::operator<<( const Value &value ) {
 void Scheduler::run() {
     for( const Value &value : targets ) {
         if ( Task *task = value.get_task() ) {
-            auto func = kernel_code( task->kernel );
+            auto func = kernel_code.func( task->kernel );
             func();
         }
     }
