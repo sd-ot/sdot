@@ -58,7 +58,7 @@ Value &Value::operator=( Value &&that ) {
 }
 
 void Value::write_to_stream( std::ostream &os ) const {
-    scheduler << Value( Kernel{ "write_to_stream" }, { &os, *this } );
+    scheduler << Value( Kernel{ "write_to_stream" }, { os, *this } );
     scheduler.run();
 }
 

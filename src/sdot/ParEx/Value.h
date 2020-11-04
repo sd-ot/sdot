@@ -17,8 +17,8 @@ public:
     /**/               Value          ( const Kernel &kernel, std::vector<Value> &&input ); ///< value from a computation
     /**/               Value          ( const std::string &type, void *data ); ///< already known value (Task will take the ownership of *ptr)
     /**/               Value          ( const Value &that );
-    template<class T>  Value          ( const T &value );
     /**/               Value          ( Value &&that );
+    template<class T>  Value          ( T &&value );
     /**/               Value          ();
 
     /**/              ~Value          ();
@@ -31,12 +31,10 @@ public:
     Task*              task;
 };
 
-inline Value data_from_value( std::int32_t  value ) { return { "std::int32_t" , new std::int32_t( value ) }; }
-inline Value data_from_value( std::ostream* value ) { return { "std::ostream*", value }; }
+inline Value data_from_value( std::ostream &value ) { return { std::string( "std::ostream" ), (void *)&value }; }
+inline Value data_from_value( std::int32_t  value ) { return { std::string( "std::int32_t" ), (void *)new std::int32_t( value ) }; }
 
-template<class T>
-Value::Value( const T &value ) : Value( data_from_value( value ) ) {
-}
+template<class T> Value::Value( T &&value ) : Value( data_from_value( value ) ) {}
 
 
 } // namespace parex

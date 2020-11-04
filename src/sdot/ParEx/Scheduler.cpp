@@ -1,3 +1,4 @@
+#include "../support/P.h"
 #include "KernelCode.h"
 #include "Scheduler.h"
 #include "Task.h"
@@ -29,6 +30,7 @@ void Scheduler::run() {
                 }
             }
 
+            P( input_type );
             auto func = kernel_code.func( value.task->kernel, input_type );
             func( input_data.data() );
         }

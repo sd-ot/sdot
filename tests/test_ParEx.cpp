@@ -17,7 +17,7 @@ Value min_max( const Value &value ) {
 }
 
 void display( const Value &value, std::ostream &os = std::cout ) {
-    scheduler << Value{ Kernel{ "write_to_stream" }, { &os, value } };
+    scheduler << Value{ Kernel{ "write_to_stream" }, { os, value } };
 }
 
 int main() {
@@ -32,6 +32,7 @@ int main() {
 
     //    Node m_m = { { "min_max" }, pos };
     //    sch << Node{ { "display" }, std::cout, m_m };
-    Value v( 17 );
-    P( v );
+    //    Value v( 17 );
+    //    P( v );
+    P( Value( 17 ) );
 }

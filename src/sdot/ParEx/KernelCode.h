@@ -23,8 +23,8 @@ private:
     Code                  make_code       ( const Kernel &kernel, const std::vector<std::string> &input_types ); ///< make a Func from a Kernel (not cached)
 
     void                  make_cmake_lists( const std::string &dir, const std::string &name, const std::vector<std::string> &flags );
+    void                  make_kernel_cpp ( const std::string &dir, const std::string &name, const std::vector<std::string> &input_types );
     void                  build_kernel    ( const std::string &dir );
-    void                  make_cpp        ( const std::string &dir, const Kernel &kernel );
     void                  exec            ( const std::string &cmd );
 
     std::map<Src,Code>    code;
