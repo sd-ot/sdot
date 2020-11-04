@@ -7,32 +7,25 @@ namespace parex {
 
 KernelCode kernel_code;
 
- KernelCode::Func KernelCode::func( const Kernel &kernel ) {
-    auto iter = funcs.find( kernel );
-    if ( iter == funcs.end() )
-        iter = funcs.insert( iter, { kernel, make_func( kernel ) } );
-    return iter->second;
+KernelCode::Func KernelCode::func( const Kernel &kernel, const std::vector<std::string> &input_types ) {
+    Src src{ kernel, input_types, {} };
+    auto iter = code.find( src );
+    if ( iter == code.end() )
+        iter = code.insert( iter, { src, make_code( kernel, input_types ) } );
+    return iter->second.func;
 }
 
-KernelCode::Lib *KernelCode::lib( const std::string &name, std::vector<std::string> flags ) {
-    Src src{ name, flags };
-    auto iter = libs.find( src );
-    if ( iter == libs.end() )
-        iter = libs.insert( iter, { src, make_lib( name, flags ) } );
-    return &iter->second;
-}
-
-KernelCode::Func KernelCode::make_func( const Kernel &kernel ) {
-    Lib *l = lib( kernel.name, {} );
-    return l->get_function<void(void **)>( "kernel_wrapper" );
-}
-
-KernelCode::Lib KernelCode::make_lib( const std::string &name, const std::vector<std::string> &flags ) {
-    std::string dir = "objects/" + name + "/";
+KernelCode::Code KernelCode::make_code( const Kernel &kernel, const std::vector<std::string> &input_types ) {
+    std::string dir = "objects/" + kernel.name + "/";
+    exec( "mkdir -p " + dir + "build" );
     make_cmake_lists( dir, name, flags );
+    make_cpp( dir,  );
     build_kernel( dir );
 
-    return Lib{ dir + "build/" + dynalo::to_native_name( "kernel" ) };
+    Code res;
+    res.lib = std::make_unique<dynalo::library>( dir + "build/" + dynalo::to_native_name( "kernel" ) );
+    res.func = res.lib->get_function<void(void **)>( "kernel_wrapper" );
+    return res;
 }
 
 void KernelCode::exec( const std::string &cmd ) {
@@ -43,7 +36,6 @@ void KernelCode::exec( const std::string &cmd ) {
 
 void KernelCode::make_cmake_lists( const std::string &dir, const std::string &name, const std::vector<std::string> &/*flags*/ ) {
     std::string cmk = dir + "CMakeLists.txt";
-    exec( "mkdir -p " + dir + "build" );
 
     std::ofstream fcmk( cmk );
     fcmk << "project( " << name << " )\n";
@@ -55,6 +47,16 @@ void KernelCode::make_cmake_lists( const std::string &dir, const std::string &na
 void KernelCode::build_kernel( const std::string &dir ) {
     exec( "cmake -S " + dir + " -B " + dir + "build" );
     exec( "cmake --build " + dir + "build" ); // --target install
+}
+
+void KernelCode::make_cpp( const std::string &dir, const Kernel &kernel ) {
+    std::string cpp = dir + "CMakeLists.txt";
+
+    std::ofstream fpp( cpp );
+    fcmk << "project( " << name << " )\n";
+    fcmk << "add_library(kernel SHARED\n";
+    fcmk << "    ../../kernels/" << name << ".cpp\n";
+    fcmk << ")\n";
 }
 
 } // namespace parex

@@ -28,6 +28,7 @@ Prop: les valeurs sont communiquées sous forme sérialisées.
 
 C'est lors de la génération de code qu'on désérialise dans le bon type.
 
-Prop: on génère 
+Prop simple: on utilise un type (spécifié par chaine de caractère) et un "pointeur".
+   Le pointeur doit idéalement dire sur quelle machine on est
 
 

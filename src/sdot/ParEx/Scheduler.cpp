@@ -16,13 +16,21 @@ Scheduler &Scheduler::operator<<( const Value &value ) {
 
 void Scheduler::run() {
     //
-
-    //
-    std::vector<void *> inputs;
+    std::vector<std::string> input_type;
+    std::vector<void *> input_data;
     for( const Value &value : targets ) {
-        if ( Task *task = value.get_task() ) {
-            auto func = kernel_code.func( task->kernel );
-            func( task->inputs.data(), task->inputs.size() );
+        if ( value.task ) {
+            if ( std::size_t ni = value.task->inputs.size() ) {
+                input_type.resize( ni );
+                input_data.resize( ni );
+                for( std::size_t i = 0; i < ni; ++i ) {
+                    input_type[ i ] = value.task->inputs[ i ].task->output_type;
+                    input_data[ i ] = value.task->inputs[ i ].task->output_data;
+                }
+            }
+
+            auto func = kernel_code.func( value.task->kernel, input_type );
+            func( input_data.data() );
         }
     }
 }

@@ -3,7 +3,7 @@
 namespace parex {
 
 Task::Task() {
-    cpt_use = 0;
+    cpt_use = 1;
 }
 
 } // namespace parex

@@ -6,18 +6,35 @@
 
 namespace parex {
 
-Value::Value( const Kernel &kernel, std::vector<Value> &&values ) {
-    task = new Task;
-    task->kernel = kernel;
-    task->inputs = std::move( values );
-    task->cpt_use = 1;
+namespace  {
+    void inc_ref( Task *task ) {
+        if ( task )
+            ++task->cpt_use;
+    }
+
+    void dec_ref( Task *task ) {
+        if ( task && ! --task->cpt_use )
+            delete task;
+    }
 }
 
-Value::Value( const Value &that ) : serialized_value( that.serialized_value ), task( that.task ) {
+Value::Value( const Kernel &kernel, std::vector<Value> &&inputs ) {
+    task = new Task;
+    task->kernel = kernel;
+    task->inputs = std::move( inputs );
+}
+
+Value::Value( const std::string &type, void *data ) {
+    task = new Task;
+    task->output_type = type;
+    task->output_data = data;
+}
+
+Value::Value( const Value &that ) : task( that.task ) {
     inc_ref( task );
 }
 
-Value::Value( Value &&that ) : serialized_value( std::move( that.serialized_value ) ), task( std::exchange( that.task, nullptr ) ) {
+Value::Value( Value &&that ) : task( std::exchange( that.task, nullptr ) ) {
 }
 
 Value::Value() : task( nullptr ) {
@@ -31,30 +48,18 @@ Value &Value::operator=( const Value &that ) {
     inc_ref( that.task );
     dec_ref( task );
 
-    serialized_value = that.serialized_value;
     task = that.task;
     return *this;
 }
 
 Value &Value::operator=( Value &&that ) {
-    serialized_value = std::exchange( that.serialized_value, {} );
     task = std::exchange( that.task, nullptr );
     return *this;
 }
 
 void Value::write_to_stream( std::ostream &os ) const {
-    scheduler << Value( Kernel{ "write_to_stream" }, &os, *this );
+    scheduler << Value( Kernel{ "write_to_stream" }, { &os, *this } );
     scheduler.run();
-}
-
-void Value::inc_ref( Task *task ) {
-    if ( task )
-        ++task->cpt_use;
-}
-
-void Value::dec_ref( Task *task ) {
-    if ( task && ! --task->cpt_use )
-        delete task;
 }
 
 } // namespace parex

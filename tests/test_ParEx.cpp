@@ -13,11 +13,11 @@ Value uniform_random_vec( std::size_t size, TF min = 0.0, TF max = 1.0 ) {
 }
 
 Value min_max( const Value &value ) {
-    return { Kernel{ "min_max" }, value };
+    return { Kernel{ "min_max" }, { value } };
 }
 
 void display( const Value &value, std::ostream &os = std::cout ) {
-    scheduler << Value{ Kernel{ "write_to_stream" }, &os, value };
+    scheduler << Value{ Kernel{ "write_to_stream" }, { &os, value } };
 }
 
 int main() {
