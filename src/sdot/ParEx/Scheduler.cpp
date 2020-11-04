@@ -15,10 +15,14 @@ Scheduler &Scheduler::operator<<( const Value &value ) {
 }
 
 void Scheduler::run() {
+    //
+
+    //
+    std::vector<void *> inputs;
     for( const Value &value : targets ) {
         if ( Task *task = value.get_task() ) {
             auto func = kernel_code.func( task->kernel );
-            func();
+            func( task->inputs.data(), task->inputs.size() );
         }
     }
 }

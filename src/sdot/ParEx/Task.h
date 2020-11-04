@@ -10,7 +10,7 @@ public:
     /**/                Task();
 
     Kernel              kernel;
-    std::vector<Value>  values;
+    std::vector<Value>  inputs;
     mutable std::size_t cpt_use;
 };
 

@@ -11,7 +11,7 @@ namespace parex {
 */
 class KernelCode {
 public:
-    using                 Func            = std::function<void(void)>;
+    using                 Func            = std::function<void( Value *input_data, std::size_t input_size )>;
 
     Func                  func            ( const Kernel &kernel );
 

@@ -7,7 +7,7 @@ namespace parex {
 
 KernelCode kernel_code;
 
-std::function<void()> KernelCode::func( const Kernel &kernel ) {
+ KernelCode::Func KernelCode::func( const Kernel &kernel ) {
     auto iter = funcs.find( kernel );
     if ( iter == funcs.end() )
         iter = funcs.insert( iter, { kernel, make_func( kernel ) } );
@@ -24,7 +24,7 @@ KernelCode::Lib *KernelCode::lib( const std::string &name, std::vector<std::stri
 
 KernelCode::Func KernelCode::make_func( const Kernel &kernel ) {
     Lib *l = lib( kernel.name, {} );
-    return l->get_function<void(void)>( kernel.func );
+    return l->get_function<void( Value *input_data, std::size_t input_size )>( kernel.func );
 }
 
 KernelCode::Lib KernelCode::make_lib( const std::string &name, const std::vector<std::string> &flags ) {

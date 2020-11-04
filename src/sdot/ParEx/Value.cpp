@@ -9,7 +9,7 @@ namespace parex {
 Value::Value( const Kernel &kernel, std::vector<Value> &&values ) {
     task = new Task;
     task->kernel = kernel;
-    task->values = std::move( values );
+    task->inputs = std::move( values );
     task->cpt_use = 1;
 }
 
