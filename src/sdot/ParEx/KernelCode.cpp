@@ -3,10 +3,18 @@
 #include "url_encode.h"
 
 #include <fstream>
+#include <set>
 
 namespace parex {
 
 KernelCode kernel_code;
+
+KernelCode::KernelCode() {
+    src_heads[ "ostream" ].push_back( "using std::ostream;" );
+
+    src_heads[ "SI32" ].push_back( "using SI32 = int;" );
+    includes [ "SI32" ].push_back( "<cstdint>" );
+}
 
 KernelCode::Func KernelCode::func( const Kernel &kernel, const std::vector<std::string> &input_types ) {
     Src src{ kernel, input_types, {} };
@@ -59,7 +67,30 @@ void KernelCode::make_cmake_lists( const std::string &dir, const std::string &na
 
 void KernelCode::make_kernel_cpp( const std::string &dir, const std::string &name, const std::vector<std::string> &input_types ) {
     std::ofstream fcpp( dir + "kernel.cpp" );
+
+    // needed includes
+    std::set<std::string> in;
+    for( const std::string &input_type : input_types ) {
+        auto iter = includes.find( input_type );
+        if ( iter != includes.end() )
+            for( const std::string &h : iter->second )
+                if ( in.insert( h ).second )
+                    fcpp << "#include " << h << "\n";
+    }
+
     fcpp << "#include \"../../../kernels/" << name << ".h\"\n";
+
+    // needed src_heads
+    std::set<std::string> sh;
+    for( const std::string &input_type : input_types ) {
+        auto iter = src_heads.find( input_type );
+        if ( iter != src_heads.end() )
+            for( const std::string &h : iter->second )
+                if ( sh.insert( h ).second )
+                    fcpp << h << "\n";
+    }
+
+    //
     fcpp << "\n";
     fcpp << "extern \"C\" void kernel_wrapper( void **data ) {\n";
     fcpp << "    " << name << "(\n";

@@ -31,8 +31,8 @@ public:
     Task*              task;
 };
 
-inline Value data_from_value( std::ostream &value ) { return { std::string( "std::ostream" ), (void *)&value }; }
-inline Value data_from_value( std::int32_t  value ) { return { std::string( "std::int32_t" ), (void *)new std::int32_t( value ) }; }
+inline Value data_from_value( std::ostream &value ) { return { std::string( "ostream" ), (void *)&value }; }
+inline Value data_from_value( std::int32_t  value ) { return { std::string( "SI32"    ), (void *)new std::int32_t( value ) }; }
 
 template<class T> Value::Value( T &&value ) : Value( data_from_value( value ) ) {}
 

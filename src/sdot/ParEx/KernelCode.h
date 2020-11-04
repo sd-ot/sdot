@@ -13,6 +13,9 @@ namespace parex {
 class KernelCode {
 public:
     using                 Func            = std::function<void(void **)>;
+    using                 MSVS        = std::map<std::string,std::vector<std::string>>;
+
+    /**/                  KernelCode      ();
 
     Func                  func            ( const Kernel &kernel, const std::vector<std::string> &input_types );
 
@@ -27,6 +30,8 @@ private:
     void                  build_kernel    ( const std::string &dir );
     void                  exec            ( const std::string &cmd );
 
+    MSVS                  src_heads;
+    MSVS                  includes;
     std::map<Src,Code>    code;
 };
 
