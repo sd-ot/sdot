@@ -26,3 +26,4 @@ results/
 *.cpython
 Untitled.*
 Untitled-checkpoint.*
+objects/
