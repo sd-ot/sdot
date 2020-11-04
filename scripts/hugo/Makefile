@@ -1,6 +1,7 @@
 all: src/sdot/kernels/VecTF.h src/sdot/kernels/VecTF.cpp src/sdot/kernels/VecTI.h src/sdot/kernels/VecTI.cpp # gen
 	# nsmake run -g3 tests/test_SetOfElementaryPolytops.cpp
-	nsmake run -g3 tests/test_PowerDiagram.cpp
+	# nsmake run -g3 tests/test_PowerDiagram.cpp
+	nsmake run -g3 tests/test_ParEx.cpp
 
 gen: 
 	nsmake run -g3 src/sdot/generation/generation_geometry.cpp

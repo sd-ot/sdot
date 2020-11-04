@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Kernel.h"
 #include "Task.h"
 
 namespace parex {
@@ -7,16 +8,16 @@ namespace parex {
 /***/
 class Node {
 public:
-    /**/  Node();
-
     template<class ...Args>
-    Node  New ( const Kernel &kernel, Args&& ...args );
+    /**/  Node( const Kernel &kernel, Args&& ...args );
+    /**/  Node( Task *task = nullptr );
+    /**/ ~Node();
 
     Task* task;
 };
 
 template<class ...Args>
-Node Node::New( const Kernel &kernel, Args&& ...args ) {
+Node::Node( const Kernel &kernel, Args&& .../*args*/ ) {
 
 }
 

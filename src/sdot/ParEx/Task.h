@@ -1,16 +1,17 @@
 #pragma once
 
-#include <vector>
+#include "Kernel.h"
+#include "Value.h"
 
 namespace parex {
-class Kernel;
 
 class Task {
 public:
-    /**/        Task();
+    /**/                Task();
 
-    Kernel*     kernel;
-    std::size_t cpt_use;
+    Kernel              kernel;
+    std::vector<Value>  values;
+    mutable std::size_t cpt_use;
 };
 
 } // namespace parex

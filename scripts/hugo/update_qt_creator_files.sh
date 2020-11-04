@@ -3,7 +3,7 @@ echo Makefile > $N
 echo TODO.md >> $N
 # echo TODO.txt >> $N
 echo src/ppwl.cpp >> $N
-for d in lib src tests scripts
+for d in lib src tests scripts kernels
 do
     for t in '*.h' '*.tcc' '*.cpp' '*.cu' '*.txt' '*.py' '*.js' '*.html' '*.css' '*.files' '*.met' '*.coffee' '*.asm' '*.inc'
     do

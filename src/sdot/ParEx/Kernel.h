@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include <vector>
+#include "Value.h"
 
 namespace parex {
 
@@ -9,22 +8,13 @@ namespace parex {
 */
 class Kernel {
 public:
-    // where it can be executed
-    struct Exe {
-        bool cpu;
-        bool gpu;
-    };
+    struct                 Parameter  { std::string name; Value value; };
 
-    struct Inp {
+    bool                   operator<  ( const Kernel &that ) const;
 
-    };
-
-    struct Out {
-
-    };
-
-    std::vector<Out> outputs;
-    std::vector<Inp> inputs;
+    std::string            name;
+    std::vector<Parameter> parameters = {};
+    std::string            func = "kernel";
 };
 
 } // namespace parex

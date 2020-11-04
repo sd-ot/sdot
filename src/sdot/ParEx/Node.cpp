@@ -2,8 +2,13 @@
 
 namespace parex {
 
-Node::Node() {
-    cpt_use = 0;
+Node::Node( Task *task ) : task( task ) {
+    if ( task )
+        ++task->cpt_use;
+}
+
+Node::~Node() {
+
 }
 
 } // namespace parex
