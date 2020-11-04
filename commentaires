@@ -28,4 +28,6 @@ Prop: les valeurs sont communiquées sous forme sérialisées.
 
 C'est lors de la génération de code qu'on désérialise dans le bon type.
 
-Si on a un objet de trop grande taille
+Prop: on génère 
+
+
