@@ -1,7 +1,7 @@
-#include "../support/P.h"
 #include "KernelCode.h"
 #include "Scheduler.h"
-#include "Task.h"
+
+#include "../support/P.h"
 
 namespace parex {
 
@@ -10,35 +10,62 @@ Scheduler scheduler;
 Scheduler::Scheduler() {
 }
 
+Scheduler &Scheduler::operator<<( const TaskRef &task_ref ) {
+    return operator<<( task_ref.task );
+}
+
 Scheduler &Scheduler::operator<<( const Value &value ) {
-    targets.push_back( value );
+    return operator<<( value.ref );
+}
+
+Scheduler &Scheduler::operator<<( Task *task ) {
+    targets.push_back( task );
     return *this;
 }
 
 void Scheduler::run() {
-    // get the sources
+    // front = all the task that can be executed
     std::vector<Task *> front;
     ++Task::curr_op_id;
-    for( const Value &value : targets )
+    for( const TaskRef &value : targets )
         value.task->get_front_rec( front );
-    P( front.size() );
+
+    for( Task *task : front )
+        task->in_front = true;
 
     //
-    std::vector<std::string> input_type;
-    std::vector<void *> input_data;
-    for( const Value &value : targets ) {
-        if ( std::size_t ni = value.task->inputs.size() ) {
-            input_type.resize( ni );
-            input_data.resize( ni );
-            for( std::size_t i = 0; i < ni; ++i ) {
-                input_type[ i ] = value.task->inputs[ i ].task->output_type;
-                input_data[ i ] = value.task->inputs[ i ].task->output_data;
+    while ( ! front.empty() ) {
+        Task *task = front.back();
+        front.pop_back();
+
+        task->computed = true;
+        exec_task( task );
+
+        for( Task *parent : task->parents ) {
+            if ( parent->children_are_computed() && ! parent->in_front ) {
+                front.push_back( parent );
+                parent->in_front = true;
             }
         }
-
-        auto func = kernel_code.func( value.task->kernel, input_type );
-        func( input_data.data() );
     }
+
+}
+
+void Scheduler::exec_task( Task *task ) {
+    std::vector<std::string> input_type;
+    std::vector<void *> input_data;
+
+    if ( std::size_t ni = task->children.size() ) {
+        input_type.resize( ni );
+        input_data.resize( ni );
+        for( std::size_t i = 0; i < ni; ++i ) {
+            input_type[ i ] = task->children[ i ].task->output_type;
+            input_data[ i ] = task->children[ i ].task->output_data;
+        }
+    }
+
+    auto func = kernel_code.func( *task->kernel, input_type );
+    func( task, input_data.data() );
 }
 
 } // namespace parex

@@ -8,16 +8,16 @@ using TF = double;
 using TI = int;
 
 template<class TF=double>
-Value uniform_random_vec( std::size_t size, TF min = 0.0, TF max = 1.0 ) {
-    return { Kernel{ "uniform_noise_vec" }, size, min, max };
+Value random_vec( std::size_t size, TF min = 0.0, TF max = 1.0 ) {
+    return { new Kernel{ "random_vec" }, { size, min, max } };
 }
 
 Value min_max( const Value &value ) {
-    return { Kernel{ "min_max" }, { value } };
+    return { new Kernel{ "min_max" }, { value } };
 }
 
 void display( const Value &value, std::ostream &os = std::cout ) {
-    scheduler << Value{ Kernel{ "write_to_stream" }, { os, value } };
+    scheduler << Value{ new Kernel{ "write_to_stream" }, { Task::owning( &os ), value } };
 }
 
 int main() {
@@ -34,5 +34,5 @@ int main() {
     //    sch << Node{ { "display" }, std::cout, m_m };
     //    Value v( 17 );
     //    P( v );
-    P( Value( 17 ) );
+    P( random_vec( 10 ) );
 }

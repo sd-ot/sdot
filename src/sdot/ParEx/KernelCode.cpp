@@ -1,6 +1,6 @@
+#include "internal/url_encode.h"
 #include "../support/ERROR.h"
 #include "KernelCode.h"
-#include "url_encode.h"
 
 #include <fstream>
 #include <set>
@@ -12,8 +12,14 @@ KernelCode kernel_code;
 KernelCode::KernelCode() {
     src_heads[ "ostream" ].push_back( "using std::ostream;" );
 
-    src_heads[ "SI32" ].push_back( "using SI32 = int;" );
+    src_heads[ "SI32" ].push_back( "using SI32 = std::int32_t;" );
     includes [ "SI32" ].push_back( "<cstdint>" );
+
+    src_heads[ "PI64" ].push_back( "using PI64 = std::uint64_t;" );
+    includes [ "PI64" ].push_back( "<cstdint>" );
+
+    src_heads[ "FP64" ].push_back( "using FP64 = double;" );
+    src_heads[ "FP32" ].push_back( "using FP32 = float;" );
 }
 
 KernelCode::Func KernelCode::func( const Kernel &kernel, const std::vector<std::string> &input_types ) {
@@ -46,12 +52,12 @@ KernelCode::Code KernelCode::make_code( const Kernel &kernel, const std::vector<
     // load ir
     Code res;
     res.lib = std::make_unique<dynalo::library>( dir + "build/" + dynalo::to_native_name( kernel.name ) );
-    res.func = res.lib->get_function<void(void **)>( "kernel_wrapper" );
+    res.func = res.lib->get_function<void(Task*,void **)>( "kernel_wrapper" );
     return res;
 }
 
 void KernelCode::exec( const std::string &cmd ) {
-    std::cout << cmd << std::endl;
+    // std::cout << cmd << std::endl;
     if ( system( cmd.c_str() ) )
         ERROR( "" );
 }
@@ -78,6 +84,7 @@ void KernelCode::make_kernel_cpp( const std::string &dir, const std::string &nam
                     fcpp << "#include " << h << "\n";
     }
 
+    fcpp << "#include \"../../../src/sdot/ParEx/TaskRef.h\"\n";
     fcpp << "#include \"../../../kernels/" << name << ".h\"\n";
 
     // needed src_heads
@@ -92,17 +99,19 @@ void KernelCode::make_kernel_cpp( const std::string &dir, const std::string &nam
 
     //
     fcpp << "\n";
-    fcpp << "extern \"C\" void kernel_wrapper( void **data ) {\n";
-    fcpp << "    " << name << "(\n";
+    fcpp << "extern \"C\" void kernel_wrapper( parex::Task *task, void **data ) {\n";
+    fcpp << "    auto res = " << name << "(\n";
     for( std::size_t i = 0; i < input_types.size(); ++i )
         fcpp << "        *reinterpret_cast<" << input_types[ i ] << "*>( data[ " << i << " ] )" << ( i + 1 < input_types.size() ? "," : "" ) << "\n";
     fcpp << "    );\n";
+    fcpp << "    task->output_type = parex::type_name( res );\n";
+    fcpp << "    task->output_data = res;\n";
     fcpp << "}\n";
 }
 
 void KernelCode::build_kernel( const std::string &dir ) {
-    exec( "cmake -S " + dir + " -B " + dir + "build" );
-    exec( "cmake --build " + dir + "build" ); // --target install
+    exec( "cmake -S " + dir + " -B " + dir + "build > /dev/null" );
+    exec( "cmake --build " + dir + "build > /dev/null" ); // --target install
 }
 
 } // namespace parex

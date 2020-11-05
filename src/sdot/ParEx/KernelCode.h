@@ -7,13 +7,14 @@
 #include <map>
 
 namespace parex {
+class Task;
 
 /**
 */
 class KernelCode {
 public:
-    using                 Func            = std::function<void(void **)>;
-    using                 MSVS        = std::map<std::string,std::vector<std::string>>;
+    using                 Func            = std::function<void(Task*,void **)>;
+    using                 MSVS            = std::map<std::string,std::vector<std::string>>;
 
     /**/                  KernelCode      ();
 

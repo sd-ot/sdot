@@ -1,13 +1,16 @@
-#include "Task.h"
+#include <algorithm>
+#include "Kernel.h"
 
 namespace parex {
 
 std::size_t Task::curr_op_id = 0;
 
-Task::Task() {
-    computed = false;
-    cpt_use = 1;
-    op_id = 0;
+Task::~Task() {
+    delete kernel;
+
+    auto ei = [&]( const Task *t ) { return t == this; };
+    for( const TaskRef &child : children )
+        child.task->parents.erase( std::remove_if( child.task->parents.begin(),  child.task->parents.end(), ei ), child.task->parents.end() );
 }
 
 void Task::get_front_rec( std::vector<Task *> &front ) {
@@ -19,13 +22,13 @@ void Task::get_front_rec( std::vector<Task *> &front ) {
         return;
     }
 
-    for( const Value &input : inputs )
-        input.task->get_front_rec( front );
+    for( const TaskRef &child : children )
+        child.task->get_front_rec( front );
 }
 
 bool Task::children_are_computed() const {
-    for( const Value &input : inputs )
-        if ( ! input.task->computed )
+    for( const TaskRef &child : children )
+        if ( ! child.task->computed )
             return false;
     return true;
 }

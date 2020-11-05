@@ -1,27 +1,38 @@
 #pragma once
 
-#include "Kernel.h"
-#include "Value.h"
+#include "type_name.h"
+#include <ostream>
+#include <vector>
 
 namespace parex {
+class TaskRef;
+class Kernel;
 
+/**
+*/
 class Task {
 public:
-    /**/                Task                 ();
+    /**/                 Task                 () { computed = false; in_front = false; kernel = nullptr; cpt_use = 0; op_id = 0; }
+    /**/                ~Task                 ();
 
-    void                get_front_rec        ( std::vector<Task *> &front );
-    bool                children_are_computed() const;
+    template<class T>
+    static Task*         owning               ( T *ptr ) { Task *res = new Task; res->output_type = type_name( ptr ); res->output_data = ptr; res->computed = true; return res; } ///< known value. Takes ownership of ptr
 
-    std::string         output_type;
-    void*               output_data;
-    bool                computed;
+    void                 get_front_rec        ( std::vector<Task *> &front );
+    bool                 children_are_computed() const;
 
-    Kernel              kernel;
-    std::vector<Value>  inputs;
+    std::string          output_type;
+    void*                output_data;
+    bool                 in_front;
+    bool                 computed;
 
-    static  std::size_t curr_op_id;
-    mutable std::size_t cpt_use;
-    mutable std::size_t op_id;
+    std::vector<TaskRef> children;
+    std::vector<Task *>  parents;
+    Kernel*              kernel;
+
+    static  std::size_t  curr_op_id;
+    mutable std::size_t  cpt_use;
+    mutable std::size_t  op_id;
 };
 
 } // namespace parex
