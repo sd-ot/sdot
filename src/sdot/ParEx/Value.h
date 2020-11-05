@@ -14,21 +14,21 @@ class Task;
 */
 class Value {
 public:
-    /**/               Value          ( const Kernel &kernel, std::vector<Value> &&input ); ///< value from a computation
-    /**/               Value          ( const std::string &type, void *data ); ///< already known value (Task will take the ownership of *ptr)
-    /**/               Value          ( const Value &that );
-    /**/               Value          ( Value &&that );
-    template<class T>  Value          ( T &&value );
-    /**/               Value          ();
+    /**/              Value          ( const Kernel &kernel, std::vector<Value> &&input ); ///< value from a computation
+    /**/              Value          ( const std::string &type, void *data ); ///< already known value (Task will take the ownership of *ptr)
+    /**/              Value          ( const Value &that );
+    /**/              Value          ( Value &&that );
+    template<class T> Value          ( T &&value );
+    /**/              Value          ();
 
-    /**/              ~Value          ();
+    /**/             ~Value          ();
 
-    Value&             operator=      ( const Value &that );
-    Value&             operator=      ( Value &&that );
+    Value&            operator=      ( const Value &that );
+    Value&            operator=      ( Value &&that );
 
-    void               write_to_stream( std::ostream &os ) const;
+    void              write_to_stream( std::ostream &os ) const;
 
-    Task*              task;
+    Task*             task;
 };
 
 inline Value data_from_value( std::ostream &value ) { return { std::string( "ostream" ), (void *)&value }; }

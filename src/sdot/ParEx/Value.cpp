@@ -28,6 +28,7 @@ Value::Value( const std::string &type, void *data ) {
     task = new Task;
     task->output_type = type;
     task->output_data = data;
+    task->computed = true;
 }
 
 Value::Value( const Value &that ) : task( that.task ) {

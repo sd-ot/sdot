@@ -16,24 +16,28 @@ Scheduler &Scheduler::operator<<( const Value &value ) {
 }
 
 void Scheduler::run() {
+    // get the sources
+    std::vector<Task *> front;
+    ++Task::curr_op_id;
+    for( const Value &value : targets )
+        value.task->get_front_rec( front );
+    P( front.size() );
+
     //
     std::vector<std::string> input_type;
     std::vector<void *> input_data;
     for( const Value &value : targets ) {
-        if ( value.task ) {
-            if ( std::size_t ni = value.task->inputs.size() ) {
-                input_type.resize( ni );
-                input_data.resize( ni );
-                for( std::size_t i = 0; i < ni; ++i ) {
-                    input_type[ i ] = value.task->inputs[ i ].task->output_type;
-                    input_data[ i ] = value.task->inputs[ i ].task->output_data;
-                }
+        if ( std::size_t ni = value.task->inputs.size() ) {
+            input_type.resize( ni );
+            input_data.resize( ni );
+            for( std::size_t i = 0; i < ni; ++i ) {
+                input_type[ i ] = value.task->inputs[ i ].task->output_type;
+                input_data[ i ] = value.task->inputs[ i ].task->output_data;
             }
-
-            P( input_type );
-            auto func = kernel_code.func( value.task->kernel, input_type );
-            func( input_data.data() );
         }
+
+        auto func = kernel_code.func( value.task->kernel, input_type );
+        func( input_data.data() );
     }
 }
 
