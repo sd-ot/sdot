@@ -1,7 +1,7 @@
 #include "Triangle.h"
 #include "S3.h"
 
-namespace parex {
+namespace sdot {
 
 ShapeType *triangle() {
     return s3();

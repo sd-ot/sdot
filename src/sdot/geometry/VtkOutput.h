@@ -4,7 +4,7 @@
 #include <vector>
 #include <array>
 
-namespace parex {
+namespace sdot {
 
 /***/
 class VtkOutput {

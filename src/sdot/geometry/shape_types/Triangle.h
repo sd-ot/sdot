@@ -2,7 +2,7 @@
 
 #include "../ShapeType.h"
 
-namespace parex {
+namespace sdot {
 
 ShapeType *triangle();
 

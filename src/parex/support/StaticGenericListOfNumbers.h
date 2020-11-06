@@ -1,11 +1,11 @@
 #pragma once
 
+#include <parex/support/N.h>
 #include <ostream>
 #include <vector>
 #include <array>
-#include "N.h"
 
-namespace parex {
+namespace sdot {
 
 template<class PT>
 struct StaticGenericListOfNumbers {

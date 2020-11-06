@@ -3,6 +3,7 @@
 #include "support/P.h"
 #include "KernelCode.h"
 
+#include <algorithm>
 #include <fstream>
 
 namespace parex {
@@ -117,8 +118,6 @@ void KernelCode::make_kernel_cpp( const std::string &dir, const std::string &nam
 }
 
 void KernelCode::get_prereq_req( std::ostream &includes_os, std::ostream &src_heads_os, std::set<std::string> &includes_set, std::set<std::string> &src_heads_set, std::set<std::string> &seen_types, const std::string &type ) {
-    P( type );
-
     if ( seen_types.count( type ) )
         return;
     seen_types.insert( type );

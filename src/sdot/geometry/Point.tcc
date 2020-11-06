@@ -1,13 +1,13 @@
-#include "../support/StaticRange.h"
+#include <parex/support/StaticRange.h>
 #include "../support/conv.h"
 #include "Point.h"
 
-namespace parex {
+namespace sdot {
 
 template<class TF,int dim> template<class TG>
 Point<TF,dim>::Point( const Point<TG,dim> &p ) {
     for( int i = 0; i < dim; ++i )
-        data[ i ] = conv( p.data[ i ], S<TF>() );
+        data[ i ] = conv( p.data[ i ], parex::S<TF>() );
 }
 
 template<class TF,int dim> template<class TG>

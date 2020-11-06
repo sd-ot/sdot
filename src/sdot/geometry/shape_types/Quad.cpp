@@ -1,7 +1,7 @@
 #include "Quad.h"
 #include "S4.h"
 
-namespace parex {
+namespace sdot {
 
 ShapeType *quad() {
     return s4();

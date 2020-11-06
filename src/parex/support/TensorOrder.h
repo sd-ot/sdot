@@ -4,7 +4,7 @@
 #include <array>
 #include <set>
 
-namespace parex {
+namespace sdot {
 
 template<class T>
 struct TensorOrder {

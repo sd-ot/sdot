@@ -1,12 +1,12 @@
 #ifndef SDOT_POINT_H
 #define SDOT_POINT_H
 
-#include "../support/TensorOrder.h"
-#include "../support/Math.h"
+#include <parex/support/TensorOrder.h>
+#include <parex/support/Math.h>
 #include <ostream>
 #include <vector>
 
-namespace parex {
+namespace sdot {
 
 /**
 */
