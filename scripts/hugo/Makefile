@@ -1,5 +1,6 @@
 NSMAKE = nsmake run
 NSMAKE += -DPAREX_DIR=\"`pwd`\"
+NSMAKE += -DSDOT_DIR=\"`pwd`\"
 NSMAKE += -g3
 
 all:

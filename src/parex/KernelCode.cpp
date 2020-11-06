@@ -26,6 +26,11 @@ KernelCode::KernelCode() {
     include_directories.push_back( PAREX_DIR "/src/parex/kernels" );
 }
 
+void KernelCode::add_include_dir( std::string name ) {
+    if ( std::find( include_directories.begin(), include_directories.end(), name ) == include_directories.end() )
+        include_directories.push_back( name );
+}
+
 KernelCode::Func KernelCode::func( const Kernel &kernel, const std::vector<std::string> &input_types ) {
     Src src{ kernel, input_types, {} };
     auto iter = code.find( src );

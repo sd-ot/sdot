@@ -1,5 +1,6 @@
 #pragma once
 
+#include "containers/Tensor.h"
 #include "containers/Vec.h"
 #include <ostream>
 #include <vector>

@@ -1,6 +1,8 @@
-#include "../src/parex/support/P.h"
+#include "../src/parex/KernelCode.h"
 #include "../src/parex/Scheduler.h"
 #include "../src/parex/Kernel.h"
+
+#include "../src/parex/support/P.h"
 
 using namespace parex;
 using TF = double;
@@ -20,6 +22,7 @@ void display( const Value &value, std::ostream &os = std::cout ) {
 }
 
 int main() {
+    kernel_code.add_include_dir( SDOT_DIR "/src/sdot/kernels" );
     //    Scheduler sch;
 
     //    TI dim = 2;
@@ -33,5 +36,7 @@ int main() {
     //    sch << Node{ { "display" }, std::cout, m_m };
     //    Value v( 17 );
     //    P( v );
-    P( random_vec( 10, 2.0, 4.0 ) );
+    // P( random_vec( 10, 2.0, 4.0 ) );
+    // Tensor
+
 }
