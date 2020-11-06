@@ -4,7 +4,7 @@
 #include "CutCase.h"
 #include <algorithm>
 
-namespace sdot {
+namespace parex {
 
 void CutCase::init( const NamedRecursivePolytop &rp, const std::vector<bool> &out_points, const std::vector<NamedRecursivePolytop> &primitive_shapes ) {
     this->out_points = out_points;

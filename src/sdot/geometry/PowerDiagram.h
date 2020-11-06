@@ -1,6 +1,6 @@
 #pragma once
 
-namespace sdot {
+namespace parex {
 
 /**
 */
@@ -9,4 +9,4 @@ public:
     PowerDiagram();
 };
 
-} // namespace sdot
+} // namespace parex

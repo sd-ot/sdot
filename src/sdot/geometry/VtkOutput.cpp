@@ -1,7 +1,7 @@
 #include "VtkOutput.h"
 #include <fstream>
 
-namespace sdot {
+namespace parex {
 
 VtkOutput::VtkOutput() {
 }

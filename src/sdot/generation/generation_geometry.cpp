@@ -5,7 +5,7 @@
 
 //// nsmake cpp_flag -std=c++17
 
-using namespace sdot;
+using namespace parex;
 
 using TI = std::size_t;
 using TF = Rational;
@@ -36,7 +36,7 @@ int main() {
     summary << "// generated file\n";
     summary << "#pragma once\n";
     summary << "#include \"../ShapeType.h\"\n";
-    summary << "namespace sdot {\n\n";
+    summary << "namespace parex {\n\n";
 
     // shape.cpp + summary.h
     GlobGeneGeomData gggd;

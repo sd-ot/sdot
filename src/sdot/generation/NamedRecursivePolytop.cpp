@@ -6,7 +6,7 @@
 #include "CutCase.h"
 using TI = std::size_t;
 
-namespace sdot {
+namespace parex {
 
 void NamedRecursivePolytop::write_primitive_shape_incl( std::ostream &os ) const {
     os << "// generated file\n";
@@ -14,7 +14,7 @@ void NamedRecursivePolytop::write_primitive_shape_incl( std::ostream &os ) const
     os << "\n";
     os << "#include \"../ShapeType.h\"\n";
     os << "\n";
-    os << "namespace sdot {\n";
+    os << "namespace parex {\n";
     os << "\n";
     os << "ShapeType *s" << name.substr( 1 ) << "();\n";
     os << "\n";
@@ -41,7 +41,7 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
         os << "#include \"" << ps.name << ".h\"\n";
     os << "\n";
 
-    os << "namespace sdot {\n";
+    os << "namespace parex {\n";
     os << "\n";
 
     // class decl
@@ -72,7 +72,7 @@ void NamedRecursivePolytop::write_primitive_shape_impl( std::ostream &os, GlobGe
     os << "    return &res;\n";
     os << "}\n";
     os << "\n";
-    os << "} // namespace sdot\n";
+    os << "} // namespace parex\n";
 
 
 }

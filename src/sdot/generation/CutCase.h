@@ -3,7 +3,7 @@
 #include "NamedRecursivePolytop.h"
 #include "CutOpWithNamesAndInds.h"
 
-namespace sdot {
+namespace parex {
 
 /**
 */

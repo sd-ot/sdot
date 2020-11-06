@@ -3,7 +3,7 @@
 #include "RecursivePolytop.h"
 #include <string>
 
-namespace sdot {
+namespace parex {
 class GlobGeneGeomData;
 class CutCase;
 

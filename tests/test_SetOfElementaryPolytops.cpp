@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-using namespace sdot;
+using namespace parex;
 
 using Pt = Point<double,2>;
 using TI = std::uint64_t;

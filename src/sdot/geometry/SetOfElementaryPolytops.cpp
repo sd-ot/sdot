@@ -3,7 +3,7 @@
 #include "../support/TODO.h"
 #include "../support/P.h"
 
-namespace sdot {
+namespace parex {
 
 namespace {
     template<class FU>

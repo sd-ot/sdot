@@ -3,7 +3,7 @@
 
 #include "../ShapeType.h"
 
-namespace sdot {
+namespace parex {
 
 ShapeType *s3();
 

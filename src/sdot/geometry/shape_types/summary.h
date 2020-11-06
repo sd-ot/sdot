@@ -1,7 +1,7 @@
 // generated file
 #pragma once
 #include "../ShapeType.h"
-namespace sdot {
+namespace parex {
 
 #include "S3.h"
 #include "S4.h"

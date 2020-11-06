@@ -8,7 +8,7 @@
 #include "S5.h"
 #include "S6.h"
 
-namespace sdot {
+namespace parex {
 
 class S5 : public ShapeType {
 public:
@@ -360,4 +360,4 @@ ShapeType *s5() {
     return &res;
 }
 
-} // namespace sdot
+} // namespace parex

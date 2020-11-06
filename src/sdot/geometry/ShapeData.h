@@ -3,7 +3,7 @@
 #include "ShapeType.h"
 #include <vector>
 
-namespace sdot {
+namespace parex {
 
 /**
 */

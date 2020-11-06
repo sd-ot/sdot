@@ -2,7 +2,7 @@
 #include "../support/conv.h"
 #include "Point.h"
 
-namespace sdot {
+namespace parex {
 
 template<class TF,int dim> template<class TG>
 Point<TF,dim>::Point( const Point<TG,dim> &p ) {

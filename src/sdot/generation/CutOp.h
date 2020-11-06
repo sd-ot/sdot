@@ -3,7 +3,7 @@
 #include "CutItem.h"
 #include <string>
 
-namespace sdot {
+namespace parex {
 
 /**
 */
@@ -19,4 +19,4 @@ struct CutOp {
     std::size_t          dim;
 };
 
-} // namespace sdot
+} // namespace parex

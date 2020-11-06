@@ -1,5 +1,6 @@
 update_files.sh
 .sdot_kernel.*
+.sdot_parex.*
 .sdot_elem.*
 .sdot.*
 *.kdev4

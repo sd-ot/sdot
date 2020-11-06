@@ -1,7 +1,7 @@
 #include "../support/generic_ostream_output.h"
 #include "RecursivePolytopConnectivity.h"
 
-namespace sdot {
+namespace parex {
 
 RecursivePolytopConnectivity::RecursivePolytopConnectivity( TI nvi ) : nvi( nvi ) {
 }
@@ -13,4 +13,4 @@ void RecursivePolytopConnectivity::write_to_stream( std::ostream &os ) const {
     os << "\n";
 }
 
-} // namespace sdot
+} // namespace parex

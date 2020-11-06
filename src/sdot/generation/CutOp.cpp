@@ -3,7 +3,7 @@
 using TI = std::size_t;
 using std::max;
 
-namespace sdot {
+namespace parex {
 
 std::string CutOp::mk_item_func_name() const {
     std::string res = "mk_items";
@@ -53,4 +53,4 @@ std::size_t CutOp::nb_input_faces() const {
     return res;
 }
 
-} // namespace sdot
+} // namespace parex

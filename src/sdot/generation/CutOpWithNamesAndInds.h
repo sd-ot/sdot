@@ -2,7 +2,7 @@
 
 #include "CutOp.h"
 
-namespace sdot {
+namespace parex {
 
 struct CutOpWithNamesAndInds {
     using            TI                   = std::size_t;

@@ -3,7 +3,7 @@
 #include "Rational.h"
 #include <vector>
 
-namespace sdot {
+namespace parex {
 
 /**
 */
@@ -20,4 +20,4 @@ struct RecursivePolytopConnectivity {
     TI              nvi;
 };
 
-} // namespace sdot
+} // namespace parex

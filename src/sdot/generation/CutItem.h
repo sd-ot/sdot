@@ -4,7 +4,7 @@
 #include <tuple>
 #include <array>
 
-namespace sdot {
+namespace parex {
 
 /**
 */

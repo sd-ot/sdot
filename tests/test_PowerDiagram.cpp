@@ -2,7 +2,7 @@
 #include "../src/sdot/kernels/KernelSlot.h"
 #include "../src/sdot/support/P.h"
 
-using namespace sdot;
+using namespace parex;
 
 using TI = std::uint64_t;
 using TF = double;

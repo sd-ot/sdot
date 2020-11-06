@@ -11,7 +11,7 @@
 
 #include <map>
 
-namespace sdot {
+namespace parex {
 
 /**
 */

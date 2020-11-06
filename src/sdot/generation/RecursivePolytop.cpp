@@ -1,7 +1,7 @@
 #include "../support/generic_ostream_output.h"
 #include "RecursivePolytop.h"
 
-namespace sdot {
+namespace parex {
 
 RecursivePolytop::RecursivePolytop( TI nvi ) : connectivity( nvi ) {
 }
@@ -36,4 +36,4 @@ RecursivePolytop::TI RecursivePolytop::dim() const {
     return points.size() ? points[ 0 ].size() : 0;
 }
 
-} // namespace sdot
+} // namespace parex

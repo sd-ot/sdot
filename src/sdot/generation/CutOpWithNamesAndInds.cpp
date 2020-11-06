@@ -3,7 +3,7 @@
 #include <sstream>
 #include <set>
 
-namespace sdot {
+namespace parex {
 
 std::size_t CutOpWithNamesAndInds::nb_created( std::string shape_name ) const {
     std::size_t res = 0;
@@ -33,4 +33,4 @@ std::string CutOpWithNamesAndInds::created_shapes() const {
     return res;
 }
 
-} // namespace sdot
+} // namespace parex

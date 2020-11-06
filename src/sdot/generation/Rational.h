@@ -4,7 +4,7 @@
 #include <boost/rational.hpp>
 #include "../support/conv.h"
 
-namespace sdot {
+namespace parex {
 
 using Rational = boost::rational<boost::multiprecision::cpp_int>;
 

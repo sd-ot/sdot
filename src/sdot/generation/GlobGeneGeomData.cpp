@@ -4,7 +4,7 @@
 #include <fstream>
 #include <array>
 
-namespace sdot {
+namespace parex {
 
 void GlobGeneGeomData::write_gen_decl( std::ostream &os, const CutOp &cut_op, std::string prefix, std::string suffix ) {
     os << prefix << "void " << cut_op.mk_item_func_name() << "( ";
@@ -145,5 +145,5 @@ void GlobGeneGeomData::write_gen_def_mk_item( std::ostream &os, bool /*gpu*/, co
     os << "    }\n";
 }
 
-} // namespace sdot
+} // namespace parex
 

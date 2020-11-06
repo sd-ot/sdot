@@ -6,7 +6,7 @@
 #include <ostream>
 #include <vector>
 
-namespace sdot {
+namespace parex {
 
 /**
 */

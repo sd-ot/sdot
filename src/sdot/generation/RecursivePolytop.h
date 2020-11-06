@@ -2,7 +2,7 @@
 
 #include "RecursivePolytopConnectivity.h"
 
-namespace sdot {
+namespace parex {
 
 /**
 */
@@ -25,4 +25,4 @@ struct RecursivePolytop {
     std::vector<Pt> points;
 };
 
-} // namespace sdot
+} // namespace parex

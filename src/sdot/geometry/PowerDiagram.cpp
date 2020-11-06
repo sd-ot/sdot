@@ -1,8 +1,8 @@
 #include "PowerDiagram.h"
 
-namespace sdot {
+namespace parex {
 
 PowerDiagram::PowerDiagram() {
 }
 
-} // namespace sdot
+} // namespace parex

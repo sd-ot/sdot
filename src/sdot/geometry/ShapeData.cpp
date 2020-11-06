@@ -1,6 +1,6 @@
 #include "ShapeData.h"
 
-namespace sdot {
+namespace parex {
 
 ShapeData::ShapeData( KernelSlot *ks, const ShapeType *shape_type, unsigned dim ) : shape_type( shape_type ), dim( dim ), ks( ks ), coordinates( ks ), face_ids( ks ), ids( ks ) {
     log2_rese = 0;

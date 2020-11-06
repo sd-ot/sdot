@@ -3,7 +3,7 @@
 #include "CutOp.h"
 #include <set>
 
-namespace sdot {
+namespace parex {
 
 /**
 */
