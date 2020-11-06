@@ -3,7 +3,6 @@
 #include "KernelCode.h"
 
 #include <fstream>
-#include <set>
 
 namespace parex {
 
@@ -20,6 +19,8 @@ KernelCode::KernelCode() {
 
     src_heads[ "FP64" ].push_back( "using FP64 = double;" );
     src_heads[ "FP32" ].push_back( "using FP32 = float;" );
+
+    includes [ "Vec" ].push_back( "<parex/containers/Vec.h>" );
 
     include_directories.push_back( PAREX_DIR "/src/parex/kernels" );
 }
@@ -80,28 +81,21 @@ void KernelCode::make_cmake_lists( const std::string &dir, const std::string &na
 void KernelCode::make_kernel_cpp( const std::string &dir, const std::string &name, const std::vector<std::string> &input_types ) {
     std::ofstream fcpp( dir + "kernel.cpp" );
 
-    // needed includes
-    std::set<std::string> in;
-    for( const std::string &input_type : input_types ) {
-        auto iter = includes.find( input_type );
-        if ( iter != includes.end() )
-            for( const std::string &h : iter->second )
-                if ( in.insert( h ).second )
-                    fcpp << "#include " << h << "\n";
-    }
+    // prerequisites for the types
+    std::set<std::string> include_set, src_head_set, seen_types;
+    std::ostringstream includes, src_heads;
+    for( const std::string &input_type : input_types )
+        get_prereq_req( includes, src_heads, include_set, src_head_set, seen_types, input_type );
 
+    // header(s) and typedefs
+    fcpp << includes.str();
+
+    fcpp << "\n";
     fcpp << "#include <parex/TaskRef.h>\n";
     fcpp << "#include <" << name << ".h>\n";
 
-    // needed src_heads
-    std::set<std::string> sh;
-    for( const std::string &input_type : input_types ) {
-        auto iter = src_heads.find( input_type );
-        if ( iter != src_heads.end() )
-            for( const std::string &h : iter->second )
-                if ( sh.insert( h ).second )
-                    fcpp << h << "\n";
-    }
+    fcpp << "\n";
+    fcpp << src_head_set.str();
 
     //
     fcpp << "\n";
@@ -113,6 +107,37 @@ void KernelCode::make_kernel_cpp( const std::string &dir, const std::string &nam
     fcpp << "    task->output_type = parex::type_name( res );\n";
     fcpp << "    task->output_data = res;\n";
     fcpp << "}\n";
+}
+
+void KernelCode::get_prereq_req( std::ostream &includes, std::ostream &src_heads, std::set<std::string> &include_set, std::set<std::string> &src_head_set, std::set<std::string> &seen_types, const std::string &type ) {
+    if ( seen_types.count( type ) )
+        return;
+    seen_types.insert( type );
+
+    // something like X<Y,...> ?
+    auto s = type.find( '<' );
+    if ( s != type.npos ) {
+        get_prereq_req( includes, src_heads, include_set, src_head_set, seen_types, type );
+
+    }
+
+
+    //
+    for( const std::string &input_type : input_types ) {
+        auto iter = includes.find( input_type );
+        if ( iter != includes.end() )
+            for( const std::string &h : iter->second )
+                if ( in.insert( h ).second )
+                    fcpp << "#include " << h << "\n";
+    }
+
+    for( const std::string &input_type : input_types ) {
+        auto iter = src_heads.find( input_type );
+        if ( iter != src_heads.end() )
+            for( const std::string &h : iter->second )
+                if ( sh.insert( h ).second )
+                    fcpp << h << "\n";
+    }
 }
 
 void KernelCode::build_kernel( const std::string &dir ) {

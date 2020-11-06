@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 namespace parex {
 namespace Arch {
 
@@ -21,5 +19,5 @@ using Native = SSE2;
 using Native = Generic;
 #endif
 
-}
-}
+} // namespace Arch
+} // namespace parex

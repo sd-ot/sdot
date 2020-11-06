@@ -5,6 +5,7 @@
 #include "Kernel.h"
 #include <memory>
 #include <map>
+#include <set>
 
 namespace parex {
 class Task;
@@ -28,6 +29,7 @@ private:
 
     void                     make_cmake_lists( const std::string &dir, const std::string &name, const std::vector<std::string> &flags );
     void                     make_kernel_cpp ( const std::string &dir, const std::string &name, const std::vector<std::string> &input_types );
+    void                     get_prereq_req  ( std::ostream &includes, std::ostream &src_heads, std::set<std::string> &include_set, std::set<std::string> &src_head_set, std::set<std::string> &seen_types, const std::string &type );
     void                     build_kernel    ( const std::string &dir );
     void                     exec            ( const std::string &cmd );
 

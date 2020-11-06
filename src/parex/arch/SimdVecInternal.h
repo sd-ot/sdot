@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../support/bitset.h"
-#include "../support/Arch.h"
+// #include "../support/bitset.h"
 #include "../support/TODO.h"
 #include "../support/S.h"
 #include <ostream>
+#include "Arch.h"
 
 namespace parex {
 namespace SimdVecInternal {
