@@ -12,16 +12,17 @@ KernelCode kernel_code;
 KernelCode::KernelCode() {
     src_heads[ "ostream" ].push_back( "using std::ostream;" );
 
-    src_heads[ "SI32" ].push_back( "using SI32 = std::int32_t;" );
-    includes [ "SI32" ].push_back( "<cstdint>" );
+    src_heads[ "SI32"    ].push_back( "using SI32 = std::int32_t;" );
+    includes [ "SI32"    ].push_back( "<cstdint>" );
 
-    src_heads[ "PI64" ].push_back( "using PI64 = std::uint64_t;" );
-    includes [ "PI64" ].push_back( "<cstdint>" );
+    src_heads[ "PI64"    ].push_back( "using PI64 = std::uint64_t;" );
+    includes [ "PI64"    ].push_back( "<cstdint>" );
 
-    src_heads[ "FP64" ].push_back( "using FP64 = double;" );
-    src_heads[ "FP32" ].push_back( "using FP32 = float;" );
+    src_heads[ "FP64"    ].push_back( "using FP64 = double;" );
+    src_heads[ "FP32"    ].push_back( "using FP32 = float;" );
 
-    includes [ "Vec" ].push_back( "<parex/containers/Vec.h>" );
+    includes [ "Tensor"  ].push_back( "<parex/containers/Tensor.h>" );
+    includes [ "Vec"     ].push_back( "<parex/containers/Vec.h>" );
 
     include_directories.push_back( PAREX_DIR "/src/parex/kernels" );
 }

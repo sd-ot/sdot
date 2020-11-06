@@ -1,3 +1,4 @@
+#include "../src/parex/containers/Tensor.h"
 #include "../src/parex/KernelCode.h"
 #include "../src/parex/Scheduler.h"
 #include "../src/parex/Kernel.h"
@@ -36,7 +37,8 @@ int main() {
     //    sch << Node{ { "display" }, std::cout, m_m };
     //    Value v( 17 );
     //    P( v );
-    // P( random_vec( 10, 2.0, 4.0 ) );
+//    P( random_vec( 10, 2.0, 4.0 ) );
+    P( Value( Tensor<int>( { 4, 2 }, { 0, 1, 2, 3, 4, 5, 6, 7 } ) ) );
     // Tensor
 
 }

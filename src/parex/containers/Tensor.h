@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PAREX_TENSOR_H
+#define PAREX_TENSOR_H
 
 #include "Vec.h"
 
@@ -10,7 +11,8 @@ namespace parex {
 template<class T,class A=Arch::Native,class TI=std::size_t>
 class Tensor {
 public:
-    template<class Data> Tensor         ( const Vec<TI> &size, Data &&data ) : size( size ), data( std::forward<Data>( data ) ) {}
+    /**/                 Tensor         ( const Vec<TI> &size, Vec<T> &&data ) : rese( size ), size( size ), data( std::forward<Vec<T>>( data ) ) {}
+    template<class Data> Tensor         ( const Vec<TI> &size, Data &&data ) : rese( size ), size( size ), data( std::forward<Data>( data ) ) {}
     /**/                 Tensor         () {}
 
     void                 write_to_stream( std::ostream &os ) const;
@@ -21,3 +23,7 @@ public:
 };
 
 } // namespace parex
+
+#include "Tensor.tcc"
+
+#endif // PAREX_TENSOR_H
