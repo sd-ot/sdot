@@ -1,5 +1,6 @@
 #include "support/url_encode.h"
 #include "support/ERROR.h"
+#include "support/P.h"
 #include "KernelCode.h"
 
 #include <fstream>
@@ -95,7 +96,7 @@ void KernelCode::make_kernel_cpp( const std::string &dir, const std::string &nam
     fcpp << "#include <" << name << ".h>\n";
 
     fcpp << "\n";
-    fcpp << src_head_set.str();
+    fcpp << src_heads.str();
 
     //
     fcpp << "\n";
@@ -109,35 +110,42 @@ void KernelCode::make_kernel_cpp( const std::string &dir, const std::string &nam
     fcpp << "}\n";
 }
 
-void KernelCode::get_prereq_req( std::ostream &includes, std::ostream &src_heads, std::set<std::string> &include_set, std::set<std::string> &src_head_set, std::set<std::string> &seen_types, const std::string &type ) {
+void KernelCode::get_prereq_req( std::ostream &includes_os, std::ostream &src_heads_os, std::set<std::string> &includes_set, std::set<std::string> &src_heads_set, std::set<std::string> &seen_types, const std::string &type ) {
+    P( type );
+
     if ( seen_types.count( type ) )
         return;
     seen_types.insert( type );
 
     // something like X<Y,...> ?
-    auto s = type.find( '<' );
+    std::size_t s = type.find( '<' );
     if ( s != type.npos ) {
-        get_prereq_req( includes, src_heads, include_set, src_head_set, seen_types, type );
+        get_prereq_req( includes_os, src_heads_os, includes_set, src_heads_set, seen_types, type.substr( 0, s ) );
 
+        for( std::size_t b = s + 1, c = b, n = 0; c < type.size(); ++c ) {
+            switch ( type[ c ] ) {
+            case '>': if ( n-- == 0 ) { get_prereq_req( includes_os, src_heads_os, includes_set, src_heads_set, seen_types, type.substr( b, c - b ) ); b = c + 1; } break;
+            case ',': if ( n == 0 ) { get_prereq_req( includes_os, src_heads_os, includes_set, src_heads_set, seen_types, type.substr( b, c - b ) ); b = c + 1; } break;
+            case '<': ++n; break;
+            default: break;
+            }
+        }
     }
 
 
-    //
-    for( const std::string &input_type : input_types ) {
-        auto iter = includes.find( input_type );
-        if ( iter != includes.end() )
-            for( const std::string &h : iter->second )
-                if ( in.insert( h ).second )
-                    fcpp << "#include " << h << "\n";
-    }
+    // include
+    auto iter_inc = includes.find( type );
+    if ( iter_inc != includes.end() )
+        for( const std::string &h : iter_inc->second )
+            if ( includes_set.insert( h ).second )
+                includes_os << "#include " << h << "\n";
 
-    for( const std::string &input_type : input_types ) {
-        auto iter = src_heads.find( input_type );
-        if ( iter != src_heads.end() )
-            for( const std::string &h : iter->second )
-                if ( sh.insert( h ).second )
-                    fcpp << h << "\n";
-    }
+    // src_head
+    auto iter_hea = src_heads.find( type );
+    if ( iter_hea != src_heads.end() )
+        for( const std::string &h : iter_hea->second )
+            if ( src_heads_set.insert( h ).second )
+                src_heads_os << h << "\n";
 }
 
 void KernelCode::build_kernel( const std::string &dir ) {

@@ -33,5 +33,5 @@ int main() {
     //    sch << Node{ { "display" }, std::cout, m_m };
     //    Value v( 17 );
     //    P( v );
-    P( random_vec( 10 ) );
+    P( random_vec( 10, 2.0, 4.0 ) );
 }
