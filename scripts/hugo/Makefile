@@ -5,6 +5,6 @@ NSMAKE += -Isrc
 NSMAKE += -g3
 
 all:
-	# ${NSMAKE} tests/test_parex.cpp
-	${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
+	${NSMAKE} tests/test_parex.cpp
+	# ${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
 

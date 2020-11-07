@@ -6,11 +6,28 @@
 #include <algorithm>
 #include <fstream>
 
+// cpu_features
+#include <cpu_features/cpu_features_macros.h>
+
+#if defined(CPU_FEATURES_ARCH_X86)
+    #include <cpu_features/cpuinfo_x86.h>
+#elif defined(CPU_FEATURES_ARCH_ARM)
+    #include <cpu_features/cpuinfo_arm.h>
+#elif defined(CPU_FEATURES_ARCH_AARCH64)
+    #include <cpu_features/cpuinfo_aarch64.h>
+#elif defined(CPU_FEATURES_ARCH_MIPS)
+    #include <cpu_features/cpuinfo_mips.h>
+#elif defined(CPU_FEATURES_ARCH_PPC)
+    #include <cpu_features/cpuinfo_ppc.h>
+#endif
+
 namespace parex {
 
 KernelCode kernel_code;
 
 KernelCode::KernelCode() {
+    init_default_flags();
+
     src_heads[ "ostream" ].push_back( "using std::ostream;" );
 
     src_heads[ "SI32"    ].push_back( "using SI32 = std::int32_t;" );
@@ -41,9 +58,23 @@ KernelCode::Func KernelCode::func( const Kernel &kernel, const std::vector<std::
     return iter->second.func;
 }
 
+void KernelCode::init_default_flags() {
+    #if defined(CPU_FEATURES_ARCH_X86)
+    cpu_features::X86Info ci = cpu_features::GetX86Info();
+    if ( ci.features.avx512f )
+        cpu_config = "avx512";
+    else if ( ci.features.avx2 )
+        cpu_config = "avx2";
+    else if ( ci.features.sse2 )
+        cpu_config = "sse2";
+    #else
+    TODO;
+    #endif
+}
+
 KernelCode::Code KernelCode::make_code( const Kernel &kernel, const std::vector<std::string> &input_types ) {
     // directory name
-    std::string dir = "objects/" + kernel.name + "/";
+    std::string dir = "objects/" + kernel.name + "__" + cpu_config + "/";
     for( std::string input_type : input_types ) {
         std::string url = urlencode( input_type );
         dir += "_" + std::to_string( url.size() ) + "_" + url;
@@ -77,10 +108,16 @@ void KernelCode::make_cmake_lists( const std::string &dir, const std::string &na
     std::ofstream fcmk( dir + "CMakeLists.txt" );
     fcmk << "cmake_minimum_required(VERSION 3.0)\n";
     fcmk << "project( " << name << " )\n";
+
     fcmk << "\n";
     fcmk << "add_library(" << name << " SHARED\n";
     fcmk << "    kernel.cpp\n";
     fcmk << ")\n";
+
+    fcmk << "\n";
+    fcmk << "target_compile_options(" << name << " PRIVATE -march=native -O3 -g3)\n";
+
+    fcmk << "\n";
     fcmk << "target_include_directories(" << name << " PRIVATE " << PAREX_DIR "/src" << ")\n";
     for( std::string include_directory : include_directories )
         fcmk << "target_include_directories(" << name << " PRIVATE " << include_directory << ")\n";

@@ -9,18 +9,18 @@ using namespace parex;
 using TF = double;
 using TI = int;
 
-template<class TF=double>
-Value random_vec( std::size_t size, TF min = 0.0, TF max = 1.0 ) {
-    return { new Kernel{ "random_vec" }, { size, min, max } };
-}
+//template<class TF=double>
+//Value random_vec( std::size_t size, TF min = 0.0, TF max = 1.0 ) {
+//    return { new Kernel{ "random_vec" }, { size, min, max } };
+//}
 
-Value min_max( const Value &value ) {
-    return { new Kernel{ "min_max" }, { value } };
-}
+//Value min_max( const Value &value ) {
+//    return { new Kernel{ "min_max" }, { value } };
+//}
 
-void display( const Value &value, std::ostream &os = std::cout ) {
-    scheduler << Value{ new Kernel{ "write_to_stream" }, { Task::owning( &os ), value } };
-}
+//void display( const Value &value, std::ostream &os = std::cout ) {
+//    scheduler << Value{ new Kernel{ "write_to_stream" }, { Task::owning( &os ), value } };
+//}
 
 int main() {
     kernel_code.add_include_dir( SDOT_DIR "/src/sdot/kernels" );
@@ -37,7 +37,7 @@ int main() {
     //    sch << Node{ { "display" }, std::cout, m_m };
     //    Value v( 17 );
     //    P( v );
-//    P( random_vec( 10, 2.0, 4.0 ) );
+    //    P( random_vec( 10, 2.0, 4.0 ) );
     P( Value( Tensor<int>( { 4, 2 }, { 0, 1, 2, 3, 4, 5, 6, 7 } ) ) );
     // Tensor
 

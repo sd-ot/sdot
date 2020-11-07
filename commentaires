@@ -39,9 +39,12 @@ On a besoin de Value pour construire les tasks
 Prop: Task se base sur TaskRef
 
 
+========================================================================================================================================
+cta 15ème lecourbe,
+
 
 ========================================================================================================================================
 Ça serait bien qu'on commence par les intersections, ça sera utile pour les tomographies
 
-========================================================================================================================================
-cta 15ème lecourbe,
+
+Prop: on fait juste des sorties d'un côté et des entrées de l'autre, mais on autorise la réutilisation des entrées.

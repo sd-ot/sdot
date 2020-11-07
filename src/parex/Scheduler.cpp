@@ -57,8 +57,8 @@ void Scheduler::exec_task( Task *task ) {
         input_type.resize( ni );
         input_data.resize( ni );
         for( std::size_t i = 0; i < ni; ++i ) {
-            input_type[ i ] = task->children[ i ].task->output_type;
-            input_data[ i ] = task->children[ i ].task->output_data;
+            input_type[ i ] = task->children[ i ].task->outputs[ task->children[ i ].nout ].type;
+            input_data[ i ] = task->children[ i ].task->outputs[ task->children[ i ].nout ].data;
         }
     }
 

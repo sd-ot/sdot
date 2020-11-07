@@ -1,20 +1,9 @@
 #include "ShapeData.h"
 
-namespace parex {
+namespace sdot {
 
-//ShapeData::ShapeData( KernelSlot *ks, const ShapeType *shape_type, unsigned dim ) : shape_type( shape_type ), dim( dim ), ks( ks ), coordinates( ks ), face_ids( ks ), ids( ks ) {
-//    log2_rese = 0;
-//    rese      = 0;
-//    size      = 0;
-//}
-
-//ShapeData::~ShapeData() {
-//    if ( rese ) {
-//        ks->free_TF( coordinates );
-//        ks->free_TI( face_ids );
-//        ks->free_TI( ids );
-//    }
-//}
+ShapeData::ShapeData( const ShapeType *shape_type ) : shape_type( shape_type ) {
+}
 
 //void ShapeData::reserve( BI new_rese ) {
 //    if ( rese >= new_rese )

@@ -13,6 +13,18 @@ Task::~Task() {
         child.task->parents.erase( std::remove_if( child.task->parents.begin(),  child.task->parents.end(), ei ), child.task->parents.end() );
 }
 
+Task *Task::call( Kernel *kernel, std::vector<TaskRef> &&children ) {
+    Task *res = new Task;
+
+    res->children = std::move( children );
+    res->kernel = kernel;
+
+    for( TaskRef &ch : res->children )
+        ch.task->parents.push_back( res );
+
+    return res;
+}
+
 void Task::get_front_rec( std::vector<Task *> &front ) {
     if ( computed )
         return;

@@ -6,16 +6,16 @@ namespace parex {
 
 class Scheduler {
 public:
-    /**/               Scheduler ();
+    /**/                 Scheduler ();
 
-    Scheduler&         operator<<( const TaskRef &task_ref );
-    Scheduler&         operator<<( const Value &value );
-    Scheduler&         operator<<( Task *task );
+    Scheduler&           operator<<( const TaskRef &task_ref );
+    Scheduler&           operator<<( const Value &value );
+    Scheduler&           operator<<( Task *task );
 
-    void               run       ();
+    void                 run       ();
 
 private:
-    void               exec_task ( Task *task );
+    void                 exec_task ( Task *task );
 
     std::vector<TaskRef> targets;
 };

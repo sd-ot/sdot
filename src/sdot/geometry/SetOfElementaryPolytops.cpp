@@ -5,27 +5,19 @@
 
 namespace sdot {
 
-SetOfElementaryPolytops::SetOfElementaryPolytops( unsigned dim ) : dim( dim ) {
+SetOfElementaryPolytops::SetOfElementaryPolytops( unsigned dim, std::string scalar_type, std::string index_type ) : scalar_type( scalar_type ), index_type( index_type ), dim( dim ) {
+    // Prop: on démarre
 }
 
 void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::string &sp ) const {
     os << sp << "SetOfElementaryPolytops([";
-    //    for( const auto &p : shape_map ) {
-    //        const ShapeData &sd = p.second;
-    //        os << "\n" << sp << "  " << sd.shape_type->name();
-    //        for( std::size_t i = 0; i < sd.size; ++i ) {
-    //            os << "\n" << sp << "   ";
-    //            // coordinates
-    //            for( std::size_t d = 0; d < sd.shape_type->nb_nodes() * dim; ++d )
-    //                ks->display_TF( os << " ", sd.coordinates, sd.rese * d + i, 1 );
-    //            // faces
-    //            os << ",";
-    //            for( std::size_t d = 0; d < sd.shape_type->nb_faces(); ++d )
-    //                ks->display_TI( os << " ", sd.face_ids, sd.rese * d + i, 1 );
-    //            // ids
-    //            ks->display_TI( os << ", ", sd.ids, i, 1 );
-    //        }
-    //    }
+    for( const auto &p : shape_map ) {
+        const ShapeData &sd = p.second;
+        os << "\n" << sp << "  " << sd.shape_type->name();
+        os << "\n" << sp << "   " << sd.coordinates;
+        os << "\n" << sp << "   " << sd.face_ids;
+        os << "\n" << sp << "   " << sd.ids;
+    }
     os << "\n" << sp << "])";
 }
 
@@ -46,22 +38,12 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::stri
 //}
 
 void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
-    P( count );
-    P( coordinates );
-    P( face_ids );
-    P( beg_ids );
-
     //    ASSERT( coordinates.size() == dim * shape_type->nb_nodes(), "wrong coordinates size" );
-    //    ShapeData *sd = shape_data( shape_type );
-
-    //    BI os = sd->size;
-    //    sd->resize( os + count );
-
-    //    for( std::size_t i = 0; i < sd->shape_type->nb_nodes() * dim; ++i )
-    //        ks->assign_repeated_TF( sd->coordinates, os + i * sd->rese, coordinates.data(), i, count );
-    //    for( std::size_t i = 0; i < sd->shape_type->nb_faces(); ++i )
-    //        ks->assign_repeated_TI( sd->face_ids, os + i * sd->rese, face_ids.data(), i, count );
-    //    ks->assign_iota_TI( sd->ids, os, beg_ids, count );
+    ShapeData *sd = shape_data( shape_type );
+    { sd->coordinates, sd->face_ids, sd->ids } = Value::call( "append_repeated_elements", {
+        sd->coordinates, sd->face_ids, sd->ids,
+        count, coordinates, face_ids, beg_ids
+    }, { 0, 1, 2 } );
 }
 
 //void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &cut_ids ) {
@@ -144,12 +126,11 @@ void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &
 //    }
 //}
 
-//ShapeData *SetOfElementaryPolytops::shape_data( const ShapeType *shape_type ) {
-//    auto iter = shape_map.find( shape_type );
-//    if ( iter == shape_map.end() )
-//        iter = shape_map.insert( iter, { shape_type, ShapeData{ ks, shape_type, dim } } );
-//    return &iter->second;
-//}
-
+ShapeData *SetOfElementaryPolytops::shape_data( const ShapeType *shape_type ) {
+    auto iter = shape_map.find( shape_type );
+    if ( iter == shape_map.end() )
+        iter = shape_map.insert( iter, { shape_type, ShapeData{ shape_type } } );
+    return &iter->second;
+}
 
 }
