@@ -144,13 +144,20 @@ void KernelCode::make_kernel_cpp( const std::string &dir, const std::string &nam
 
     //
     fcpp << "\n";
-    fcpp << "extern \"C\" void kernel_wrapper( parex::Task *task, void **data ) {\n";
-    fcpp << "    auto res = " << name << "(\n";
+    fcpp << "namespace {\n";
+    fcpp << "    struct KernelWrapper {\n";
+    fcpp << "        auto operator()( parex::Task */*task*/, void **data ) const {\n";
+    fcpp << "            return " << name << "(\n";
     for( std::size_t i = 0; i < input_types.size(); ++i )
-        fcpp << "        *reinterpret_cast<" << input_types[ i ] << "*>( data[ " << i << " ] )" << ( i + 1 < input_types.size() ? "," : "" ) << "\n";
-    fcpp << "    );\n";
-    fcpp << "    task->output_type = parex::type_name( res );\n";
-    fcpp << "    task->output_data = res;\n";
+        fcpp << "                *reinterpret_cast<" << input_types[ i ] << "*>( data[ " << i << " ] )" << ( i + 1 < input_types.size() ? "," : "" ) << "\n";
+    fcpp << "            );\n";
+    fcpp << "        }\n";
+    fcpp << "    };\n";
+    fcpp << "}\n";
+
+    fcpp << "\n";
+    fcpp << "extern \"C\" void kernel_wrapper( parex::Task *task, void **data ) {\n";
+    fcpp << "    task->run( KernelWrapper(), data );\n";
     fcpp << "}\n";
 }
 

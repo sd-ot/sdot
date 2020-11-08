@@ -19,7 +19,7 @@ void test_triangle() {
         Tensor<double>( { nb_triangles, 2 }, { 0, 1, 0,  0, 0, 1 } ),
         Vec<double>( { 0, 1, 2 } )
     );
-//    P( sp );
+    //    P( sp );
 
     //    // cut
     //    std::vector<TF> cxs, cys, css;

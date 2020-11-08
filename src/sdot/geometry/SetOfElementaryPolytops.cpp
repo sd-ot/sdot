@@ -40,7 +40,7 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::stri
 void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
     //    ASSERT( coordinates.size() == dim * shape_type->nb_nodes(), "wrong coordinates size" );
     ShapeData *sd = shape_data( shape_type );
-    { sd->coordinates, sd->face_ids, sd->ids } = Value::call( "append_repeated_elements", {
+    std::tie{ sd->coordinates, sd->face_ids, sd->ids } = Task::call( "append_repeated_elements", {
         sd->coordinates, sd->face_ids, sd->ids,
         count, coordinates, face_ids, beg_ids
     }, { 0, 1, 2 } );

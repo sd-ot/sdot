@@ -17,14 +17,14 @@ public:
     /**/              Value          ( Task *task );
     template<class T> Value          ( T &&value );
 
-    /**/              Value          ( const Value &that ) = default;
+    /**/              Value          ( const Value &that ) = delete;
     /**/              Value          ( Value &&that ) = default;
     /**/              Value          () = default;
 
-    Value&            operator=      ( const Value &that ) = default;
+    Value&            operator=      ( const Value &that ) = delete;
     Value&            operator=      ( Value &&that ) = default;
 
-    static TaskRef    call           ( const std::string &kernel_name, const std::initializer_list<Value> &args, const std::vector<std::size_t> &io_args = {}, const std::vector<std::string> &parameters = {} );
+    static Value      call           ( Kernel *kernel, const std::initializer_list<Value> &args );
 
     void              write_to_stream( std::ostream &os ) const;
 

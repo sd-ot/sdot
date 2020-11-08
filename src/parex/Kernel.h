@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Value.h"
+#include "TaskRef.h"
 
 namespace parex {
 
@@ -8,7 +8,7 @@ namespace parex {
 */
 class Kernel {
 public:
-    struct                   Parameter  { std::string name; Value value; };
+    struct                   Parameter  { std::string name; TaskRef value; };
 
     bool                     operator<  ( const Kernel &that ) const;
 
