@@ -5,6 +5,7 @@
 #include <ostream>
 #include <vector>
 #include <string>
+#include <tuple>
 
 
 namespace parex {

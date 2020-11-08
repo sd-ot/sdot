@@ -3,7 +3,7 @@
 #include "StaticGenericListOfNumbers.h"
 #include <tuple>
 
-namespace sdot {
+namespace parex {
 
 /**
 */
@@ -53,7 +53,7 @@ struct StaticRange : StaticGenericListOfNumbers<StaticRange<_a,_b,_c>> {
 
 private:
     template<class TF> inline
-    static auto _make_tuple( const TF &f, parex::N<size> ) {
+    static auto _make_tuple( const TF &/*f*/, parex::N<size> ) {
         return std::tuple<>();
     }
     template<class TF,int cpt> inline
@@ -62,7 +62,7 @@ private:
     }
 
     template<class TF> inline
-    static void _for_each_cont( const TF &f, parex::N<end>, bool &cont ) {
+    static void _for_each_cont( const TF &/*f*/, parex::N<end>, bool &cont ) {
     }
     template<class TF,int cur> inline
     static void _for_each_cont( const TF &f, parex::N<cur> n_cur, bool &cont ) {
@@ -91,7 +91,7 @@ void for_each_in_range( const TF &f, parex::N<beg> nbeg, parex::N<end> nend, par
 }
 
 template<class TF,int end,int inc> inline
-void for_each_in_range( const TF &f, parex::N<end> nbeg, parex::N<end> nend, parex::N<inc> ninc ) {
+void for_each_in_range( const TF &f, parex::N<end> /*nbeg*/, parex::N<end> /*nend*/, parex::N<inc> /*ninc*/ ) {
 }
 
 //
@@ -102,7 +102,7 @@ void for_each_with_cpt_in_range( const TF &f, parex::N<beg> nbeg, parex::N<end> 
 }
 
 template<class TF,int end,int inc,int cpt> inline
-void for_each_with_cpt_in_range( const TF &f, parex::N<end> nbeg, parex::N<end> nend, parex::N<inc> ninc, parex::N<cpt> ncpt ) {
+void for_each_with_cpt_in_range( const TF &f, parex::N<end> /*nbeg*/, parex::N<end> /*nend*/, parex::N<inc> /*ninc*/, parex::N<cpt> /*ncpt*/ ) {
 }
 
 }

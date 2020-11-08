@@ -1,5 +1,6 @@
 #pragma once
 
+#include "support/StaticRange.h"
 #include "type_name.h"
 #include "Output.h"
 #include <ostream>
@@ -19,7 +20,8 @@ public:
 
 
     template<class T> static Task* owning               ( T *ptr ); ///< Wrap a known source value. Takes ownership of ptr
-    static Task*                   call                 ( Kernel *kernel, std::vector<TaskRef> &&children = {} );
+    static TaskRef                 call_r               ( Kernel *kernel, std::vector<TaskRef> &&inputs = {} ); ///< can be used if only 1 output. Return output of the task
+    static Task*                   call                 ( Kernel *kernel, const std::vector<TaskRef *> &outputs = {}, std::vector<TaskRef> &&inputs = {} );
 
     bool                           children_are_computed() const;
     void                           get_front_rec        ( std::vector<Task *> &front );
@@ -28,6 +30,9 @@ public:
 
     template<class F> void         run_void_or_not      ( std::integral_constant<bool,0>, const F &func, void **data );
     template<class F> void         run_void_or_not      ( std::integral_constant<bool,1>, const F &func, void **data );
+
+    template<class... A> void      make_outputs         ( std::tuple<A*...> &&t );
+    template<class A> void         make_outputs         ( A *t );
 
     bool                           in_front;
     bool                           computed;
@@ -50,21 +55,36 @@ Task *Task::owning( T *ptr ) {
     return res;
 }
 
-template<class F>
-void Task::run( const F &func, void **data ) {
-    constexpr bool void_ret = std::is_same<decltype( func( this, data ) ),void>::value;
-    run_void_or_not( std::integral_constant<bool,void_ret>(), func, data );
+template<class... A>
+void Task::make_outputs( std::tuple<A*...> &&ret ) {
+    constexpr std::size_t s = std::tuple_size<std::tuple<A*...>>::value;
+    outputs.resize( s );
+
+    StaticRange<s>::for_each( [&]( auto n ) {
+        outputs[ n.value ] = { type_name( std::get<n.value>( ret ) ), std::get<n.value>( ret ) };
+    } );
 }
+
+template<class A>
+void Task::make_outputs( A *ret ) {
+    outputs.push_back( { type_name( ret ), ret } );
+}
+
 
 template<class F>
 void Task::run_void_or_not( std::integral_constant<bool,0>, const F &func, void **data ) {
-    auto ret = func( this, data );
-    outputs.push_back( { type_name( ret ), ret } );
+    make_outputs( func( this, data ) );
 }
 
 template<class F>
 void Task::run_void_or_not( std::integral_constant<bool,1>, const F &func, void **data ) {
     func( this, data );
+}
+
+template<class F>
+void Task::run( const F &func, void **data ) {
+    constexpr bool void_ret = std::is_same<decltype( func( this, data ) ),void>::value;
+    run_void_or_not( std::integral_constant<bool,void_ret>(), func, data );
 }
 
 } // namespace parex

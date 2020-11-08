@@ -2,6 +2,7 @@
 #include <parex/support/ASSERT.h>
 #include <parex/support/TODO.h>
 #include <parex/support/P.h>
+#include <parex/Kernel.h>
 
 namespace sdot {
 
@@ -40,10 +41,12 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::stri
 void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
     //    ASSERT( coordinates.size() == dim * shape_type->nb_nodes(), "wrong coordinates size" );
     ShapeData *sd = shape_data( shape_type );
-    std::tie{ sd->coordinates, sd->face_ids, sd->ids } = Task::call( "append_repeated_elements", {
-        sd->coordinates, sd->face_ids, sd->ids,
-        count, coordinates, face_ids, beg_ids
-    }, { 0, 1, 2 } );
+    parex::Task::call( new parex::Kernel{ "append_repeated_elements" }, {
+        &sd->coordinates.ref, &sd->face_ids.ref, &sd->ids.ref
+    }, {
+        sd->coordinates.ref, sd->face_ids.ref, sd->ids.ref,
+        count.ref, coordinates.ref, face_ids.ref, beg_ids.ref
+    } );
 }
 
 //void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &cut_ids ) {

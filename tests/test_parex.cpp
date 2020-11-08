@@ -9,10 +9,13 @@ using namespace parex;
 using TF = double;
 using TI = int;
 
-//template<class TF=double>
-//Value random_vec( std::size_t size, TF min = 0.0, TF max = 1.0 ) {
-//    return { new Kernel{ "random_vec" }, { size, min, max } };
-//}
+Value random_vec( const Value &size, const Value &min = 0.0, const Value &max = 1.0 ) {
+    return Task::call_r( new Kernel{ "random_vec" }, { size.ref, min.ref, max.ref } );
+}
+
+void min_max( Value &min, Value &max, const Value &container ) {
+    Task::call( new Kernel{ "min_max" }, { &min.ref, &max.ref }, { container.ref } );
+}
 
 //Value min_max( const Value &value ) {
 //    return { new Kernel{ "min_max" }, { value } };
@@ -37,8 +40,11 @@ int main() {
     //    sch << Node{ { "display" }, std::cout, m_m };
     //    Value v( 17 );
     //    P( v );
-    //    P( random_vec( 10, 2.0, 4.0 ) );
-    P( Value( Tensor<int>( { 4, 2 }, { 0, 1, 2, 3, 4, 5, 6, 7 } ) ) );
+    //    P( min_max( Tensor<int>( { 4, 2 }, { 0, 1, 2, 3, 4, 5, 6, 7 } ) ) );
+    Value min, max;
+    min_max( min, max, random_vec( 10 ) );
+    P( min, max );
+
     // Tensor
 
 }

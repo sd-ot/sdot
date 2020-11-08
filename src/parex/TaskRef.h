@@ -12,9 +12,9 @@ namespace parex {
 */
 class TaskRef {
 public:
+    /**/        TaskRef   ( Task *t = nullptr, std::size_t nout = 0 ) : task( t ), nout( nout ) { inc_ref( t ); }
     /**/        TaskRef   ( const TaskRef &that ) : task( that.task ) { inc_ref( task ); }
     /**/        TaskRef   ( TaskRef &&that ) : task( std::exchange( that.task, nullptr ) ) {}
-    /**/        TaskRef   ( Task *t = nullptr ) : task( t ) { inc_ref( t ); }
 
     /**/       ~TaskRef   () { dec_ref( task ); }
 

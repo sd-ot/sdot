@@ -13,14 +13,29 @@ Task::~Task() {
         child.task->parents.erase( std::remove_if( child.task->parents.begin(),  child.task->parents.end(), ei ), child.task->parents.end() );
 }
 
-Task *Task::call( Kernel *kernel, std::vector<TaskRef> &&children ) {
+TaskRef Task::call_r( Kernel *kernel, std::vector<TaskRef> &&inputs ) {
     Task *res = new Task;
 
-    res->children = std::move( children );
+    res->children = std::move( inputs );
     res->kernel = kernel;
 
     for( TaskRef &ch : res->children )
         ch.task->parents.push_back( res );
+
+    return res;
+}
+
+Task *Task::call( Kernel *kernel, const std::vector<TaskRef *> &outputs, std::vector<TaskRef> &&inputs ) {
+    Task *res = new Task;
+
+    res->children = std::move( inputs );
+    res->kernel = kernel;
+
+    for( TaskRef &ch : res->children )
+        ch.task->parents.push_back( res );
+
+    for( std::size_t n = 0; n < outputs.size(); ++n )
+        *outputs[ n ] = { res, n };
 
     return res;
 }

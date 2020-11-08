@@ -16,3 +16,4 @@ Vec<T> *random_vec( std::size_t size, T min, T max ) {
 
     return res;
 }
+

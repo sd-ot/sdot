@@ -24,8 +24,6 @@ public:
     Value&            operator=      ( const Value &that ) = delete;
     Value&            operator=      ( Value &&that ) = default;
 
-    static Value      call           ( Kernel *kernel, const std::initializer_list<Value> &args );
-
     void              write_to_stream( std::ostream &os ) const;
 
     TaskRef           ref;
