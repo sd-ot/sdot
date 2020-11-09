@@ -106,7 +106,7 @@ void KernelCode::make_code( const std::string &shash, const std::string &kstr, c
 void KernelCode::make_lib( TmpDir &tmp_dir, const std::string &shash, const Kernel &kernel, const std::vector<std::string> &input_types ) {
     make_cpp( tmp_dir, kernel, input_types );
     make_cmk( tmp_dir, shash );
-    build( tmp_dir.p );
+    build( tmp_dir.p, " --target install" );
 }
 
 void KernelCode::make_cmk( TmpDir &tmp_dir, const std::string &shash ) {
@@ -144,8 +144,7 @@ void KernelCode::make_cpp( TmpDir &tmp_dir, const Kernel &kernel, const std::vec
         ASSERT( kernel.name.back() == ')', "" );
         param = kernel.name.substr( pp + 1, kernel.name.size() - pp - 2 );
         bname = kernel.name.substr( 0, pp );
-        // gen_code( dir, bname, param );
-        TODO;
+        gen_code( tmp_dir.p / "generated.h", bname, param );
     }
 
     // prerequisites for the types
@@ -188,6 +187,50 @@ void KernelCode::make_cpp( TmpDir &tmp_dir, const Kernel &kernel, const std::vec
     fcpp << "}\n";
 }
 
+void KernelCode::make_gen_cmk( TmpDir &tmp_dir ) {
+    std::ofstream fcmk( tmp_dir.p / "CMakeLists.txt" );
+
+    fcmk << "cmake_minimum_required(VERSION 3.0)\n";
+    fcmk << "project(generator)\n";
+
+    fcmk << "\n";
+    fcmk << "add_executable(generator\n";
+    fcmk << "    generator.cpp\n";
+    fcmk << ")\n";
+
+    fcmk << "\n";
+    fcmk << "target_compile_options(generator PRIVATE -march=native -O3 -g3)\n";
+
+    fcmk << "\n";
+    fcmk << "target_include_directories(generator PRIVATE " << PAREX_DIR "/src" << ")\n";
+    for( std::string include_directory : include_directories )
+        fcmk << "target_include_directories(generator PRIVATE " << include_directory << ")\n";
+}
+
+void KernelCode::make_gen_cpp( TmpDir &tmp_dir, const path &output_path, const std::string &bname, const std::string &param ) {
+    std::ofstream fcpp( tmp_dir.p / "generator.cpp" );
+
+    // header(s) and typedefs
+    fcpp << "#include <" << bname << ".h>\n";
+    fcpp << "#include <fstream>\n";
+
+    fcpp << "\n";
+    fcpp << "int main( int, char **argv ) {\n";
+    fcpp << "    std::ofstream fout( \"" << output_path.string() << "\" );\n";
+    fcpp << "    " << bname << "( fout, \"" << bname << "\", \"" << cstr_encode( param ) << "\" );\n";
+    fcpp << "}\n";
+}
+
+void KernelCode::gen_code( const path &output_path, const std::string &bname, const std::string &param ) {
+    TmpDir tmp_dir;
+    make_gen_cmk( tmp_dir );
+    make_gen_cpp( tmp_dir, output_path, bname, param );
+
+    build( tmp_dir.p, {} );
+
+    exec( tmp_dir.p / "build" / "generator" );
+}
+
 void KernelCode::init_default_flags() {
     #if defined(CPU_FEATURES_ARCH_X86)
     cpu_features::X86Info ci = cpu_features::GetX86Info();
@@ -201,50 +244,6 @@ void KernelCode::init_default_flags() {
     TODO;
     #endif
 }
-
-//bool KernelCode::gen_code( const std::string &dir, const std::string &bname, const std::string &param ) {
-//    std::string gdir = dir + "gen/";
-//    exec( "mkdir -p " + gdir + "build" );
-
-//    // CMakeLists.txt
-//    std::ofstream fcmk( gdir + "CMakeLists.txt" );
-//    fcmk << "cmake_minimum_required(VERSION 3.0)\n";
-//    fcmk << "project(" << bname << "_generator)\n";
-
-//    fcmk << "\n";
-//    fcmk << "add_executable(generator\n";
-//    fcmk << "    generator.cpp\n";
-//    fcmk << ")\n";
-
-//    fcmk << "\n";
-//    fcmk << "target_compile_options(generator PRIVATE -march=native -O3 -g3)\n";
-
-//    fcmk << "\n";
-//    fcmk << "target_include_directories(generator PRIVATE " << PAREX_DIR "/src" << ")\n";
-//    for( std::string include_directory : include_directories )
-//        fcmk << "target_include_directories(generator PRIVATE " << include_directory << ")\n";
-
-//    fcmk.close();
-
-//    // generator.cpp
-//    std::ofstream fcpp( gdir + "generator.cpp" );
-//    fcpp << "#include <" << bname << ".h>\n";
-//    fcpp << "#include <fstream>\n";
-
-//    fcpp << "\n";
-//    fcpp << "int main( int, char **argv ) {\n";
-//    fcpp << "    std::ofstream fout( \"" << dir << bname << ".h\" );\n";
-//    fcpp << "    " << bname << "( fout, \"" << bname << "\", \"" << cstr_encode( param ) << "\" );\n";
-//    fcpp << "}\n";
-
-//    fcpp.close();
-
-//    //
-//    build_kernel( gdir );
-//    exec( gdir + "build/generator" );
-
-//    return true;
-//}
 
 void KernelCode::exec( const std::string &cmd ) {
     std::cout << cmd << std::endl;
@@ -320,10 +319,10 @@ void KernelCode::get_prereq_req( std::ostream &includes_os, std::ostream &src_he
                 src_heads_os << h << "\n";
 }
 
-void KernelCode::build( const path &src_dir ) {
+void KernelCode::build( const path &src_dir, const std::string &build_opt ) {
     path bld_dir = src_dir / "build";
     exec( "cmake -S '" + src_dir.string() + "' -B '" + bld_dir.string() + "' -DCMAKE_INSTALL_PREFIX='" + object_dir.string() + "'" ); //  > /dev/null
-    exec( "cmake --build '" + bld_dir.string() + "' --target install " ); // > /dev/null
+    exec( "cmake --build '" + bld_dir.string() + "'" + build_opt ); // > /dev/null
 }
 
 } // namespace parex

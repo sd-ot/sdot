@@ -28,8 +28,7 @@ void display( const Value &value, std::ostream &os = std::cout ) {
 int main() {
     kernel_code.add_include_dir( SDOT_DIR "/src/sdot/kernels" );
     // scheduler.log = true;
-    P( Value( 687 ) );
-    P( Value( 688 ) );
+    P( Value( 687 ) + Value( 688 ) );
 
     // Tensor
     //    Value v( 17 );
