@@ -3,8 +3,32 @@
 
 namespace parex {
 
+template<class T,class A,class TI> template<class V>
+Tensor<T,A,TI>::Tensor( const V &size, Vec<T> &&data, const V &rese ) : rese( rese ), size( size ), data( std::move( data ) ) {
+    init_mcum();
+}
+
+template<class T,class A,class TI> template<class V>
+Tensor<T,A,TI>::Tensor( const V &size, Vec<T> &&data ) : rese( size ), size( size ), data( std::move( data ) ) {
+    init_mcum();
+}
+
+template<class T,class A,class TI> template<class V>
+Tensor<T,A,TI>::Tensor( const V &size ) : rese( size ), size( size ) {
+    if ( dim() ) {
+        this->rese[ 0 ] = ceil( rese[ 0 ], SimdSize<T,A>::value );
+        init_mcum();
+
+        this->data.resize( mcum.back() );
+    }
+}
+
+
 template<class T,class A,class TI>
 void Tensor<T,A,TI>::write_to_stream( std::ostream &os ) const {
+    //    os << "size:" << size;
+    //    os << " rese:" << rese;
+    //    os << " data:";
     for_each_index( [&]( const Vec<TI> &index, TI off ) {
         for( std::size_t n = 0; n < index.size(); ++n ) {
             if ( index[ n ] ) {
@@ -35,9 +59,20 @@ bool Tensor<T,A,TI>::next_index( Vec<TI> &index, TI &off ) const {
     }
 }
 
+template<class T, class A, class TI>
+void Tensor<T,A,TI>::init_mcum() {
+    mcum.resize( dim() + 1 );
+
+    mcum[ 0 ] = 1;
+    for( std::size_t i = 0, m = 1; i < dim(); ++i ) {
+        m *= this->rese[ i ];
+        mcum[ i + 1 ] = m;
+    }
+}
+
 template<class T,class A,class TI>
 void Tensor<T,A,TI>::for_each_index( const std::function<void(Vec<TI>&,TI &off)> &f ) const {
-    if ( ! dim() )
+    if ( dim() == 0 || mcum[ dim() ] == 0 )
         return;
 
     Vec<TI> index( dim(), 0 );

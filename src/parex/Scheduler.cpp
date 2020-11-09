@@ -66,6 +66,8 @@ void Scheduler::run() {
         }
     }
 
+    //
+    targets.clear();
 }
 
 void Scheduler::exec_task( Task *task ) {

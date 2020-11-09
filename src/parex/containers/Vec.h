@@ -24,6 +24,9 @@ template<class T,class A>
 class Vec<T,A,typename std::enable_if<A::cpu>::type> : public std::vector<T,AlignedAllocator<T,A>> {
 public:
     using std::vector<T,AlignedAllocator<T,A>>::vector;
+
+    template<class G,class B>
+    Vec( const Vec<G,B> &v ) : std::vector<T,AlignedAllocator<T,A>>( v.size() ) { for( std::size_t i = 0; i < v.size(); ++i ) this->operator[]( i ) = v[ i ]; }
 };
 
 #ifdef __CUDACC__

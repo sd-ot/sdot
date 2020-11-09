@@ -22,6 +22,7 @@ public:
     void                           write_to_stream      ( std::ostream &os ) const;
     bool                           move_arg             ( std::size_t num_arg, std::size_t num_out = 0 );
 
+    static Task*                   ref_type             ( const std::string type ); ///< make a S<Type>() object
     template<class T> static Task* ref_on               ( T *ptr, bool own = true ); ///< Wrap a known source value. Takes ownership of ptr
     static TaskRef                 call_r               ( Kernel *kernel, std::vector<TaskRef> &&inputs = {} ); ///< can be used if only 1 output. Return output of the task
     static Task*                   call                 ( Kernel *kernel, const std::vector<TaskRef *> &outputs = {}, std::vector<TaskRef> &&inputs = {} );
@@ -54,7 +55,7 @@ public:
 template<class T>
 Task *Task::ref_on( T *ptr, bool own ) {
     Task *res = new Task;
-    res->outputs.push_back( Output{ type_name( ptr ), ptr, own } );
+    res->outputs.emplace_back( type_name( ptr ), ptr, own );
     res->computed = true;
     return res;
 }

@@ -48,3 +48,7 @@ Génération de code
 
 Prop:
 * nom(arg)
+
+========================================================================================================================================
+Prop 1: on fait une base de données pour avoir la correspondance entre les flags et les répertoires
+Prop 2: les cmake et les .cpp sont temporaires. On sauve les .so, en utilisant une somme de contrôle.so + un fichier qui décrit à quoi ça correspond

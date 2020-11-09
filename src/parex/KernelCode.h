@@ -1,6 +1,7 @@
 #pragma once
 
 #include <dynalo/dynalo.hpp>
+#include "support/TmpDir.h"
 #include <functional>
 #include "Kernel.h"
 #include <memory>
@@ -14,32 +15,41 @@ class Task;
 */
 class KernelCode {
 public:
-    using                    MSVS              = std::map<std::string,std::vector<std::string>>;
-    using                    Func              = std::function<void(Task*,void **)>;
+    using                      MSVS              = std::map<std::string,std::vector<std::string>>;
+    using                      Func              = std::function<void(Task*,void **)>;
+    using                      path              = std::filesystem::path;
 
-    /**/                     KernelCode        ();
+    /**/                       KernelCode        ();
 
-    void                     add_include_dir   ( std::string name );
-    Func                     func              ( const Kernel &kernel, const std::vector<std::string> &input_types );
+    void                       add_include_dir   ( path name );
+    Func                       func              ( const Kernel &kernel, const std::vector<std::string> &input_types );
+
+    path                       object_dir;
 
 private:
-    struct                   Src               { Kernel kernel; std::vector<std::string> input_types, flags; bool operator<( const Src &t ) const { return std::tie( kernel, input_types, flags ) < std::tie( t.kernel, t.input_types, t.flags ); } };
-    struct                   Code              { std::unique_ptr<dynalo::library> lib; Func func; };
+    struct                     Code              { std::unique_ptr<dynalo::library> lib; Func func; };
 
-    void                     init_default_flags();
-    void                     make_cmake_lists  ( const std::string &dir, const std::string &name, const std::vector<std::string> &flags );
-    void                     make_kernel_cpp   ( const std::string &dir, const std::string &name, const std::vector<std::string> &input_types, bool task_as_arg, bool local_inc );
-    void                     get_prereq_req    ( std::ostream &includes_os, std::ostream &src_heads_os, std::set<std::string> &includes_set, std::set<std::string> &src_heads_set, std::set<std::string> &seen_types, const std::string &type );
-    void                     build_kernel      ( const std::string &dir );
-    Code                     make_code         ( const Kernel &kernel, const std::vector<std::string> &input_types ); ///< make a Func from a Kernel (not cached)
-    bool                     gen_code          ( const std::string &dir, const std::string &bname, const std::string &param );
-    void                     exec              ( const std::string &cmd );
+    void                       init_default_flags();
+    Code                       load_or_make_code ( const std::string &kstr, const Kernel &kernel, const std::vector<std::string> &input_types ); ///< make a Func from a Kernel (not cached in memory)
+    void                       init_base_types   ();
+    void                       make_code         ( const std::string &shash, const std::string &kstr, const Kernel &kernel, const std::vector<std::string> &input_types );
+    Code                       load_code         ( const std::string &shash );
+    void                       make_lib          ( TmpDir &tmp_dir, const std::string &shash, const Kernel &kernel, const std::vector<std::string> &input_types );
+    void                       make_cmk          ( TmpDir &tmp_dir, const std::string &shash );
+    void                       make_cpp          ( TmpDir &tmp_dir, const Kernel &kernel, const std::vector<std::string> &input_types );
+    void                       build             ( const path &dir );
 
-    std::vector<std::string> include_directories;
-    std::string              cpu_config;
-    MSVS                     src_heads;
-    MSVS                     includes;
-    std::map<Src,Code>       code;
+    void                       make_cmake_lists  ( const std::string &dir, const std::string &name, const std::vector<std::string> &flags );
+    void                       make_kernel_cpp   ( const std::string &dir, const std::string &name, const std::vector<std::string> &input_types, bool task_as_arg, bool local_inc );
+    void                       get_prereq_req    ( std::ostream &includes_os, std::ostream &src_heads_os, std::set<std::string> &includes_set, std::set<std::string> &src_heads_set, std::set<std::string> &seen_types, const std::string &type );
+    bool                       gen_code          ( const std::string &dir, const std::string &bname, const std::string &param );
+    void                       exec              ( const std::string &cmd );
+
+    std::vector<std::string>   include_directories;
+    std::string                cpu_config;
+    MSVS                       src_heads;
+    MSVS                       includes;
+    std::map<std::string,Code> code;
 };
 
 extern KernelCode kernel_code;

@@ -16,10 +16,9 @@ void test_triangle() {
     // construct
     TI nb_triangles = 3;
     sp.add_repeated( triangle(), nb_triangles,
-        Tensor<double>( { nb_triangles, 2 }, { 0, 1, 0,  0, 0, 1 } ),
+        Tensor<double>( Vec<TI>{ nb_triangles, 2 }, { 0, 1, 0,  0, 0, 1 } ),
         Vec<double>( { 0, 1, 2 } )
     );
-    //    P( sp );
 
     //    // cut
     //    std::vector<TF> cxs, cys, css;

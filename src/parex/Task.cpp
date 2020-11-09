@@ -31,6 +31,13 @@ void Task::write_to_stream( std::ostream &os ) const {
     }
 }
 
+Task *Task::ref_type( const std::string type ) {
+    Task *res = new Task;
+    res->outputs.emplace_back( "S<" + type + ">", nullptr, false );
+    res->computed = true;
+    return res;
+}
+
 TaskRef Task::call_r( Kernel *kernel, std::vector<TaskRef> &&inputs ) {
     Task *res = new Task;
 

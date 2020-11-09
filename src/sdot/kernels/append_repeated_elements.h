@@ -1,19 +1,23 @@
+#include <parex/containers/Tensor.h>
 #include <parex/containers/Vec.h>
+#include <parex/support/P.h>
+#include <parex/Task.h>
 #include <cstdint>
 #include <random>
 
 using namespace parex;
 
-template<class T>
-Vec<T> *random_vec( std::size_t size, T min, T max ) {
-    std::uniform_real_distribution<T> dis( min, max );
-    std::random_device rd;  // Will be used to obtain a seed for the random number engine
-    std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+template<class TF,class TI>
+std::tuple<Tensor<TF>*, Tensor<TI>*, Vec<TI>*> append_repeated_elements(
+    Task *task, Tensor<TF> &coordinates, Tensor<TI> &face_ids, Vec<TI> &ids,
+    TI count, const Tensor<TF> &input_coordinates, const Vec<TF> &input_face_ids, TI beg_ids ) {
 
-    Vec<T> *res = new Vec<T>( size );
-    for( T &val : *res )
-        val = dis( gen );
+    //
+    for( std::size_t i = 0; i < 3; ++i )
+        if ( ! task->move_arg( i, i )  )
+            ERROR( "" );
 
-    return res;
+    P( coordinates.size );
+
+    return { nullptr, nullptr, nullptr };
 }
-

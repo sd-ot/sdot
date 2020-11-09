@@ -1,10 +1,12 @@
 #include "support/cstr_encode.h"
 #include "support/url_encode.h"
 #include "support/ERROR.h"
+#include "support/TODO.h"
 #include "support/P.h"
 #include "KernelCode.h"
 
 #include <algorithm>
+#include <sstream>
 #include <fstream>
 
 // cpu_features
@@ -27,36 +29,163 @@ namespace parex {
 KernelCode kernel_code;
 
 KernelCode::KernelCode() {
+    object_dir = "objects";
+
+    include_directories.push_back( path( PAREX_DIR ) / "src" / "parex" / "kernels" );
     init_default_flags();
-
-    src_heads[ "ostream" ].push_back( "using std::ostream;" );
-
-    src_heads[ "SI32"    ].push_back( "using SI32 = std::int32_t;" );
-    includes [ "SI32"    ].push_back( "<cstdint>" );
-
-    src_heads[ "PI64"    ].push_back( "using PI64 = std::uint64_t;" );
-    includes [ "PI64"    ].push_back( "<cstdint>" );
-
-    src_heads[ "FP64"    ].push_back( "using FP64 = double;" );
-    src_heads[ "FP32"    ].push_back( "using FP32 = float;" );
-
-    includes [ "Tensor"  ].push_back( "<parex/containers/Tensor.h>" );
-    includes [ "Vec"     ].push_back( "<parex/containers/Vec.h>" );
-
-    include_directories.push_back( PAREX_DIR "/src/parex/kernels" );
+    init_base_types();
 }
 
-void KernelCode::add_include_dir( std::string name ) {
+void KernelCode::add_include_dir( path name ) {
     if ( std::find( include_directories.begin(), include_directories.end(), name ) == include_directories.end() )
         include_directories.push_back( name );
 }
 
 KernelCode::Func KernelCode::func( const Kernel &kernel, const std::vector<std::string> &input_types ) {
-    Src src{ kernel, input_types, {} };
-    auto iter = code.find( src );
+    // summary
+    std::ostringstream ss;
+    ss << kernel.name << "\n";
+    ss << input_types.size() << "\n";
+    for( const std::string &input_type : input_types )
+        ss << input_type << "\n";
+    ss << cpu_config << "\n";
+
+    // not in the map ?
+    auto iter = code.find( ss.str() );
     if ( iter == code.end() )
-        iter = code.insert( iter, { src, make_code( kernel, input_types ) } );
+        iter = code.insert( iter, { ss.str(), load_or_make_code( ss.str(), kernel, input_types ) } );
+
+    // => in memory
     return iter->second.func;
+}
+
+KernelCode::Code KernelCode::load_or_make_code( const std::string &kstr, const Kernel &kernel, const std::vector<std::string> &input_types ) {
+    // already in the filesystem ?
+    std::hash<std::string> hasher;
+    std::size_t hash = hasher( kstr );
+
+    for( ; ; ++hash ) {
+        std::string shash = std::to_string( hash );
+        path pinfo = object_dir / ( shash + ".info" );
+
+        // no file with corresponding name => create a new lib/info pair
+        if ( ! std::filesystem::exists( pinfo ) ) {
+            make_code( shash, kstr, kernel, input_types );
+            return load_code( shash );
+        }
+
+        // else, if info is good, return the lib
+        std::ifstream finfo( pinfo );
+        std::ostringstream sinfo;
+        sinfo << finfo.rdbuf();
+        if ( sinfo.str() == kstr )
+            return load_code( shash );
+    }
+}
+
+KernelCode::Code KernelCode::load_code( const std::string &shash ) {
+    path p = object_dir / "lib" / dynalo::to_native_name( shash );
+
+    Code res;
+    res.lib = std::make_unique<dynalo::library>( p.string() );
+    res.func = res.lib->get_function<void(Task*,void **)>( "kernel_wrapper" );
+    return res;
+
+}
+
+void KernelCode::make_code( const std::string &shash, const std::string &kstr, const Kernel &kernel, const std::vector<std::string> &input_types ) {
+    // lib/lib___.so
+    TmpDir tmp_dir;
+    make_lib( tmp_dir, shash, kernel, input_types );
+
+    // ___.info
+    std::ofstream fkstr( object_dir / ( shash + ".info" ) );
+    fkstr << kstr;
+}
+
+void KernelCode::make_lib( TmpDir &tmp_dir, const std::string &shash, const Kernel &kernel, const std::vector<std::string> &input_types ) {
+    make_cpp( tmp_dir, kernel, input_types );
+    make_cmk( tmp_dir, shash );
+    build( tmp_dir.p );
+}
+
+void KernelCode::make_cmk( TmpDir &tmp_dir, const std::string &shash ) {
+    std::ofstream fcmk( tmp_dir.p / "CMakeLists.txt" );
+
+    fcmk << "cmake_minimum_required(VERSION 3.0)\n";
+    fcmk << "project(kernel)\n";
+
+    fcmk << "\n";
+    fcmk << "add_library(" << shash << " SHARED\n";
+    fcmk << "    kernel.cpp\n";
+    fcmk << ")\n";
+
+    fcmk << "\n";
+    fcmk << "install(TARGETS " << shash << ")\n";
+
+    fcmk << "\n";
+    fcmk << "target_compile_options(" << shash << " PRIVATE -march=native -O3 -g3)\n";
+
+    fcmk << "\n";
+    fcmk << "target_include_directories(" << shash << " PRIVATE " << PAREX_DIR "/src" << ")\n";
+    for( std::string include_directory : include_directories )
+        fcmk << "target_include_directories(" << shash << " PRIVATE " << include_directory << ")\n";
+}
+
+void KernelCode::make_cpp( TmpDir &tmp_dir, const Kernel &kernel, const std::vector<std::string> &input_types ) {
+    std::ofstream fcpp( tmp_dir.p / "kernel.cpp" );
+
+    // generated kernel ?
+    std::string bname = kernel.name;
+    std::string param;
+    auto pp = kernel.name.find( '(' );
+    bool generated = pp != kernel.name.npos;
+    if ( generated ) {
+        ASSERT( kernel.name.back() == ')', "" );
+        param = kernel.name.substr( pp + 1, kernel.name.size() - pp - 2 );
+        bname = kernel.name.substr( 0, pp );
+        // gen_code( dir, bname, param );
+        TODO;
+    }
+
+    // prerequisites for the types
+    std::set<std::string> include_set, src_head_set, seen_types;
+    std::ostringstream includes, src_heads;
+    for( const std::string &input_type : input_types )
+        get_prereq_req( includes, src_heads, include_set, src_head_set, seen_types, input_type );
+
+    // header(s) and typedefs
+    fcpp << includes.str();
+
+    fcpp << "\n";
+    fcpp << "#include <parex/TaskRef.h>\n";
+    if ( generated )
+        fcpp << "#include \"generated.h\"\n";
+    else
+        fcpp << "#include <" << bname << ".h>\n";
+
+    fcpp << "\n";
+    fcpp << src_heads.str();
+
+    //
+    fcpp << "\n";
+    fcpp << "namespace {\n";
+    fcpp << "    struct KernelWrapper {\n";
+    fcpp << "        auto operator()( parex::Task *" << ( kernel.task_as_arg ? "task" : "/*task*/" ) << ", void **data ) const {\n";
+    fcpp << "            return " << bname << "(\n";
+    if ( kernel.task_as_arg )
+        fcpp << "                task" << ( input_types.size() ? "," : "" ) << "\n";
+    for( std::size_t i = 0; i < input_types.size(); ++i )
+        fcpp << "                *reinterpret_cast<" << input_types[ i ] << "*>( data[ " << i << " ] )" << ( i + 1 < input_types.size() ? "," : "" ) << "\n";
+    fcpp << "            );\n";
+    fcpp << "        }\n";
+    fcpp << "    };\n";
+    fcpp << "}\n";
+
+    fcpp << "\n";
+    fcpp << "extern \"C\" void kernel_wrapper( parex::Task *task, void **data ) {\n";
+    fcpp << "    task->run( KernelWrapper(), data );\n";
+    fcpp << "}\n";
 }
 
 void KernelCode::init_default_flags() {
@@ -73,154 +202,86 @@ void KernelCode::init_default_flags() {
     #endif
 }
 
-KernelCode::Code KernelCode::make_code( const Kernel &kernel, const std::vector<std::string> &input_types ) {
-    // directory name
-    std::string dir = "objects/" + url_encode( kernel.name ) + "/" + cpu_config + "/";
-    if ( input_types.size() ) {
-        for( std::size_t i = 0; i < input_types.size(); ++i ) {
-            std::string url = url_encode( input_types[ i ] );
-            dir += ( i ? "_" : "" ) + std::to_string( url.size() ) + "_" + url;
-        }
-    } else
-        dir += "no_input";
-    dir += "/";
+//bool KernelCode::gen_code( const std::string &dir, const std::string &bname, const std::string &param ) {
+//    std::string gdir = dir + "gen/";
+//    exec( "mkdir -p " + gdir + "build" );
 
-    // directory creation
-    exec( "mkdir -p " + dir + "build" );
+//    // CMakeLists.txt
+//    std::ofstream fcmk( gdir + "CMakeLists.txt" );
+//    fcmk << "cmake_minimum_required(VERSION 3.0)\n";
+//    fcmk << "project(" << bname << "_generator)\n";
 
-    // base name param
-    std::string bname = kernel.name, param;
-    auto pp = kernel.name.find( '(' );
-    bool gc = pp != kernel.name.npos;
-    if ( gc ) {
-        ASSERT( kernel.name.back() == ')', "" );
-        param = kernel.name.substr( pp + 1, kernel.name.size() - pp - 2 );
-        bname = kernel.name.substr( 0, pp );
-        gen_code( dir, bname, param );
-    }
+//    fcmk << "\n";
+//    fcmk << "add_executable(generator\n";
+//    fcmk << "    generator.cpp\n";
+//    fcmk << ")\n";
 
-    // create a CmakeLists.txt and a kernel.cpp file.
-    make_kernel_cpp( dir, bname, input_types, kernel.task_as_arg, gc );
-    make_cmake_lists( dir, bname, {} );
+//    fcmk << "\n";
+//    fcmk << "target_compile_options(generator PRIVATE -march=native -O3 -g3)\n";
 
-    // build the library
-    build_kernel( dir );
+//    fcmk << "\n";
+//    fcmk << "target_include_directories(generator PRIVATE " << PAREX_DIR "/src" << ")\n";
+//    for( std::string include_directory : include_directories )
+//        fcmk << "target_include_directories(generator PRIVATE " << include_directory << ")\n";
 
-    // load ir
-    Code res;
-    res.lib = std::make_unique<dynalo::library>( dir + "build/" + dynalo::to_native_name( bname ) );
-    res.func = res.lib->get_function<void(Task*,void **)>( "kernel_wrapper" );
-    return res;
-}
+//    fcmk.close();
 
-bool KernelCode::gen_code( const std::string &dir, const std::string &bname, const std::string &param ) {
-    std::string gdir = dir + "gen/";
-    exec( "mkdir -p " + gdir + "build" );
+//    // generator.cpp
+//    std::ofstream fcpp( gdir + "generator.cpp" );
+//    fcpp << "#include <" << bname << ".h>\n";
+//    fcpp << "#include <fstream>\n";
 
-    // CMakeLists.txt
-    std::ofstream fcmk( gdir + "CMakeLists.txt" );
-    fcmk << "cmake_minimum_required(VERSION 3.0)\n";
-    fcmk << "project(" << bname << "_generator)\n";
+//    fcpp << "\n";
+//    fcpp << "int main( int, char **argv ) {\n";
+//    fcpp << "    std::ofstream fout( \"" << dir << bname << ".h\" );\n";
+//    fcpp << "    " << bname << "( fout, \"" << bname << "\", \"" << cstr_encode( param ) << "\" );\n";
+//    fcpp << "}\n";
 
-    fcmk << "\n";
-    fcmk << "add_executable(generator\n";
-    fcmk << "    generator.cpp\n";
-    fcmk << ")\n";
+//    fcpp.close();
 
-    fcmk << "\n";
-    fcmk << "target_compile_options(generator PRIVATE -march=native -O3 -g3)\n";
+//    //
+//    build_kernel( gdir );
+//    exec( gdir + "build/generator" );
 
-    fcmk << "\n";
-    fcmk << "target_include_directories(generator PRIVATE " << PAREX_DIR "/src" << ")\n";
-    for( std::string include_directory : include_directories )
-        fcmk << "target_include_directories(generator PRIVATE " << include_directory << ")\n";
-
-    fcmk.close();
-
-    // generator.cpp
-    std::ofstream fcpp( gdir + "generator.cpp" );
-    fcpp << "#include <" << bname << ".h>\n";
-    fcpp << "#include <fstream>\n";
-
-    fcpp << "\n";
-    fcpp << "int main( int, char **argv ) {\n";
-    fcpp << "    std::ofstream fout( \"" << dir << bname << ".h\" );\n";
-    fcpp << "    " << bname << "( fout, \"" << bname << "\", \"" << cstr_encode( param ) << "\" );\n";
-    fcpp << "}\n";
-
-    fcpp.close();
-
-    //
-    build_kernel( gdir );
-    exec( gdir + "build/generator" );
-
-    return true;
-}
+//    return true;
+//}
 
 void KernelCode::exec( const std::string &cmd ) {
-    // std::cout << cmd << std::endl;
+    std::cout << cmd << std::endl;
     if ( system( cmd.c_str() ) ) {
         ERROR( "Error in cmd: {}", cmd );
     }
 }
 
-void KernelCode::make_cmake_lists( const std::string &dir, const std::string &name, const std::vector<std::string> &/*flags*/ ) {
-    std::ofstream fcmk( dir + "CMakeLists.txt" );
-    fcmk << "cmake_minimum_required(VERSION 3.0)\n";
-    fcmk << "project( " << name << " )\n";
+void KernelCode::init_base_types() {
+    src_heads[ "ostream" ].push_back( "using std::ostream;" );
 
-    fcmk << "\n";
-    fcmk << "add_library(" << name << " SHARED\n";
-    fcmk << "    kernel.cpp\n";
-    fcmk << ")\n";
+    src_heads[ "SI32"    ].push_back( "using SI32 = std::int32_t;" );
+    includes [ "SI32"    ].push_back( "<cstdint>" );
 
-    fcmk << "\n";
-    fcmk << "target_compile_options(" << name << " PRIVATE -march=native -O3 -g3)\n";
+    src_heads[ "SI64"    ].push_back( "using SI64 = std::int64_t;" );
+    includes [ "SI64"    ].push_back( "<cstdint>" );
 
-    fcmk << "\n";
-    fcmk << "target_include_directories(" << name << " PRIVATE " << PAREX_DIR "/src" << ")\n";
-    for( std::string include_directory : include_directories )
-        fcmk << "target_include_directories(" << name << " PRIVATE " << include_directory << ")\n";
-}
+    src_heads[ "PI32"    ].push_back( "using PI32 = std::uint32_t;" );
+    includes [ "PI32"    ].push_back( "<cstdint>" );
 
-void KernelCode::make_kernel_cpp( const std::string &dir, const std::string &name, const std::vector<std::string> &input_types, bool task_as_arg, bool local_inc ) {
-    std::ofstream fcpp( dir + "kernel.cpp" );
+    src_heads[ "PI64"    ].push_back( "using PI64 = std::uint64_t;" );
+    includes [ "PI64"    ].push_back( "<cstdint>" );
 
-    // prerequisites for the types
-    std::set<std::string> include_set, src_head_set, seen_types;
-    std::ostringstream includes, src_heads;
-    for( const std::string &input_type : input_types )
-        get_prereq_req( includes, src_heads, include_set, src_head_set, seen_types, input_type );
+    src_heads[ "FP64"    ].push_back( "using FP64 = double;" );
+    src_heads[ "FP32"    ].push_back( "using FP32 = float;" );
 
-    // header(s) and typedefs
-    fcpp << includes.str();
+    includes [ "Tensor"  ].push_back( "<parex/containers/Tensor.h>" );
+    src_heads[ "Tensor"  ].push_back( "using parex::Tensor;" );
 
-    fcpp << "\n";
-    fcpp << "#include <parex/TaskRef.h>\n";
-    fcpp << "#include " << ( local_inc ? '"' : '<' ) << name << ".h" << ( local_inc ? '"' : '>' ) << "\n";
+    includes [ "Vec"     ].push_back( "<parex/containers/Vec.h>" );
+    src_heads[ "Vec"     ].push_back( "using parex::Vec;" );
 
-    fcpp << "\n";
-    fcpp << src_heads.str();
+    includes [ "S"       ].push_back( "<parex/support/S.h>" );
+    src_heads[ "S"       ].push_back( "using parex::S;" );
 
-    //
-    fcpp << "\n";
-    fcpp << "namespace {\n";
-    fcpp << "    struct KernelWrapper {\n";
-    fcpp << "        auto operator()( parex::Task *" << ( task_as_arg ? "task" : "/*task*/" ) << ", void **data ) const {\n";
-    fcpp << "            return " << name << "(\n";
-    if ( task_as_arg )
-        fcpp << "                task" << ( input_types.size() ? "," : "" ) << "\n";
-    for( std::size_t i = 0; i < input_types.size(); ++i )
-        fcpp << "                *reinterpret_cast<" << input_types[ i ] << "*>( data[ " << i << " ] )" << ( i + 1 < input_types.size() ? "," : "" ) << "\n";
-    fcpp << "            );\n";
-    fcpp << "        }\n";
-    fcpp << "    };\n";
-    fcpp << "}\n";
-
-    fcpp << "\n";
-    fcpp << "extern \"C\" void kernel_wrapper( parex::Task *task, void **data ) {\n";
-    fcpp << "    task->run( KernelWrapper(), data );\n";
-    fcpp << "}\n";
+    includes [ "N"       ].push_back( "<parex/support/N.h>" );
+    src_heads[ "N"       ].push_back( "using parex::N;" );
 }
 
 void KernelCode::get_prereq_req( std::ostream &includes_os, std::ostream &src_heads_os, std::set<std::string> &includes_set, std::set<std::string> &src_heads_set, std::set<std::string> &seen_types, const std::string &type ) {
@@ -259,9 +320,10 @@ void KernelCode::get_prereq_req( std::ostream &includes_os, std::ostream &src_he
                 src_heads_os << h << "\n";
 }
 
-void KernelCode::build_kernel( const std::string &dir ) {
-    exec( "cmake -S " + dir + " -B " + dir + "build > /dev/null" );
-    exec( "cmake --build " + dir + "build > /dev/null" ); // --target install
+void KernelCode::build( const path &src_dir ) {
+    path bld_dir = src_dir / "build";
+    exec( "cmake -S '" + src_dir.string() + "' -B '" + bld_dir.string() + "' -DCMAKE_INSTALL_PREFIX='" + object_dir.string() + "'" ); //  > /dev/null
+    exec( "cmake --build '" + bld_dir.string() + "' --target install " ); // > /dev/null
 }
 
 } // namespace parex

@@ -41,12 +41,15 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::stri
 void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
     //    ASSERT( coordinates.size() == dim * shape_type->nb_nodes(), "wrong coordinates size" );
     ShapeData *sd = shape_data( shape_type );
+
     parex::Task::call( new parex::Kernel{ "append_repeated_elements" }, {
         &sd->coordinates.ref, &sd->face_ids.ref, &sd->ids.ref
     }, {
         sd->coordinates.ref, sd->face_ids.ref, sd->ids.ref,
         count.ref, coordinates.ref, face_ids.ref, beg_ids.ref
     } );
+
+    P( sd->coordinates );
 }
 
 //void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &cut_ids ) {
@@ -132,7 +135,7 @@ void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &
 ShapeData *SetOfElementaryPolytops::shape_data( const ShapeType *shape_type ) {
     auto iter = shape_map.find( shape_type );
     if ( iter == shape_map.end() )
-        iter = shape_map.insert( iter, { shape_type, ShapeData{ shape_type } } );
+        iter = shape_map.insert( iter, { shape_type, ShapeData{ shape_type, dim, scalar_type, index_type } } );
     return &iter->second;
 }
 

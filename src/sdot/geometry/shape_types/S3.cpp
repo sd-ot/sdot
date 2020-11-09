@@ -12,8 +12,8 @@ public:
 //    virtual std::vector<BI> cut_poss_count() const override;
 //    virtual void            display_vtk   ( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items, VtkOutput::Pt *offsets ) const override;
 //    virtual void            cut_rese      ( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const override;
-//    virtual unsigned        nb_nodes      () const override { return 3; }
-//    virtual unsigned        nb_faces      () const override { return 3; }
+    virtual unsigned        nb_nodes      () const override { return 3; }
+    virtual unsigned        nb_faces      () const override { return 3; }
 //    virtual void            cut_ops       ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override;
     virtual std::string     name          () const override { return "S3"; }
 };
