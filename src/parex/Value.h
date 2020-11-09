@@ -26,11 +26,15 @@ public:
 
     void              write_to_stream( std::ostream &os ) const;
 
+    Value             operator+      ( const Value &that ) const;
+
+    Value&            operator+=     ( const Value &that );
+
     TaskRef           ref;
 };
 
 template<class T>
-Value::Value( T &&value ) : Value( Task::owning( new typename std::decay<T>::type( std::forward<T>( value ) ) ) ) {
+Value::Value( T &&value ) : Value( Task::ref_on( new typename std::decay<T>::type( std::forward<T>( value ) ) ) ) {
 }
 
 } // namespace parex

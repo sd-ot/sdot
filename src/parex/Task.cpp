@@ -6,11 +6,18 @@ namespace parex {
 std::size_t Task::curr_op_id = 0;
 
 Task::~Task() {
+    // kernel is owned
     delete kernel;
 
+    // erase ref of `this` in children
     auto ei = [&]( const Task *t ) { return t == this; };
     for( const TaskRef &child : children )
-        child.task->parents.erase( std::remove_if( child.task->parents.begin(),  child.task->parents.end(), ei ), child.task->parents.end() );
+        if ( child.task )
+            child.task->parents.erase( std::remove_if( child.task->parents.begin(),  child.task->parents.end(), ei ), child.task->parents.end() );
+
+    //
+    for( Output &output : outputs )
+        output.destroy();
 }
 
 TaskRef Task::call_r( Kernel *kernel, std::vector<TaskRef> &&inputs ) {
@@ -41,11 +48,12 @@ Task *Task::call( Kernel *kernel, const std::vector<TaskRef *> &outputs, std::ve
 }
 
 void Task::get_front_rec( std::vector<Task *> &front ) {
-    if ( computed )
+    if ( computed || in_front )
         return;
 
     if ( children_are_computed() ) {
         front.push_back( this );
+        in_front = true;
         return;
     }
 

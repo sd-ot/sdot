@@ -49,8 +49,9 @@ cta 15ème lecourbe,
 
 Prop: on fait juste des sorties d'un côté et des entrées de l'autre, mais on autorise la réutilisation des entrées.
 
-Pb: comment permettre la réutilisation des entrées ?
-
 Prop: add_repeated crée les 3 tenseurs
 
 Prop simple: on sort des tuple de pointeurs
+
+Pb: comment permettre la réutilisation des entrées ?
+  prop 1: on passe task

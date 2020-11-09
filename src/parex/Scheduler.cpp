@@ -1,5 +1,6 @@
 #include "KernelCode.h"
 #include "Scheduler.h"
+#include "support/P.h"
 
 namespace parex {
 
@@ -17,6 +18,7 @@ Scheduler &Scheduler::operator<<( const Value &value ) {
 }
 
 Scheduler &Scheduler::operator<<( Task *task ) {
+    task->is_target_in_scheduler = true;
     targets.push_back( task );
     return *this;
 }
@@ -28,21 +30,37 @@ void Scheduler::run() {
     for( const TaskRef &value : targets )
         value.task->get_front_rec( front );
 
-    for( Task *task : front )
-        task->in_front = true;
-
     //
     while ( ! front.empty() ) {
+        // find the next task to execute
         Task *task = front.back();
         front.pop_back();
 
+        // exec
         task->computed = true;
         exec_task( task );
 
+        // parent task that can be executed
         for( Task *parent : task->parents ) {
             if ( parent->children_are_computed() && ! parent->in_front ) {
                 front.push_back( parent );
                 parent->in_front = true;
+            }
+        }
+
+        // free the tasks that are not going to be used anymore
+        for( TaskRef &ch : task->children ) {
+            if ( --ch.task->ref_count == 0 )
+                delete ch.task;
+            ch.task = nullptr;
+        }
+        if ( task->is_target_in_scheduler ) {
+            for( TaskRef &t : targets ) {
+                if ( t.task == task ) {
+                    if ( --task->ref_count == 0 )
+                        delete task;
+                    t.task = nullptr;
+                }
             }
         }
     }

@@ -21,9 +21,9 @@ void min_max( Value &min, Value &max, const Value &container ) {
 //    return { new Kernel{ "min_max" }, { value } };
 //}
 
-//void display( const Value &value, std::ostream &os = std::cout ) {
-//    scheduler << Value{ new Kernel{ "write_to_stream" }, { Task::owning( &os ), value } };
-//}
+void display( const Value &value, std::ostream &os = std::cout ) {
+    scheduler << Task::call( new Kernel{ "write_to_stream" }, {}, { Task::ref_on( &os, false ), value.ref } );
+}
 
 int main() {
     kernel_code.add_include_dir( SDOT_DIR "/src/sdot/kernels" );
@@ -41,10 +41,9 @@ int main() {
     //    Value v( 17 );
     //    P( v );
     //    P( min_max( Tensor<int>( { 4, 2 }, { 0, 1, 2, 3, 4, 5, 6, 7 } ) ) );
-    Value min, max;
-    min_max( min, max, random_vec( 10 ) );
-    P( min, max );
 
     // Tensor
-
+    Value v( 17 );
+//    v += 13;
+    P( v + 13 );
 }

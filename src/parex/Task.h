@@ -15,11 +15,11 @@ class Value;
 */
 class Task {
 public:
-    /**/                           Task                 () { computed = false; in_front = false; kernel = nullptr; cpt_use = 0; op_id = 0; }
+    /**/                           Task                 () { is_target_in_scheduler = false; computed = false; in_front = false; kernel = nullptr; ref_count = 0; op_id = 0; }
     /**/                          ~Task                 ();
 
 
-    template<class T> static Task* owning               ( T *ptr ); ///< Wrap a known source value. Takes ownership of ptr
+    template<class T> static Task* ref_on               ( T *ptr, bool own = true ); ///< Wrap a known source value. Takes ownership of ptr
     static TaskRef                 call_r               ( Kernel *kernel, std::vector<TaskRef> &&inputs = {} ); ///< can be used if only 1 output. Return output of the task
     static Task*                   call                 ( Kernel *kernel, const std::vector<TaskRef *> &outputs = {}, std::vector<TaskRef> &&inputs = {} );
 
@@ -34,23 +34,24 @@ public:
     template<class... A> void      make_outputs         ( std::tuple<A*...> &&t );
     template<class A> void         make_outputs         ( A *t );
 
-    bool                           in_front;
-    bool                           computed;
     std::vector<Output>            outputs;
 
     std::vector<TaskRef>           children;
     std::vector<Task *>            parents;
     Kernel*                        kernel;
 
+    bool                           is_target_in_scheduler;
     static  std::size_t            curr_op_id;
-    mutable std::size_t            cpt_use;
+    mutable std::size_t            ref_count;
+    bool                           in_front;
+    bool                           computed;
     mutable std::size_t            op_id;
 };
 
 template<class T>
-Task *Task::owning( T *ptr ) {
+Task *Task::ref_on( T *ptr, bool own ) {
     Task *res = new Task;
-    res->outputs.push_back( Output{ type_name( ptr ), ptr } );
+    res->outputs.push_back( Output{ type_name( ptr ), ptr, own } );
     res->computed = true;
     return res;
 }
