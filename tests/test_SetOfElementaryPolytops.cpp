@@ -11,14 +11,24 @@ using TI = std::uint64_t;
 using TF = Pt::TF;
 
 void test_triangle() {
-    SetOfElementaryPolytops sp( 2 );
+    const int dim = 2;
+    SetOfElementaryPolytops sp( dim );
 
     // construct
-    TI nb_triangles = 3;
+    TI nb_triangles = 15;
     sp.add_repeated( triangle(), nb_triangles,
-        Tensor<double>( Vec<TI>{ nb_triangles, 2 }, { 0, 1, 0,  0, 0, 1 } ),
-        Vec<double>( { 0, 1, 2 } )
+        Tensor<double>( Vec<TI>{ nb_triangles, dim }, { 0, 1, 0,  0, 0, 1 } ),
+        Vec<double>( { 0, 1, 2 } ),
+        100
     );
+
+    sp.add_repeated( triangle(), nb_triangles,
+        Tensor<double>( Vec<TI>{ nb_triangles, dim }, { 0, 1, 0,  0, 0, 1 } ),
+        Vec<double>( { 0, 1, 2 } ),
+        200
+    );
+
+    P( sp );
 
     //    // cut
     //    std::vector<TF> cxs, cys, css;

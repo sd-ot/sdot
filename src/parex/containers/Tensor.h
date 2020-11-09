@@ -18,12 +18,13 @@ public:
     template<class V>         Tensor         ( const V &size );
     /**/                      Tensor         () {}
 
+    void                      write_to_stream( std::ostream &os ) const;
     void                      for_each_index ( const std::function<void( Vec<TI> &index, TI &off )> &f ) const;
     bool                      next_index     ( Vec<TI> &index, TI &off ) const;
-    void                      init_mcum      ();
-    std::size_t               dim            () const { return size.size(); }
+    TI                        init_mcum      ();
+    TI                        dim            () const { return size.size(); }
 
-    void                      write_to_stream( std::ostream &os ) const;
+    void                      resize         ( TI new_x_size );
 
     Vec<TI>                   rese;
     Vec<TI>                   mcum;

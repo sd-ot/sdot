@@ -27,8 +27,14 @@ public:
     void              write_to_stream( std::ostream &os ) const;
 
     Value             operator+      ( const Value &that ) const;
+    Value             operator-      ( const Value &that ) const;
+    Value             operator*      ( const Value &that ) const;
+    Value             operator/      ( const Value &that ) const;
 
     Value&            operator+=     ( const Value &that );
+    Value&            operator-=     ( const Value &that );
+    Value&            operator*=     ( const Value &that );
+    Value&            operator/=     ( const Value &that );
 
     TaskRef           ref;
 };

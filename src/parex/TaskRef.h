@@ -41,5 +41,34 @@ inline bool Task::move_arg( std::size_t num_arg, std::size_t num_out ) {
     return false;
 }
 
+inline bool Task::move_arg( const std::vector<std::size_t> &num_args, const std::vector<std::size_t> &num_outs ) {
+    // try
+    for( std::size_t num_arg : num_args )
+        --children[ num_arg ].task->ref_count;
+
+    bool ok = true;
+    for( std::size_t num_arg : num_args )
+        ok &= children[ num_arg ].task->ref_count == 0;
+
+    for( std::size_t num_arg : num_args )
+        ++children[ num_arg ].task->ref_count;
+
+    // no can do ville
+    if ( ! ok )
+        return false;
+
+    // if ok, move inputs to outputs
+    for( std::size_t i = 0; i < num_args.size(); ++i ) {
+        if ( outputs.size() <= num_outs[ i ] )
+            outputs.resize( num_outs[ i ] + 1 );
+        outputs[ num_outs[ i ] ] = std::move( children[ num_args[ i ] ].task->outputs[ children[ num_args[ i ] ].nout ] );
+    }
+    return true;
+}
+
+inline bool Task::move_arg( const std::vector<std::size_t> &num_arg ) {
+    return move_arg( num_arg, num_arg );
+}
+
 } // namespace parex
 

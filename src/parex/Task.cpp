@@ -65,9 +65,10 @@ Task *Task::call( Kernel *kernel, const std::vector<TaskRef *> &outputs, std::ve
     return res;
 }
 
-void Task::get_front_rec( std::vector<Task *> &front ) {
-    if ( computed || in_front )
+void Task::get_front_rec( std::vector<TaskRef> &front ) {
+    if ( computed || in_front || op_id == curr_op_id )
         return;
+    op_id = curr_op_id;
 
     if ( children_are_computed() ) {
         front.push_back( this );

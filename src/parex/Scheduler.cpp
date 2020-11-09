@@ -25,24 +25,25 @@ Scheduler &Scheduler::operator<<( Task *task ) {
 
 void Scheduler::run() {
     // front = all the task that can be executed
-    std::vector<Task *> front;
+    std::vector<TaskRef> front;
     ++Task::curr_op_id;
     for( const TaskRef &value : targets )
         value.task->get_front_rec( front );
+    targets.clear();
 
     //
     while ( ! front.empty() ) {
         // find the next task to execute
-        Task *task = front.back();
+        TaskRef task_ref = front.back();
         front.pop_back();
 
         // exec
-        if ( log ) std::cout << *task << std::endl;
-        task->computed = true;
-        exec_task( task );
+        if ( log ) std::cout << task_ref << std::endl;
+        task_ref.task->computed = true;
+        exec_task( task_ref.task );
 
         // parent task that can be executed
-        for( Task *parent : task->parents ) {
+        for( Task *parent : task_ref.task->parents ) {
             if ( parent->children_are_computed() && ! parent->in_front ) {
                 front.push_back( parent );
                 parent->in_front = true;
@@ -50,24 +51,9 @@ void Scheduler::run() {
         }
 
         // free the tasks that are not going to be used anymore
-        for( TaskRef &ch : task->children ) {
-            if ( --ch.task->ref_count == 0 )
-                delete ch.task;
-            ch.task = nullptr;
-        }
-        if ( task->is_target_in_scheduler ) {
-            for( TaskRef &t : targets ) {
-                if ( t.task == task ) {
-                    if ( --task->ref_count == 0 )
-                        delete task;
-                    t.task = nullptr;
-                }
-            }
-        }
+        for( TaskRef &ch : task_ref.task->children )
+            ch = nullptr;
     }
-
-    //
-    targets.clear();
 }
 
 void Scheduler::exec_task( Task *task ) {

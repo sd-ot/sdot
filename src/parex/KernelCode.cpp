@@ -245,13 +245,6 @@ void KernelCode::init_default_flags() {
     #endif
 }
 
-void KernelCode::exec( const std::string &cmd ) {
-    std::cout << cmd << std::endl;
-    if ( system( cmd.c_str() ) ) {
-        ERROR( "Error in cmd: {}", cmd );
-    }
-}
-
 void KernelCode::init_base_types() {
     src_heads[ "ostream" ].push_back( "using std::ostream;" );
 
@@ -319,10 +312,16 @@ void KernelCode::get_prereq_req( std::ostream &includes_os, std::ostream &src_he
                 src_heads_os << h << "\n";
 }
 
+void KernelCode::exec( const std::string &cmd ) {
+    // std::cout << cmd << std::endl;
+    if ( system( cmd.c_str() ) )
+        ERROR( "Error in cmd: {}", cmd );
+}
+
 void KernelCode::build( const path &src_dir, const std::string &build_opt ) {
     path bld_dir = src_dir / "build";
-    exec( "cmake -S '" + src_dir.string() + "' -B '" + bld_dir.string() + "' -DCMAKE_INSTALL_PREFIX='" + object_dir.string() + "'" ); //  > /dev/null
-    exec( "cmake --build '" + bld_dir.string() + "'" + build_opt ); // > /dev/null
+    exec( "cmake -S '" + src_dir.string() + "' -B '" + bld_dir.string() + "' -DCMAKE_INSTALL_PREFIX='" + object_dir.string() + "' > /dev/null" );
+    exec( "cmake --build '" + bld_dir.string() + "'" + build_opt + " > /dev/null" );
 }
 
 } // namespace parex

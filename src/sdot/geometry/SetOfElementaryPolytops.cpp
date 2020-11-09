@@ -2,11 +2,12 @@
 #include <parex/support/ASSERT.h>
 #include <parex/support/TODO.h>
 #include <parex/support/P.h>
-#include <parex/Kernel.h>
+#include <parex/KernelCode.h>
 
 namespace sdot {
 
 SetOfElementaryPolytops::SetOfElementaryPolytops( unsigned dim, std::string scalar_type, std::string index_type ) : scalar_type( scalar_type ), index_type( index_type ), dim( dim ) {
+    parex::kernel_code.add_include_dir( parex::KernelCode::path( SDOT_DIR ) / "src" / "sdot" / "kernels" );
     // Prop: on démarre
 }
 
@@ -15,9 +16,9 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::stri
     for( const auto &p : shape_map ) {
         const ShapeData &sd = p.second;
         os << "\n" << sp << "  " << sd.shape_type->name();
-        os << "\n" << sp << "   " << sd.coordinates;
-        os << "\n" << sp << "   " << sd.face_ids;
-        os << "\n" << sp << "   " << sd.ids;
+        os << "\n" << sp << "  C: " << sd.coordinates;
+        os << "\n" << sp << "  F: " << sd.face_ids;
+        os << "\n" << sp << "  I: " << sd.ids;
     }
     os << "\n" << sp << "])";
 }
@@ -39,17 +40,14 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::stri
 //}
 
 void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
-    //    ASSERT( coordinates.size() == dim * shape_type->nb_nodes(), "wrong coordinates size" );
     ShapeData *sd = shape_data( shape_type );
 
-    parex::Task::call( new parex::Kernel{ "append_repeated_elements" }, {
+    parex::Task::call( new parex::Kernel{ .name = "add_repeated_elements", .task_as_arg = true }, {
         &sd->coordinates.ref, &sd->face_ids.ref, &sd->ids.ref
     }, {
         sd->coordinates.ref, sd->face_ids.ref, sd->ids.ref,
         count.ref, coordinates.ref, face_ids.ref, beg_ids.ref
     } );
-
-    P( sd->coordinates );
 }
 
 //void SetOfElementaryPolytops::plane_cut( const std::vector<VecTF> &normals, const VecTF &scalar_products, const VecTI &cut_ids ) {

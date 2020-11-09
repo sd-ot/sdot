@@ -17,13 +17,14 @@ void Value::write_to_stream( std::ostream &os ) const {
     scheduler.run();
 }
 
-Value Value::operator+( const Value &that ) const {
-    return Task::call_r( new Kernel{ .name = "gen_op(+)", .task_as_arg = true }, { ref, that.ref } );
-}
+Value Value::operator+( const Value &that ) const { return Task::call_r( new Kernel{ .name = "gen_op(+)", .task_as_arg = true }, { ref, that.ref } ); }
+Value Value::operator-( const Value &that ) const { return Task::call_r( new Kernel{ .name = "gen_op(-)", .task_as_arg = true }, { ref, that.ref } ); }
+Value Value::operator*( const Value &that ) const { return Task::call_r( new Kernel{ .name = "gen_op(*)", .task_as_arg = true }, { ref, that.ref } ); }
+Value Value::operator/( const Value &that ) const { return Task::call_r( new Kernel{ .name = "gen_op(/)", .task_as_arg = true }, { ref, that.ref } ); }
 
-Value &Value::operator+=( const Value &that ) {
-    ref = Task::call_r( new Kernel{ .name = "gen_op(+)", .task_as_arg = true }, { ref, that.ref } );
-    return *this;
-}
+Value &Value::operator+=( const Value &that ) { ref = Task::call_r( new Kernel{ .name = "gen_op(+)", .task_as_arg = true }, { ref, that.ref } ); return *this; }
+Value &Value::operator-=( const Value &that ) { ref = Task::call_r( new Kernel{ .name = "gen_op(-)", .task_as_arg = true }, { ref, that.ref } ); return *this; }
+Value &Value::operator*=( const Value &that ) { ref = Task::call_r( new Kernel{ .name = "gen_op(*)", .task_as_arg = true }, { ref, that.ref } ); return *this; }
+Value &Value::operator/=( const Value &that ) { ref = Task::call_r( new Kernel{ .name = "gen_op(/)", .task_as_arg = true }, { ref, that.ref } ); return *this; }
 
 } // namespace parex

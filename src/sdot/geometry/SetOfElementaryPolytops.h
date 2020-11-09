@@ -17,7 +17,7 @@ public:
     using       Value                  = parex::Value;
     using       TI                     = std::size_t;
 
-    /**/        SetOfElementaryPolytops( unsigned dim, std::string scalar_type = "FP64", std::string index_type = "SI64" );
+    /**/        SetOfElementaryPolytops( unsigned dim, std::string scalar_type = "FP64", std::string index_type = "PI64" );
 
     void        add_repeated           ( ShapeType *shape_type, const Value &count, const Value &coordinates, const Value &face_ids = 0, const Value &beg_ids = 0 );
 

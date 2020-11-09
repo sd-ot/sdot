@@ -21,6 +21,8 @@ public:
 
     void                           write_to_stream      ( std::ostream &os ) const;
     bool                           move_arg             ( std::size_t num_arg, std::size_t num_out = 0 );
+    bool                           move_arg             ( const std::vector<std::size_t> &num_arg );
+    bool                           move_arg             ( const std::vector<std::size_t> &num_arg, const std::vector<std::size_t> &num_out );
 
     static Task*                   ref_type             ( const std::string type ); ///< make a S<Type>() object
     template<class T> static Task* ref_on               ( T *ptr, bool own = true ); ///< Wrap a known source value. Takes ownership of ptr
@@ -28,7 +30,7 @@ public:
     static Task*                   call                 ( Kernel *kernel, const std::vector<TaskRef *> &outputs = {}, std::vector<TaskRef> &&inputs = {} );
 
     bool                           children_are_computed() const;
-    void                           get_front_rec        ( std::vector<Task *> &front );
+    void                           get_front_rec        ( std::vector<TaskRef> &front );
 
     template<class F> void         run                  ( const F &func, void **data );
 
