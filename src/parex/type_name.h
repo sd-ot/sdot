@@ -11,6 +11,8 @@
 namespace parex {
 
 inline std::string type_name( const std::ostream  * ) { return "ostream"; }
+inline std::string type_name( const std::string   * ) { return "string" ; }
+
 inline std::string type_name( const std::uint64_t * ) { return "PI64"   ; }
 inline std::string type_name( const std::uint32_t * ) { return "PI32"   ; }
 inline std::string type_name( const std::int64_t  * ) { return "SI64"   ; }

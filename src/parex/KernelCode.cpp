@@ -246,34 +246,25 @@ void KernelCode::init_default_flags() {
 }
 
 void KernelCode::init_base_types() {
-    src_heads[ "ostream" ].push_back( "using std::ostream;" );
+    auto asi = [&]( const char *type, const char *incl, const char *head = nullptr ) {
+        if ( incl ) includes [ type ].push_back( incl );
+        if ( head ) src_heads[ type ].push_back( head );
+    };
 
-    src_heads[ "SI32"    ].push_back( "using SI32 = std::int32_t;" );
-    includes [ "SI32"    ].push_back( "<cstdint>" );
+    asi( "Tensor" , "<parex/containers/Tensor.h>", "using parex::Tensor;"        );
+    asi( "Vec"    , "<parex/containers/Vec.h>"   , "using parex::Vec;"           );
+    asi( "S"      , "<parex/support/S.h>"        , "using parex::S;"             );
+    asi( "N"      , "<parex/support/N.h>"        , "using parex::N;"             );
 
-    src_heads[ "SI64"    ].push_back( "using SI64 = std::int64_t;" );
-    includes [ "SI64"    ].push_back( "<cstdint>" );
+    asi( "ostream", "<ostream>"                  , "using std::ostream;"         );
+    asi( "string" , "<string>"                   , "using std::string;"          );
 
-    src_heads[ "PI32"    ].push_back( "using PI32 = std::uint32_t;" );
-    includes [ "PI32"    ].push_back( "<cstdint>" );
-
-    src_heads[ "PI64"    ].push_back( "using PI64 = std::uint64_t;" );
-    includes [ "PI64"    ].push_back( "<cstdint>" );
-
-    src_heads[ "FP64"    ].push_back( "using FP64 = double;" );
-    src_heads[ "FP32"    ].push_back( "using FP32 = float;" );
-
-    includes [ "Tensor"  ].push_back( "<parex/containers/Tensor.h>" );
-    src_heads[ "Tensor"  ].push_back( "using parex::Tensor;" );
-
-    includes [ "Vec"     ].push_back( "<parex/containers/Vec.h>" );
-    src_heads[ "Vec"     ].push_back( "using parex::Vec;" );
-
-    includes [ "S"       ].push_back( "<parex/support/S.h>" );
-    src_heads[ "S"       ].push_back( "using parex::S;" );
-
-    includes [ "N"       ].push_back( "<parex/support/N.h>" );
-    src_heads[ "N"       ].push_back( "using parex::N;" );
+    asi( "PI64"   , "<cstdint>"                  , "using PI64 = std::uint64_t;" );
+    asi( "PI32"   , "<cstdint>"                  , "using PI32 = std::uint32_t;" );
+    asi( "SI64"   , "<cstdint>"                  , "using SI64 = std::int64_t;"  );
+    asi( "SI32"   , "<cstdint>"                  , "using SI32 = std::int32_t;"  );
+    asi( "FP64"   , nullptr                      , "using FP64 = double;"        );
+    asi( "FP32"   , nullptr                      , "using FP32 = float;"         );
 }
 
 void KernelCode::get_prereq_req( std::ostream &includes_os, std::ostream &src_heads_os, std::set<std::string> &includes_set, std::set<std::string> &src_heads_set, std::set<std::string> &seen_types, const std::string &type ) {

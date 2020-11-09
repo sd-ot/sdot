@@ -9,13 +9,13 @@ using namespace parex;
 using TF = double;
 using TI = int;
 
-Value random_vec( const Value &size, const Value &min = 0.0, const Value &max = 1.0 ) {
-    return Task::call_r( new Kernel{ "random_vec" }, { size.ref, min.ref, max.ref } );
-}
+//Value random_vec( const Value &size, const Value &min = 0.0, const Value &max = 1.0 ) {
+//    return Task::call_r( new Kernel{ "random_vec" }, { size.ref, min.ref, max.ref } );
+//}
 
-void min_max( Value &min, Value &max, const Value &container ) {
-    Task::call( new Kernel{ "min_max" }, { &min.ref, &max.ref }, { container.ref } );
-}
+//void min_max( Value &min, Value &max, const Value &container ) {
+//    Task::call( new Kernel{ "min_max" }, { &min.ref, &max.ref }, { container.ref } );
+//}
 
 //Value min_max( const Value &value ) {
 //    return { new Kernel{ "min_max" }, { value } };
@@ -29,6 +29,5 @@ int main() {
     kernel_code.add_include_dir( SDOT_DIR "/src/sdot/kernels" );
     // scheduler.log = true;
 
-    P( Value( 687 ) + Value( 688 ) );
-    P( Value( 687 ) - Value( 688 ) );
+    P( Value( std::string( "pouet" ) ) );
 }
