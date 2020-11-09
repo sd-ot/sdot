@@ -4,6 +4,6 @@
 
 namespace parex {
 
-std::string url_encode( std::string s );
+std::string cstr_encode( std::string s );
 
 } // namespace parex

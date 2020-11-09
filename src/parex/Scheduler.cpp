@@ -1,6 +1,6 @@
+#include "support/generic_ostream_output.h"
 #include "KernelCode.h"
 #include "Scheduler.h"
-#include "support/P.h"
 
 namespace parex {
 
@@ -37,6 +37,7 @@ void Scheduler::run() {
         front.pop_back();
 
         // exec
+        if ( log ) std::cout << *task << std::endl;
         task->computed = true;
         exec_task( task );
 

@@ -2,6 +2,8 @@
 #include "Kernel.h"
 #include "Value.h"
 
+#include "support/P.h"
+
 namespace parex {
 
 Value::Value( TaskRef &&ref ) : ref( std::move( ref ) ) {
@@ -16,11 +18,11 @@ void Value::write_to_stream( std::ostream &os ) const {
 }
 
 Value Value::operator+( const Value &that ) const {
-    return Task::call_r( new Kernel{ "add" }, { ref, that.ref } );
+    return Task::call_r( new Kernel{ .name = "gen_op(+)", .task_as_arg = true }, { ref, that.ref } );
 }
 
 Value &Value::operator+=( const Value &that ) {
-    ref = Task::call_r( new Kernel{ "add" }, { ref, that.ref } );
+    ref = Task::call_r( new Kernel{ .name = "gen_op(+)", .task_as_arg = true }, { ref, that.ref } );
     return *this;
 }
 

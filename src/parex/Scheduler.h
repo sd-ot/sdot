@@ -14,6 +14,8 @@ public:
 
     void                 run       ();
 
+    bool                 log       = false;
+
 private:
     void                 exec_task ( Task *task );
 

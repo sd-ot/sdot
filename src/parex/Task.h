@@ -1,6 +1,7 @@
 #pragma once
 
 #include "support/StaticRange.h"
+#include "support/ASSERT.h"
 #include "type_name.h"
 #include "Output.h"
 #include <ostream>
@@ -18,6 +19,8 @@ public:
     /**/                           Task                 () { is_target_in_scheduler = false; computed = false; in_front = false; kernel = nullptr; ref_count = 0; op_id = 0; }
     /**/                          ~Task                 ();
 
+    void                           write_to_stream      ( std::ostream &os ) const;
+    bool                           move_arg             ( std::size_t num_arg, std::size_t num_out = 0 );
 
     template<class T> static Task* ref_on               ( T *ptr, bool own = true ); ///< Wrap a known source value. Takes ownership of ptr
     static TaskRef                 call_r               ( Kernel *kernel, std::vector<TaskRef> &&inputs = {} ); ///< can be used if only 1 output. Return output of the task
@@ -62,13 +65,20 @@ void Task::make_outputs( std::tuple<A*...> &&ret ) {
     outputs.resize( s );
 
     StaticRange<s>::for_each( [&]( auto n ) {
-        outputs[ n.value ] = { type_name( std::get<n.value>( ret ) ), std::get<n.value>( ret ) };
+        if ( outputs[ n.value ].type.empty() )
+            outputs[ n.value ] = { type_name( std::get<n.value>( ret ) ), std::get<n.value>( ret ) };
+        else
+            ASSERT( std::get<n.value>( ret ) == nullptr, "" );
     } );
 }
 
 template<class A>
 void Task::make_outputs( A *ret ) {
-    outputs.push_back( { type_name( ret ), ret } );
+    outputs.resize( 1 );
+    if ( outputs[ 0 ].type.empty() )
+        outputs[ 0 ] = { type_name( ret ), ret };
+    else
+        ASSERT( ret == nullptr, "" );
 }
 
 

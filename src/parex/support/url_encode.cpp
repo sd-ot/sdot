@@ -12,7 +12,7 @@ void hexchar( unsigned char c, unsigned char &hex1, unsigned char &hex2 ) {
     hex2 += hex2 <= 9 ? '0' : 'a' - 10;
 }
 
-string urlencode( string s ) {
+string url_encode( string s ) {
     vector<char> v;
     v.reserve( s.size() );
 
@@ -22,8 +22,7 @@ string urlencode( string s ) {
         if ( ( c >= '0' && c <= '9' ) ||
              ( c >= 'a' && c <= 'z' ) ||
              ( c >= 'A' && c <= 'Z' ) ||
-             c == '-' || c == '_' || c == '.' || c == '!' || c == '~' ||
-             c == '*' || c == '\'' || c == '(' || c == ')') {
+             c == '-' || c == '_' || c == '.' ) {
             v.push_back( c );
         } else if ( c == ' ' ) {
             v.push_back( '+' );

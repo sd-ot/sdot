@@ -27,23 +27,10 @@ void display( const Value &value, std::ostream &os = std::cout ) {
 
 int main() {
     kernel_code.add_include_dir( SDOT_DIR "/src/sdot/kernels" );
-    //    Scheduler sch;
-
-    //    TI dim = 2;
-    //    TI nb_diracs = 200;
-
-    //    std::vector<Node> pos;
-    //    for( TI d = 0; d < dim; ++d )
-    //        pos.push_back( uniform_random_vec( nb_diracs, 0.0, 1.0 ) );
-
-    //    Node m_m = { { "min_max" }, pos };
-    //    sch << Node{ { "display" }, std::cout, m_m };
-    //    Value v( 17 );
-    //    P( v );
-    //    P( min_max( Tensor<int>( { 4, 2 }, { 0, 1, 2, 3, 4, 5, 6, 7 } ) ) );
+    // scheduler.log = true;
 
     // Tensor
     Value v( 17 );
-//    v += 13;
-    P( v + 13 );
+    v += 13;
+    P( v );
 }

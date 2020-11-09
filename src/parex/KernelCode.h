@@ -28,10 +28,11 @@ private:
 
     void                     init_default_flags();
     void                     make_cmake_lists  ( const std::string &dir, const std::string &name, const std::vector<std::string> &flags );
-    void                     make_kernel_cpp   ( const std::string &dir, const std::string &name, const std::vector<std::string> &input_types );
+    void                     make_kernel_cpp   ( const std::string &dir, const std::string &name, const std::vector<std::string> &input_types, bool task_as_arg, bool local_inc );
     void                     get_prereq_req    ( std::ostream &includes_os, std::ostream &src_heads_os, std::set<std::string> &includes_set, std::set<std::string> &src_heads_set, std::set<std::string> &seen_types, const std::string &type );
     void                     build_kernel      ( const std::string &dir );
     Code                     make_code         ( const Kernel &kernel, const std::vector<std::string> &input_types ); ///< make a Func from a Kernel (not cached)
+    bool                     gen_code          ( const std::string &dir, const std::string &bname, const std::string &param );
     void                     exec              ( const std::string &cmd );
 
     std::vector<std::string> include_directories;

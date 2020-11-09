@@ -20,6 +20,17 @@ Task::~Task() {
         output.destroy();
 }
 
+void Task::write_to_stream( std::ostream &os ) const {
+    if ( kernel )
+        os << kernel->name;
+    else {
+        os << "src(";
+        for( std::size_t i = 0; i < outputs.size(); ++i )
+            os << ( i ? "," : "" ) << outputs[ i ].type;
+        os << ")";
+    }
+}
+
 TaskRef Task::call_r( Kernel *kernel, std::vector<TaskRef> &&inputs ) {
     Task *res = new Task;
 
