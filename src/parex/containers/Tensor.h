@@ -16,7 +16,7 @@ public:
     template<class V>         Tensor         ( const V &size, Vec<T> &&data, const V &rese );
     template<class V>         Tensor         ( const V &size, Vec<T> &&data );
     template<class V>         Tensor         ( const V &size );
-    /**/                      Tensor         () {}
+    /**/                      Tensor         ();
 
     void                      write_to_stream( std::ostream &os ) const;
     void                      for_each_index ( const std::function<void( Vec<TI> &index, TI &off )> &f ) const;
@@ -25,6 +25,9 @@ public:
     TI                        dim            () const { return size.size(); }
 
     void                      resize         ( TI new_x_size );
+
+    T*                        ptr            ( TI num_x ) { return ptr() + rese[ 0 ] * num_x; }
+    T*                        ptr            () { return data.data(); }
 
     Vec<TI>                   rese;
     Vec<TI>                   mcum;

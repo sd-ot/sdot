@@ -5,9 +5,9 @@
 
 namespace parex {
 
-template<class T,class I>
-void assign_repeated( T *dst, T val, I beg, I end ) {
-    SimdRange<SimdSize<T>::value>::for_each_al( beg, end, [&]( T index, auto s ) {
+template<class T,class I,class G>
+void assign_repeated( T *dst, I beg, I end, const G &val ) {
+    SimdRange<SimdSize<T>::value>::for_each_al( beg, end, [&]( I index, auto s ) {
         SimdVec<T,s.value>::store( dst + index, val );
     } );
 }

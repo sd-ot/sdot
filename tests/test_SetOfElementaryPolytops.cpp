@@ -17,14 +17,14 @@ void test_triangle() {
     // construct
     TI nb_triangles = 15;
     sp.add_repeated( triangle(), nb_triangles,
-        Tensor<double>( Vec<TI>{ nb_triangles, dim }, { 0, 1, 0,  0, 0, 1 } ),
-        Vec<double>( { 0, 1, 2 } ),
+        Vec<TI>{ 0, 1, 0,  0, 0, 1 },
+        Vec<TF>{ 0, 1, 2 },
         100
     );
 
     sp.add_repeated( triangle(), nb_triangles,
-        Tensor<double>( Vec<TI>{ nb_triangles, dim }, { 0, 1, 0,  0, 0, 1 } ),
-        Vec<double>( { 0, 1, 2 } ),
+        Vec<TI>{ 10, 11, 10,  10, 10, 11 },
+        Vec<TF>{ 3, 4, 5 },
         200
     );
 

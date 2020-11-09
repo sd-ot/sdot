@@ -27,12 +27,12 @@ Tensor<T,A,TI>::Tensor( const V &size ) : rese( size ), size( size ) {
     }
 }
 
+template<class T,class A,class TI>
+Tensor<T,A,TI>::Tensor() : mcum( 0 ) {
+}
 
 template<class T,class A,class TI>
 void Tensor<T,A,TI>::write_to_stream( std::ostream &os ) const {
-    //    os << "size:" << size;
-    //    os << " rese:" << rese;
-    //    os << " data:";
     for_each_index( [&]( const Vec<TI> &index, TI off ) {
         for( std::size_t n = 0; n < index.size(); ++n ) {
             if ( index[ n ] ) {
@@ -53,14 +53,21 @@ template<class T,class A,class TI>
 bool Tensor<T,A,TI>::next_index( Vec<TI> &index, TI &off ) const {
     ++off;
 
-    std::size_t n = 0;
-    while ( true ) {
-        if ( n == dim() )
-            return false;
+    // x
+    if ( ++index[ 0 ] < size[ 0 ] ) {
+        return true;
+    }
+
+    off += rese[ 0 ] - size[ 0 ];
+    index[ 0 ] = 0;
+
+    //
+    for( std::size_t n = 1; n < dim(); ++n ) {
         if ( ++index[ n ] < size[ n ] )
             return true;
-        index[ n++ ] = 0;
+        index[ n ] = 0;
     }
+    return false;
 }
 
 template<class T, class A, class TI>
@@ -78,7 +85,7 @@ TI Tensor<T,A,TI>::init_mcum() {
 
 template<class T,class A,class TI>
 void Tensor<T,A,TI>::for_each_index( const std::function<void(Vec<TI>&,TI &off)> &f ) const {
-    if ( dim() == 0 || mcum[ dim() ] == 0 )
+    if ( mcum[ dim() ] == 0 )
         return;
 
     Vec<TI> index( dim(), 0 );
