@@ -22,6 +22,7 @@ public:
     void                      for_each_index ( const std::function<void( Vec<TI> &index, TI &off )> &f ) const;
     bool                      next_index     ( Vec<TI> &index, TI &off ) const;
     TI                        init_mcum      ();
+    TI                        nb_x_vec       () const { return mcum.back() / ( rese[ 0 ] + ( rese[ 0 ] == 0 ) ); }
     TI                        dim            () const { return size.size(); }
 
     void                      resize         ( TI new_x_size );

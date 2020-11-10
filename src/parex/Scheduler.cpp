@@ -29,7 +29,6 @@ void Scheduler::run() {
     ++Task::curr_op_id;
     for( const TaskRef &value : targets )
         value.task->get_front_rec( front );
-    targets.clear();
 
     //
     while ( ! front.empty() ) {
@@ -54,6 +53,8 @@ void Scheduler::run() {
         for( TaskRef &ch : task_ref.task->children )
             ch = nullptr;
     }
+
+    targets.clear();
 }
 
 void Scheduler::exec_task( Task *task ) {

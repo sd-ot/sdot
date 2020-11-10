@@ -1,4 +1,6 @@
+#include "support/DotOut.h"
 #include <algorithm>
+#include <fstream>
 #include "Kernel.h"
 
 namespace parex {
@@ -63,6 +65,44 @@ Task *Task::call( Kernel *kernel, const std::vector<TaskRef *> &outputs, std::ve
         *outputs[ n ] = { res, n };
 
     return res;
+}
+
+void Task::display_graphviz( const std::vector<Task *> &tasks, std::string f, const char *prg ) {
+    std::ofstream os( f );
+
+    os << "digraph LexemMaker {\n";
+    std::set<Task *> seen;
+    for( Task *t : tasks ) {
+        t->for_each_rec( [&]( Task *task ) {
+            os << "  node_" << task << " [label=\"";
+            dot_out( os, *task );
+            os << "," << task->computed;
+            os << "\"];\n";
+
+            for( const TaskRef &tr : task->children )
+                os << "  node_" << task << " -> node_" << tr.task << ";\n";
+
+            for( const Task *tr : task->parents )
+                os << "  node_" << tr << " -> node_" << task << " [color=red];\n";
+
+        }, seen );
+    }
+    os << "}\n";
+
+    os.close();
+
+    exec_dot( f, prg );
+}
+
+void Task::for_each_rec( const std::function<void (Task *)> &f, std::set<Task *> &seen ) {
+    if ( seen.count( this ) )
+        return;
+    seen.insert( this );
+
+    for( const TaskRef &tr : children )
+        tr.task->for_each_rec( f, seen );
+
+    f( this );
 }
 
 void Task::get_front_rec( std::vector<TaskRef> &front ) {

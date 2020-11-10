@@ -6,6 +6,7 @@
 #include "Output.h"
 #include <ostream>
 #include <vector>
+#include <set>
 
 namespace parex {
 class TaskRef;
@@ -28,6 +29,9 @@ public:
     template<class T> static Task* ref_on               ( T *ptr, bool own = true ); ///< Wrap a known source value. Takes ownership of ptr
     static TaskRef                 call_r               ( Kernel *kernel, std::vector<TaskRef> &&inputs = {} ); ///< can be used if only 1 output. Return output of the task
     static Task*                   call                 ( Kernel *kernel, const std::vector<TaskRef *> &outputs = {}, std::vector<TaskRef> &&inputs = {} );
+
+    static void                    display_graphviz     ( const std::vector<Task *> &tasks, std::string f = ".tasks.dot", const char *prg = nullptr );
+    void                           for_each_rec         ( const std::function<void( Task * )> &f, std::set<Task *> &seen );
 
     bool                           children_are_computed() const;
     void                           get_front_rec        ( std::vector<TaskRef> &front );

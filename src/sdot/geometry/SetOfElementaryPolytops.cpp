@@ -16,12 +16,11 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::stri
     Value vsp( sp + "  " );
     for( const auto &p : shape_map ) {
         const ShapeData &sd = p.second;
-        Value v( parex::Task::call_r( new parex::Kernel{ "display_elements" }, {
-            sd.coordinates.ref, sd.face_ids.ref, sd.ids.ref, vsp.ref
-        } ) );
-
-        P( v );
-        os << "\n" << sp << " " << p.first->name() << "\n" << v;
+        os << "\n" << sp << " " << p.first->name() << "\n" << Value(
+            parex::Task::call_r( new parex::Kernel{ "shape_data_to_string" }, {
+                sd.coordinates.ref, sd.face_ids.ref, sd.ids.ref, vsp.ref
+            }
+        ) );
     }
     os << "\n" << sp << "])";
 }

@@ -1,6 +1,7 @@
 #include "../src/sdot/geometry/SetOfElementaryPolytops.h"
 #include "../src/sdot/geometry/Point.h"
-#include "../src/parex/support/P.h"
+#include <parex/Scheduler.h>
+#include <parex/support/P.h>
 #include <cmath>
 
 using namespace parex;
