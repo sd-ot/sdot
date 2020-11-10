@@ -49,11 +49,11 @@ void VtkOutput::save( std::ostream &os ) const {
     //    }
 }
 
-void VtkOutput::add_triangle( std::array<Pt,3> pts ) {
+void VtkOutput::add_triangle( const std::array<Pt,3> &pts ) {
     add_item( pts.data(), pts.size(), 5 );
 }
 
-void VtkOutput::add_pyramid( std::array<Pt,5> pts ) {
+void VtkOutput::add_pyramid( const std::array<Pt,5> &pts ) {
     std::array<Pt,5> npts{ pts[ 0 ], pts[ 1 ], pts[ 3 ], pts[ 2 ], pts[ 4 ] };
     add_item( npts.data(), npts.size(), 14 );
 }
@@ -62,36 +62,24 @@ void VtkOutput::add_polygon( const std::vector<Pt> &pts ) {
     add_item( pts.data(), pts.size(), 7 );
 }
 
-void VtkOutput::add_wedge( std::array<Pt,6> pts ) {
+void VtkOutput::add_wedge( const std::array<Pt,6> &pts ) {
     add_item( pts.data(), pts.size(), 13 );
 }
 
-void VtkOutput::add_tetra( std::array<Pt,4> pts ) {
+void VtkOutput::add_tetra( const std::array<Pt,4> &pts ) {
     add_item( pts.data(), pts.size(), 10 );
 }
 
-void VtkOutput::add_quad( std::array<Pt,4> pts ) {
+void VtkOutput::add_quad( const std::array<Pt,4> &pts ) {
     add_item( pts.data(), pts.size(), 9 );
 }
 
-void VtkOutput::add_hexa( std::array<Pt,8> pts ) {
+void VtkOutput::add_hexa( const std::array<Pt,8> &pts ) {
     add_item( pts.data(), pts.size(), 12 );
 }
 
-void VtkOutput::add_line( const std::vector<Pt> &pts ) {
+void VtkOutput::add_lines( const std::vector<Pt> &pts ) {
     add_item( pts.data(), pts.size(), 4 );
-}
-
-void VtkOutput::add_item( const Pt *pts_data, TI pts_size, TI vtk_type ) {
-    TI os = points.size();
-    for( TI i = 0; i < pts_size; ++i )
-        points.push_back( pts_data[ i ] );
-
-    cell_items.push_back( pts_size );
-    for( TI i = 0; i < pts_size; ++i )
-        cell_items.push_back( os++ );
-
-    cell_types.push_back( vtk_type );
 }
 
 }

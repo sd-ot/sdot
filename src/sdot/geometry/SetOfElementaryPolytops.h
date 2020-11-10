@@ -24,7 +24,7 @@ public:
     //    void  plane_cut              ( const Value &normals, const Value &scalar_products, const Value &cut_ids );
 
     void        write_to_stream        ( std::ostream &os, const std::string &sp = {} ) const;
-    //    void  display_vtk            ( VtkOutput &vo, VtkOutput::Pt *offsets = nullptr ) const;
+    void        display_vtk            ( VtkOutput &vo, VtkOutput::Pt *offsets = nullptr ) const;
 
 private:
     using       ShapeMap               = std::map<const ShapeType *,ShapeData>;

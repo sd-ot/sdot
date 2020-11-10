@@ -9,3 +9,5 @@ all:
 	# ${NSMAKE} tests/test_parex.cpp
 	${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
 
+c:
+	rm objects/lib/* objects/*.info

@@ -18,18 +18,22 @@ void test_triangle() {
     // construct
     TI nb_triangles = 15;
     sp.add_repeated( triangle(), nb_triangles,
-        Vec<TI>{ 0, 1, 0,  0, 0, 1 },
+        Vec<TI>{ 0, 0,
+                 1, 0,
+                 0, 1 },
         Vec<TF>{ 0, 1, 2 },
         100
     );
 
     sp.add_repeated( triangle(), nb_triangles,
-        Vec<TI>{ 10, 11, 10,  10, 10, 11 },
+        Vec<TI>{ 10, 10,
+                 11, 10,
+                 10, 11 },
         Vec<TF>{ 3, 4, 5 },
         200
     );
 
-    P( sp );
+    //    P( sp );
 
     //    // cut
     //    std::vector<TF> cxs, cys, css;
@@ -51,9 +55,9 @@ void test_triangle() {
     //    for( std::size_t i = 0; i < nb_triangles; ++i )
     //        off_vtk.push_back( VtkOutput::Pt{ 0.0, 0.0, 0.2 * i } );
 
-    //    VtkOutput vo;
-    //    sp.display_vtk( vo, off_vtk.data() );
-    //    vo.save( "cut.vtk" );
+    VtkOutput vo;
+    sp.display_vtk( vo/*, off_vtk.data()*/ );
+    vo.save( "cut.vtk" );
 }
 
 //void test_quad() {

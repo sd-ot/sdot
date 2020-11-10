@@ -26,6 +26,7 @@ public:
     bool                           move_arg             ( const std::vector<std::size_t> &num_arg, const std::vector<std::size_t> &num_out );
 
     static Task*                   ref_type             ( const std::string type ); ///< make a S<Type>() object
+    static Task*                   ref_num              ( int value ); ///< make a N<value>() object
     template<class T> static Task* ref_on               ( T *ptr, bool own = true ); ///< Wrap a known source value. Takes ownership of ptr
     static TaskRef                 call_r               ( Kernel *kernel, std::vector<TaskRef> &&inputs = {} ); ///< can be used if only 1 output. Return output of the task
     static Task*                   call                 ( Kernel *kernel, const std::vector<TaskRef *> &outputs = {}, std::vector<TaskRef> &&inputs = {} );

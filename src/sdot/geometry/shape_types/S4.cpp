@@ -10,7 +10,7 @@ namespace sdot {
 class S4 : public ShapeType {
 public:
 //    virtual std::vector<BI> cut_poss_count() const override;
-//    virtual void            display_vtk   ( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items, VtkOutput::Pt *offsets ) const override;
+    virtual void            display_vtk   ( const std::function<void( unsigned vtk_id, const parex::Vec<unsigned> &nodes )> &f ) const override;
 //    virtual void            cut_rese      ( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const override;
     virtual unsigned        nb_nodes      () const override { return 4; }
     virtual unsigned        nb_faces      () const override { return 4; }
@@ -48,28 +48,9 @@ public:
 //    ks->mk_items_n3_0_0_0_1_0_3_f3_0_c_3( nsd_S3, { 0, 1, 2 }, { 0, 1, 2 }, old_shape_data, { 0, 1, 2, 3 }, { 0, 1, 2, 3 }, old_shape_data.cut_case_offsets[ 14 ][ 0 ], old_shape_data.cut_case_offsets[ 14 ][ 1 ], cut_ids, N<2>() );
 //}
 
-//void S4::display_vtk( VtkOutput &vo, const double **tfs, const BI **tis, unsigned /*dim*/, BI nb_items, VtkOutput::Pt *offsets ) const {
-//    using Pt = VtkOutput::Pt;
-//    if ( offsets ) {
-//        for( BI i = 0; i < nb_items; ++i ) {
-//            vo.add_quad( {
-//                 Pt{ tfs[ 0 ][ i ], tfs[ 1 ][ i ], 0.0 } + offsets[ tis[ 0 ][ i ] ],
-//                 Pt{ tfs[ 2 ][ i ], tfs[ 3 ][ i ], 0.0 } + offsets[ tis[ 0 ][ i ] ],
-//                 Pt{ tfs[ 4 ][ i ], tfs[ 5 ][ i ], 0.0 } + offsets[ tis[ 0 ][ i ] ],
-//                 Pt{ tfs[ 6 ][ i ], tfs[ 7 ][ i ], 0.0 } + offsets[ tis[ 0 ][ i ] ],
-//            } );
-//        }
-//    } else {
-//        for( BI i = 0; i < nb_items; ++i ) {
-//            vo.add_quad( {
-//                 Pt{ tfs[ 0 ][ i ], tfs[ 1 ][ i ], 0.0 },
-//                 Pt{ tfs[ 2 ][ i ], tfs[ 3 ][ i ], 0.0 },
-//                 Pt{ tfs[ 4 ][ i ], tfs[ 5 ][ i ], 0.0 },
-//                 Pt{ tfs[ 6 ][ i ], tfs[ 7 ][ i ], 0.0 },
-//            } );
-//        }
-//    }
-//}
+void S4::display_vtk( const std::function<void( unsigned vtk_id, const parex::Vec<unsigned> &nodes )> &f ) const {
+    f( 9, { 0, 1, 2, 3 } );
+}
 
 //void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const {
 //    BI max_nb_item_with_sub_case = 0;

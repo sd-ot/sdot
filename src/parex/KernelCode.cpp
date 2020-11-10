@@ -174,8 +174,13 @@ void KernelCode::make_cpp( TmpDir &tmp_dir, const Kernel &kernel, const std::vec
     fcpp << "            return " << bname << "(\n";
     if ( kernel.task_as_arg )
         fcpp << "                task" << ( input_types.size() ? "," : "" ) << "\n";
-    for( std::size_t i = 0; i < input_types.size(); ++i )
-        fcpp << "                *reinterpret_cast<" << input_types[ i ] << "*>( data[ " << i << " ] )" << ( i + 1 < input_types.size() ? "," : "" ) << "\n";
+    for( std::size_t i = 0; i < input_types.size(); ++i ) {
+        if ( input_types[ i ] != "void" )
+            fcpp << "                *reinterpret_cast<" << input_types[ i ] << "*>( data[ " << i << " ] )";
+        else
+            fcpp << "                data[ " << i << " ]";
+        fcpp << ( i + 1 < input_types.size() ? "," : "" ) << "\n";
+    }
     fcpp << "            );\n";
     fcpp << "        }\n";
     fcpp << "    };\n";

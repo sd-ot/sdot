@@ -1,6 +1,7 @@
 #pragma once
 
-#include "VtkOutput.h"
+#include <parex/containers/Vec.h>
+#include <functional>
 #include <string>
 #include <map>
 
@@ -13,7 +14,7 @@ public:
     using                   TI            = std::size_t;
 
 //    virtual std::vector<BI> cut_poss_count() const = 0;
-//    virtual void            display_vtk   ( VtkOutput &vo, const double **tfs, const BI **tis, unsigned dim, BI nb_items, VtkOutput::Pt *offsets ) const = 0;
+    virtual void            display_vtk   ( const std::function<void( unsigned vtk_id, const parex::Vec<unsigned> &nodes )> &f ) const = 0;
 //    virtual void            cut_rese      ( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const = 0;
     virtual unsigned        nb_nodes      () const = 0;
     virtual unsigned        nb_faces      () const = 0;

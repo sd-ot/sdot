@@ -2,6 +2,7 @@
 #include <parex/support/ASSERT.h>
 #include <parex/support/TODO.h>
 #include <parex/support/P.h>
+#include <parex/Scheduler.h>
 #include <parex/KernelCode.h>
 
 namespace sdot {
@@ -25,21 +26,18 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os, const std::stri
     os << "\n" << sp << "])";
 }
 
-//void SetOfElementaryPolytops::display_vtk( VtkOutput &vo, VtkOutput::Pt *offsets ) const {
-//    for( const auto &p : shape_map ) {
-//        const ShapeData &sd = p.second;
-
-//        std::vector<std::tuple<const void *,BI,BI>> tfs;
-//        std::vector<std::tuple<const void *,BI,BI>> tis;
-//        for( std::size_t d = 0; d < sd.shape_type->nb_nodes() * dim; ++d )
-//            tfs.emplace_back( sd.coordinates, sd.rese * d, sd.size );
-//        tis.emplace_back( sd.ids, 0, sd.size );
-
-//        ks->get_local( [&]( const double **tfs, const BI **tis ) {
-//            sd.shape_type->display_vtk( vo, tfs, tis, dim, sd.size, offsets );
-//        }, tfs.data(), tfs.size(), tis.data(), tis.size() );
-//    }
-//}
+void SetOfElementaryPolytops::display_vtk( VtkOutput &vo, VtkOutput::Pt *offsets ) const {
+    for( const auto &p : shape_map ) {
+        const ShapeData &sd = p.second;
+        p.first->display_vtk( [&]( Value vtk_id, Value nodes ) {
+            parex::scheduler << parex::Task::call( new parex::Kernel{ "shape_data_display_vtk" }, {}, {
+                parex::Task::ref_on( &vo, false ), parex::Task::ref_on( offsets, false ), sd.coordinates.ref, sd.face_ids.ref, sd.ids.ref,
+                parex::Task::ref_num( dim ), vtk_id.ref, nodes.ref
+            } );
+            parex::scheduler.run();
+        } );
+    }
+}
 
 void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
     ShapeData *sd = shape_data( shape_type );

@@ -40,6 +40,13 @@ Task *Task::ref_type( const std::string type ) {
     return res;
 }
 
+Task *Task::ref_num( int value ) {
+    Task *res = new Task;
+    res->outputs.emplace_back( "N<" + std::to_string( value ) + ">", nullptr, false );
+    res->computed = true;
+    return res;
+}
+
 TaskRef Task::call_r( Kernel *kernel, std::vector<TaskRef> &&inputs ) {
     Task *res = new Task;
 

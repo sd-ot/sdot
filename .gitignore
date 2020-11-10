@@ -3,6 +3,7 @@ update_files.sh
 .sdot_parex.*
 .sdot_elem.*
 .sdot.*
+*.dot
 *.kdev4
 build/
 ext/
