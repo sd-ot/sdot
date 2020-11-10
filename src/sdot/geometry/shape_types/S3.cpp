@@ -9,19 +9,20 @@ namespace sdot {
 
 class S3 : public ShapeType {
 public:
-//    virtual std::vector<BI> cut_poss_count() const override;
+    virtual parex::Vec<TI> *cut_poss_count() const override;
     virtual void            display_vtk   ( const std::function<void( unsigned vtk_id, const parex::Vec<unsigned> &nodes )> &f ) const override;
-//    virtual void            cut_rese      ( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const override;
+    //    virtual void      cut_rese      ( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const override;
     virtual unsigned        nb_nodes      () const override { return 3; }
     virtual unsigned        nb_faces      () const override { return 3; }
-//    virtual void            cut_ops       ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override;
+    //    virtual void      cut_ops       ( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const override;
     virtual std::string     name          () const override { return "S3"; }
 };
 
 
-//std::vector<ShapeType::BI> S3::cut_poss_count() const {
-//    return { 1, 1, 1, 1, 1, 1, 1, 0 };
-//}
+parex::Vec<ShapeType::TI> *S3::cut_poss_count() const {
+    static parex::Vec<TI> res{ 1, 1, 1, 1, 1, 1, 1, 0 };
+    return &res;
+}
 
 //void S3::cut_ops( KernelSlot *ks, std::map<const ShapeType *,ShapeData> &new_shape_map, const ShapeData &old_shape_data, const void *cut_ids, BI /*dim*/ ) const {
 //    ShapeData &nsd_S3 = new_shape_map.find( s3() )->second;

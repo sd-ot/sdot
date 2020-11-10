@@ -27,6 +27,9 @@ public:
 
     template<class G,class B>
     Vec( const Vec<G,B> &v ) : std::vector<T,AlignedAllocator<T,A>>( v.size() ) { for( std::size_t i = 0; i < v.size(); ++i ) this->operator[]( i ) = v[ i ]; }
+
+    const T *ptr() const { return this->data(); }
+    T *ptr() { return this->data(); }
 };
 
 #ifdef __CUDACC__

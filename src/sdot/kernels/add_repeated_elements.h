@@ -13,7 +13,6 @@ std::tuple<Tensor<TF>*, Tensor<TI>*, Vec<TI>*> add_repeated_elements(
     Task *task, Tensor<TF> &coordinates, Tensor<TI> &face_ids, Vec<TI> &ids,
     TI count, const A &input_coordinates, const B &input_face_ids, C beg_ids ) {
 
-    // we're going to reuse the tensors
     if ( ! task->move_arg( { 0, 1, 2 }, { 0, 1, 2 } ) )
         ERROR( "not owned" );
 
