@@ -1,5 +1,6 @@
 #include "../src/sdot/geometry/SetOfElementaryPolytops.h"
 #include "../src/sdot/geometry/Point.h"
+#include <parex/containers/Vec.h>
 #include <parex/Scheduler.h>
 #include <parex/support/P.h>
 #include <cmath>
@@ -17,7 +18,7 @@ void test_triangle() {
 
     // construct
     TI nb_triangles = 15;
-    sp.add_repeated( "triangle", nb_triangles,
+    sp.add_repeated( triangle(), nb_triangles,
         Vec<TI>{ 0, 0, 1, 0, 0, 1 },
         Vec<TF>{ 0, 1, 2 }
     );

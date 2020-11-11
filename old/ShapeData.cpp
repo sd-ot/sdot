@@ -5,11 +5,11 @@ using namespace parex;
 
 namespace sdot {
 
-ShapeData::ShapeData( const ShapeType *shape_type, std::size_t dim, std::string scalar_type, std::string index_type ) : shape_type( shape_type ) {
-    coordinates = Task::call_r( new Kernel{ "New_paren" }, { Task::ref_type( "parex::Tensor<" + scalar_type + ">" ), Task::ref_on( new Vec<std::size_t>{ 0, dim * shape_type->nb_nodes() } ) } );
-    face_ids    = Task::call_r( new Kernel{ "New_paren" }, { Task::ref_type( "parex::Tensor<" + index_type + ">" ), Task::ref_on( new Vec<std::size_t>{ 0, shape_type->nb_nodes() } ) } );
-    ids         = Task::call_r( new Kernel{ "New_paren" }, { Task::ref_type( "parex::Vec<" + index_type + ">" ) } );
-}
+//ShapeData::ShapeData( const ShapeType *shape_type, std::size_t dim, std::string scalar_type, std::string index_type ) : shape_type( shape_type ) {
+//    coordinates = Task::call_r( new Kernel{ "New_paren" }, { Task::ref_type( "parex::Tensor<" + scalar_type + ">" ), Task::ref_on( new Vec<std::size_t>{ 0, dim * shape_type->nb_nodes() } ) } );
+//    face_ids    = Task::call_r( new Kernel{ "New_paren" }, { Task::ref_type( "parex::Tensor<" + index_type + ">" ), Task::ref_on( new Vec<std::size_t>{ 0, shape_type->nb_nodes() } ) } );
+//    ids         = Task::call_r( new Kernel{ "New_paren" }, { Task::ref_type( "parex::Vec<" + index_type + ">" ) } );
+//}
 
 //void ShapeData::reserve( BI new_rese ) {
 //    if ( rese >= new_rese )
@@ -58,4 +58,4 @@ ShapeData::ShapeData( const ShapeType *shape_type, std::size_t dim, std::string 
 //    size = new_size;
 //}
 
-}
+} // namespace sdot

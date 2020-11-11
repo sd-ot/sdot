@@ -168,11 +168,13 @@ void KernelCode::make_cpp( const path &log, TmpDir &tmp_dir, const Kernel &kerne
     fcpp << includes.str();
 
     fcpp << "\n";
-    fcpp << "#include <parex/TaskRef.h>\n";
     if ( generated )
         fcpp << "#include \"generated.h\"\n";
     else
         fcpp << "#include <" << dname << bname << ".h>\n";
+
+    fcpp << "\n";
+    fcpp << "#include <parex/TaskRef.h>\n";
 
     fcpp << "\n";
     fcpp << src_heads.str();

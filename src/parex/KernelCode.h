@@ -25,6 +25,8 @@ public:
     Func                       func              ( const Kernel &kernel, const std::vector<std::string> &input_types );
 
     path                       object_dir;
+    MSVS                       src_heads;
+    MSVS                       includes;
 
 private:
     struct                     Code              { std::unique_ptr<dynalo::library> lib; Func func; };
@@ -49,8 +51,6 @@ private:
 
     std::vector<std::string>   include_directories;
     std::string                cpu_config;
-    MSVS                       src_heads;
-    MSVS                       includes;
     std::map<std::string,Code> code;
 };
 

@@ -2,6 +2,7 @@
 #define PAREX_TENSOR_H
 
 #include "../support/Math.h"
+#include "../type_name.h"
 #include <functional>
 #include "Vec.h"
 
@@ -28,7 +29,12 @@ public:
     void                      resize         ( TI new_x_size );
 
     T*                        ptr            ( TI num_x ) { return ptr() + rese[ 0 ] * num_x; }
+    const T*                  ptr            ( TI num_x ) const { return ptr() + rese[ 0 ] * num_x; }
+
+    const T*                  ptr            () const { return data.data(); }
     T*                        ptr            () { return data.data(); }
+
+    static std::string        type_name      () { return "parex::Tensor<" + parex::type_name<T>() + ",parex::Arch::" + A::name() + ">"; }
 
     Vec<TI>                   rese;
     Vec<TI>                   mcum;

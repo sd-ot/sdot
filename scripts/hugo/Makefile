@@ -11,3 +11,4 @@ all:
 
 c:
 	rm objects/lib/* objects/*.info
+	rm -rf /tmp/parex_*

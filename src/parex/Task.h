@@ -2,9 +2,12 @@
 
 #include "support/StaticRange.h"
 #include "support/ASSERT.h"
+
 #include "type_name.h"
 #include "Output.h"
 #include "Kernel.h"
+
+#include <functional>
 #include <ostream>
 #include <vector>
 #include <set>

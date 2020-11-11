@@ -3,6 +3,7 @@
 
 #include "../arch/AlignedAllocator.h"
 #include "../arch/Arch.h"
+#include "../type_name.h"
 #include <vector>
 
 #ifdef __CUDACC__
@@ -30,6 +31,8 @@ public:
 
     const T *ptr() const { return this->data(); }
     T *ptr() { return this->data(); }
+
+    static std::string type_name() { return "parex::Vec<" + parex::type_name<T>() + ",parex::Arch::" + A::name() + ">"; }
 };
 
 #ifdef __CUDACC__
