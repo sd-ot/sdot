@@ -3,10 +3,8 @@
 
 using namespace parex;
 
-template<class TF,class TI,class A,class B,class C>
-ShapeData<TI> *new_shape_map(
-    Task *task, Tensor<TF> &coordinates, Tensor<TI> &face_ids, Vec<TI> &ids,
-    TI count, const A &input_coordinates, const B &input_face_ids, C beg_ids ) {
+template<class TF,class TI,int dim>
+std::map<std::string,ShapeData<TF,TI,dim>> *new_shape_map(  ) {
 
     if ( ! task->move_arg( { 0, 1, 2 }, { 0, 1, 2 } ) )
         ERROR( "not owned" );
