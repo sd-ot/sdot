@@ -35,14 +35,14 @@ void Task::write_to_stream( std::ostream &os ) const {
 
 Task *Task::ref_type( const std::string type ) {
     Task *res = new Task;
-    res->outputs.emplace_back( "S<" + type + ">", nullptr, false );
+    res->outputs.emplace_back( "parex::S<" + type + ">", nullptr, false );
     res->computed = true;
     return res;
 }
 
 Task *Task::ref_num( int value ) {
     Task *res = new Task;
-    res->outputs.emplace_back( "N<" + std::to_string( value ) + ">", nullptr, false );
+    res->outputs.emplace_back( "parex::N<" + std::to_string( value ) + ">", nullptr, false );
     res->computed = true;
     return res;
 }

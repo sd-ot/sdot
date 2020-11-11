@@ -10,6 +10,7 @@ namespace sdot {
 class S3 : public ShapeType {
 public:
     virtual parex::Vec<TI> *cut_poss_count() const override;
+    virtual CRN            *cut_rese_new  () const override;
     virtual void            display_vtk   ( const std::function<void( unsigned vtk_id, const parex::Vec<unsigned> &nodes )> &f ) const override;
     //    virtual void      cut_rese      ( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const override;
     virtual unsigned        nb_nodes      () const override { return 3; }
@@ -21,6 +22,26 @@ public:
 
 parex::Vec<ShapeType::TI> *S3::cut_poss_count() const {
     static parex::Vec<TI> res{ 1, 1, 1, 1, 1, 1, 1, 0 };
+    return &res;
+}
+//    fc( s3(),
+//        ( sd.cut_case_offsets[ 0 ][ 1 ] - sd.cut_case_offsets[ 0 ][ 0 ] ) * 1 +
+//        ( sd.cut_case_offsets[ 3 ][ 1 ] - sd.cut_case_offsets[ 3 ][ 0 ] ) * 1 +
+//        ( sd.cut_case_offsets[ 5 ][ 1 ] - sd.cut_case_offsets[ 5 ][ 0 ] ) * 1 +
+//        ( sd.cut_case_offsets[ 6 ][ 1 ] - sd.cut_case_offsets[ 6 ][ 0 ] ) * 1
+//    );
+
+//    fc( s4(),
+//        ( sd.cut_case_offsets[ 1 ][ 1 ] - sd.cut_case_offsets[ 1 ][ 0 ] ) * 1 +
+//        ( sd.cut_case_offsets[ 2 ][ 1 ] - sd.cut_case_offsets[ 2 ][ 0 ] ) * 1 +
+//        ( sd.cut_case_offsets[ 4 ][ 1 ] - sd.cut_case_offsets[ 4 ][ 0 ] ) * 1
+//    );
+
+ShapeType::CRN *S3::cut_rese_new() const {
+    static CRN res{
+        { "S3", { 1, 0, 0, 1, 0, 1, 1, 0 } },
+        { "S4", { 0, 1, 1, 0, 1, 0, 0, 0 } }
+    };
     return &res;
 }
 
@@ -40,22 +61,6 @@ parex::Vec<ShapeType::TI> *S3::cut_poss_count() const {
 void S3::display_vtk( const std::function<void( unsigned vtk_id, const parex::Vec<unsigned> &nodes )> &f ) const {
     f( 5, { 0, 1, 2 } );
 }
-
-//void S3::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const {
-
-//    fc( s3(),
-//        ( sd.cut_case_offsets[ 0 ][ 1 ] - sd.cut_case_offsets[ 0 ][ 0 ] ) * 1 +
-//        ( sd.cut_case_offsets[ 3 ][ 1 ] - sd.cut_case_offsets[ 3 ][ 0 ] ) * 1 +
-//        ( sd.cut_case_offsets[ 5 ][ 1 ] - sd.cut_case_offsets[ 5 ][ 0 ] ) * 1 +
-//        ( sd.cut_case_offsets[ 6 ][ 1 ] - sd.cut_case_offsets[ 6 ][ 0 ] ) * 1
-//    );
-
-//    fc( s4(),
-//        ( sd.cut_case_offsets[ 1 ][ 1 ] - sd.cut_case_offsets[ 1 ][ 0 ] ) * 1 +
-//        ( sd.cut_case_offsets[ 2 ][ 1 ] - sd.cut_case_offsets[ 2 ][ 0 ] ) * 1 +
-//        ( sd.cut_case_offsets[ 4 ][ 1 ] - sd.cut_case_offsets[ 4 ][ 0 ] ) * 1
-//    );
-//}
 
 
 // =======================================================================================

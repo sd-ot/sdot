@@ -1,4 +1,5 @@
 // generated file
+#include <parex/support/TODO.h>
 #include "../ShapeData.h"
 #include "../VtkOutput.h"
 #include <iostream>
@@ -10,6 +11,7 @@ namespace sdot {
 class S4 : public ShapeType {
 public:
     virtual parex::Vec<TI> *cut_poss_count() const override;
+    virtual CRN            *cut_rese_new  () const override;
     virtual void            display_vtk   ( const std::function<void( unsigned vtk_id, const parex::Vec<unsigned> &nodes )> &f ) const override;
     //    virtual void      cut_rese      ( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const override;
     virtual unsigned        nb_nodes      () const override { return 4; }
@@ -20,6 +22,15 @@ public:
 
 parex::Vec<ShapeType::TI> *S4::cut_poss_count() const {
     static parex::Vec<TI> res{ 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 0 };
+    return &res;
+}
+
+ShapeType::CRN *S4::cut_rese_new() const {
+    static CRN res{
+        { "S3", { 1, 0, 0, 1, 0, 1, 1, 0 } },
+        { "S4", { 0, 1, 1, 0, 1, 0, 0, 0 } }
+    };
+    TODO;
     return &res;
 }
 
@@ -51,6 +62,7 @@ parex::Vec<ShapeType::TI> *S4::cut_poss_count() const {
 void S4::display_vtk( const std::function<void( unsigned vtk_id, const parex::Vec<unsigned> &nodes )> &f ) const {
     f( 9, { 0, 1, 2, 3 } );
 }
+
 
 //void S4::cut_rese( const std::function<void(const ShapeType *,BI)> &fc, KernelSlot *ks, const ShapeData &sd ) const {
 //    BI max_nb_item_with_sub_case = 0;

@@ -1,6 +1,8 @@
 #include <parex/containers/Tensor.h>
 #include <parex/containers/Vec.h>
 #include <sstream>
+#include <string>
+#include <map>
 using namespace parex;
 
 template<class TI>
@@ -27,13 +29,14 @@ void make_sorted_indices( Vec<TI> &indices, TI *offsets, const TI *cut_cases, TI
         VI oc = io * nb_cases + nc;
         VI of = VI::gather( reinterpret_cast<const TI *>( offsets ), oc );
 
-        VI::scatter( reinterpret_cast<TI *>( indices ), of, VI( beg_num_item ) + io );
-        VI::scatter( reinterpret_cast<TI *>( offsets ), oc, of + 1 );
+        VI::scatter( indices.ptr(), of, VI( beg_num_item ) + io );
+        VI::scatter( offsets, oc, of + 1 );
     } );
 }
 
-template<class TF,class TI,class TN,class VO,class VC,int nb_nodes,int dim>
-std::tuple<Vec<Vec<TI>> *,Vec<TI> *,Tensor<TF> *> plane_cut_scalar_products( Tensor<TF> &coordinates, Vec<TI> &ids, TN &normals, VO &off_scps, VC &cut_poss_count, N<nb_nodes>, N<dim> ) {
+template<class TF,class TI,class TN,class VO,class VC,class CRN,int nb_nodes,int dim>
+std::tuple<Vec<Vec<TI>> *,Vec<TI> *,Tensor<TF> *,std::map<std::string,TI> *> plane_cut_scalar_products(
+        Tensor<TF> &coordinates, Vec<TI> &ids, TN &normals, VO &off_scps, VC &cut_poss_count, CRN &cut_rese_new, N<nb_nodes>, N<dim> ) {
     const TI nb_items = coordinates.size[ 0 ];
     const TI nb_cases = 1u << nb_nodes;
 
@@ -97,9 +100,25 @@ std::tuple<Vec<Vec<TI>> *,Vec<TI> *,Tensor<TF> *> plane_cut_scalar_products( Ten
         cco[ 0 ] = count[ n ];
     }
 
-    //
+    // sort indices by case number
     Vec<TI> *indices = new Vec<TI>( nb_items );
     make_sorted_indices( *indices, count.ptr(), cut_cases.ptr(), nb_items, N<nb_cases>() );
 
-    return { cut_case_offsets, indices, scalar_products };
+    // update sub cases
+
+    // get reservation for new elements
+    std::map<std::string,TI> *reservation_new_elements = new std::map<std::string,TI>;
+    for( const auto &p : cut_rese_new ) {
+        auto iter = reservation_new_elements->find( p.first );
+        if ( iter == reservation_new_elements->end() )
+            iter = reservation_new_elements->insert( iter, { p.first, 0 } );
+
+        for( TI num_case = 0, cpt = 0; num_case < nb_cases; ++num_case ) {
+            const Vec<TI> &cc = cut_case_offsets->operator[]( num_case );
+            for( TI num_sub_case = 0; num_sub_case < cc.size() - 1; ++num_sub_case, ++cpt )
+                iter->second += p.second[ cpt ] * ( cc[ num_sub_case + 1 ] - cc[ num_sub_case + 0 ] );
+        }
+    }
+
+    return { cut_case_offsets, indices, scalar_products, reservation_new_elements };
 }

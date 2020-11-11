@@ -256,20 +256,21 @@ void KernelCode::init_base_types() {
         if ( head ) src_heads[ type ].push_back( head );
     };
 
-    asi( "Tensor" , "<parex/containers/Tensor.h>", "using parex::Tensor;"        );
-    asi( "Vec"    , "<parex/containers/Vec.h>"   , "using parex::Vec;"           );
-    asi( "S"      , "<parex/support/S.h>"        , "using parex::S;"             );
-    asi( "N"      , "<parex/support/N.h>"        , "using parex::N;"             );
+    asi( "parex::Tensor", "<parex/containers/Tensor.h>" );
+    asi( "parex::Vec"   , "<parex/containers/Vec.h>"    );
+    asi( "parex::S"     , "<parex/support/S.h>"         );
+    asi( "parex::N"     , "<parex/support/N.h>"         );
+    asi( "std::map"     , "<map>"                       );
 
-    asi( "ostream", "<ostream>"                  , "using std::ostream;"         );
-    asi( "string" , "<string>"                   , "using std::string;"          );
+    asi( "std::ostream" , "<ostream>"                   );
+    asi( "std::string"  , "<string>"                    );
 
-    asi( "PI64"   , "<cstdint>"                  , "using PI64 = std::uint64_t;" );
-    asi( "PI32"   , "<cstdint>"                  , "using PI32 = std::uint32_t;" );
-    asi( "SI64"   , "<cstdint>"                  , "using SI64 = std::int64_t;"  );
-    asi( "SI32"   , "<cstdint>"                  , "using SI32 = std::int32_t;"  );
-    asi( "FP64"   , nullptr                      , "using FP64 = double;"        );
-    asi( "FP32"   , nullptr                      , "using FP32 = float;"         );
+    asi( "PI64"         , "<cstdint>"                   , "using PI64 = std::uint64_t;" );
+    asi( "PI32"         , "<cstdint>"                   , "using PI32 = std::uint32_t;" );
+    asi( "SI64"         , "<cstdint>"                   , "using SI64 = std::int64_t;"  );
+    asi( "SI32"         , "<cstdint>"                   , "using SI32 = std::int32_t;"  );
+    asi( "FP64"         , nullptr                       , "using FP64 = double;"        );
+    asi( "FP32"         , nullptr                       , "using FP32 = float;"         );
 }
 
 void KernelCode::get_prereq_req( std::ostream &includes_os, std::ostream &src_heads_os, std::set<std::string> &includes_set, std::set<std::string> &src_heads_set, std::set<std::string> &seen_types, const std::string &type ) {

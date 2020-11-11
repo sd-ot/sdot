@@ -52,22 +52,26 @@ void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &
 
 void SetOfElementaryPolytops::plane_cut( const Value &normals, const Value &scalar_products, const Value &/*cut_ids*/ ) {
     // get scalar product, cases and new_item_count
+    std::vector<parex::TaskRef> rne = { parex::Task::ref_type( index_type ) };
     for( const auto &p : shape_map ) {
         const ShapeData &sd = p.second;
 
         parex::Task::call( new parex::Kernel{ "plane_cut_scalar_products" }, {
-            &sd.cut_case_offsets.ref, &sd.indices.ref, &sd.scalar_products.ref
+            &sd.cut_case_offsets.ref, &sd.indices.ref, &sd.scalar_products.ref, &sd.reservation_new_elements.ref
         }, {
             sd.coordinates.ref, sd.ids.ref, normals.ref, scalar_products.ref,
             parex::Task::ref_on( sd.shape_type->cut_poss_count(), false ),
+            parex::Task::ref_on( sd.shape_type->cut_rese_new(), false ),
             parex::Task::ref_num( sd.shape_type->nb_nodes() ),
             parex::Task::ref_num( dim )
         } );
 
-        P( sd.cut_case_offsets );
-        P( sd.indices );
+        rne.push_back( sd.reservation_new_elements.ref );
     }
 
+    // make new shape data
+    Value reservation_new_elements = parex::Task::call_r( new parex::Kernel{ "plane_cut_reservation_new_elements" }, std::move( rne ) );
+    P( reservation_new_elements );
 }
 
 //        // update of nb items to create for each type

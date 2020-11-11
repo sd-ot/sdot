@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <utility>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -71,4 +72,10 @@ std::ostream &operator<<( std::ostream &os, const std::unique_ptr<T> &val ) {
 inline std::ostream &operator<<( std::ostream &os, const std::string &val ) {
     os.write( val.data(), val.size() );
     return os;
+}
+
+//
+template<class A,class B>
+std::ostream &operator<<( std::ostream &os, const std::pair<A,B> &val ) {
+    return os << "[" << val.first << "," << val.second << "]";
 }
