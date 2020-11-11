@@ -54,6 +54,4 @@ private:
     std::map<std::string,Code> code;
 };
 
-extern KernelCode kernel_code;
-
 } // namespace parex

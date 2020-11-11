@@ -9,11 +9,11 @@
 namespace sdot {
 
 SetOfElementaryPolytops::SetOfElementaryPolytops( unsigned dim, std::string scalar_type, std::string index_type ) : scalar_type( scalar_type ), index_type( index_type ), dim( dim ) {
-    parex::kernel_code.add_include_dir( parex::KernelCode::path( SDOT_DIR ) / "src" / "sdot" / "kernels" );
-    parex::kernel_code.add_include_dir( parex::KernelCode::path( SDOT_DIR ) / "src" );
+    parex::scheduler.kernel_code.add_include_dir( parex::KernelCode::path( SDOT_DIR ) / "src" / "sdot" / "kernels" );
+    parex::scheduler.kernel_code.add_include_dir( parex::KernelCode::path( SDOT_DIR ) / "src" );
 
-    parex::kernel_code.includes[ "sdot::ShapeData" ].push_back( "<sdot/geometry/ShapeData.h>" );
-    parex::kernel_code.includes[ "sdot::ShapeMap" ].push_back( "<sdot/geometry/ShapeMap.h>" );
+    parex::scheduler.kernel_code.includes[ "sdot::ShapeData" ].push_back( "<sdot/geometry/ShapeData.h>" );
+    parex::scheduler.kernel_code.includes[ "sdot::ShapeMap" ].push_back( "<sdot/geometry/ShapeMap.h>" );
 
     shape_map = parex::Task::call_r( "SetOfElementaryPolytops/new_shape_map", {
         parex::Task::ref_type( scalar_type ),
@@ -26,17 +26,10 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
     os << shape_map;
 }
 
-void SetOfElementaryPolytops::display_vtk( VtkOutput &vo, VtkOutput::Pt *offsets ) const {
-    //    for( const auto &p : shape_map ) {
-    //        const ShapeData &sd = p.second;
-    //        p.first->display_vtk( [&]( Value vtk_id, Value nodes ) {
-    //            parex::scheduler << parex::Task::call( new parex::Kernel{ "shape_data_display_vtk" }, {}, {
-    //                parex::Task::ref_on( &vo, false ), parex::Task::ref_on( offsets, false ), sd.coordinates.ref, sd.face_ids.ref, sd.ids.ref,
-    //                parex::Task::ref_num( dim ), vtk_id.ref, nodes.ref
-    //            } );
-    //            parex::scheduler.run();
-    //        } );
-    //    }
+void SetOfElementaryPolytops::display_vtk( const std::string &filename ) const {
+    parex::scheduler << parex::Task::call( parex::Kernel::with_priority( 10, "SetOfElementaryPolytops/display_vtk" ), {}, {
+        shape_map.ref, parex::Task::ref_on( new std::string( filename ) )
+    } );
 }
 
 void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
@@ -46,6 +39,8 @@ void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &
 }
 
 void SetOfElementaryPolytops::plane_cut( const Value &normals, const Value &scalar_products, const Value &/*cut_ids*/ ) {
+
+
     //    // get scalar product, cases and new_item_count
     //    std::vector<parex::TaskRef> rne = { parex::Task::ref_type( index_type ) };
     //    for( const auto &p : shape_map ) {

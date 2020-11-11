@@ -27,8 +27,6 @@
 
 namespace parex {
 
-KernelCode kernel_code;
-
 KernelCode::KernelCode() {
     object_dir = "objects";
 

@@ -1,5 +1,6 @@
 #include "../src/sdot/geometry/SetOfElementaryPolytops.h"
 #include "../src/sdot/geometry/Point.h"
+#include <parex/containers/Tensor.h>
 #include <parex/containers/Vec.h>
 #include <parex/Scheduler.h>
 #include <parex/support/P.h>
@@ -22,32 +23,24 @@ void test_triangle() {
         Vec<TI>{ 0, 0, 1, 0, 0, 1 },
         Vec<TF>{ 0, 1, 2 }
     );
+
+    // cut
+    Tensor<TF> normals( Vec<TI>{ nb_triangles, dim } );
+    Vec<TF> scalar_products( nb_triangles );
+    Vec<TI> new_face_ids( nb_triangles );
+    for( std::size_t i = 0; i < nb_triangles; ++i ) {
+        TF a = 2 * M_PI * i / nb_triangles;
+        Pt p = { std::cos( a ), std::sin( a ) };
+        scalar_products[ i ] = dot( p, Pt{ 0.33, 0.33 } );
+        normals.ptr( 0 )[ i ] = p[ 0 ];
+        normals.ptr( 1 )[ i ] = p[ 1 ];
+        new_face_ids[ i ] = 100 + i;
+    }
+
+    sp.plane_cut( normals, scalar_products, new_face_ids );
     P( sp );
 
-    //    // cut
-    //    Tensor<TF> normals( Vec<TI>{ nb_triangles, dim } );
-    //    Vec<TF> scalar_products( nb_triangles );
-    //    Vec<TI> new_face_ids( nb_triangles );
-    //    for( std::size_t i = 0; i < nb_triangles; ++i ) {
-    //        TF a = 2 * M_PI * i / nb_triangles;
-    //        Pt p = { std::cos( a ), std::sin( a ) };
-    //        scalar_products[ i ] = dot( p, Pt{ 0.33, 0.33 } );
-    //        normals.ptr( 0 )[ i ] = p[ 0 ];
-    //        normals.ptr( 1 )[ i ] = p[ 1 ];
-    //        new_face_ids[ i ] = 100 + i;
-    //    }
-
-    //    sp.plane_cut( normals, scalar_products, new_face_ids );
-    //    P( sp );
-
-    //    // display
-    //    std::vector<VtkOutput::Pt> off_vtk;
-    //    for( std::size_t i = 0; i < nb_triangles; ++i )
-    //        off_vtk.push_back( VtkOutput::Pt{ 0.0, 0.0, 0.2 * i } );
-
-    VtkOutput vo;
-    sp.display_vtk( vo/*, off_vtk.data()*/ );
-    vo.save( "cut.vtk" );
+    sp.display_vtk( "cut.vtk" );
 }
 
 //void test_quad() {

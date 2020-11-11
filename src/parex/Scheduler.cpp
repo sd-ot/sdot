@@ -9,6 +9,10 @@ Scheduler scheduler;
 Scheduler::Scheduler() {
 }
 
+Scheduler::~Scheduler() {
+    run();
+}
+
 Scheduler &Scheduler::operator<<( const TaskRef &task_ref ) {
     return operator<<( task_ref.task );
 }
@@ -25,7 +29,7 @@ Scheduler &Scheduler::operator<<( Task *task ) {
 
 void Scheduler::run() {
     // front = all the task that can be executed
-    std::vector<TaskRef> front;
+    std::map<int,std::vector<TaskRef>> front;
     ++Task::curr_op_id;
     for( const TaskRef &value : targets )
         value.task->get_front_rec( front );
@@ -33,8 +37,13 @@ void Scheduler::run() {
     //
     while ( ! front.empty() ) {
         // find the next task to execute
-        TaskRef task_ref = front.back();
-        front.pop_back();
+        std::map<int,std::vector<TaskRef>>::iterator first_in_front = front.begin();
+        std::vector<TaskRef> &vf = first_in_front->second;
+        TaskRef task_ref = vf.back();
+        vf.pop_back();
+
+        if ( vf.empty() )
+            front.erase( front.begin() );
 
         // exec
         if ( log ) std::cout << task_ref << std::endl;
@@ -44,7 +53,7 @@ void Scheduler::run() {
         // parent task that can be executed
         for( Task *parent : task_ref.task->parents ) {
             if ( parent->children_are_computed() && ! parent->in_front ) {
-                front.push_back( parent );
+                front[ - parent->kernel.priority ].push_back( parent );
                 parent->in_front = true;
             }
         }

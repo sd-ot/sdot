@@ -110,13 +110,13 @@ void Task::for_each_rec( const std::function<void (Task *)> &f, std::set<Task *>
     f( this );
 }
 
-void Task::get_front_rec( std::vector<TaskRef> &front ) {
+void Task::get_front_rec( std::map<int,std::vector<TaskRef>> &front ) {
     if ( computed || in_front || op_id == curr_op_id )
         return;
     op_id = curr_op_id;
 
     if ( children_are_computed() ) {
-        front.push_back( this );
+        front[ - kernel.priority ].push_back( this );
         in_front = true;
         return;
     }

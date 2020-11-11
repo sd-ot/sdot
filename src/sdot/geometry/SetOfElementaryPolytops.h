@@ -19,7 +19,7 @@ public:
     void        plane_cut              ( const Value &normals, const Value &scalar_products, const Value &cut_ids );
 
     void        write_to_stream        ( std::ostream &os ) const;
-    void        display_vtk            ( VtkOutput &vo, VtkOutput::Pt *offsets = nullptr ) const;
+    void        display_vtk            ( const std::string &filename ) const;
 
 private:
     std::string scalar_type;           ///<

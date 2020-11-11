@@ -38,7 +38,7 @@ public:
     void                           for_each_rec         ( const std::function<void( Task * )> &f, std::set<Task *> &seen );
 
     bool                           children_are_computed() const;
-    void                           get_front_rec        ( std::vector<TaskRef> &front );
+    void                           get_front_rec        ( std::map<int,std::vector<TaskRef>> &front );
 
     template<class F> void         run                  ( const F &func, void **data );
 

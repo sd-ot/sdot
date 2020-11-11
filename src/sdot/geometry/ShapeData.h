@@ -19,7 +19,6 @@ struct ShapeData {
     parex::Tensor<TI>  face_ids;      ///< all the ids for node 0, all the ids for node 1, ...
     parex::Vec<TI>     ids;           ///<
 
-
     // using               RNE                       = std::map<std::string,>;
     //    mutable Value    reservation_new_elements; ///< map[ name elem ] => Vec[ nb element for each case ]
     //    mutable Value    cut_case_offsets;         ///< for each case, a vector with offsets of each sub case
