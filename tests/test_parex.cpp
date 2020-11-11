@@ -21,9 +21,9 @@ using TI = int;
 //    return { new Kernel{ "min_max" }, { value } };
 //}
 
-void display( const Value &value, std::ostream &os = std::cout ) {
-    scheduler << Task::call( new Kernel{ "write_to_stream" }, {}, { Task::ref_on( &os, false ), value.ref } );
-}
+//void display( const Value &value, std::ostream &os = std::cout ) {
+//    scheduler << Task::call( new Kernel{ "write_to_stream" }, {}, { Task::ref_on( &os, false ), value.ref } );
+//}
 
 int main() {
     kernel_code.add_include_dir( SDOT_DIR "/src/sdot/kernels" );

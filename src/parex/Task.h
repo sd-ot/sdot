@@ -4,20 +4,20 @@
 #include "support/ASSERT.h"
 #include "type_name.h"
 #include "Output.h"
+#include "Kernel.h"
 #include <ostream>
 #include <vector>
 #include <set>
 
 namespace parex {
 class TaskRef;
-class Kernel;
 class Value;
 
 /**
 */
 class Task {
 public:
-    /**/                           Task                 () { is_target_in_scheduler = false; computed = false; in_front = false; kernel = nullptr; ref_count = 0; op_id = 0; }
+    /**/                           Task                 () { is_target_in_scheduler = false; computed = false; in_front = false; ref_count = 0; op_id = 0; }
     /**/                          ~Task                 ();
 
     void                           write_to_stream      ( std::ostream &os ) const;
@@ -28,8 +28,8 @@ public:
     static Task*                   ref_type             ( const std::string type ); ///< make a S<Type>() object
     static Task*                   ref_num              ( int value ); ///< make a N<value>() object
     template<class T> static Task* ref_on               ( T *ptr, bool own = true ); ///< Wrap a known source value. Takes ownership of ptr
-    static TaskRef                 call_r               ( Kernel *kernel, std::vector<TaskRef> &&inputs = {} ); ///< can be used if only 1 output. Return output of the task
-    static Task*                   call                 ( Kernel *kernel, const std::vector<TaskRef *> &outputs = {}, std::vector<TaskRef> &&inputs = {} );
+    static TaskRef                 call_r               ( const Kernel &kernel, std::vector<TaskRef> &&inputs = {} ); ///< can be used if only 1 output. Return output of the task
+    static Task*                   call                 ( const Kernel &kernel, const std::vector<TaskRef *> &outputs = {}, std::vector<TaskRef> &&inputs = {} );
 
     static void                    display_graphviz     ( const std::vector<Task *> &tasks, std::string f = ".tasks.dot", const char *prg = nullptr );
     void                           for_each_rec         ( const std::function<void( Task * )> &f, std::set<Task *> &seen );
@@ -49,7 +49,7 @@ public:
 
     std::vector<TaskRef>           children;
     std::vector<Task *>            parents;
-    Kernel*                        kernel;
+    Kernel                         kernel;
 
     bool                           is_target_in_scheduler;
     static  std::size_t            curr_op_id;

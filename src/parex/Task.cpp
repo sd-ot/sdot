@@ -1,16 +1,14 @@
 #include "support/DotOut.h"
+#include "TaskRef.h"
+
 #include <algorithm>
 #include <fstream>
-#include "Kernel.h"
 
 namespace parex {
 
 std::size_t Task::curr_op_id = 0;
 
 Task::~Task() {
-    // kernel is owned
-    delete kernel;
-
     // erase ref of `this` in children
     auto ei = [&]( const Task *t ) { return t == this; };
     for( const TaskRef &child : children )
@@ -24,7 +22,7 @@ Task::~Task() {
 
 void Task::write_to_stream( std::ostream &os ) const {
     if ( kernel )
-        os << kernel->name;
+        os << kernel.name;
     else {
         os << "src(";
         for( std::size_t i = 0; i < outputs.size(); ++i )
@@ -47,7 +45,7 @@ Task *Task::ref_num( int value ) {
     return res;
 }
 
-TaskRef Task::call_r( Kernel *kernel, std::vector<TaskRef> &&inputs ) {
+TaskRef Task::call_r( const Kernel &kernel, std::vector<TaskRef> &&inputs ) {
     Task *res = new Task;
 
     res->children = std::move( inputs );
@@ -59,7 +57,7 @@ TaskRef Task::call_r( Kernel *kernel, std::vector<TaskRef> &&inputs ) {
     return res;
 }
 
-Task *Task::call( Kernel *kernel, const std::vector<TaskRef *> &outputs, std::vector<TaskRef> &&inputs ) {
+Task *Task::call( const Kernel &kernel, const std::vector<TaskRef *> &outputs, std::vector<TaskRef> &&inputs ) {
     Task *res = new Task;
 
     res->children = std::move( inputs );

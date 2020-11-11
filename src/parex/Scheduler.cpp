@@ -70,7 +70,7 @@ void Scheduler::exec_task( Task *task ) {
         }
     }
 
-    auto func = kernel_code.func( *task->kernel, input_type );
+    auto func = kernel_code.func( task->kernel, input_type );
     func( task, input_data.data() );
 }
 

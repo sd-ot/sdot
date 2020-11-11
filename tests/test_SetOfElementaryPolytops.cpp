@@ -17,27 +17,27 @@ void test_triangle() {
 
     // construct
     TI nb_triangles = 15;
-    sp.add_repeated( triangle(), nb_triangles,
+    sp.add_repeated( "triangle", nb_triangles,
         Vec<TI>{ 0, 0, 1, 0, 0, 1 },
         Vec<TF>{ 0, 1, 2 }
     );
-    //    P( sp );
-
-    // cut
-    Tensor<TF> normals( Vec<TI>{ nb_triangles, dim } );
-    Vec<TF> scalar_products( nb_triangles );
-    Vec<TI> new_face_ids( nb_triangles );
-    for( std::size_t i = 0; i < nb_triangles; ++i ) {
-        TF a = 2 * M_PI * i / nb_triangles;
-        Pt p = { std::cos( a ), std::sin( a ) };
-        scalar_products[ i ] = dot( p, Pt{ 0.33, 0.33 } );
-        normals.ptr( 0 )[ i ] = p[ 0 ];
-        normals.ptr( 1 )[ i ] = p[ 1 ];
-        new_face_ids[ i ] = 100 + i;
-    }
-
-    sp.plane_cut( normals, scalar_products, new_face_ids );
     P( sp );
+
+    //    // cut
+    //    Tensor<TF> normals( Vec<TI>{ nb_triangles, dim } );
+    //    Vec<TF> scalar_products( nb_triangles );
+    //    Vec<TI> new_face_ids( nb_triangles );
+    //    for( std::size_t i = 0; i < nb_triangles; ++i ) {
+    //        TF a = 2 * M_PI * i / nb_triangles;
+    //        Pt p = { std::cos( a ), std::sin( a ) };
+    //        scalar_products[ i ] = dot( p, Pt{ 0.33, 0.33 } );
+    //        normals.ptr( 0 )[ i ] = p[ 0 ];
+    //        normals.ptr( 1 )[ i ] = p[ 1 ];
+    //        new_face_ids[ i ] = 100 + i;
+    //    }
+
+    //    sp.plane_cut( normals, scalar_products, new_face_ids );
+    //    P( sp );
 
     //    // display
     //    std::vector<VtkOutput::Pt> off_vtk;

@@ -1,5 +1,6 @@
 #include "support/cstr_encode.h"
 #include "support/url_encode.h"
+#include "support/ASSERT.h"
 #include "support/ERROR.h"
 #include "support/TODO.h"
 #include "support/P.h"
@@ -94,19 +95,21 @@ KernelCode::Code KernelCode::load_code( const std::string &shash ) {
 }
 
 void KernelCode::make_code( const std::string &shash, const std::string &kstr, const Kernel &kernel, const std::vector<std::string> &input_types ) {
-    // lib/lib___.so
     TmpDir tmp_dir;
-    make_lib( tmp_dir, shash, kernel, input_types );
+    path log = tmp_dir.p / "log";
+
+    // lib/lib___.so
+    make_lib( log, tmp_dir, shash, kernel, input_types );
 
     // ___.info
     std::ofstream fkstr( object_dir / ( shash + ".info" ) );
     fkstr << kstr;
 }
 
-void KernelCode::make_lib( TmpDir &tmp_dir, const std::string &shash, const Kernel &kernel, const std::vector<std::string> &input_types ) {
-    make_cpp( tmp_dir, kernel, input_types );
+void KernelCode::make_lib( const path &log, TmpDir &tmp_dir, const std::string &shash, const Kernel &kernel, const std::vector<std::string> &input_types ) {
+    make_cpp( log, tmp_dir, kernel, input_types );
     make_cmk( tmp_dir, shash );
-    build( tmp_dir.p, " --target install" );
+    build( log, tmp_dir.p, " --target install" );
 }
 
 void KernelCode::make_cmk( TmpDir &tmp_dir, const std::string &shash ) {
@@ -132,7 +135,7 @@ void KernelCode::make_cmk( TmpDir &tmp_dir, const std::string &shash ) {
         fcmk << "target_include_directories(" << shash << " PRIVATE " << include_directory << ")\n";
 }
 
-void KernelCode::make_cpp( TmpDir &tmp_dir, const Kernel &kernel, const std::vector<std::string> &input_types ) {
+void KernelCode::make_cpp( const path &log, TmpDir &tmp_dir, const Kernel &kernel, const std::vector<std::string> &input_types ) {
     std::ofstream fcpp( tmp_dir.p / "kernel.cpp" );
 
     // generated kernel ?
@@ -144,7 +147,15 @@ void KernelCode::make_cpp( TmpDir &tmp_dir, const Kernel &kernel, const std::vec
         ASSERT( kernel.name.back() == ')', "" );
         param = kernel.name.substr( pp + 1, kernel.name.size() - pp - 2 );
         bname = kernel.name.substr( 0, pp );
-        gen_code( tmp_dir.p / "generated.h", bname, param );
+        gen_code( log, tmp_dir.p / "generated.h", bname, param );
+    }
+
+    //
+    std::string dname;
+    auto ps = bname.rfind( '/' );
+    if ( ps != bname.npos ) {
+        dname = bname.substr( 0, ps + 1 );
+        bname = bname.substr( ps + 1 );
     }
 
     // prerequisites for the types
@@ -161,7 +172,7 @@ void KernelCode::make_cpp( TmpDir &tmp_dir, const Kernel &kernel, const std::vec
     if ( generated )
         fcpp << "#include \"generated.h\"\n";
     else
-        fcpp << "#include <" << bname << ".h>\n";
+        fcpp << "#include <" << dname << bname << ".h>\n";
 
     fcpp << "\n";
     fcpp << src_heads.str();
@@ -226,14 +237,14 @@ void KernelCode::make_gen_cpp( TmpDir &tmp_dir, const path &output_path, const s
     fcpp << "}\n";
 }
 
-void KernelCode::gen_code( const path &output_path, const std::string &bname, const std::string &param ) {
+void KernelCode::gen_code( const path &log, const path &output_path, const std::string &bname, const std::string &param ) {
     TmpDir tmp_dir;
     make_gen_cmk( tmp_dir );
     make_gen_cpp( tmp_dir, output_path, bname, param );
 
-    build( tmp_dir.p, {} );
+    build( log, tmp_dir.p, {} );
 
-    exec( tmp_dir.p / "build" / "generator" );
+    exec( log, tmp_dir.p / "build" / "generator" );
 }
 
 void KernelCode::init_default_flags() {
@@ -309,16 +320,20 @@ void KernelCode::get_prereq_req( std::ostream &includes_os, std::ostream &src_he
                 src_heads_os << h << "\n";
 }
 
-void KernelCode::exec( const std::string &cmd ) {
-    // std::cout << cmd << std::endl;
+void KernelCode::exec( const path &log, std::string cmd ) {
+    std::ofstream fout( log, std::ios_base::app );
+    fout << "=======================\n";
+    fout << cmd << "\n";
+
+    cmd += " 2>&1 > " + log.string();
     if ( system( cmd.c_str() ) )
-        ERROR( "Error in cmd: {}", cmd );
+        ERROR( "Error in cmd: {}\nSee log file '{}'", cmd, log.string() );
 }
 
-void KernelCode::build( const path &src_dir, const std::string &build_opt ) {
+void KernelCode::build( const path &log, const path &src_dir, const std::string &build_opt ) {
     path bld_dir = src_dir / "build";
-    exec( "cmake -S '" + src_dir.string() + "' -B '" + bld_dir.string() + "' -DCMAKE_INSTALL_PREFIX='" + object_dir.string() + "' > /dev/null" );
-    exec( "cmake --build '" + bld_dir.string() + "'" + build_opt + " > /dev/null" );
+    exec( log, "cmake -S '" + src_dir.string() + "' -B '" + bld_dir.string() + "' -DCMAKE_INSTALL_PREFIX='" + object_dir.string() + "'" );
+    exec( log, "cmake --build '" + bld_dir.string() + "'" + build_opt );
 }
 
 } // namespace parex
