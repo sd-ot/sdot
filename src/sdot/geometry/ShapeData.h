@@ -10,13 +10,14 @@ class ShapeType;
 /***/
 template<class TF,class TI,int dim>
 struct ShapeData {
-    /**/               ShapeData      ( ShapeType *shape_type, TI nb_items = 0 );
+    /**/               ShapeData      ( ShapeType *shape_type, TI rese = 0, TI size = 0 );
 
     void               write_to_stream( std::ostream &os, const std::string &sp = "  " ) const;
     static std::string type_name()    { return "sdot::ShapeData<" + parex::type_name<TF>() + "," + parex::type_name<TI>() + "," + std::to_string( dim ) + ">"; }
 
     parex::Tensor<TF>  coordinates;   ///< all the x for node 0, all the y for node 0, ... all the x for node 1, ...
     parex::Tensor<TI>  face_ids;      ///< all the ids for node 0, all the ids for node 1, ...
+    TI                 size;          ///<
     parex::Vec<TI>     ids;           ///<
 };
 

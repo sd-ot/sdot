@@ -57,4 +57,5 @@ On pourrait aussi modifier le graph en direct, par exemple en insérant des tach
 
 Pb: plane_cut reste référencé dans SetOfElem. Pb de ref_count + pb dans SetOfElem qui n'aura pas la bonne référence.
   Prop 1: on ajoute une task intermédiaire
-  Prop 2: on 
+
+  => 

@@ -31,7 +31,7 @@ public:
     static Task*                   ref_type             ( const std::string type ); ///< make a S<Type>() object
     static Task*                   ref_num              ( int value ); ///< make a N<value>() object
     template<class T> static Task* ref_on               ( T *ptr, bool own = true ); ///< Wrap a known source value. Takes ownership of ptr
-    static TaskRef                 call_r               ( const Kernel &kernel, std::vector<TaskRef> &&inputs = {} ); ///< can be used if only 1 output. Return output of the task
+    static TaskRef                 call_r               ( const Kernel &kernel, std::vector<TaskRef> &&inputs = {}, bool append_parent_task = false ); ///< can be used if only 1 output. Return output of the task
     static Task*                   call                 ( const Kernel &kernel, const std::vector<TaskRef *> &outputs = {}, std::vector<TaskRef> &&inputs = {} );
 
     static void                    display_graphviz     ( const std::vector<Task *> &tasks, std::string f = ".tasks.dot", const char *prg = nullptr );

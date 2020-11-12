@@ -9,6 +9,7 @@
 namespace sdot {
 
 SetOfElementaryPolytops::SetOfElementaryPolytops( unsigned dim, std::string scalar_type, std::string index_type ) : scalar_type( scalar_type ), index_type( index_type ), dim( dim ) {
+    parex::scheduler.kernel_code.includes[ "sdot::ShapeCutTmpData" ].push_back( "<sdot/geometry/ShapeCutTmpData.h>" );
     parex::scheduler.kernel_code.includes[ "sdot::ShapeData" ].push_back( "<sdot/geometry/ShapeData.h>" );
     parex::scheduler.kernel_code.includes[ "sdot::ShapeMap" ].push_back( "<sdot/geometry/ShapeMap.h>" );
 
@@ -40,7 +41,7 @@ void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &
 void SetOfElementaryPolytops::plane_cut( const Value &normals, const Value &scalar_products, const Value &cut_ids ) {
     shape_map = parex::Task::call_r( parex::Kernel::with_task_as_arg( "sdot/geometry/kernels/SetOfElementaryPolytops/plane_cut" ), {
         shape_map.ref, normals.ref, scalar_products.ref, cut_ids.ref
-    } );
+    }, /*append_parent_task*/ true );
 }
 
 //        // update of nb items to create for each type

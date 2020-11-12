@@ -17,16 +17,18 @@ ShapeMap<TF,TI,dim> *add_repeated(
         ERROR( "shape_map not owned" );
 
     ShapeData<TF,TI,dim> &sd = shape_map.shape_data( &shape_type );
-    TI old_size = sd.ids.size(), new_size = old_size + count;
-    sd.coordinates.resize( new_size );
-    sd.face_ids.resize( new_size );
-    sd.ids.resize( new_size );
+    TI old_size = sd.size;
+    sd.size += count;
+
+    sd.coordinates.resize( sd.size );
+    sd.face_ids.resize( sd.size );
+    sd.ids.resize( sd.size );
 
     for( TI i = 0; i < input_coordinates.size(); ++i )
-        assign_repeated( sd.coordinates.ptr( i ), old_size, new_size, input_coordinates[ i ] );
+        assign_repeated( sd.coordinates.ptr( i ), old_size, sd.size, input_coordinates[ i ] );
     for( TI i = 0; i < input_face_ids.size(); ++i )
-        assign_repeated( sd.face_ids.ptr( i ), old_size, new_size, input_face_ids[ i ] );
-    assign_iota<TI>( sd.ids.data(), old_size, new_size, beg_ids );
+        assign_repeated( sd.face_ids.ptr( i ), old_size, sd.size, input_face_ids[ i ] );
+    assign_iota<TI>( sd.ids.data(), old_size, sd.size, beg_ids );
 
     return nullptr;
 }

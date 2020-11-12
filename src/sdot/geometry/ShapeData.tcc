@@ -4,15 +4,16 @@
 namespace sdot {
 
 template<class TF,class TI,int dim>
-ShapeData<TF,TI,dim>::ShapeData( ShapeType *shape_type, TI nb_items ) :
-    coordinates( parex::Vec<TI>{ nb_items, shape_type->nb_nodes() * dim } ),
-    face_ids( parex::Vec<TI>{ nb_items, shape_type->nb_faces() } ),
-    ids( nb_items ) {
+ShapeData<TF,TI,dim>::ShapeData( ShapeType *shape_type, TI rese, TI size ) :
+    coordinates( parex::Vec<TI>{ rese, shape_type->nb_nodes() * dim } ),
+    face_ids( parex::Vec<TI>{ rese, shape_type->nb_faces() } ),
+    size( size ),
+    ids( rese ) {
 }
 
 template<class TF,class TI,int dim>
 void ShapeData<TF,TI,dim>::write_to_stream( std::ostream &os, const std::string &sp ) const {
-    for( TI i = 0; i < ids.size(); ++i ) {
+    for( TI i = 0; i < size; ++i ) {
         os << "\n" << sp;
 
         os << "C:";

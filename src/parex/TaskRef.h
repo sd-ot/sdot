@@ -88,7 +88,7 @@ inline bool Task::move_arg( const std::vector<std::size_t> &num_arg ) {
     return move_arg( num_arg, num_arg );
 }
 
-inline TaskRef Task::call_r( const Kernel &kernel, std::vector<TaskRef> &&inputs ) {
+inline TaskRef Task::call_r( const Kernel &kernel, std::vector<TaskRef> &&inputs, bool append_parent_task ) {
     Task *res = new Task;
 
     res->children = std::move( inputs );
@@ -96,6 +96,9 @@ inline TaskRef Task::call_r( const Kernel &kernel, std::vector<TaskRef> &&inputs
 
     for( TaskRef &ch : res->children )
         ch.task->parents.push_back( res );
+
+    if ( append_parent_task )
+        return call_r( Kernel::with_task_as_arg( "move" ), { res }, false );
 
     return res;
 }
