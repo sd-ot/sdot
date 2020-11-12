@@ -54,3 +54,7 @@ Pour créer les éléments, il faudrait appeler du code généré.
 Prop: un attribut sub_task + un attribut parent_of_sub_task
 
 On pourrait aussi modifier le graph en direct, par exemple en insérant des taches dans les parents.
+
+Pb: plane_cut reste référencé dans SetOfElem. Pb de ref_count + pb dans SetOfElem qui n'aura pas la bonne référence.
+  Prop 1: on ajoute une task intermédiaire
+  Prop 2: on 

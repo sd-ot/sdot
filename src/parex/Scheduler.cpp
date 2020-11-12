@@ -28,6 +28,12 @@ Scheduler &Scheduler::operator<<( Task *task ) {
 }
 
 void Scheduler::run() {
+    //    std::vector<Task *> tasks;
+    //    for( const TaskRef &value : targets )
+    //        tasks.push_back( value.task );
+    //    Task::display_graphviz( tasks );
+    //    P( targets.size() );
+
     // front = all the task that can be executed
     std::map<int,std::vector<TaskRef>> front;
     ++Task::curr_op_id;

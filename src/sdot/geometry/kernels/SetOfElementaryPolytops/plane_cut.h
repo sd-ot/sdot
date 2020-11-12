@@ -95,6 +95,7 @@ void make_scalar_products_cut_cases_and_counts( Tensor<TF> &scalar_products, TI 
 template<class TF,class TI,int dim,class A,class B,class C>
 ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const A &normals, const B &scalar_products, const C &new_face_ids ) {
     constexpr int max_nb_nodes = 8;
+    P( task->ref_count );
 
     std::map<ShapeType *,TI> reservation_new_elements; // out elem => nb items to reserve
     std::map<ShapeType *,CutData<TF,TI>> cdm; // inp elem => data that will be needed after the first loop
@@ -159,6 +160,8 @@ ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const
 
     //
     TaskRef prev_task = task;
+    P( prev_task.task->ref_count );
+
     for( const auto &p : sm.map ) {
         const ShapeData<TF,TI,dim> &sd = p.second;
         ShapeType *shape_type = p.first;
