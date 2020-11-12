@@ -38,7 +38,7 @@ void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &
 }
 
 void SetOfElementaryPolytops::plane_cut( const Value &normals, const Value &scalar_products, const Value &cut_ids ) {
-    shape_map = parex::Task::call_r( "sdot/geometry/kernels/SetOfElementaryPolytops/plane_cut", {
+    shape_map = parex::Task::call_r( parex::Kernel::with_task_as_arg( "sdot/geometry/kernels/SetOfElementaryPolytops/plane_cut" ), {
         shape_map.ref, normals.ref, scalar_products.ref, cut_ids.ref
     } );
 }

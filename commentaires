@@ -47,5 +47,10 @@ cta 15ème lecourbe,
 GPU =>
 
 ========================================================================================================================================
-Besoin de connaître le nombre de noeuds en dur...
-  Prop 1: 
+Pour créer les éléments, il faudrait appeler du code généré.
+
+=> il faudrait pouvoir créer des sous taches
+
+Prop: un attribut sub_task + un attribut parent_of_sub_task
+
+On pourrait aussi modifier le graph en direct, par exemple en insérant des taches dans les parents.

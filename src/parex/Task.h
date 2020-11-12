@@ -42,6 +42,8 @@ public:
 
     template<class F> void         run                  ( const F &func, void **data );
 
+    void                           insert_before_parents( const TaskRef &t );
+
     template<class F> void         run_void_or_not      ( std::integral_constant<bool,0>, const F &func, void **data );
     template<class F> void         run_void_or_not      ( std::integral_constant<bool,1>, const F &func, void **data );
 
@@ -108,5 +110,6 @@ void Task::run( const F &func, void **data ) {
     constexpr bool void_ret = std::is_same<decltype( func( this, data ) ),void>::value;
     run_void_or_not( std::integral_constant<bool,void_ret>(), func, data );
 }
+
 
 } // namespace parex

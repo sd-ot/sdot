@@ -1,7 +1,6 @@
 #ifndef PAREX_TENSOR_H
 #define PAREX_TENSOR_H
 
-#include "../support/Math.h"
 #include "../type_name.h"
 #include <functional>
 #include "Vec.h"
@@ -34,7 +33,7 @@ public:
     const T*                  ptr            () const { return data.data(); }
     T*                        ptr            () { return data.data(); }
 
-    static std::string        type_name      () { return "parex::Tensor<" + parex::type_name<T>() + ",parex::Arch::" + A::name() + ">"; }
+    static std::string        type_name      ();
 
     Vec<TI>                   rese;
     Vec<TI>                   mcum;

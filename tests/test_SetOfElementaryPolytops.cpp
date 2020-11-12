@@ -3,6 +3,7 @@
 #include <parex/containers/Tensor.h>
 #include <parex/containers/Vec.h>
 #include <parex/Scheduler.h>
+#include <parex/support/ASSERT.h>
 #include <parex/support/P.h>
 #include <cmath>
 
@@ -81,6 +82,7 @@ void test_triangle() {
 //    sp.display_vtk( vo, off_vtk.data() );
 //    vo.save( "cut.vtk" );
 //}
+
 
 int main() {
     test_triangle();

@@ -35,7 +35,7 @@ private:
     Code                       load_or_make_code ( const std::string &kstr, const Kernel &kernel, const std::vector<std::string> &input_types ); ///< make a Func from a Kernel (not cached in memory)
     void                       init_base_types   ();
     void                       make_gen_cmk      ( TmpDir &tmp_dir );
-    void                       make_gen_cpp      ( TmpDir &tmp_dir, const path &output_path, const std::string &bname, const std::string &param );
+    void                       make_gen_cpp      ( TmpDir &tmp_dir, const path &output_path, std::string bname, const std::string &param );
     void                       make_code         ( const std::string &shash, const std::string &kstr, const Kernel &kernel, const std::vector<std::string> &input_types );
     Code                       load_code         ( const std::string &shash );
     void                       make_lib          ( const path &log, TmpDir &tmp_dir, const std::string &shash, const Kernel &kernel, const std::vector<std::string> &input_types );

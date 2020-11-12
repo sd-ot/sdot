@@ -1,5 +1,7 @@
 #pragma once
 
+#include "support/ERROR.h"
+#include <algorithm>
 #include <utility>
 #include "Task.h"
 
@@ -31,6 +33,22 @@ public:
 };
 
 // defined here because we need to be able to used it in kernels without additionnal .o files
+inline Task::~Task() {
+    // erase ref of `this` in children
+    auto ei = [&]( const Task *t ) { return t == this; };
+    for( const TaskRef &child : children )
+        if ( child.task )
+            child.task->parents.erase( std::remove_if( child.task->parents.begin(),  child.task->parents.end(), ei ), child.task->parents.end() );
+
+    //
+    #ifdef PAREX_IN_KERNEL
+    ERROR( "for now, tasks can't be destroyed inside a kernel" );
+    #else
+    for( Output &output : outputs )
+        output.destroy();
+    #endif // PAREX_IN_KERNEL
+}
+
 inline bool Task::move_arg( std::size_t num_arg, std::size_t num_out ) {
     if ( num_arg < children.size() && children[ num_arg ].task->ref_count <= 1 ) {
         if ( outputs.size() <= num_out )
@@ -68,6 +86,49 @@ inline bool Task::move_arg( const std::vector<std::size_t> &num_args, const std:
 
 inline bool Task::move_arg( const std::vector<std::size_t> &num_arg ) {
     return move_arg( num_arg, num_arg );
+}
+
+inline TaskRef Task::call_r( const Kernel &kernel, std::vector<TaskRef> &&inputs ) {
+    Task *res = new Task;
+
+    res->children = std::move( inputs );
+    res->kernel = kernel;
+
+    for( TaskRef &ch : res->children )
+        ch.task->parents.push_back( res );
+
+    return res;
+}
+
+inline Task *Task::call( const Kernel &kernel, const std::vector<TaskRef *> &outputs, std::vector<TaskRef> &&inputs ) {
+    Task *res = new Task;
+
+    res->children = std::move( inputs );
+    res->kernel = kernel;
+
+    for( TaskRef &ch : res->children )
+        ch.task->parents.push_back( res );
+
+    for( std::size_t n = 0; n < outputs.size(); ++n )
+        *outputs[ n ] = { res, n };
+
+    return res;
+}
+
+inline void Task::insert_before_parents( const TaskRef &t ) {
+    std::set<Task *> seen_parents;
+    for( Task *p : parents ) {
+        if ( p == t.task || seen_parents.insert( p ).second == false )
+            continue;
+
+        for( TaskRef &ch : p->children ) {
+            if ( ch.task == this ) {
+                t.task->parents.push_back( p );
+                ch = t;
+            }
+        }
+    }
+    parents = { t.task };
 }
 
 } // namespace parex

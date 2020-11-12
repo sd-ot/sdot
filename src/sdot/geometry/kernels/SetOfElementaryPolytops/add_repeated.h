@@ -16,8 +16,7 @@ ShapeMap<TF,TI,dim> *add_repeated(
     if ( ! task->move_arg( 0 ) )
         ERROR( "shape_map not owned" );
 
-    ShapeData<TF,TI,dim> &sd = shape_map[ &shape_type ];
-
+    ShapeData<TF,TI,dim> &sd = shape_map.shape_data( &shape_type );
     TI old_size = sd.ids.size(), new_size = old_size + count;
     sd.coordinates.resize( new_size );
     sd.face_ids.resize( new_size );

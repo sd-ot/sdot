@@ -12,7 +12,7 @@ void display_vtk( ShapeMap<TF,TI,dim> &shape_map, const std::string &filename ) 
     for( const auto &p : shape_map.map ) {
         const ShapeData<TF,TI,dim> &sd = p.second;
 
-        p.first->display_vtk( [&]( unsigned vtk_id, const parex::Vec<unsigned> &nodes ) {
+        p.first->display_vtk( [&]( TI vtk_id, const parex::Vec<TI> &nodes ) {
             std::vector<VtkOutput::Pt> pts( nodes.size(), VtkOutput::Pt( 0.0 ) );
 
             for( TI i = 0; i < sd.ids.size(); ++i ) {

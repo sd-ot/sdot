@@ -1,4 +1,5 @@
 #include "../support/generic_ostream_output.h"
+#include "../support/Math.h"
 #include "../support/TODO.h"
 #include "../support/P.h"
 
@@ -109,6 +110,11 @@ void Tensor<T,A,TI>::resize( TI new_x_size ) {
 
     for( TI i = 0; i < old_len_xs; ++i )
         copy( data.data() + rese[ 0 ] * i, old_data.data() + old_x_rese * i, old_x_size );
+}
+
+template<class T,class A,class TI>
+std::string Tensor<T,A,TI>::type_name() {
+    return "parex::Tensor<" + parex::type_name<T>() + ",parex::Arch::" + A::name() + ">";
 }
 
 } // namespace parex

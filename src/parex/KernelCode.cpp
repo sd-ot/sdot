@@ -128,6 +128,9 @@ void KernelCode::make_cmk( TmpDir &tmp_dir, const std::string &shash ) {
     fcmk << "target_compile_options(" << shash << " PRIVATE -march=native -O3 -g3)\n";
 
     fcmk << "\n";
+    fcmk << "add_definitions(-DPAREX_IN_KERNEL)\n";
+
+    fcmk << "\n";
     fcmk << "target_include_directories(" << shash << " PRIVATE " << PAREX_DIR "/src" << ")\n";
     for( std::string include_directory : include_directories )
         fcmk << "target_include_directories(" << shash << " PRIVATE " << include_directory << ")\n";
@@ -223,11 +226,19 @@ void KernelCode::make_gen_cmk( TmpDir &tmp_dir ) {
         fcmk << "target_include_directories(generator PRIVATE " << include_directory << ")\n";
 }
 
-void KernelCode::make_gen_cpp( TmpDir &tmp_dir, const path &output_path, const std::string &bname, const std::string &param ) {
+void KernelCode::make_gen_cpp( TmpDir &tmp_dir, const path &output_path, std::string bname, const std::string &param ) {
     std::ofstream fcpp( tmp_dir.p / "generator.cpp" );
 
+    //
+    std::string dname;
+    auto ps = bname.rfind( '/' );
+    if ( ps != bname.npos ) {
+        dname = bname.substr( 0, ps + 1 );
+        bname = bname.substr( ps + 1 );
+    }
+
     // header(s) and typedefs
-    fcpp << "#include <" << bname << ".h>\n";
+    fcpp << "#include <" << dname << bname << ".h>\n";
     fcpp << "#include <fstream>\n";
 
     fcpp << "\n";

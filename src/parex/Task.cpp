@@ -1,24 +1,11 @@
 #include "support/DotOut.h"
 #include "TaskRef.h"
 
-#include <algorithm>
 #include <fstream>
 
 namespace parex {
 
 std::size_t Task::curr_op_id = 0;
-
-Task::~Task() {
-    // erase ref of `this` in children
-    auto ei = [&]( const Task *t ) { return t == this; };
-    for( const TaskRef &child : children )
-        if ( child.task )
-            child.task->parents.erase( std::remove_if( child.task->parents.begin(),  child.task->parents.end(), ei ), child.task->parents.end() );
-
-    //
-    for( Output &output : outputs )
-        output.destroy();
-}
 
 void Task::write_to_stream( std::ostream &os ) const {
     if ( kernel )
@@ -42,33 +29,6 @@ Task *Task::ref_num( int value ) {
     Task *res = new Task;
     res->outputs.emplace_back( "parex::N<" + std::to_string( value ) + ">", nullptr, false );
     res->computed = true;
-    return res;
-}
-
-TaskRef Task::call_r( const Kernel &kernel, std::vector<TaskRef> &&inputs ) {
-    Task *res = new Task;
-
-    res->children = std::move( inputs );
-    res->kernel = kernel;
-
-    for( TaskRef &ch : res->children )
-        ch.task->parents.push_back( res );
-
-    return res;
-}
-
-Task *Task::call( const Kernel &kernel, const std::vector<TaskRef *> &outputs, std::vector<TaskRef> &&inputs ) {
-    Task *res = new Task;
-
-    res->children = std::move( inputs );
-    res->kernel = kernel;
-
-    for( TaskRef &ch : res->children )
-        ch.task->parents.push_back( res );
-
-    for( std::size_t n = 0; n < outputs.size(); ++n )
-        *outputs[ n ] = { res, n };
-
     return res;
 }
 
