@@ -1,5 +1,4 @@
 #include <eigen3/Eigen/Cholesky>
-#include "../Support/Stream.h"
 #include "../Support/Assert.h"
 #include "Arfd.h"
 
@@ -149,8 +148,12 @@ Arfd::TF Arfd::approx_value( TF r ) const {
 }
 
 void Arfd::write_to_stream( std::ostream &os ) const {
-    for( const Approximation &ap : approximations )
-        os << ap.beg << " -> " << ap.end << ": " << ap.value_coeffs << "\n";
+    for( const Approximation &ap : approximations ) {
+        os << ap.beg << " -> " << ap.end << ":";
+        for( auto v : ap.value_coeffs )
+            os << " " << v;
+        os  << "\n";
+    }
 }
 
 }
