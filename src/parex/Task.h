@@ -35,7 +35,7 @@ public:
     static Task*                   call                 ( const Kernel &kernel, const std::vector<TaskRef *> &outputs = {}, std::vector<TaskRef> &&inputs = {} );
 
     static void                    display_graphviz     ( const std::vector<Task *> &tasks, std::string f = ".tasks.dot", const char *prg = nullptr );
-    void                           for_each_rec         ( const std::function<void( Task * )> &f, std::set<Task *> &seen );
+    void                           for_each_rec         ( const std::function<void( Task * )> &f, std::set<Task *> &seen, bool go_to_parents = false );
 
     bool                           children_are_computed() const;
     void                           get_front_rec        ( std::map<int,std::vector<TaskRef>> &front );

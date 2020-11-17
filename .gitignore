@@ -25,6 +25,7 @@ vtk/
 *.user
 results/
 *.pyc
+*.dot
 *.cpython
 Untitled.*
 Untitled-checkpoint.*

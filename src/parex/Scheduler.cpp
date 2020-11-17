@@ -51,6 +51,9 @@ void Scheduler::run() {
         if ( vf.empty() )
             front.erase( front.begin() );
 
+        if ( task_ref.task->kernel.name.find( "mk_item" ) != std::string::npos )
+            Task::display_graphviz( { task_ref.task } );
+
         // exec
         if ( log ) std::cout << task_ref << std::endl;
         task_ref.task->computed = true;

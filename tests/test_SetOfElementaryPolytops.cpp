@@ -17,6 +17,7 @@ using TF = Pt::TF;
 void test_triangle() {
     const int dim = 2;
     SetOfElementaryPolytops sp( dim );
+    scheduler.log = true;
 
     // construct
     TI nb_triangles = 15;

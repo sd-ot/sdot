@@ -89,7 +89,7 @@ void make_scalar_products_cut_cases_and_counts( Tensor<TF> &scalar_products, TI 
 }
 
 template<class TF,class TI,int dim,class A,class B,class C>
-ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const A &normals, const B &scalar_products, const C &new_face_ids ) {
+ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const A &normals, const B &scalar_products, const C &/*new_face_ids*/ ) {
     constexpr int max_nb_nodes = 8;
 
     std::map<ShapeType *,ShapeCutTmpData<TF,TI>> *cdm = new std::map<ShapeType *,ShapeCutTmpData<TF,TI>>; // inp elem => data that will be needed after the first loop
@@ -118,10 +118,10 @@ ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const
 
         // cut_case_offsets (offset in indices for each case and each subcase)
         const Vec<ShapeType::TI> &cut_poss_count = *shape_type->cut_poss_count();
-        Vec<Vec<TI>> cut_case_offsets( nb_cases ); // for each case, a vector with offsets of each sub case
+        cm.cut_case_offsets.resize( nb_cases ); // for each case, a vector with offsets of each sub case
         for( TI n = 0; n < nb_cases; ++n ) {
             TI dv = n + 1 < nb_cases ? count[ n + 1 ] : nb_items;
-            Vec<TI> &cco = cut_case_offsets[ n ];
+            Vec<TI> &cco = cm.cut_case_offsets[ n ];
             cco.resize( cut_poss_count[ n ] + 1, dv );
             cco[ 0 ] = count[ n ];
         }
@@ -141,7 +141,7 @@ ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const
                 iter = reservation_new_elements.insert( iter, { p.first, 0 } );
 
             for( TI num_case = 0, cpt = 0; num_case < nb_cases; ++num_case ) {
-                const Vec<TI> &cc = cut_case_offsets[ num_case ];
+                const Vec<TI> &cc = cm.cut_case_offsets[ num_case ];
                 for( TI num_sub_case = 0; num_sub_case < cc.size() - 1; ++num_sub_case, ++cpt )
                     iter->second += p.second[ cpt ] * ( cc[ num_sub_case + 1 ] - cc[ num_sub_case + 0 ] );
             }
@@ -186,7 +186,7 @@ ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const
                 inputs.push_back( task_ref_cdm ); // tmp cut data
                 inputs.push_back( task ); // old shape map
                 inputs.push_back( parex::Task::ref_on( shape_type, false ) ); // old shape_type
-                inputs.push_back( new_face_ids ); //
+                inputs.push_back( task->children[ 3 ] /*new_face_ids*/ ); //
 
                 TaskRef new_task = Task::call_r( k, std::move( inputs ) );
                 prev_task.task->insert_before_parents( new_task );

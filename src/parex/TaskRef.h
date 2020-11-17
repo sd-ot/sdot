@@ -50,13 +50,7 @@ inline Task::~Task() {
 }
 
 inline bool Task::move_arg( std::size_t num_arg, std::size_t num_out ) {
-    if ( num_arg < children.size() && children[ num_arg ].task->ref_count <= 1 ) {
-        if ( outputs.size() <= num_out )
-            outputs.resize( num_out + 1 );
-        outputs[ num_out ] = std::move( children[ num_arg ].task->outputs[ children[ num_arg ].nout ] );
-        return true;
-    }
-    return false;
+    return move_arg( std::vector<std::size_t>{ num_arg }, std::vector<std::size_t>{ num_out } );
 }
 
 inline bool Task::move_arg( const std::vector<std::size_t> &num_args, const std::vector<std::size_t> &num_outs ) {

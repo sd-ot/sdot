@@ -11,10 +11,11 @@ void Task::write_to_stream( std::ostream &os ) const {
     if ( kernel )
         os << kernel.name;
     else {
-        os << "src(";
-        for( std::size_t i = 0; i < outputs.size(); ++i )
-            os << ( i ? "," : "" ) << outputs[ i ].type;
-        os << ")";
+        os << "src";
+        //        os << "src(";
+        //        for( std::size_t i = 0; i < outputs.size(); ++i )
+        //            os << ( i ? "," : "" ) << outputs[ i ].type;
+        //        os << ")";
     }
 }
 
@@ -50,7 +51,7 @@ void Task::display_graphviz( const std::vector<Task *> &tasks, std::string f, co
             for( const Task *tr : task->parents )
                 os << "  node_" << tr << " -> node_" << task << " [color=red];\n";
 
-        }, seen );
+        }, seen, /*go to parents*/ true );
     }
     os << "}\n";
 
@@ -59,13 +60,18 @@ void Task::display_graphviz( const std::vector<Task *> &tasks, std::string f, co
     exec_dot( f, prg );
 }
 
-void Task::for_each_rec( const std::function<void (Task *)> &f, std::set<Task *> &seen ) {
+void Task::for_each_rec( const std::function<void (Task *)> &f, std::set<Task *> &seen, bool go_to_parents ) {
     if ( seen.count( this ) )
         return;
     seen.insert( this );
 
     for( const TaskRef &tr : children )
-        tr.task->for_each_rec( f, seen );
+        if ( tr.task )
+            tr.task->for_each_rec( f, seen, go_to_parents );
+
+    for( Task *p : parents )
+        if ( p )
+            p->for_each_rec( f, seen, go_to_parents );
 
     f( this );
 }
