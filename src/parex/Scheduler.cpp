@@ -60,12 +60,8 @@ void Scheduler::run() {
         exec_task( task_ref.task );
 
         // parent task that can be executed
-        for( Task *parent : task_ref.task->parents ) {
-            if ( parent->children_are_computed() && ! parent->in_front ) {
-                front[ - parent->kernel.priority ].push_back( parent );
-                parent->in_front = true;
-            }
-        }
+        for( Task *parent : task_ref.task->parents )
+            parent->get_front_rec( front );
 
         // free the tasks that are not going to be used anymore
         for( TaskRef &ch : task_ref.task->children )

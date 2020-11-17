@@ -58,4 +58,4 @@ On pourrait aussi modifier le graph en direct, par exemple en insérant des tach
 Pb: plane_cut reste référencé dans SetOfElem. Pb de ref_count + pb dans SetOfElem qui n'aura pas la bonne référence.
   Prop 1: on ajoute une task intermédiaire
 
-  => 
+Attention: quand on ajoute un noeud au graph de façon dynamique, il faut vérifier s'il n'y a pas de noeuds à ajouter au front.

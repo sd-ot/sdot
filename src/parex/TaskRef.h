@@ -23,6 +23,8 @@ public:
     TaskRef&    operator=      ( const TaskRef &that ) { inc_ref( that.task ); dec_ref( task ); task = that.task; nout = that.nout; return *this; }
     TaskRef&    operator=      ( TaskRef &&that ) { dec_ref( task ); task = std::exchange( that.task, nullptr ); nout = that.nout; return *this; }
 
+    bool        operator==      ( const TaskRef &that ) const { return task == that.task && nout == that.nout; }
+
     void        write_to_stream( std::ostream &os ) const { if ( task ) task->write_to_stream( os ); else os << "null"; os << "[" << nout << "]"; }
 
     static void inc_ref        ( Task *task ) { if ( task ) ++task->ref_count; }
@@ -54,20 +56,18 @@ inline bool Task::move_arg( std::size_t num_arg, std::size_t num_out ) {
 }
 
 inline bool Task::move_arg( const std::vector<std::size_t> &num_args, const std::vector<std::size_t> &num_outs ) {
-    // try
+    // if amongst the childrent task, there's one that is referenced elsewhere, we can't preempt it
     for( std::size_t num_arg : num_args )
-        --children[ num_arg ].task->ref_count;
+        if ( children[ num_arg ].task->ref_count > children[ num_arg ].task->parents.size() )
+            return false;
 
-    bool ok = true;
+    // check that args have only `this` is a parent. If it's not the case, check if the parent is interested by another output
     for( std::size_t num_arg : num_args )
-        ok &= children[ num_arg ].task->ref_count == 0;
-
-    for( std::size_t num_arg : num_args )
-        ++children[ num_arg ].task->ref_count;
-
-    // no can do ville
-    if ( ! ok )
-        return false;
+        for( Task *p : children[ num_arg ].task->parents )
+            if ( p != this )
+                for( const TaskRef &c : p->children )
+                    if ( c == children[ num_arg ] )
+                        return false;
 
     // if ok, move inputs to outputs
     for( std::size_t i = 0; i < num_args.size(); ++i ) {

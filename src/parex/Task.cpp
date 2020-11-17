@@ -46,10 +46,10 @@ void Task::display_graphviz( const std::vector<Task *> &tasks, std::string f, co
             os << "\"];\n";
 
             for( const TaskRef &tr : task->children )
-                os << "  node_" << task << " -> node_" << tr.task << ";\n";
+                os << "  node_" << task << " -> node_" << tr.task << " [label=" << tr.nout << "];\n";
 
-            for( const Task *tr : task->parents )
-                os << "  node_" << tr << " -> node_" << task << " [color=red];\n";
+            //            for( const Task *tr : task->parents )
+            //                os << "  node_" << tr << " -> node_" << task << " [color=red];\n";
 
         }, seen, /*go to parents*/ true );
     }
@@ -77,15 +77,20 @@ void Task::for_each_rec( const std::function<void (Task *)> &f, std::set<Task *>
 }
 
 void Task::get_front_rec( std::map<int,std::vector<TaskRef>> &front ) {
-    if ( computed || in_front || op_id == curr_op_id )
+    // in_front
+    if ( in_front || computed )
         return;
-    op_id = curr_op_id;
 
     if ( children_are_computed() ) {
         front[ - kernel.priority ].push_back( this );
         in_front = true;
         return;
     }
+
+    // in_schedule
+    if ( in_schedule )
+        return;
+    in_schedule = true;
 
     for( const TaskRef &child : children )
         child.task->get_front_rec( front );

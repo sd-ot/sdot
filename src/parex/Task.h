@@ -20,7 +20,7 @@ class Value;
 */
 class Task {
 public:
-    /**/                           Task                 () { is_target_in_scheduler = false; computed = false; in_front = false; ref_count = 0; op_id = 0; }
+    /**/                           Task                 () { is_target_in_scheduler = false; in_schedule = false; computed = false; in_front = false; ref_count = 0; op_id = 0; }
     /**/                          ~Task                 ();
 
     void                           write_to_stream      ( std::ostream &os ) const;
@@ -56,12 +56,14 @@ public:
     std::vector<Task *>            parents;
     Kernel                         kernel;
 
-    bool                           is_target_in_scheduler;
     static  std::size_t            curr_op_id;
     mutable std::size_t            ref_count;
+    mutable std::size_t            op_id;
+
+    bool                           is_target_in_scheduler;
+    bool                           in_schedule;
     bool                           in_front;
     bool                           computed;
-    mutable std::size_t            op_id;
 };
 
 template<class T>
