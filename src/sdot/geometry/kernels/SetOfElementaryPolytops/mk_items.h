@@ -83,8 +83,6 @@ void mk_items( std::ostream &os, const std::string &kernel_name, const std::stri
            << ", const VI &out_node_corr_" << no
            << ", const VI &out_face_corr_" << no << "\n";
     os << ", const VI &inp_node_corr, const VI &inp_face_corr, TI beg_ind, TI end_ind, std::map<ShapeType *,ShapeCutTmpData<TF,TI>> &tmp_cut_data_map, ShapeMap<TF,TI,dim> &inp_shape_map, ShapeType &inp_shape_type, const VO &new_face_ids ) {\n";
-    os << "    P( t->children[ 0 ].task->kernel.name );\n";
-    os << "    P( t->children[ 0 ].task->ref_count );\n";
     os << "    if ( ! t->move_arg( 0 ) )\n";
     os << "        ERROR( \"not owned data\" );\n";
 

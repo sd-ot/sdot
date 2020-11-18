@@ -33,20 +33,24 @@ Task *Task::ref_num( int value ) {
     return res;
 }
 
-void Task::display_graphviz( const std::vector<Task *> &tasks, std::string f, const char *prg ) {
+void Task::display_graphviz( const std::vector<Task *> &tasks, bool display_src_nodes, std::string f, const char *prg ) {
     std::ofstream os( f );
 
     os << "digraph LexemMaker {\n";
     std::set<Task *> seen;
     for( Task *t : tasks ) {
         t->for_each_rec( [&]( Task *task ) {
+            if ( display_src_nodes == false && task->kernel.name.empty() )
+                return;
+
             os << "  node_" << task << " [label=\"";
             dot_out( os, *task );
             os << "," << task->computed;
             os << "\"];\n";
 
             for( const TaskRef &tr : task->children )
-                os << "  node_" << task << " -> node_" << tr.task << " [label=" << tr.nout << "];\n";
+                if ( tr.task && ( display_src_nodes || ! tr.task->kernel.name.empty() ) )
+                    os << "  node_" << task << " -> node_" << tr.task << " [label=" << tr.nout << "];\n";
 
             //            for( const Task *tr : task->parents )
             //                os << "  node_" << tr << " -> node_" << task << " [color=red];\n";

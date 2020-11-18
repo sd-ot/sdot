@@ -10,6 +10,7 @@ namespace sdot {
 
 SetOfElementaryPolytops::SetOfElementaryPolytops( unsigned dim, std::string scalar_type, std::string index_type ) : scalar_type( scalar_type ), index_type( index_type ), dim( dim ) {
     parex::scheduler.kernel_code.includes[ "sdot::ShapeCutTmpData" ].push_back( "<sdot/geometry/ShapeCutTmpData.h>" );
+    parex::scheduler.kernel_code.includes[ "sdot::ShapeType" ].push_back( "<sdot/geometry/ShapeType.h>" );
     parex::scheduler.kernel_code.includes[ "sdot::ShapeData" ].push_back( "<sdot/geometry/ShapeData.h>" );
     parex::scheduler.kernel_code.includes[ "sdot::ShapeMap" ].push_back( "<sdot/geometry/ShapeMap.h>" );
 

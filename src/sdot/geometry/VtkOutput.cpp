@@ -3,7 +3,11 @@
 
 namespace sdot {
 
-VtkOutput::VtkOutput() {
+VtkOutput::VtkOutput( std::vector<std::string> cell_field_names, std::vector<std::string> node_field_names ) {
+    for( std::string name : cell_field_names )
+        cell_fields.push_back( { name, {} } );
+    for( std::string name : node_field_names )
+        node_fields.push_back( { name, {} } );
 }
 
 void VtkOutput::save( std::string filename ) const {
@@ -32,21 +36,15 @@ void VtkOutput::save( std::ostream &os ) const {
     for( TI v : cell_types )
         os << v << "\n";
 
-    //    // CELL_DATA
-    //    os << "CELL_DATA " << _nb_vtk_cells() << "\n";
-    //    os << "FIELD FieldData " << cell_fields.size() << "\n";
-    //    for( size_t num_field = 0; num_field < cell_fields.size(); ++num_field ) {
-    //        os << cell_fields[ num_field ].name << " 1 " << _nb_vtk_cells() << " float\n";
-    //        for( TF v : cell_fields[ num_field ].v_points )
-    //            os << " " << v;
-    //        for( TF v : cell_fields[ num_field ].v_lines )
-    //            os << " " << v;
-    //        for( TF v : cell_fields[ num_field ].v_polygons )
-    //            os << " " << v;
-    //        for( TF v : cell_fields[ num_field ].v_tetras )
-    //            os << " " << v;
-    //        os << "\n";
-    //    }
+    // CELL_DATA
+    os << "CELL_DATA " << cell_types.size() << "\n";
+    os << "FIELD FieldData " << cell_fields.size() << "\n";
+    for( size_t num_field = 0; num_field < cell_fields.size(); ++num_field ) {
+        os << cell_fields[ num_field ].name << " 1 " << cell_types.size() << " float\n";
+        for( TF v : cell_fields[ num_field ].values )
+            os << " " << v;
+        os << "\n";
+    }
 }
 
 void VtkOutput::add_triangle( const std::array<Pt,3> &pts ) {
@@ -80,6 +78,28 @@ void VtkOutput::add_hexa( const std::array<Pt,8> &pts ) {
 
 void VtkOutput::add_lines( const std::vector<Pt> &pts ) {
     add_item( pts.data(), pts.size(), 4 );
+}
+
+void VtkOutput::add_item( const Pt *pts_data, TI pts_size, TI vtk_type, const std::vector<TF> &cell_data, const std::vector<TF> &node_data ) {
+    TI os = points.size();
+    for( TI i = 0; i < pts_size; ++i )
+        points.push_back( pts_data[ i ] );
+
+    cell_items.push_back( pts_size );
+    for( TI i = 0; i < pts_size; ++i )
+        cell_items.push_back( os++ );
+
+    cell_types.push_back( vtk_type );
+
+    for( TI i = 0, m = std::min( cell_data.size(), cell_fields.size() ); i < m; ++i )
+        cell_fields[ i ].values.push_back( cell_data[ i ] );
+    for( TI i = cell_data.size(); i < cell_fields.size(); ++i )
+        cell_fields[ i ].values.push_back( 0 );
+
+    for( TI i = 0, m = std::min( node_data.size(), node_fields.size() ); i < m; ++i )
+        node_fields[ i ].values.push_back( node_data[ i ] );
+    for( TI i = node_data.size(); i < node_fields.size(); ++i )
+        node_fields[ i ].values.push_back( 0 );
 }
 
 }

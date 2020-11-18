@@ -173,7 +173,7 @@ ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const
                 );
 
                 std::vector<TaskRef> inputs;
-                inputs.push_back( prev_task );
+                inputs.push_back( prev_task ); // new shape map
                 for( const ShapeType::OutCutOp &oco : cut_op.outputs ) {
                     inputs.push_back( parex::Task::ref_on( oco.shape_type, false ) );
                     inputs.push_back( parex::Task::ref_on( &oco.node_corr, false ) );
@@ -184,9 +184,9 @@ ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const
                 inputs.push_back( parex::Task::ref_on( new TI( beg ) ) );
                 inputs.push_back( parex::Task::ref_on( new TI( end ) ) );
                 inputs.push_back( task_ref_cdm ); // tmp cut data
-                inputs.push_back( task ); // old shape map
+                inputs.push_back( task->children[ 0 ] ); // old shape map
                 inputs.push_back( parex::Task::ref_on( shape_type, false ) ); // old shape_type
-                inputs.push_back( task->children[ 3 ] /*new_face_ids*/ ); //
+                inputs.push_back( task->children[ 3 ] ); // new_face_ids
 
                 TaskRef new_task = Task::call_r( k, std::move( inputs ) );
                 prev_task.task->insert_before_parents( new_task );

@@ -59,3 +59,6 @@ Pb: plane_cut reste référencé dans SetOfElem. Pb de ref_count + pb dans SetOf
   Prop 1: on ajoute une task intermédiaire
 
 Attention: quand on ajoute un noeud au graph de façon dynamique, il faut vérifier s'il n'y a pas de noeuds à ajouter au front.
+
+Qu'est-ce que sort plane_cut: un shape_map préreservé
+

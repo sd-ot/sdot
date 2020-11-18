@@ -300,6 +300,10 @@ void KernelCode::get_prereq_req( std::ostream &includes_os, std::ostream &src_he
         return;
     seen_types.insert( type );
 
+    // something like X* ?
+    if ( type.size() && type[ type.size() - 1 ] == '*' )
+        return get_prereq_req( includes_os, src_heads_os, includes_set, src_heads_set, seen_types, type.substr( 0, type.size() - 1 ) );
+
     // something like X<Y,...> ?
     std::size_t s = type.find( '<' );
     if ( s != type.npos ) {
