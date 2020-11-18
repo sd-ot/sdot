@@ -10,7 +10,7 @@ class ShapeType;
 /***/
 template<class TF,class TI,int dim>
 struct ShapeData {
-    /**/               ShapeData      ( ShapeType *shape_type, TI rese = 0, TI size = 0 );
+    /**/               ShapeData      ( TI nb_nodes, TI nb_faces, TI rese = 0, TI size = 0 );
 
     void               write_to_stream( std::ostream &os, const std::string &sp = "  " ) const;
     static std::string type_name()    { return "sdot::ShapeData<" + parex::type_name<TF>() + "," + parex::type_name<TI>() + "," + std::to_string( dim ) + ">"; }

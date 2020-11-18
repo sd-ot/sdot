@@ -12,6 +12,7 @@ SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopTypes &
 
     parex::scheduler.kernel_code.add_include_dir( parex::KernelCode::path( SDOT_DIR ) / "src" );
 
+    // void shape map
     shape_map = parex::Task::call_r( "sdot/geometry/kernels/SetOfElementaryPolytops/new_shape_map", {
         parex::Task::ref_type( scalar_type ),
         parex::Task::ref_type( index_type ),
@@ -32,7 +33,7 @@ void SetOfElementaryPolytops::display_vtk( const std::string &filename ) const {
 
 void SetOfElementaryPolytops::add_repeated( const Value &shape_name, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
     parex::Task::call( parex::Kernel::with_task_as_arg( "sdot/geometry/kernels/SetOfElementaryPolytops/add_repeated" ), { &shape_map.ref }, {
-        shape_map.ref, shape_name.ref, count.ref, coordinates.ref, face_ids.ref, beg_ids.ref
+        shape_map.ref, shape_name.ref, ept.operations, count.ref, coordinates.ref, face_ids.ref, beg_ids.ref
     } );
 }
 

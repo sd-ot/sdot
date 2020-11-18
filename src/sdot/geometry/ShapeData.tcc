@@ -4,9 +4,9 @@
 namespace sdot {
 
 template<class TF,class TI,int dim>
-ShapeData<TF,TI,dim>::ShapeData( ShapeType *shape_type, TI rese, TI size ) :
-    coordinates( parex::Vec<TI>{ rese, shape_type->nb_nodes() * dim } ),
-    face_ids( parex::Vec<TI>{ rese, shape_type->nb_faces() } ),
+ShapeData<TF,TI,dim>::ShapeData( TI nb_nodes, TI nb_faces, TI rese, TI size ) :
+    coordinates( parex::Vec<TI>{ rese, nb_nodes * dim } ),
+    face_ids( parex::Vec<TI>{ rese, nb_faces } ),
     size( size ),
     ids( rese ) {
 }
