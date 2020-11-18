@@ -15,6 +15,8 @@ class Value {
 public:
     /**/              Value          ( TaskRef &&task_ref );
     /**/              Value          ( Task *task );
+
+    /**/              Value          ( const char *value );
     template<class T> Value          ( T &&value );
 
     /**/              Value          ( const Value &that ) = delete;

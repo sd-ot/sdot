@@ -1,14 +1,10 @@
 #include "SetOfElementaryPolytops.h"
-#include <parex/support/ASSERT.h>
-#include <parex/support/TODO.h>
 #include <parex/support/P.h>
-
-#include <parex/KernelCode.h>
 #include <parex/Scheduler.h>
 
 namespace sdot {
 
-SetOfElementaryPolytops::SetOfElementaryPolytops( unsigned dim, std::string scalar_type, std::string index_type ) : scalar_type( scalar_type ), index_type( index_type ), dim( dim ) {
+SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopTypes &ept, std::string scalar_type, std::string index_type ) : scalar_type( scalar_type ), index_type( index_type ), ept( ept ) {
     parex::scheduler.kernel_code.includes[ "sdot::ShapeCutTmpData" ].push_back( "<sdot/geometry/ShapeCutTmpData.h>" );
     parex::scheduler.kernel_code.includes[ "sdot::ShapeType" ].push_back( "<sdot/geometry/ShapeType.h>" );
     parex::scheduler.kernel_code.includes[ "sdot::ShapeData" ].push_back( "<sdot/geometry/ShapeData.h>" );
@@ -19,8 +15,9 @@ SetOfElementaryPolytops::SetOfElementaryPolytops( unsigned dim, std::string scal
     shape_map = parex::Task::call_r( "sdot/geometry/kernels/SetOfElementaryPolytops/new_shape_map", {
         parex::Task::ref_type( scalar_type ),
         parex::Task::ref_type( index_type ),
-        parex::Task::ref_num( dim ),
+        ept.dim,
     } );
+
 }
 
 void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
@@ -33,9 +30,9 @@ void SetOfElementaryPolytops::display_vtk( const std::string &filename ) const {
     } );
 }
 
-void SetOfElementaryPolytops::add_repeated( ShapeType *shape_type, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
+void SetOfElementaryPolytops::add_repeated( const Value &shape_name, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
     parex::Task::call( parex::Kernel::with_task_as_arg( "sdot/geometry/kernels/SetOfElementaryPolytops/add_repeated" ), { &shape_map.ref }, {
-        shape_map.ref, parex::Task::ref_on( shape_type, false ), count.ref, coordinates.ref, face_ids.ref, beg_ids.ref
+        shape_map.ref, shape_name.ref, count.ref, coordinates.ref, face_ids.ref, beg_ids.ref
     } );
 }
 

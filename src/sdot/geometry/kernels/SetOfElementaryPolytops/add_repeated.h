@@ -10,13 +10,13 @@ using namespace sdot;
 
 template<class TF,class TI,int dim,class A,class B,class C>
 ShapeMap<TF,TI,dim> *add_repeated(
-    Task *task, ShapeMap<TF,TI,dim> &shape_map, ShapeType &shape_type,
+    Task *task, ShapeMap<TF,TI,dim> &shape_map, const std::string &shape_name,
     TI count, const A &input_coordinates, const B &input_face_ids, C beg_ids ) {
 
     if ( ! task->move_arg( 0 ) )
         ERROR( "shape_map not owned" );
 
-    ShapeData<TF,TI,dim> &sd = shape_map.shape_data( &shape_type );
+    ShapeData<TF,TI,dim> &sd = shape_map.shape_data( shape_name );
     TI old_size = sd.size;
     sd.size += count;
 

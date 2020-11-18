@@ -14,14 +14,13 @@ using Pt = Point<double,2>;
 using TI = std::uint64_t;
 using TF = Pt::TF;
 
-void test_triangle() {
-    const int dim = 2;
+void test_triangle( TI dim = 2 ) {
     SetOfElementaryPolytops sp( dim );
     scheduler.log = true;
 
     // construct
     TI nb_triangles = 15;
-    sp.add_repeated( triangle(), nb_triangles,
+    sp.add_repeated( "3", nb_triangles,
         Vec<TI>{ 0, 0, 1, 0, 0, 1 },
         Vec<TF>{ 0, 1, 2 }
     );

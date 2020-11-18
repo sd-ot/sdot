@@ -47,18 +47,4 @@ cta 15ème lecourbe,
 GPU =>
 
 ========================================================================================================================================
-Pour créer les éléments, il faudrait appeler du code généré.
-
-=> il faudrait pouvoir créer des sous taches
-
-Prop: un attribut sub_task + un attribut parent_of_sub_task
-
-On pourrait aussi modifier le graph en direct, par exemple en insérant des taches dans les parents.
-
-Pb: plane_cut reste référencé dans SetOfElem. Pb de ref_count + pb dans SetOfElem qui n'aura pas la bonne référence.
-  Prop 1: on ajoute une task intermédiaire
-
-Attention: quand on ajoute un noeud au graph de façon dynamique, il faut vérifier s'il n'y a pas de noeuds à ajouter au front.
-
-Qu'est-ce que sort plane_cut: un shape_map préreservé
-
+Prop pour la génération des formes élémentaires: une liste d'éléments

@@ -12,6 +12,10 @@ Value::Value( TaskRef &&ref ) : ref( std::move( ref ) ) {
 Value::Value( Task *task ) : ref( task ) {
 }
 
+Value::Value( const char *value ) : ref( Task::ref_on( new std::string( value ) ) ) {
+
+}
+
 void Value::write_to_stream( std::ostream &os ) const {
     scheduler << Task::call( "write_to_stream", {}, { Task::ref_on( &os, false ), ref } );
     scheduler.run();
