@@ -1,6 +1,7 @@
 #include <sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ElementaryPolytopOperations.h>
 #include <sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ShapeCutTmpData.h>
 #include <sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ShapeMap.h>
+#include <sdot/geometry/Point.h>
 
 #include <parex/support/StaticRange.h>
 #include <parex/TaskRef.h>
@@ -89,6 +90,67 @@ void make_scalar_products_cut_cases_and_counts( Tensor<TF> &scalar_products, TI 
     } );
 }
 
+template<class TF,class TI,int dim>
+void add_length( Vec<TF> &tmp_scores, const ShapeData<TF,TI,dim> &sd, ShapeCutTmpData<TF,TI> &cm, TI beg_ind, TI end_ind, std::array<TI,4> nn ) {
+    // pointer
+    std::array<std::array<const TF *,dim>,4> ppos;
+    for( TI n = 0; n < 4; ++n )
+        for( TI d = 0; d < dim; ++d )
+            ppos[ n ][ d ] = sd.coordinates.ptr( nn[ n ] * dim + d );
+
+    std::array<const TF *,4> pscp;
+    for( TI n = 0; n < 4; ++n )
+        pscp[ n ] = cm.scalar_products.ptr( nn[ n ] );
+
+    for( TI num_ind = beg_ind; num_ind < end_ind; ++num_ind ) {
+        TI index = cm.indices[ num_ind ];
+
+        Point<TF,dim> pos_0;
+        Point<TF,dim> pos_1;
+        Point<TF,dim> pos_2;
+        Point<TF,dim> pos_3;
+        for( int d = 0; d < dim; ++d ) {
+            pos_0[ d ] = ppos[ 0 ][ d ][ index ];
+            pos_1[ d ] = ppos[ 1 ][ d ][ index ];
+            pos_2[ d ] = ppos[ 2 ][ d ][ index ];
+            pos_3[ d ] = ppos[ 3 ][ d ][ index ];
+        }
+
+        TF scp_0 = pscp[ 0 ][ index ];
+        TF scp_1 = pscp[ 1 ][ index ];
+        TF scp_2 = pscp[ 2 ][ index ];
+        TF scp_3 = pscp[ 3 ][ index ];
+
+        TF d_0_1 = scp_0 / ( scp_0 - scp_1 );
+        TF d_2_3 = scp_2 / ( scp_2 - scp_3 );
+
+        Point<TF,dim> P0 = pos_0 + d_0_1 * ( pos_1 - pos_0 );
+        Point<TF,dim> P1 = pos_2 + d_2_3 * ( pos_3 - pos_2 );
+
+        tmp_scores[ num_ind - beg_ind ] += norm_2( P1 - P0 );
+    }
+}
+
+template<class TF,class TI>
+void sort_indices_by_num_sub_case( ShapeCutTmpData<TF,TI> &cm, TI beg, TI end, const Vec<TI> &num_sub_cases, TI nb_sub_cases ) {
+    TI len = end - beg;
+
+    Vec<TI> count( nb_sub_cases + 1, 0 );
+    for( TI num_sub_case : num_sub_cases )
+        ++count[ num_sub_case ];
+
+    for( TI i = 0, c = 0; i < nb_sub_cases; ++i )
+        count[ i ] = std::exchange( c, c + count[ i ] );
+    count.back() = num_sub_cases.size();
+
+    Vec<TI> tmp_indices( len );
+    for( TI i = 0; i < len; ++i )
+        tmp_indices[ count[ num_sub_cases[ i ] ]++ ] = cm.indices[ beg + i ];
+
+    for( TI i = 0; i < len; ++i )
+        cm.indices[ beg + i ] = tmp_indices[ i ];
+}
+
 template<class TF,class TI,int dim,class A,class B,class C>
 ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const ElementaryPolytopOperations &eop, const A &normals, const B &scalar_products, const C &/*new_face_ids*/ ) {
     constexpr int max_nb_nodes = 8;
@@ -141,12 +203,27 @@ ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const
             TI end = cm.cut_case_offsets[ num_case ][ 1 ];
             if ( beg == end )
                 continue;
-            Vec<TI> best_indices( end - beg );
-            Vec<TF> best_scores( end - beg );
-            for( TI num_sub_case = 0; num_sub_case < op.cut_info.lengths[ num_case ].size(); ++num_sub_case ) {
-                const std::vector<std::array<TI,4>> &pts = op.cut_info.lengths[ num_case ][ num_sub_case ];
-                P( num_case, num_sub_case, pts );
+
+            Vec<TF> best_scores( end - beg, 0 );
+            for( const std::array<TI,4> &pts : op.cut_info.lengths[ num_case ][ 0 ] )
+                add_length( best_scores, sd, cm, beg, end, pts );
+
+            Vec<TI> best_num_sub_case( end - beg, 0 );
+            TI nb_sub_cases = op.cut_info.lengths[ num_case ].size();
+            for( TI num_sub_case = 1; num_sub_case < nb_sub_cases; ++num_sub_case ) {
+                Vec<TF> tmp_scores( end - beg, 0 );
+                for( const std::array<TI,4> &pts : op.cut_info.lengths[ num_case ][ num_sub_case ] )
+                    add_length( tmp_scores, sd, cm, beg, end, pts );
+
+                for( TI i = 0; i < end - beg; ++i ) {
+                    if ( best_scores[ i ] > tmp_scores[ i ] ) {
+                        best_num_sub_case[ i ] = num_sub_case;
+                        best_scores[ i ] = tmp_scores[ i ];
+                    }
+                }
             }
+
+            sort_indices_by_num_sub_case( cm, beg, end, best_num_sub_case, nb_sub_cases );
         }
 
         // get reservation for new elements

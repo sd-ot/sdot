@@ -109,8 +109,9 @@ inline void Element::write_cut_info( std::ostream &os, std::string var_name, std
     for( std::size_t num_case = 0; num_case < cut_cases.size(); ++num_case ) {
         CutCase &cut_case = cut_cases[ num_case ];
         os << ( num_case  ? "," : "" ) << "\n        {";
-        for( std::size_t num_sub_case = 0, num_output = 0; num_sub_case < cut_case.possibilities.size(); ++num_sub_case ) {
+        for( std::size_t num_sub_case = 0; num_sub_case < cut_case.possibilities.size(); ++num_sub_case ) {
             os << ( num_sub_case  ? "," : "" ) << " /*sub case " << num_sub_case << ":*/ { ";
+            std::size_t num_output = 0;
             cut_case.possibilities[ num_sub_case ]->for_each_new_edge( [&]( std::size_t n00, std::size_t n01, std::size_t n10, std::size_t n11 ) {
                 os << ( num_output++ ? ", " : "" ) << "{ " << n00 << ", " << n01 << ", " << n10 << ", " << n11 << " }";
             } );

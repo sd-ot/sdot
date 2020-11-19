@@ -32,6 +32,9 @@ public:
     const T *ptr() const { return this->data(); }
     T *ptr() { return this->data(); }
 
+    template<class Arg>
+    void resize_and_set( std::size_t new_size, Arg &&arg ) { this->clear(); this->resize( new_size, std::forward<Arg>( arg ) ); }
+
     static std::string type_name() { return "parex::Vec<" + parex::type_name<T>() + ",parex::Arch::" + A::name() + ">"; }
 };
 
