@@ -26,9 +26,9 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
     os << shape_map;
 }
 
-void SetOfElementaryPolytops::display_vtk( const std::string &filename ) const {
+void SetOfElementaryPolytops::display_vtk( const Value &filename ) const {
     parex::scheduler << parex::Task::call( parex::Kernel::with_priority( 10, "sdot/geometry/kernels/SetOfElementaryPolytops/display_vtk" ), {}, {
-        shape_map.ref, parex::Task::ref_on( new std::string( filename ) )
+        filename.ref, shape_map.ref, ept.operations
     } );
 }
 

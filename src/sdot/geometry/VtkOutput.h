@@ -9,10 +9,12 @@ namespace sdot {
 /***/
 class VtkOutput {
 public:
+    enum {                   VtkTriangle = 5   };
     enum {                   VtkPoint    = 1   };
+    enum {                   VtkTetra    = 10  };
     enum {                   VtkLine     = 4   };
     enum {                   VtkPoly     = 7   };
-    enum {                   VtkTetra    = 10  };
+    enum {                   VtkQuad     = 9   };
 
     using                    TF          = double;
     using                    TI          = std::size_t;

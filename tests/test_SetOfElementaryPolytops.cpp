@@ -41,7 +41,7 @@ void test_triangle( TI dim = 2 ) {
 //    sp.plane_cut( normals, scalar_products, new_face_ids );
     P( sp );
 
-//    sp.display_vtk( "cut.vtk" );
+    sp.display_vtk( "cut.vtk" );
 }
 
 //void test_quad() {

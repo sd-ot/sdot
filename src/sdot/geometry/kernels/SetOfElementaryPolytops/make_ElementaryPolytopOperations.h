@@ -25,10 +25,27 @@ struct Elem {
     int nvi;
 };
 
-void write_info_elem( std::ostream &os, std::string elem_name, std::string var_name, std::vector<std::string> elem_names ) {
+void write_vtk_elements( std::ostream &os, std::string var_name, Elem &elem ) {
+    auto disp_single_elem = [&]( const char *name ) {
+        os << "    " << var_name << ".vtk_elements = { { " << name << ", { ";
+        for( int i = 0; i < elem.nb_nodes; ++i )
+            os << ( i ? ", " : "" ) << i;
+        os << " } } };\n";
+    };
+
+    // 2D
+    switch ( elem.nb_nodes ) {
+    case 3 : disp_single_elem( "5" ); break;
+    case 4 : disp_single_elem( "9" ); break;
+    default: disp_single_elem( "7" ); break;
+    }
+}
+
+void write_info_elem( std::ostream &os, std::string elem_name, std::string var_name, std::vector<std::string> /*elem_names*/ ) {
     Elem elem( elem_name );
     os << "    " << var_name << ".nb_nodes = " << elem.nb_nodes << ";\n";
     os << "    " << var_name << ".nb_faces = " << elem.nb_faces << ";\n";
+    write_vtk_elements( os, var_name, elem );
 }
 
 void make_ElementaryPolytopOperations( std::ostream &os, const std::string &kernel_name, const std::string &parameter ) {
