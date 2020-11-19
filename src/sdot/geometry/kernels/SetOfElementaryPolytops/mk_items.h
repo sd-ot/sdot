@@ -77,28 +77,28 @@ void mk_items( std::ostream &os, const std::string &kernel_name, const std::stri
     os << "\n";
     os << "// " << parameter << "\n";
 
-    os << "template<class TF,class TI,int dim,class VI,class VO>\n";
-    os << "ShapeMap<TF,TI,dim> *" << kernel_name << "( Task *t, ShapeMap<TF,TI,dim> &out_shape_map, ElementaryPolytopOperations &eop, TI num_cut_op, TI beg_ind, TI end_ind, std::map<std::string,ShapeCutTmpData<TF,TI>> &tmp_cut_data_map, ShapeMap<TF,TI,dim> &inp_shape_map, std::string &inp_shape_type, const VO &new_face_ids ) {\n";
+    os << "template<class TF,class TI,int dim,class VO>\n";
+    os << "ShapeMap<TF,TI,dim> *" << kernel_name << "( Task *t, ShapeMap<TF,TI,dim> &out_shape_map, ElementaryPolytopOperations &eop, TI num_case, TI num_sub_case, TI beg_ind, TI end_ind, std::map<std::string,ShapeCutTmpData<TF,TI>> &tmp_cut_data_map, ShapeMap<TF,TI,dim> &inp_shape_map, std::string &inp_shape_type, const VO &new_face_ids ) {\n";
     os << "    if ( ! t->move_arg( 0 ) )\n";
     os << "        ERROR( \"not owned data\" );\n";
 
-    os << "    ElementaryPolytopOperations::CutInfo &ci = eop.operation_map[ inp_shape_type ].cut_info[ num_cut_op ];\n";
     os << "\n";
+    os << "    ElementaryPolytopOperations::CutOp &co = eop.operation_map[ inp_shape_type ].cut_info.new_elems[ num_case ][ num_sub_case ];\n";
     for( TI no = 0; no < pr.outputs.size(); ++no )
-        os << "    ShapeData<TF,TI,dim> &out_shape_data_" << no << " = out_shape_map.map.find( &out_shape_type_" << no << " )->second;\n";
-    os << "    ShapeData<TF,TI,dim> &inp_shape_data = inp_shape_map.map.find( &inp_shape_type )->second;\n";
+        os << "    ShapeData<TF,TI,dim> &out_shape_data_" << no << " = out_shape_map.map.find( co.outputs[ " << no << " ].shape_type )->second;\n";
+    os << "    ShapeData<TF,TI,dim> &inp_shape_data = inp_shape_map.map.find( inp_shape_type )->second;\n";
 
     // ptr to new items
     os << "\n";
     for( TI no = 0; no < pr.outputs.size(); ++no )
         for( TI nn = 0; nn < pr.outputs[ no ].inp_nodes.size(); ++nn )
             for( int d = 0; d < pr.dim; ++d )
-                os << "    TF *new_" << nd[ d ] << "_" << nn << "_" << no << " = out_shape_data_" << no << ".coordinates.ptr( out_node_corr_" << no << "[ " << nn << " ] * dim + " << d << " );\n";
+                os << "    TF *new_" << nd[ d ] << "_" << nn << "_" << no << " = out_shape_data_" << no << ".coordinates.ptr( co.outputs[ " << no << " ].node_corr[ " << nn << " ] * dim + " << d << " );\n";
 
     os << "\n";
     for( TI no = 0; no < pr.outputs.size(); ++no )
         for( TI nn = 0; nn < pr.outputs[ no ].inp_faces.size(); ++nn )
-            os << "    TI *new_f_" << nn << "_" << no << " = out_shape_data_" << no << ".face_ids.ptr( out_face_corr_" << no << "[ " << nn << " ] );\n";
+            os << "    TI *new_f_" << nn << "_" << no << " = out_shape_data_" << no << ".face_ids.ptr( co.outputs[ " << no << " ].face_corr[ " << nn << " ] );\n";
 
     os << "\n";
     for( TI no = 0; no < pr.outputs.size(); ++no )
@@ -108,18 +108,18 @@ void mk_items( std::ostream &os, const std::string &kernel_name, const std::stri
     os << "\n";
     for( TI nn : pr.needed_input_nodes() )
         for( int d = 0; d < pr.dim; ++d )
-            os << "    const TF *old_" << nd[ d ] << "_" << nn << " = inp_shape_data.coordinates.ptr( inp_node_corr[ " << nn << " ] * dim + " << d << " ) ;\n";
+            os << "    const TF *old_" << nd[ d ] << "_" << nn << " = inp_shape_data.coordinates.ptr( co.inp_node_corr[ " << nn << " ] * dim + " << d << " ) ;\n";
 
     os << "\n";
     for( TI nn : pr.needed_input_faces() )
-        os << "    const TI *old_f_" << nn << " = inp_shape_data.face_ids.ptr( inp_face_corr[ " << nn << " ] );\n";
+        os << "    const TI *old_f_" << nn << " = inp_shape_data.face_ids.ptr( co.inp_face_corr[ " << nn << " ] );\n";
 
     os << "\n";
     os << "    const TI *old_ids = inp_shape_data.ids.ptr();\n";
 
     // ptr to indices
     os << "\n";
-    os << "    ShapeCutTmpData<TF,TI> &tmp_cut_data = tmp_cut_data_map.find( &inp_shape_type )->second;\n";
+    os << "    ShapeCutTmpData<TF,TI> &tmp_cut_data = tmp_cut_data_map.find( inp_shape_type )->second;\n";
     os << "    const TI *indices = tmp_cut_data.indices.ptr();\n";
 
     // needed intersection points
@@ -138,7 +138,7 @@ void mk_items( std::ostream &os, const std::string &kernel_name, const std::stri
     if ( edge_points.size() ) {
         os << "\n";
         for( int n : edge_points )
-            os << "    const TF *inp_scp_" << n << " = tmp_cut_data.scalar_products.ptr( inp_node_corr[ " << n << " ] );\n";
+            os << "    const TF *inp_scp_" << n << " = tmp_cut_data.scalar_products.ptr( co.inp_node_corr[ " << n << " ] );\n";
     }
 
     // loop over indices

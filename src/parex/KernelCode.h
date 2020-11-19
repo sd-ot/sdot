@@ -24,6 +24,7 @@ public:
     void                       add_include_dir   ( path name );
     Func                       func              ( const Kernel &kernel, const std::vector<std::string> &input_types );
 
+    std::string                compilation_flags;
     path                       object_dir;
     MSVS                       src_heads;
     MSVS                       includes;

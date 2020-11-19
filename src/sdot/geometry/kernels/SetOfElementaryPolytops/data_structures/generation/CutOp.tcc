@@ -4,6 +4,8 @@ std::string CutOp::mk_item_func_name() const {
     std::string res;
     for( TI n = 0; n < cut_items.size(); ++n ) {
         // nodes
+        if( n )
+            res += " ";
         res += std::to_string( cut_items[ n ].nodes.size() );
         for( auto inds : cut_items[ n ].nodes )
             res += " " + std::to_string( inds[ 0 ] ) + " " + std::to_string( inds[ 1 ] );

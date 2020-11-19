@@ -55,7 +55,7 @@ void Scheduler::run() {
         //            Task::display_graphviz( { task_ref.task } );
 
         // exec
-        if ( log ) std::cout << task_ref.task->kernel << std::endl;
+        if ( log ) std::cout << task_ref.task->kernel.name << std::endl;
         task_ref.task->computed = true;
         exec_task( task_ref.task );
 

@@ -1,6 +1,7 @@
 #ifndef SDOT_CutOpWithNamesAndInds_H
 #define SDOT_CutOpWithNamesAndInds_H
 
+#include <functional>
 #include "CutOp.h"
 
 /**
@@ -10,6 +11,7 @@ struct CutOpWithNamesAndInds {
     struct           Out                  { std::string shape_name; std::vector<TI> output_node_inds, output_face_inds; };
 
     /**/             CutOpWithNamesAndInds( TI dim );
+    void             for_each_new_edge    ( std::function<void( TI n00, TI n01, TI n10, TI n11 )> f ) const;
     std::string      created_shapes       () const; ///< string representing the created shapes in canonical form
     std::size_t      nb_created           ( std::string shape_name ) const;
 

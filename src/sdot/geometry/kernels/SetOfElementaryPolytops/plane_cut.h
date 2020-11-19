@@ -134,6 +134,20 @@ ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const
         } );
 
         // update sub cases
+        for( TI num_case = 0; num_case < nb_cases; ++num_case ) {
+            if ( cut_poss_count[ num_case ] <= 1 )
+                continue;
+            TI beg = cm.cut_case_offsets[ num_case ][ 0 ];
+            TI end = cm.cut_case_offsets[ num_case ][ 1 ];
+            if ( beg == end )
+                continue;
+            Vec<TI> best_indices( end - beg );
+            Vec<TF> best_scores( end - beg );
+            for( TI num_sub_case = 0; num_sub_case < op.cut_info.lengths[ num_case ].size(); ++num_sub_case ) {
+                const std::vector<std::array<TI,4>> &pts = op.cut_info.lengths[ num_case ][ num_sub_case ];
+                P( num_case, num_sub_case, pts );
+            }
+        }
 
         // get reservation for new elements
         for( const auto &p : op.cut_info.nb_output_elements ) {
@@ -141,10 +155,10 @@ ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const
             if ( iter == reservation_new_elements.end() )
                 iter = reservation_new_elements.insert( iter, { p.first, 0 } );
 
-            for( TI num_case = 0, cpt = 0; num_case < nb_cases; ++num_case ) {
+            for( TI num_case = 0; num_case < nb_cases; ++num_case ) {
                 const Vec<TI> &cc = cm.cut_case_offsets[ num_case ];
-                for( TI num_sub_case = 0; num_sub_case < cc.size() - 1; ++num_sub_case, ++cpt )
-                    iter->second += p.second[ cpt ] * ( cc[ num_sub_case + 1 ] - cc[ num_sub_case + 0 ] );
+                for( TI num_sub_case = 0; num_sub_case < cc.size() - 1; ++num_sub_case )
+                    iter->second += p.second[ num_case ][ num_sub_case ] * ( cc[ num_sub_case + 1 ] - cc[ num_sub_case + 0 ] );
             }
         }
     }
@@ -164,26 +178,30 @@ ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const
 
         ShapeCutTmpData<TF,TI> &cm = (*cdm)[ shape_type ];
 
-        const std::vector<ElementaryPolytopOperations::CutOp> &cut_ops = op.cut_info.new_elems;
-        for( std::size_t num_cut_op = 0; num_cut_op < cut_ops.size(); ++num_cut_op ) {
-            const ElementaryPolytopOperations::CutOp &cut_op = cut_ops[ num_cut_op ];
-            TI beg = cm.cut_case_offsets[ cut_op.num_case ][ cut_op.num_sub_case + 0 ];
-            TI end = cm.cut_case_offsets[ cut_op.num_case ][ cut_op.num_sub_case + 1 ];
+        const std::vector<std::vector<ElementaryPolytopOperations::CutOp>> &cut_ops = op.cut_info.new_elems;
+        for( std::size_t num_case = 0; num_case < cut_ops.size(); ++num_case ) {
+            for( std::size_t num_sub_case = 0; num_sub_case < cut_ops[ num_case ].size(); ++num_sub_case ) {
+                const ElementaryPolytopOperations::CutOp &cut_op = cut_ops[ num_case ][ num_sub_case ];
+                TI beg = cm.cut_case_offsets[ num_case ][ num_sub_case + 0 ];
+                TI end = cm.cut_case_offsets[ num_case ][ num_sub_case + 1 ];
 
-            if ( end != beg ) {
-                TaskRef new_task = Task::call_r( Kernel::with_task_as_arg( "sdot/geometry/kernels/SetOfElementaryPolytops/mk_items(" + std::to_string( dim ) + " " + cut_op.operation_name + ")" ), {
-                    prev_task                                           , // new shape map
-                    task->children[ 1 ]                                 , // ElementaryPolytopOperations &eop
-                    parex::Task::ref_on( new TI( num_cut_op ) )         ,
-                    parex::Task::ref_on( new TI( beg ) )                ,
-                    parex::Task::ref_on( new TI( end ) )                ,
-                    task_ref_cdm                                        , // tmp cut data
-                    task->children[ 0 ]                                 , // old shape map
-                    parex::Task::ref_on( new std::string( shape_type ) ), // old shape_type
-                    task->children[ 3 ]                                   // new_face_ids
-                } );
-                prev_task.task->insert_before_parents( new_task );
-                prev_task = new_task;
+                if ( end != beg ) {
+                    TaskRef new_task = Task::call_r( Kernel::with_task_as_arg( "sdot/geometry/kernels/SetOfElementaryPolytops/mk_items(" + std::to_string( dim ) + " " + cut_op.operation_name + ")" ), {
+                        prev_task                                           , // new shape map
+                        task->children[ 1 ]                                 , // ElementaryPolytopOperations &eop
+                        parex::Task::ref_on( new TI( num_case ) )           ,
+                        parex::Task::ref_on( new TI( num_sub_case ) )       ,
+                        parex::Task::ref_on( new TI( beg ) )                , // first index
+                        parex::Task::ref_on( new TI( end ) )                ,
+                        task_ref_cdm                                        , // tmp cut data
+                        task->children[ 0 ]                                 , // old shape map
+                        parex::Task::ref_on( new std::string( shape_type ) ), // old shape_type
+                        task->children[ 3 ]                                   // new_face_ids
+                    } );
+
+                    prev_task.task->insert_before_parents( new_task );
+                    prev_task = new_task;
+                }
             }
         }
     }

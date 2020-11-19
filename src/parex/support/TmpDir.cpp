@@ -16,8 +16,8 @@ TmpDir::TmpDir( std::string basename ) {
 }
 
 TmpDir::~TmpDir() {
-    std::error_code ec;
-    std::filesystem::remove_all( p, ec );
+//    std::error_code ec;
+//    std::filesystem::remove_all( p, ec );
 }
 
 parex::TmpDir::operator std::string() const {

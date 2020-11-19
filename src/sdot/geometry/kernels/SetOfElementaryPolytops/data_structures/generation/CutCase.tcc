@@ -101,7 +101,7 @@ inline void CutCase::_init_2D_rec( CutOpWithNamesAndInds &possibility, const std
 
             // else, simply add the shape
             CutOpWithNamesAndInds::Out output;
-            output.shape_name = "S" + std::to_string( new_points.size() );
+            output.shape_name = std::to_string( new_points.size() );
             possibility.outputs.push_back( output );
 
             CutItem cut_item;

@@ -28,6 +28,7 @@
 namespace parex {
 
 KernelCode::KernelCode() {
+    compilation_flags = "-O3";
     object_dir = "objects";
 
     include_directories.push_back( path( PAREX_DIR ) / "src" / "parex" / "kernels" );
@@ -125,7 +126,7 @@ void KernelCode::make_cmk( TmpDir &tmp_dir, const std::string &shash ) {
     fcmk << "install(TARGETS " << shash << ")\n";
 
     fcmk << "\n";
-    fcmk << "target_compile_options(" << shash << " PRIVATE -march=native -O3 -g3)\n";
+    fcmk << "target_compile_options(" << shash << " PRIVATE -march=native -g3 " + compilation_flags + ")\n";
 
     fcmk << "\n";
     fcmk << "add_definitions(-DPAREX_IN_KERNEL)\n";
