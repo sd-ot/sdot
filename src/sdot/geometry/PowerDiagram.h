@@ -1,12 +1,16 @@
 #pragma once
 
-namespace parex {
+#include <parex/Value.h>
+
+namespace sdot {
 
 /**
 */
 class PowerDiagram {
 public:
-    PowerDiagram();
+    /**/ PowerDiagram();
+
+    void add_diracs  ( const parex::Value &diracs );
 };
 
-} // namespace parex
+} // namespace sdot

@@ -1,8 +1,12 @@
 #include "PowerDiagram.h"
 
-namespace parex {
+namespace sdot {
 
 PowerDiagram::PowerDiagram() {
 }
 
-} // namespace parex
+void PowerDiagram::add_diracs( const parex::Value &diracs ) {
+
+}
+
+} // namespace sdot

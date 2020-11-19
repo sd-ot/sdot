@@ -18,6 +18,7 @@ public:
 
     /**/              Value          ( const char *value );
     template<class T> Value          ( T &&value );
+    template<class T> Value          ( T *ptr, bool own = true );
 
     /**/              Value          ( const Value &that ) = delete;
     /**/              Value          ( Value &&that ) = default;
@@ -43,6 +44,10 @@ public:
 
 template<class T>
 Value::Value( T &&value ) : Value( Task::ref_on( new typename std::decay<T>::type( std::forward<T>( value ) ) ) ) {
+}
+
+template<class T>
+Value::Value( T *ptr, bool own ) : Value( Task::ref_on( ptr, own ) ) {
 }
 
 } // namespace parex

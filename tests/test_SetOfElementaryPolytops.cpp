@@ -25,7 +25,7 @@ void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
     );
 
     // cut
-    Tensor<TF> normals( Vec<TI>{ nb_triangles, dim } );
+    Tensor<TF> normals( { nb_triangles, dim } );
     Vec<TF> scalar_products( nb_triangles );
     Vec<TI> new_face_ids( nb_triangles );
     for( std::size_t i = 0; i < nb_triangles; ++i ) {
@@ -54,7 +54,7 @@ void test_quad( TI dim = 2, TI nb_quads = 36 ) {
     );
 
     // cut
-    Tensor<TF> normals( Vec<TI>{ nb_quads, dim } );
+    Tensor<TF> normals( { nb_quads, dim } );
     Vec<TF> scalar_products( nb_quads );
     Vec<TI> new_face_ids( nb_quads );
     for( std::size_t i = 0; i < nb_quads; ++i ) {

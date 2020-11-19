@@ -1,21 +1,20 @@
-#include "../src/sdot/geometry/PowerDiagram.h"
-#include "../src/sdot/kernels/KernelSlot.h"
-#include "../src/sdot/support/P.h"
+#include <sdot/geometry/PowerDiagram.h>
+#include <parex/containers/Tensor.h>
+#include <parex/support/P.h>
+#include <parex/Value.h>
 
 using namespace parex;
+using namespace sdot;
 
 using TI = std::uint64_t;
 using TF = double;
 
-void test_fill() {
-    std::vector<std::unique_ptr<KernelSlot>> ak = KernelSlot::available_slots( TypeName<TF>::name(), TypeName<TI>::name() );
-    // KernelSlot *ks = ak[ 0 ].get();
+void test_fill( TI nb_diracs = 10 ) {
+    Tensor<TF> *diracs = new Tensor<TF>( { nb_diracs, 3 } );
+
 
     PowerDiagram pd;
-
-    pd.fill( [&]( auto f ) {
-        f();
-    } );
+    pd.add_diracs( diracs );
 }
 
 int main() {
