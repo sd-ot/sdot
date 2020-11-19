@@ -6,7 +6,7 @@ namespace sdot {
 template<class TF,class TI,int dim>
 void ShapeMap<TF,TI,dim>::write_to_stream( std::ostream &os ) const {
     for( const auto &p : map )
-        os << "\n " << p.first->name() << p.second;
+        os << "\n " << p.first << p.second;
 }
 
 template<class TF,class TI,int dim>
