@@ -132,9 +132,10 @@ void add_length( Vec<TF> &tmp_scores, const ShapeData<TF,TI,dim> &sd, ShapeCutTm
 }
 
 template<class TF,class TI>
-void sort_indices_by_num_sub_case( ShapeCutTmpData<TF,TI> &cm, TI beg, TI end, const Vec<TI> &num_sub_cases, TI nb_sub_cases ) {
+void sort_indices_by_num_sub_case( ShapeCutTmpData<TF,TI> &cm, TI *offsets, TI beg, TI end, const Vec<TI> &num_sub_cases, TI nb_sub_cases ) {
     TI len = end - beg;
 
+    // count scan
     Vec<TI> count( nb_sub_cases + 1, 0 );
     for( TI num_sub_case : num_sub_cases )
         ++count[ num_sub_case ];
@@ -143,6 +144,11 @@ void sort_indices_by_num_sub_case( ShapeCutTmpData<TF,TI> &cm, TI beg, TI end, c
         count[ i ] = std::exchange( c, c + count[ i ] );
     count.back() = num_sub_cases.size();
 
+    // save offsets
+    for( TI i = 0; i <= nb_sub_cases; ++i )
+        offsets[ i ] = beg + count[ i ];
+
+    // make indices
     Vec<TI> tmp_indices( len );
     for( TI i = 0; i < len; ++i )
         tmp_indices[ count[ num_sub_cases[ i ] ]++ ] = cm.indices[ beg + i ];
@@ -223,7 +229,7 @@ ShapeMap<TF,TI,dim> *plane_cut( Task *task, const ShapeMap<TF,TI,dim> &sm, const
                 }
             }
 
-            sort_indices_by_num_sub_case( cm, beg, end, best_num_sub_case, nb_sub_cases );
+            sort_indices_by_num_sub_case( cm, cm.cut_case_offsets[ num_case ].ptr(), beg, end, best_num_sub_case, nb_sub_cases );
         }
 
         // get reservation for new elements

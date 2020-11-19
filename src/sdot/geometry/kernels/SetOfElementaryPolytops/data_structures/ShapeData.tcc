@@ -17,11 +17,17 @@ void ShapeData<TF,TI,dim>::write_to_stream( std::ostream &os, const std::string 
 
         os << "C:";
         for( TI c = 0; c < coordinates.nb_x_vec(); ++c )
-            os << " " << std::setw( 9 ) << coordinates.ptr( c )[ i ];
+            os << " " << std::setw( 10 ) << coordinates.ptr( c )[ i ];
 
         os << " F:";
-        for( TI c = 0; c < face_ids.nb_x_vec(); ++c )
-            os << " " << std::setw( 6 ) << face_ids.ptr( c )[ i ];
+        for( TI c = 0; c < face_ids.nb_x_vec(); ++c ) {
+            if ( face_ids.ptr( c )[ i ] == TI( -2 ) )
+                os << " " << "   int";
+            else if ( face_ids.ptr( c )[ i ] == TI( -1 ) )
+                os << " " << "   cut";
+            else
+                os << " " << std::setw( 6 ) << face_ids.ptr( c )[ i ];
+        }
 
         os << " I: " << ids[ i ];
     }

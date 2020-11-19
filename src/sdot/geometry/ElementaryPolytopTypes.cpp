@@ -13,7 +13,7 @@ ElementaryPolytopTypes::ElementaryPolytopTypes( int dim ) : ElementaryPolytopTyp
 
 std::string ElementaryPolytopTypes::shape_names_for( int dim ) {
     if ( dim == 3 ) return "3S 3E 4S";
-    if ( dim == 2 ) return "3 4";
+    if ( dim == 2 ) return "3 4 5";
     TODO;
     return {};
 }
