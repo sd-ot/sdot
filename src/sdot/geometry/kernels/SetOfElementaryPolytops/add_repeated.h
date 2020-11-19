@@ -1,9 +1,8 @@
+#include <sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ShapeMap.h>
 #include <parex/arch/assign_repeated.h>
 #include <parex/arch/assign_iota.h>
 #include <parex/support/P.h>
 #include <parex/TaskRef.h>
-
-#include <sdot/geometry/ShapeMap.h>
 
 using namespace parex;
 using namespace sdot;

@@ -3,7 +3,6 @@
 
 #include "ElementaryPolytopOperations.h"
 #include "ShapeData.h"
-#include "ShapeType.h"
 #include <map>
 
 namespace sdot {

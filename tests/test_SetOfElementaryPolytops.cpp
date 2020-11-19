@@ -26,19 +26,19 @@ void test_triangle( TI dim = 2 ) {
     );
 
     // cut
-//    Tensor<TF> normals( Vec<TI>{ nb_triangles, dim } );
-//    Vec<TF> scalar_products( nb_triangles );
-//    Vec<TI> new_face_ids( nb_triangles );
-//    for( std::size_t i = 0; i < nb_triangles; ++i ) {
-//        TF a = 2 * M_PI * i / nb_triangles;
-//        Pt p = { std::cos( a ), std::sin( a ) };
-//        scalar_products[ i ] = dot( p, Pt{ 0.33, 0.33 } );
-//        normals.ptr( 0 )[ i ] = p[ 0 ];
-//        normals.ptr( 1 )[ i ] = p[ 1 ];
-//        new_face_ids[ i ] = 100 + i;
-//    }
+    Tensor<TF> normals( Vec<TI>{ nb_triangles, dim } );
+    Vec<TF> scalar_products( nb_triangles );
+    Vec<TI> new_face_ids( nb_triangles );
+    for( std::size_t i = 0; i < nb_triangles; ++i ) {
+        TF a = 2 * M_PI * i / nb_triangles;
+        Pt p = { std::cos( a ), std::sin( a ) };
+        scalar_products[ i ] = dot( p, Pt{ 0.33, 0.33 } );
+        normals.ptr( 0 )[ i ] = p[ 0 ];
+        normals.ptr( 1 )[ i ] = p[ 1 ];
+        new_face_ids[ i ] = 100 + i;
+    }
 
-//    sp.plane_cut( normals, scalar_products, new_face_ids );
+    sp.plane_cut( normals, scalar_products, new_face_ids );
     P( sp );
 
     sp.display_vtk( "cut.vtk" );

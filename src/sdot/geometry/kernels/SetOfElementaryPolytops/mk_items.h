@@ -67,8 +67,9 @@ void mk_items( std::ostream &os, const std::string &kernel_name, const std::stri
     static const char *nd = "xyzabcdefghijklmnopqrstuv";
     ParmReader pr( parameter );
 
-    os << "#include <sdot/geometry/ShapeCutTmpData.h>\n";
-    os << "#include <sdot/geometry/ShapeMap.h>\n";
+    os << "#include <sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ElementaryPolytopOperations.h>\n";
+    os << "#include <sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ShapeCutTmpData.h>\n";
+    os << "#include <sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ShapeMap.h>\n";
     os << "#include <parex/support/P.h>\n";
     os << "#include <parex/TaskRef.h>\n";
     os << "using namespace parex;\n";
@@ -77,15 +78,11 @@ void mk_items( std::ostream &os, const std::string &kernel_name, const std::stri
     os << "// " << parameter << "\n";
 
     os << "template<class TF,class TI,int dim,class VI,class VO>\n";
-    os << "ShapeMap<TF,TI,dim> *" << kernel_name << "( Task *t, ShapeMap<TF,TI,dim> &out_shape_map";
-    for( TI no = 0; no < pr.outputs.size(); ++no )
-        os << ", ShapeType &out_shape_type_" << no
-           << ", const VI &out_node_corr_" << no
-           << ", const VI &out_face_corr_" << no << "\n";
-    os << ", const VI &inp_node_corr, const VI &inp_face_corr, TI beg_ind, TI end_ind, std::map<ShapeType *,ShapeCutTmpData<TF,TI>> &tmp_cut_data_map, ShapeMap<TF,TI,dim> &inp_shape_map, ShapeType &inp_shape_type, const VO &new_face_ids ) {\n";
+    os << "ShapeMap<TF,TI,dim> *" << kernel_name << "( Task *t, ShapeMap<TF,TI,dim> &out_shape_map, ElementaryPolytopOperations &eop, TI num_cut_op, TI beg_ind, TI end_ind, std::map<std::string,ShapeCutTmpData<TF,TI>> &tmp_cut_data_map, ShapeMap<TF,TI,dim> &inp_shape_map, std::string &inp_shape_type, const VO &new_face_ids ) {\n";
     os << "    if ( ! t->move_arg( 0 ) )\n";
     os << "        ERROR( \"not owned data\" );\n";
 
+    os << "    ElementaryPolytopOperations::CutInfo &ci = eop.operation_map[ inp_shape_type ].cut_info[ num_cut_op ];\n";
     os << "\n";
     for( TI no = 0; no < pr.outputs.size(); ++no )
         os << "    ShapeData<TF,TI,dim> &out_shape_data_" << no << " = out_shape_map.map.find( &out_shape_type_" << no << " )->second;\n";

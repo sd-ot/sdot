@@ -1,4 +1,4 @@
-#include <sdot/geometry/ShapeMap.h>
+#include <sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ShapeMap.h>
 #include <parex/support/S.h>
 #include <parex/support/N.h>
 #include <map>

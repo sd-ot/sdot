@@ -1,6 +1,6 @@
-#include <sdot/geometry/ElementaryPolytopOperations.h>
+#include <sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ElementaryPolytopOperations.h>
+#include <sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ShapeMap.h>
 #include <sdot/geometry/VtkOutput.cpp>
-#include <sdot/geometry/ShapeMap.h>
 #include <parex/support/P.h>
 
 using namespace parex;

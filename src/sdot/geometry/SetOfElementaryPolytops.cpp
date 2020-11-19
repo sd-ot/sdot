@@ -5,11 +5,10 @@
 namespace sdot {
 
 SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopTypes &ept, std::string scalar_type, std::string index_type ) : scalar_type( scalar_type ), index_type( index_type ), ept( ept ) {
-    parex::scheduler.kernel_code.includes[ "sdot::ElementaryPolytopOperations" ].push_back( "<sdot/geometry/ElementaryPolytopOperations.h>" );
-    parex::scheduler.kernel_code.includes[ "sdot::ShapeCutTmpData" ].push_back( "<sdot/geometry/ShapeCutTmpData.h>" );
-    parex::scheduler.kernel_code.includes[ "sdot::ShapeType" ].push_back( "<sdot/geometry/ShapeType.h>" );
-    parex::scheduler.kernel_code.includes[ "sdot::ShapeData" ].push_back( "<sdot/geometry/ShapeData.h>" );
-    parex::scheduler.kernel_code.includes[ "sdot::ShapeMap" ].push_back( "<sdot/geometry/ShapeMap.h>" );
+    parex::scheduler.kernel_code.includes[ "sdot::ElementaryPolytopOperations" ].push_back( "<sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ElementaryPolytopOperations.h>" );
+    parex::scheduler.kernel_code.includes[ "sdot::ShapeCutTmpData" ].push_back( "<sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ShapeCutTmpData.h>" );
+    parex::scheduler.kernel_code.includes[ "sdot::ShapeData" ].push_back( "<sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ShapeData.h>" );
+    parex::scheduler.kernel_code.includes[ "sdot::ShapeMap" ].push_back( "<sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ShapeMap.h>" );
 
     parex::scheduler.kernel_code.add_include_dir( parex::KernelCode::path( SDOT_DIR ) / "src" );
 
@@ -40,7 +39,7 @@ void SetOfElementaryPolytops::add_repeated( const Value &shape_name, const Value
 
 void SetOfElementaryPolytops::plane_cut( const Value &normals, const Value &scalar_products, const Value &cut_ids ) {
     shape_map = parex::Task::call_r( parex::Kernel::with_task_as_arg( "sdot/geometry/kernels/SetOfElementaryPolytops/plane_cut" ), {
-        shape_map.ref, normals.ref, scalar_products.ref, cut_ids.ref
+        shape_map.ref, ept.operations, normals.ref, scalar_products.ref, cut_ids.ref
     }, /*append_parent_task*/ true );
 }
 

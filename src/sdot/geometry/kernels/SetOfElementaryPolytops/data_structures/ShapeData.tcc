@@ -1,5 +1,4 @@
 #include "ShapeData.h"
-#include "ShapeType.h"
 
 namespace sdot {
 

@@ -1,60 +1,20 @@
+#include "data_structures/generation/Element.h"
 #include <sstream>
-#include <vector>
-#include <string>
-#include <array>
-#include <set>
-using TI = std::size_t;
 
-//std::vector<CutOp>                         new_element_creation_cut; ///< creation of new elements
-//std::map<std::string,std::vector<TI>>      new_output_elements_cut;  ///< [output_elem_type][case_and_sub_case_number] => nb output elements
-//std::vector<TI>                            nb_sub_cases_cut;         ///< [case_number] => nb_sub_cases
-//std::vector<std::pair<TI,std::vector<TI>>> vtk_elements;             ///< [vtk_id + [node numbers]]
-
-struct Elem {
-    Elem( std::string name ) {
-        nb_nodes = 0;
-        std::size_t p = 0;
-        for( ; p < name.size() && std::isdigit( name[ p ] ); ++p )
-            nb_nodes += nb_nodes * 10 + ( name[ p ] - '0' );
-
-        nb_faces = nb_nodes;
-    }
-
-    int nb_nodes;
-    int nb_faces;
-    int nvi;
-};
-
-void write_vtk_elements( std::ostream &os, std::string var_name, Elem &elem ) {
-    auto disp_single_elem = [&]( const char *name ) {
-        os << "    " << var_name << ".vtk_elements = { { " << name << ", { ";
-        for( int i = 0; i < elem.nb_nodes; ++i )
-            os << ( i ? ", " : "" ) << i;
-        os << " } } };\n";
-    };
-
-    // 2D
-    switch ( elem.nb_nodes ) {
-    case 3 : disp_single_elem( "5" ); break;
-    case 4 : disp_single_elem( "9" ); break;
-    default: disp_single_elem( "7" ); break;
-    }
-}
-
-void write_info_elem( std::ostream &os, std::string elem_name, std::string var_name, std::vector<std::string> /*elem_names*/ ) {
-    Elem elem( elem_name );
-    os << "    " << var_name << ".nb_nodes = " << elem.nb_nodes << ";\n";
-    os << "    " << var_name << ".nb_faces = " << elem.nb_faces << ";\n";
-    write_vtk_elements( os, var_name, elem );
+void write_info_elem( std::ostream &os, Element &element, std::string var_name, std::map<std::string,Element> &elements ) {
+    os << "    " << var_name << ".nb_nodes = " << element.nb_nodes << ";\n";
+    os << "    " << var_name << ".nb_faces = " << element.nb_faces << ";\n";
+    element.write_cut_info( os, var_name, elements );
+    element.write_vtk_info( os, var_name );
 }
 
 void make_ElementaryPolytopOperations( std::ostream &os, const std::string &kernel_name, const std::string &parameter ) {
-    std::vector<std::string> elem_names;
+    std::map<std::string,Element> elements;
     std::istringstream is( parameter );
     for( std::string elem_name; is >> elem_name; )
-        elem_names.push_back( elem_name );
+        elements.insert( { elem_name, { elem_name } } );
 
-    os << "#include <sdot/geometry/ElementaryPolytopOperations.h>\n";
+    os << "#include <sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/ElementaryPolytopOperations.h>\n";
     os << "#include <parex/support/P.h>\n";
     os << "#include <parex/TaskRef.h>\n";
     os << "using namespace parex;\n";
@@ -64,10 +24,9 @@ void make_ElementaryPolytopOperations( std::ostream &os, const std::string &kern
 
     os << "ElementaryPolytopOperations *" << kernel_name << "() {\n";
     os << "    ElementaryPolytopOperations *res = new ElementaryPolytopOperations;\n";
-    for( TI i = 0; i < elem_names.size(); ++i ) {
-        std::string elem_name = elem_names[ i ];
-        os << "    ElementaryPolytopOperations::Operations &op_" << i << " = res->operation_map[ \"" << elem_name << "\" ];\n";
-        write_info_elem( os, elem_name, "op_" + std::to_string( i ), elem_names );
+    for( auto &p : elements ) {
+        os << "\n    ElementaryPolytopOperations::Operations &op_" << p.first << " = res->operation_map[ \"" << p.first << "\" ];\n";
+        write_info_elem( os, p.second, "op_" + p.first, elements );
     }
     os << "    return res;\n";
     os << "}\n";
