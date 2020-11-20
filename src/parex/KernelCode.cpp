@@ -186,16 +186,37 @@ void KernelCode::make_cpp( const path &log, TmpDir &tmp_dir, const Kernel &kerne
     fcpp << "namespace {\n";
     fcpp << "    struct KernelWrapper {\n";
     fcpp << "        auto operator()( parex::Task *" << ( kernel.task_as_arg ? "task" : "/*task*/" ) << ", void **data ) const {\n";
+
+    if ( kernel.has_varargs() ) {
+        std::string ctype;
+        if ( kernel.vararg_enforced_type.size() )
+            ctype = kernel.vararg_enforced_type;
+        else if ( input_types.size() > kernel.vararg_num )
+            ctype = input_types[ kernel.vararg_num ];
+        else if ( kernel.vararg_default_type.size() )
+            ctype = kernel.vararg_default_type;
+        else
+            ctype = "int";
+
+        unsigned csize = input_types.size() > kernel.vararg_num ? input_types.size() - kernel.vararg_num : 0u;
+
+        fcpp << "        Vec<" << ctype << " *> varargs( " << csize << " );\n";
+        for( std::size_t i = kernel.vararg_num, o = 0; i < input_types.size(); ++i, ++o )
+            fcpp << "        varargs[ " << o << " ] = reinterpret_cast<" << input_types[ i ] << "*>( data[ " << i << " ] );\n";
+    }
+
     fcpp << "            return " << bname << "(\n";
     if ( kernel.task_as_arg )
         fcpp << "                task" << ( input_types.size() ? "," : "" ) << "\n";
-    for( std::size_t i = 0; i < input_types.size(); ++i ) {
+    for( std::size_t i = 0; i < std::min( input_types.size(), std::size_t( kernel.vararg_num ) ); ++i ) {
         if ( input_types[ i ] != "void" )
             fcpp << "                *reinterpret_cast<" << input_types[ i ] << "*>( data[ " << i << " ] )";
         else
             fcpp << "                data[ " << i << " ]";
-        fcpp << ( i + 1 < input_types.size() ? "," : "" ) << "\n";
+        fcpp << ( i + 1 < input_types.size() || kernel.has_varargs() ? "," : "" ) << "\n";
     }
+    if ( kernel.has_varargs() )
+        fcpp << "                varargs\n";
     fcpp << "            );\n";
     fcpp << "        }\n";
     fcpp << "    };\n";

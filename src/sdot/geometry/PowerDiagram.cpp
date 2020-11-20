@@ -18,6 +18,12 @@ void PowerDiagram::for_each_cell( const std::function<void(const Value &)> &f ) 
     if ( diracs.empty() )
         return;
 
+    TaskRef min_max = get_min_max();
+
+    f( std::move( min_max ) );
+}
+
+PowerDiagram::TaskRef PowerDiagram::get_min_max() {
     // get min/max
     std::vector<TaskRef> min_maxs( diracs.size() );
     for( std::size_t i = 0; i < diracs.size(); ++i )
@@ -34,7 +40,7 @@ void PowerDiagram::for_each_cell( const std::function<void(const Value &)> &f ) 
         std::swap( new_min_maxs, min_maxs );
     }
 
-    f( std::move( min_maxs[ 0 ] ) );
+    return min_maxs[ 0 ];
 }
 
 } // namespace sdot

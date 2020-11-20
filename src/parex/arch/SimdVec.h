@@ -26,14 +26,13 @@ struct SimdVec {
     /**/                             SimdVec      ( Impl impl ) : impl( impl ) {}
     /**/                             SimdVec      () {}
 
+    static SimdVec                   iota         ( T beg = 0, T mul = 1 ) { return SimdVecInternal::iota( beg, mul, S<Impl>() ); }
+    static SimdVec                   iota         ( T beg = 0 ) { return SimdVecInternal::iota( beg, S<Impl>() ); }
+
     template<class G> static SimdVec load_aligned ( const G *data ) { return SimdVecInternal::load_aligned( data, S<Impl>() ); }
     template<class G> static SimdVec load         ( const G *data ) { return SimdVecInternal::load( data, S<Impl>() ); }
     template<class G> static SimdVec load         ( const G *data, N<0> /*aligned*/ ) { return SimdVecInternal::load( data, S<Impl>() ); }
     template<class G> static SimdVec load         ( const G *data, N<1> /*aligned*/ ) { return SimdVecInternal::load_aligned( data, S<Impl>() ); }
-
-    template                         <class G,class V>
-    static SimdVec                   gather       ( const G *data, const V &ind ) { return SimdVecInternal::gather( data, ind.impl, S<Impl>() ); }
-    static SimdVec                   iota         ( T beg = 0 ) { return SimdVecInternal::iota( beg, S<Impl>() ); }
 
     static void                      store_aligned( T *data, const SimdVec &vec ) { SimdVecInternal::store_aligned( data, vec.impl ); }
     void                             store_aligned( T *data ) const { store_aligned( data, *this ); }
@@ -46,6 +45,9 @@ struct SimdVec {
 
     static void                      store        ( T *data, const SimdVec &vec, N<1> /*aligned*/ ) { SimdVecInternal::store_aligned( data, vec.impl ); }
     void                             store        ( T *data, N<1> /*aligned*/ ) const { store_aligned( data, *this ); }
+
+    template                         <class G,class V>
+    static SimdVec                   gather       ( const G *data, const V &ind ) { return SimdVecInternal::gather( data, ind.impl, S<Impl>() ); }
 
     template                         <class G,class V>
     static void                      scatter      ( G *ptr, const V &ind, const SimdVec &vec ) { SimdVecInternal::scatter( ptr, ind.impl, vec.impl ); }

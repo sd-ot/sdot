@@ -19,6 +19,8 @@ public:
     void                 for_each_cell( const std::function<void(const Value &elems)> &f );
 
 private:
+    TaskRef              get_min_max  ();
+
     std::vector<TaskRef> diracs;      ///< set of tensors with positions + weights
     int                  dim;
 };

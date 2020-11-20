@@ -296,7 +296,7 @@ SIMD_VEC_IMPL_CMP_OP( gt, > )
         Impl<I,SIZE,Arch> res; res.data.reg = FUNC; return res; \
     }
 
-// iota -----------------------------------------------------------------------------
+// iota( beg ) --------------------------------------------------------------------------
 template<class T,int size,class Arch>
 Impl<T,size,Arch> iota( T beg, S<Impl<T,size,Arch>> ) {
     Impl<T,size,Arch> res;
@@ -307,6 +307,22 @@ Impl<T,size,Arch> iota( T beg, S<Impl<T,size,Arch>> ) {
 
 template<class T,class Arch>
 Impl<T,1,Arch> iota( T beg, S<Impl<T,1,Arch>> ) {
+    Impl<T,1,Arch> res;
+    res.data.values[ 0 ] = beg;
+    return res;
+}
+
+// iota( beg, mul ) ---------------------------------------------------------------------
+template<class T,int size,class Arch>
+Impl<T,size,Arch> iota( T beg, T mul, S<Impl<T,size,Arch>> ) {
+    Impl<T,size,Arch> res;
+    res.data.split[ 0 ] = iota( beg + 0 * size / 2 * mul, mul, S<Impl<T,size/2,Arch>>() );
+    res.data.split[ 1 ] = iota( beg + 1 * size / 2 * mul, mul, S<Impl<T,size/2,Arch>>() );
+    return res;
+}
+
+template<class T,class Arch>
+Impl<T,1,Arch> iota( T beg, T /*mul*/, S<Impl<T,1,Arch>> ) {
     Impl<T,1,Arch> res;
     res.data.values[ 0 ] = beg;
     return res;
