@@ -8,10 +8,11 @@ namespace parex {
 */
 class OutputFuncList {
 public:
-    using        Destroy       = void( void * );
-    using        WriteToStream = void( std::ostream &os, const void * );
+    using          WriteToStream = void( std::ostream &os, const void *data );
+    using          Destroy       = void( std::size_t *ref_count, void *data );
 
-    Destroy*     destroy;
+    WriteToStream *write_to_stream;
+    Destroy       *destroy;
 };
 
 } // namespace parex

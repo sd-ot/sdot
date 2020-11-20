@@ -1,34 +1,23 @@
 #pragma once
 
-#include <ostream>
 #include <string>
 #include <array>
 #include <map>
 
 namespace parex {
 
-// declarations
-inline                          std::string type_name( const std::ostream    * ) { return "std::ostream"; }
-inline                          std::string type_name( const std::string     * ) { return "std::string" ; }
+template<class T>               struct TypeName                  { static std::string name() { return T::type_name() ; } };
 
-inline                          std::string type_name( const std::uint64_t   * ) { return "PI64"   ; }
-inline                          std::string type_name( const std::uint32_t   * ) { return "PI32"   ; }
-inline                          std::string type_name( const std::int64_t    * ) { return "SI64"   ; }
-inline                          std::string type_name( const std::int32_t    * ) { return "SI32"   ; }
-inline                          std::string type_name( const double          * ) { return "FP64"   ; }
-inline                          std::string type_name( const float           * ) { return "FP32"   ; }
+template<>                      struct TypeName<std::string    > { static std::string name() { return "std::string"; } };
 
-template<class T,std::size_t d> std::string type_name( const std::array<T,d> * );
-template<class T,class A>       std::string type_name( const std::map<T,A>   * );
-template<class T>               std::string type_name( const T * const       * );
-template<class T>               auto        type_name( const T               * ) -> typename std::enable_if<!std::is_pointer<T>::value,std::string>::type;
-template<class T>               std::string type_name();
+template<>                      struct TypeName<std::uint64_t  > { static std::string name() { return "PI64"       ; } };
+template<>                      struct TypeName<std::uint32_t  > { static std::string name() { return "PI32"       ; } };
+template<>                      struct TypeName<std::int64_t   > { static std::string name() { return "SI64"       ; } };
+template<>                      struct TypeName<std::int32_t   > { static std::string name() { return "SI32"       ; } };
+template<>                      struct TypeName<double         > { static std::string name() { return "FP64"       ; } };
+template<>                      struct TypeName<float          > { static std::string name() { return "FP32"       ; } };
 
-// definitions
-template<class T,std::size_t d> std::string type_name( const std::array<T,d> * ) { return "std::array<" + type_name<T>() + "," + std::to_string( d ) + ">"; }
-template<class T,class A>       std::string type_name( const std::map<T,A>   * ) { return "std::map<" + type_name<T>() + "," + type_name<A>() + ">"; }
-template<class T>               std::string type_name( const T * const       * ) { return type_name( reinterpret_cast<const T *>( 0ul ) ) + "*"; }
-template<class T>               auto        type_name( const T               * ) -> typename std::enable_if<!std::is_pointer<T>::value,std::string>::type { return T::type_name(); }
-template<class T>               std::string type_name()                          { return type_name( reinterpret_cast<const T *>( 0ul ) ); }
+template<class T,std::size_t d> struct TypeName<std::array<T,d>> { static std::string name() { return "std::array<" + TypeName<T>::name() + "," + std::to_string( d ) + ">"; } };
+template<class T,class A>       struct TypeName<std::map  <T,A>> { static std::string name() { return "std::map<"   + TypeName<T>::name() + "," + TypeName<A>::name() + ">"; } };
 
 } // namespace parex

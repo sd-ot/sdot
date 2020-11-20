@@ -47,7 +47,7 @@ inline Task::~Task() {
     ERROR( "for now, tasks can't be destroyed inside a kernel" );
     #else
     for( Output &output : outputs )
-        output.destroy();
+        output.func_list();
     #endif // PAREX_IN_KERNEL
 }
 
