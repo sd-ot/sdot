@@ -31,6 +31,7 @@ void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
     for( std::size_t i = 0; i < nb_triangles; ++i ) {
         TF a = 2 * M_PI * i / nb_triangles;
         Pt p = { std::cos( a ), std::sin( a ) };
+
         scalar_products[ i ] = dot( p, Pt{ 0.33, 0.33 } );
         normals.ptr( 0 )[ i ] = p[ 0 ];
         normals.ptr( 1 )[ i ] = p[ 1 ];
@@ -60,6 +61,7 @@ void test_quad( TI dim = 2, TI nb_quads = 36 ) {
     for( std::size_t i = 0; i < nb_quads; ++i ) {
         TF a = 2 * M_PI * i / nb_quads;
         Pt p = { std::cos( a ), std::sin( a ) };
+
         scalar_products[ i ] = dot( p, Pt{ 0.01, 0.0 } );
         normals.ptr( 0 )[ i ] = p[ 0 ];
         normals.ptr( 1 )[ i ] = p[ 1 ];

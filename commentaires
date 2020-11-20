@@ -44,6 +44,12 @@ cta 15ème lecourbe,
 
 
 ========================================================================================================================================
+Rq: on pourrait faire le plane_cut en 1 seul coup.
+
+========================================================================================================================================
+Rq: on aimerait bien partager des outputs pour faire des vues
+
+========================================================================================================================================
 GPU =>
 
 ========================================================================================================================================
@@ -51,3 +57,28 @@ powerdiagram =>
   en entrée, un tenseur pour les x, les y, et les poids.
 
 1ère étape: min max du domaine
+2ème étape: zcoords + histogram pour le partage
+  => si tout est sur la même machine (pas de GPU), on peut directement passer à l'étape où on fait des boites 
+3ème étape: on fait des boites avec des bornes polynomiales pour les potentiels.
+  => on peut faire un tri par zcoords
+  => les boites doivent prendre ~
+
+Tri radix:
+ * on envoie les valeurs d'origine à toutes les machines qui en ont besoin 
+    => on va envoyer trop de valeurs 
+ * on envoie uniquement les valeurs de sortie. 
+
+Dans la deuxième solution, on pourrait pour chaque entrée faire un premier tri. 
+
+========================================================================================================================================
+Ça serait bien si les paramètres des noyaux pouvaient être des Résultats de task.
+
+Ça serait bien aussi de pouvoir partager des sorties de tasks (pas uniquement du move).
+
+=> Output { void *data; std::size_t ref_count; std::string type; }
+
+Prop: TypedOutput<T>{ T *data; std::size_t ref_count; }
+
+mais pour conversion vers output, il faudrait Output { void *data; std::size_t *ref_count; std::string type; }
+
+

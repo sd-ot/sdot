@@ -5,20 +5,18 @@
 namespace parex {
 
 /**
-  Essentially a wrapper around a `TaskRef`, with constructors for
-  * defined values. For instance, `Value( 17 )` will create a src task with known value `int( 17 )`
-  * computations with a kernel. For instance, `Value( new Kernel(...), children )` will create a node in the computation graph
+  Essentially a wrapper around a `TaskRef`, with constructors for defined values
 
-For instance,
+  For instance, `Value( 17 )` will create a TaskRef with known value `int( 17 )`
 */
 class Value {
 public:
     /**/              Value          ( TaskRef &&task_ref );
     /**/              Value          ( Task *task );
 
-    /**/              Value          ( const char *value );
-    template<class T> Value          ( T &&value );
-    template<class T> Value          ( T *ptr, bool own = true );
+    /**/              Value          ( const char *value );       ///< conversion to a std::string
+    template<class T> Value          ( T &&value );               ///< make a copy (or a move) of value
+    template<class T> Value          ( T *ptr, bool own = true ); ///<
 
     /**/              Value          ( const Value &that ) = delete;
     /**/              Value          ( Value &&that ) = default;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ElementaryPolytopTypes.h"
+#include <parex/Value.h>
 
 namespace sdot {
 
@@ -8,10 +8,12 @@ namespace sdot {
 */
 class SetOfElementaryPolytops {
 public:
+    using                  TaskRef                = parex::TaskRef;
     using                  Value                  = parex::Value;
     using                  TI                     = std::size_t;
 
-    /**/                   SetOfElementaryPolytops( const ElementaryPolytopTypes &ept, std::string scalar_type = "FP64", std::string index_type = "PI64" );
+    /**/                   SetOfElementaryPolytops( const TaskRef &n_dim, const TaskRef &s_scalar_type, const TaskRef &s_index_type, std::string shape_list );
+    /**/                   SetOfElementaryPolytops( int dim, std::string scalar_type = "FP64", std::string index_type = "PI64" );
 
     void                   write_to_stream        ( std::ostream &os ) const;
     void                   display_vtk            ( const Value &filename ) const;
@@ -20,10 +22,10 @@ public:
     void                   plane_cut              ( const Value &normals, const Value &scalar_products, const Value &cut_ids );
 
 private:
-    std::string            scalar_type;           ///<
-    std::string            index_type;            ///<
+    static std::string     default_shape_list     ( int dim );
+
+    std::string            shape_list;
     Value                  shape_map;             ///<
-    ElementaryPolytopTypes ept;                   ///<
 };
 
 }
