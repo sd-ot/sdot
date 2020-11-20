@@ -283,10 +283,11 @@ void KernelCode::init_base_types() {
     asi( "parex::Vec"   , "<parex/containers/Vec.h>"    );
     asi( "parex::S"     , "<parex/support/S.h>"         );
     asi( "parex::N"     , "<parex/support/N.h>"         );
-    asi( "std::map"     , "<map>"                       );
 
     asi( "std::ostream" , "<ostream>"                   );
     asi( "std::string"  , "<string>"                    );
+    asi( "std::array"   , "<array>"                     );
+    asi( "std::map"     , "<map>"                       );
 
     asi( "PI64"         , "<cstdint>"                   , "using PI64 = std::uint64_t;" );
     asi( "PI32"         , "<cstdint>"                   , "using PI32 = std::uint32_t;" );

@@ -47,6 +47,14 @@ SIMD_VEC_IMPL_REG_LOAD_ALIGNED( Arch::avx, std::uint32_t, 8, _mm256_load_si256( 
 SIMD_VEC_IMPL_REG_LOAD_ALIGNED( Arch::avx, std::int32_t , 8, _mm256_load_si256( (const __m256i *)data ) );
 SIMD_VEC_IMPL_REG_LOAD_ALIGNED( Arch::avx, float        , 8, _mm256_load_ps( data ) );
 
+// load_aligned -----------------------------------------------------------------------
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx, std::uint64_t, 4, _mm256_loadu_si256( (const __m256i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx, std::int64_t , 4, _mm256_loadu_si256( (const __m256i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx, double       , 4, _mm256_loadu_pd( data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx, std::uint32_t, 8, _mm256_loadu_si256( (const __m256i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx, std::int32_t , 8, _mm256_loadu_si256( (const __m256i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx, float        , 8, _mm256_loadu_ps( data ) );
+
 // store_aligned -----------------------------------------------------------------------
 SIMD_VEC_IMPL_REG_STORE_ALIGNED( Arch::avx, std::uint64_t, 4, _mm256_store_si256( (__m256i *)data, impl.data.reg ) );
 SIMD_VEC_IMPL_REG_STORE_ALIGNED( Arch::avx, std::int64_t , 4, _mm256_store_si256( (__m256i *)data, impl.data.reg ) );
@@ -74,6 +82,8 @@ SIMD_VEC_IMPL_REG_STORE( Arch::avx, float        , 8, _mm256_storeu_ps   (      
 
     SIMD_VEC_IMPL_REG_ARITHMETIC_OP_AVX_A( add );
     SIMD_VEC_IMPL_REG_ARITHMETIC_OP_AVX_A( sub );
+    SIMD_VEC_IMPL_REG_ARITHMETIC_OP_AVX_A( min );
+    SIMD_VEC_IMPL_REG_ARITHMETIC_OP_AVX_A( max );
 
 #undef SIMD_VEC_IMPL_REG_ARITHMETIC_OP_AVX_A
 

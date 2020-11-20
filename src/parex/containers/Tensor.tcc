@@ -10,18 +10,18 @@
 
 namespace parex {
 
-template<class T,class A,class TI> template<class V>
-Tensor<T,A,TI>::Tensor( const V &size, Vec<T> &&data, const V &rese ) : rese( rese ), size( size ), data( std::move( data ) ) {
+template<class T,class A,class TI>
+Tensor<T,A,TI>::Tensor( const Vec<TI> &size, Vec<T> &&data, const Vec<TI> &rese ) : rese( rese ), size( size ), data( std::move( data ) ) {
     init_mcum();
 }
 
-template<class T,class A,class TI> template<class V>
-Tensor<T,A,TI>::Tensor( const V &size, Vec<T> &&data ) : rese( size ), size( size ), data( std::move( data ) ) {
+template<class T,class A,class TI>
+Tensor<T,A,TI>::Tensor( const Vec<TI> &size, Vec<T> &&data ) : rese( size ), size( size ), data( std::move( data ) ) {
     init_mcum();
 }
 
-template<class T,class A,class TI> template<class V>
-Tensor<T,A,TI>::Tensor( const V &size ) : rese( size ), size( size ) {
+template<class T,class A,class TI>
+Tensor<T,A,TI>::Tensor( const Vec<TI> &size ) : rese( size ), size( size ) {
     if ( dim() ) {
         this->rese[ 0 ] = ceil( rese[ 0 ], SimdSize<T,A>::value );
         this->data.resize( init_mcum() );

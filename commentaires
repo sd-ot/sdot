@@ -49,3 +49,5 @@ GPU =>
 ========================================================================================================================================
 powerdiagram => 
   en entrée, un tenseur pour les x, les y, et les poids.
+
+1ère étape: min max du domaine

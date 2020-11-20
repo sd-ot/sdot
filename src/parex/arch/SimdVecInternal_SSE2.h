@@ -24,7 +24,7 @@ SIMD_VEC_IMPL_REG( Arch::sse2, std::uint32_t, 4, __m128i );
 SIMD_VEC_IMPL_REG( Arch::sse2, std::int32_t , 4, __m128i );
 SIMD_VEC_IMPL_REG( Arch::sse2, float        , 4, __m128  );
 
-// init ----------------------------------------------------------------------
+// init -------------------------------------------------------------------------------
 SIMD_VEC_IMPL_REG_INIT_1( Arch::sse2, std::uint64_t, 2, _mm_set1_epi64x( a ) );
 SIMD_VEC_IMPL_REG_INIT_1( Arch::sse2, std::int64_t , 2, _mm_set1_epi64x( a ) );
 SIMD_VEC_IMPL_REG_INIT_1( Arch::sse2, double       , 2, _mm_set1_pd( a ) );
@@ -47,6 +47,14 @@ SIMD_VEC_IMPL_REG_LOAD_ALIGNED( Arch::sse2, std::uint32_t, 4, _mm_load_si128( (_
 SIMD_VEC_IMPL_REG_LOAD_ALIGNED( Arch::sse2, std::int32_t , 4, _mm_load_si128( (__m128i *)data ) );
 SIMD_VEC_IMPL_REG_LOAD_ALIGNED( Arch::sse2, float        , 4, _mm_load_ps( data ) );
 
+// load ------------------------------------------------------------------------------
+SIMD_VEC_IMPL_REG_LOAD( Arch::sse2, std::uint64_t, 2, _mm_loadu_si128( (__m128i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::sse2, std::int64_t , 2, _mm_loadu_si128( (__m128i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::sse2, double       , 2, _mm_loadu_pd( data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::sse2, std::uint32_t, 4, _mm_loadu_si128( (__m128i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::sse2, std::int32_t , 4, _mm_loadu_si128( (__m128i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::sse2, float        , 4, _mm_loadu_ps( data ) );
+
 // store_aligned -----------------------------------------------------------------------
 SIMD_VEC_IMPL_REG_STORE_ALIGNED( Arch::sse2, std::uint64_t, 2, _mm_store_si128( (__m128i *)data, impl.data.reg ) );
 SIMD_VEC_IMPL_REG_STORE_ALIGNED( Arch::sse2, std::int64_t , 2, _mm_store_si128( (__m128i *)data, impl.data.reg ) );
@@ -55,7 +63,7 @@ SIMD_VEC_IMPL_REG_STORE_ALIGNED( Arch::sse2, std::uint32_t, 4, _mm_store_si128( 
 SIMD_VEC_IMPL_REG_STORE_ALIGNED( Arch::sse2, std::int32_t , 4, _mm_store_si128( (__m128i *)data, impl.data.reg ) );
 SIMD_VEC_IMPL_REG_STORE_ALIGNED( Arch::sse2, float        , 4, _mm_store_ps   (            data, impl.data.reg ) );
 
-// store_aligned -----------------------------------------------------------------------
+// store -------------------------------------------------------------------------------
 SIMD_VEC_IMPL_REG_STORE( Arch::sse2, std::uint64_t, 2, _mm_storeu_si128( (__m128i *)data, impl.data.reg ) );
 SIMD_VEC_IMPL_REG_STORE( Arch::sse2, std::int64_t , 2, _mm_storeu_si128( (__m128i *)data, impl.data.reg ) );
 SIMD_VEC_IMPL_REG_STORE( Arch::sse2, double       , 2, _mm_storeu_pd   (            data, impl.data.reg ) );
@@ -63,7 +71,7 @@ SIMD_VEC_IMPL_REG_STORE( Arch::sse2, std::uint32_t, 4, _mm_storeu_si128( (__m128
 SIMD_VEC_IMPL_REG_STORE( Arch::sse2, std::int32_t , 4, _mm_storeu_si128( (__m128i *)data, impl.data.reg ) );
 SIMD_VEC_IMPL_REG_STORE( Arch::sse2, float        , 4, _mm_storeu_ps   (            data, impl.data.reg ) );
 
-//// arithmetic operations that work on all types ------------------------------------------------
+//// arithmetic operations that work on all types --------------------------------------
 #define SIMD_VEC_IMPL_REG_ARITHMETIC_OP_SSE2_A( NAME ) \
     SIMD_VEC_IMPL_REG_ARITHMETIC_OP( Arch::sse2, std::uint64_t, 2, NAME, _mm_##NAME##_epi64 ); \
     SIMD_VEC_IMPL_REG_ARITHMETIC_OP( Arch::sse2, std::int64_t , 2, NAME, _mm_##NAME##_epi64 ); \
@@ -74,6 +82,8 @@ SIMD_VEC_IMPL_REG_STORE( Arch::sse2, float        , 4, _mm_storeu_ps   (        
 
     SIMD_VEC_IMPL_REG_ARITHMETIC_OP_SSE2_A( add );
     SIMD_VEC_IMPL_REG_ARITHMETIC_OP_SSE2_A( sub );
+    SIMD_VEC_IMPL_REG_ARITHMETIC_OP_SSE2_A( min );
+    SIMD_VEC_IMPL_REG_ARITHMETIC_OP_SSE2_A( max );
 
 #undef SIMD_VEC_IMPL_REG_ARITHMETIC_OP_SSE2_A
 

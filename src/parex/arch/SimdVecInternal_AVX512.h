@@ -47,6 +47,14 @@ SIMD_VEC_IMPL_REG_LOAD_ALIGNED( Arch::avx512, std::uint32_t, 16, _mm512_load_si5
 SIMD_VEC_IMPL_REG_LOAD_ALIGNED( Arch::avx512, std::int32_t , 16, _mm512_load_si512( (const __m512i *)data ) );
 SIMD_VEC_IMPL_REG_LOAD_ALIGNED( Arch::avx512, float        , 16, _mm512_load_ps( data ) );
 
+// load -------------------------------------------------------------------------------
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx512, std::uint64_t,  8, _mm512_loadu_si512( (const __m512i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx512, std::int64_t ,  8, _mm512_loadu_si512( (const __m512i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx512, double       ,  8, _mm512_loadu_pd( data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx512, std::uint32_t, 16, _mm512_loadu_si512( (const __m512i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx512, std::int32_t , 16, _mm512_loadu_si512( (const __m512i *)data ) );
+SIMD_VEC_IMPL_REG_LOAD( Arch::avx512, float        , 16, _mm512_loadu_ps( data ) );
+
 // store_aligned -----------------------------------------------------------------------
 SIMD_VEC_IMPL_REG_STORE_ALIGNED( Arch::avx512, std::uint64_t,  8, _mm512_store_si512( (__m512i *)data, impl.data.reg ) );
 SIMD_VEC_IMPL_REG_STORE_ALIGNED( Arch::avx512, std::int64_t ,  8, _mm512_store_si512( (__m512i *)data, impl.data.reg ) );
@@ -74,6 +82,8 @@ SIMD_VEC_IMPL_REG_STORE( Arch::avx512, float        , 16, _mm512_storeu_ps   (  
 
     SIMD_VEC_IMPL_REG_ARITHMETIC_OP_SSE2_A( add );
     SIMD_VEC_IMPL_REG_ARITHMETIC_OP_SSE2_A( sub );
+    SIMD_VEC_IMPL_REG_ARITHMETIC_OP_SSE2_A( min );
+    SIMD_VEC_IMPL_REG_ARITHMETIC_OP_SSE2_A( max );
 
 #undef SIMD_VEC_IMPL_REG_ARITHMETIC_OP_SSE2_A
 

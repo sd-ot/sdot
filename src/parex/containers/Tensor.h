@@ -23,6 +23,7 @@ public:
     bool               next_index     ( Vec<TI> &index, TI &off ) const;
     TI                 init_mcum      ();
     TI                 nb_x_vec       () const { return mcum.back() / ( rese[ 0 ] + ( rese[ 0 ] == 0 ) ); }
+    TI                 x_size         () const { return size[ 0 ]; }
     TI                 dim            () const { return size.size(); }
 
     void               resize         ( TI new_x_size );

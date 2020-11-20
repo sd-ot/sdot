@@ -160,6 +160,34 @@ Impl<T,1,Arch> load_aligned( const G *data, S<Impl<T,1,Arch>> ) {
         Impl<T,SIZE,Arch> res; res.data.reg = FUNC; return res; \
     }
 
+// load( -----------------------------------------------------------------------
+template<class G,class T,int size,class Arch>
+Impl<T,size,Arch> load( const G *data, S<Impl<T,size,Arch>> ) {
+    Impl<T,size,Arch> res;
+    res.data.split[ 0 ] = load( data + 0 * size / 2, S<Impl<T,size/2,Arch>>() );
+    res.data.split[ 1 ] = load( data + 1 * size / 2, S<Impl<T,size/2,Arch>>() );
+    return res;
+}
+
+template<class G,class T,class Arch>
+Impl<T,1,Arch> load( const G *data, S<Impl<T,1,Arch>> ) {
+    Impl<T,1,Arch> res;
+    res.data.values[ 0 ] = *data;
+    return res;
+}
+
+#define SIMD_VEC_IMPL_REG_LOAD( COND, T, SIZE, FUNC ) \
+    template<class Arch> \
+    typename std::enable_if<COND,Impl<T,SIZE,Arch>>::type load( const T *data, S<Impl<T,SIZE,Arch>> ) { \
+        Impl<T,SIZE,Arch> res; res.data.reg = FUNC; return res; \
+    }
+
+#define SIMD_VEC_IMPL_REG_LOAD_FOT( COND, T, G, SIZE, FUNC ) \
+    template<class Arch> \
+    typename std::enable_if<COND,Impl<T,SIZE,Arch>>::type load( const G *data, S<Impl<T,SIZE,Arch>> ) { \
+        Impl<T,SIZE,Arch> res; res.data.reg = FUNC; return res; \
+    }
+
 // store_aligned -----------------------------------------------------------------------
 template<class G,class T,int size,class Arch>
 void store_aligned( G *data, const Impl<T,size,Arch> &impl ) {
@@ -286,12 +314,12 @@ Impl<T,1,Arch> iota( T beg, S<Impl<T,1,Arch>> ) {
 
 // sum -----------------------------------------------------------------------------
 template<class T,int size,class Arch>
-T sum( const Impl<T,size,Arch> &impl ) {
-    return sum( impl.data.split[ 0 ] ) + sum( impl.data.split[ 1 ] );
+T horizontal_sum( const Impl<T,size,Arch> &impl ) {
+    return horizontal_sum( impl.data.split[ 0 ] ) + horizontal_sum( impl.data.split[ 1 ] );
 }
 
 template<class T,class Arch>
-T sum( const Impl<T,1,Arch> &impl ) {
+T horizontal_sum( const Impl<T,1,Arch> &impl ) {
     return impl.data.values[ 0 ];
 }
 
@@ -334,6 +362,29 @@ Impl<T,1,Arch> gather( const G *data, const V &ind, S<Impl<T,1,Arch>> ) {
     typename std::enable_if<COND,Impl<T,SIZE,Arch>>::type gather( const T *data, const Impl<I,SIZE,Arch> &ind, S<Impl<T,SIZE,Arch>> ) { \
         Impl<T,SIZE,Arch> res; res.data.reg = FUNC; return res; \
     }
+
+// min/max ---------------------------------------------------------------------
+#define SIMD_VEC_IMPL_ARITHMETIC_FUNC( NAME, HELPER ) \
+    template<class T,int size,class Arch> \
+    Impl<T,size,Arch> NAME( const Impl<T,size,Arch> &a, const Impl<T,size,Arch> &b ) { \
+        Impl<T,size,Arch> res; \
+        for( int i = 0; i < 2; ++i ) \
+            res.data.split[ i ] = NAME( a.data.split[ i ], b.data.split[ i ] ); \
+        return res; \
+    } \
+    \
+    template<class T,class Arch> \
+    Impl<T,1,Arch> NAME( const Impl<T,1,Arch> &a, const Impl<T,1,Arch> &b ) { \
+        HELPER; \
+        Impl<T,1,Arch> res; \
+        res.data.values[ 0 ] = NAME( a.data.values[ 0 ], b.data.values[ 0 ] ); \
+        return res; \
+    }
+
+    SIMD_VEC_IMPL_ARITHMETIC_FUNC( min, using std::min )
+    SIMD_VEC_IMPL_ARITHMETIC_FUNC( max, using std::max )
+#undef SIMD_VEC_IMPL_ARITHMETIC_FUNC
+
 
 } // namespace SimdVecInternal
 } // namespace parex
