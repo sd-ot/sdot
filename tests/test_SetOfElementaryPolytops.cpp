@@ -3,8 +3,6 @@
 #include <parex/containers/Tensor.h>
 #include <parex/containers/Vec.h>
 #include <parex/Scheduler.h>
-#include <parex/support/ASSERT.h>
-#include <parex/support/P.h>
 #include <cmath>
 
 using namespace parex;

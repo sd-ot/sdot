@@ -12,7 +12,7 @@ public:
     using                  Value                  = parex::Value;
     using                  TI                     = std::size_t;
 
-    /**/                   SetOfElementaryPolytops( const std::string &shape_types, const TaskRef &s_scalar_type, const TaskRef &s_index_type, std::string shape_list );
+    /**/                   SetOfElementaryPolytops( const TaskRef &n_dim, const TaskRef &s_scalar_type, const TaskRef &s_index_type, std::string shape_list );
     /**/                   SetOfElementaryPolytops( int dim, std::string scalar_type = "FP64", std::string index_type = "PI64" );
 
     void                   write_to_stream        ( std::ostream &os ) const;
