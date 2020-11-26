@@ -20,6 +20,6 @@ struct SimdAlig {
 };
 
 #define DECL_SIMD_SIZE( T, ARCH, SIZE ) \
-    template<> struct SimdSize<T,ARCH> { enum { value = SIZE }; }
+    template<int ptr_size> struct SimdSize<T,ARCH<ptr_size>> { enum { value = SIZE }; }
 
 } // namespace asimd

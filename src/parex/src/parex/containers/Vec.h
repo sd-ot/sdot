@@ -12,8 +12,6 @@
 #include <thrust/device_vector.h>
 #endif // __CUDACC__
 
-namespace parex {
-
 /**
   Aligned Vector that works (nearly) the same way in GPUs and CPUs
 */
@@ -27,15 +25,16 @@ template<class T,class A>
 class Vec<T,A,typename std::enable_if<A::cpu>::type> : public std::vector<T,asimd::AlignedAllocator<T,A>> {
 public:
     using std::vector<T,asimd::AlignedAllocator<T,A>>::vector;
+    using TI = typename A::size_t;
 
     template<class G,class B>
-    Vec( const Vec<G,B> &v ) : std::vector<T,asimd::AlignedAllocator<T,A>>( v.size() ) { for( std::size_t i = 0; i < v.size(); ++i ) this->operator[]( i ) = v[ i ]; }
+    Vec( const Vec<G,B> &v ) : std::vector<T,asimd::AlignedAllocator<T,A>>( v.size() ) { for( TI i = 0; i < v.size(); ++i ) this->operator[]( i ) = v[ i ]; }
 
     const T *ptr() const { return this->data(); }
     T *ptr() { return this->data(); }
 
     template<class Arg>
-    void resize_and_set( std::size_t new_size, Arg &&arg ) { this->clear(); this->resize( new_size, std::forward<Arg>( arg ) ); }
+    void resize_and_set( TI new_size, Arg &&arg ) { this->clear(); this->resize( new_size, std::forward<Arg>( arg ) ); }
 
     static std::string type_name() { return "parex::Vec<" + type_name( S<T>() ) + ",parex::Arch::" + A::name() + ">"; }
 };
@@ -54,7 +53,5 @@ public:
 };
 
 #endif // __CUDACC__
-
-} // namespace parex
 
 #endif // PAREX_VEC_H

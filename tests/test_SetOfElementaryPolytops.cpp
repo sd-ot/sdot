@@ -5,7 +5,6 @@
 #include <parex/Scheduler.h>
 #include <cmath>
 
-using namespace parex;
 using namespace sdot;
 
 using Pt = Point<double,2>;

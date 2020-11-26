@@ -1,14 +1,16 @@
 #ifndef PAREX_TENSOR_H
 #define PAREX_TENSOR_H
 
- #include "Vec.h"
+#include "Vec.h"
 
 /**
   Simple tensor class
 */
-template<class T,class A=asimd::Arch::Native,class TI=std::size_t>
+template<class T,class A=asimd::Arch::Native>
 class Tensor {
 public:
+    using              TI             = typename A::TI;
+
     /**/               Tensor         ( const Vec<TI> &size, Vec<T> &&data, const Vec<TI> &rese );
     /**/               Tensor         ( const Vec<TI> &size, Vec<T> &&data );
     /**/               Tensor         ( const Vec<TI> &size );

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "SimdVecInternal.h"
-#include <x86intrin.h>
 #include "../SimdSize.h"
+#include <x86intrin.h>
 
 namespace asimd {
 
