@@ -1,0 +1,6 @@
+.parex*
+objects/
+.generated_libs/
+.objects/
+.output/
+ext/

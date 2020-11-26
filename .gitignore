@@ -31,3 +31,6 @@ results/
 Untitled.*
 Untitled-checkpoint.*
 objects/
+.gitold/
+.asimd.*
+.parex.*
