@@ -19,6 +19,7 @@ private:
     using         TypeMap       = std::map<std::string,TypePtr>;
 
     TypePtr       make_type_info( const std::string &name );
+    Type*         get_type_rec  ( const std::string &name );
 
     TypeMap       type_map;     ///<
 };

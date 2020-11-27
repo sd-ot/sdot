@@ -1,6 +1,7 @@
 //#include "../src/sdot/geometry/SetOfElementaryPolytops.h"
 //#include "../src/sdot/geometry/Point.h"
 #include <parex/containers/xtensor.h>
+#include <parex/Task.h>
 #include <parex/P.h>
 //#include <parex/containers/Vec.h>
 //#include <parex/Scheduler.h>
@@ -76,4 +77,8 @@ int main() {
     xt::xarray<double> x = xt::arange( 10 );
     P( type_name<xt::xarray<double>>() );
     P( x );
+
+    Task::type_factory( "xt::xarray<FP64>" )->for_each_include( []( auto i ) {
+        P( i );
+    } );
 }
