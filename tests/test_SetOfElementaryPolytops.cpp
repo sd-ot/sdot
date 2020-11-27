@@ -74,11 +74,11 @@
 int main() {
     //    test_triangle();
     //    test_quad();
-    xt::xarray<double> x = xt::arange( 10 );
-    P( type_name<xt::xarray<double>>() );
-    P( x );
+//    xt::xarray<double> x = xt::arange( 10 );
+//    P( type_name<xt::xarray<int>>() );
+//    P( x );
 
-    Task::type_factory( "xt::xarray<FP64>" )->for_each_include( []( auto i ) {
-        P( i );
-    } );
+//    Task::type_factory( "xt::xarray<SI64>" )->for_each_include( []( auto i ) {
+//        P( i );
+//    } );
 }
