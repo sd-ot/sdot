@@ -2,6 +2,7 @@ NSMAKE = nsmake run
 NSMAKE += -DPAREX_DIR=\"`pwd`\"
 NSMAKE += -DSDOT_DIR=\"`pwd`\"
 NSMAKE += --cpp-flag -std=c++17
+NSMAKE += -Isrc/parex/src
 NSMAKE += -Isrc
 NSMAKE += -g3
 

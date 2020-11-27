@@ -9,17 +9,17 @@
 */
 class TypeFactory {
 public:
-    /**/          TypeFactory();
-    virtual      ~TypeFactory();
+    /**/          TypeFactory   ();
+    virtual      ~TypeFactory   ();
 
-    virtual Type* operator() ( const std::string &name );
+    virtual Type* operator()    ( const std::string &name );
 
 private:
-    using   TypePtr          = std::unique_ptr<Type>;
-    using   TypeMap          = std::map<std::string,TypePtr>;
+    using         TypePtr       = std::unique_ptr<Type>;
+    using         TypeMap       = std::map<std::string,TypePtr>;
 
-    TypePtr make_type_info   ( const std::string &name );
+    TypePtr       make_type_info( const std::string &name );
 
-    TypeMap type_map;        ///<
+    TypeMap       type_map;     ///<
 };
 
