@@ -9,13 +9,13 @@ namespace asimd {
 /** std allocator for aligned memory */
 template<class T,class Arch>
 struct AlignedAllocator {
-    using                    value_type      = T                ;
-    using                    pointer         = value_type*      ;
-    using                    const_pointer   = const value_type*;
-    using                    reference       = value_type&      ;
-    using                    const_reference = const value_type&;
-    using                    size_type       = std::size_t      ;
-    using                    difference_type = std::ptrdiff_t   ;
+    using                    value_type      = T                      ;
+    using                    pointer         = value_type*            ;
+    using                    const_pointer   = const value_type*      ;
+    using                    reference       = value_type&            ;
+    using                    const_reference = const value_type&      ;
+    using                    size_type       = typename Arch::size_   ;
+    using                    difference_type = typename Arch::ptrdiff_;
     template<class U> struct rebind          { using other = AlignedAllocator<U,Arch>; };
 
     /**/                     AlignedAllocator() {}

@@ -1,7 +1,11 @@
 //#include "../src/sdot/geometry/SetOfElementaryPolytops.h"
 //#include "../src/sdot/geometry/Point.h"
+<<<<<<< HEAD
 #include <parex/containers/xtensor.h>
 #include <parex/P.h>
+=======
+//#include <parex/containers/Tensor.h>
+>>>>>>> 53b03e3e184ec12c9f11d80705f624ab85ea9df3
 //#include <parex/containers/Vec.h>
 //#include <parex/Scheduler.h>
 //#include <cmath>
@@ -65,16 +69,38 @@
 //        normals.ptr( 1 )[ i ] = p[ 1 ];
 //        new_face_ids[ i ] = 100 + i;
 //    }
+<<<<<<< HEAD
+
+//    sp.plane_cut( normals, scalar_products, new_face_ids );
+//    sp.display_vtk( "cut.vtk" );
+//    P( sp );
+//}
+=======
 
 //    sp.plane_cut( normals, scalar_products, new_face_ids );
 //    sp.display_vtk( "cut.vtk" );
 //    P( sp );
 //}
 
+>>>>>>> 53b03e3e184ec12c9f11d80705f624ab85ea9df3
+
+//int main() {
+//    //    test_triangle();
+//    test_quad();
+//}
+#include <xtensor/xtensor.hpp>
+#include <xtensor/xarray.hpp>
+#include <xtensor/xio.hpp>
+#include <parex/P.h>
 
 int main() {
     //    test_triangle();
     //    test_quad();
+<<<<<<< HEAD
     xt::xarray<double> x;
     P( type_name<xt::xarray<double>>() );
+=======
+    xt::xtensor<size_t, 1> a = xt::arange<size_t>(16);
+    P( a );
+>>>>>>> 53b03e3e184ec12c9f11d80705f624ab85ea9df3
 }
