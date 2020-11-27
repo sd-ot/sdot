@@ -18,7 +18,7 @@ public:
 
     virtual void           get_src_content   ( Src &src, SrcWriter &sw ) = 0;
     virtual void           get_summary       ( std::ostream &os );
-    virtual std::string    func_name         () = 0;
+    virtual std::string    func_name         ();
 
     template<class F> void run_kernel_wrapper( const F &f );
     template<class F> void run_void_or_not   ( std::integral_constant<bool,0>, const F &func );

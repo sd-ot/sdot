@@ -1,7 +1,7 @@
 #include "GenericArithmeticOperation.h"
 #include "../Src.h"
 
-GenericArithmeticOperation::GenericArithmeticOperation( std::string name_op, std::vector<Rc<Task>> &&children, int priority ) : CompiledTaskWithGeneratedSrc( std::move( children ), priority ), name_op( name_op ) {
+GenericArithmeticOperation::GenericArithmeticOperation( std::string name_op, std::vector<Rc<Task>> &&children ) : CompiledTask( std::move( children ) ), name_op( name_op ) {
 }
 
 void GenericArithmeticOperation::write_to_stream( std::ostream &os ) const {

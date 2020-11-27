@@ -1,7 +1,9 @@
 //#include "../src/sdot/geometry/SetOfElementaryPolytops.h"
 //#include "../src/sdot/geometry/Point.h"
+#include <parex/Tasks/CompiledTaskWithGeneratedSrc.h>
 #include <parex/containers/xtensor.h>
-#include <parex/Task.h>
+#include <parex/Value.h>
+#include <parex/Src.h>
 #include <parex/P.h>
 //#include <parex/containers/Vec.h>
 //#include <parex/Scheduler.h>
@@ -81,4 +83,9 @@ int main() {
 //    Task::type_factory( "xt::xarray<SI64>" )->for_each_include( []( auto i ) {
 //        P( i );
 //    } );
+    Value v = (Task *)new CompiledTaskWithGeneratedSrc( "random", {}, [&]( Src &src, SrcWriter &/*sw*/ ) {
+        src << "proute";
+    } );
+
+    P( v );
 }

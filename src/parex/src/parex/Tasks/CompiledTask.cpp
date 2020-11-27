@@ -70,3 +70,7 @@ void CompiledTask::exec() {
 void CompiledTask::get_summary( std::ostream &os ) {
     write_to_stream( os );
 }
+
+std::string CompiledTask::func_name() {
+    return "generated_func";
+}
