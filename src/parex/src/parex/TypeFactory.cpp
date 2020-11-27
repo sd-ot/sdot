@@ -5,14 +5,17 @@
 
 TypeFactory::TypeFactory() {
     // register the most common types. Less common one are handled by TypeFactoryRegistrar
-    type_map[ "std::string" ] = std::make_unique<CppType>( "std::string", std::vector<std::string>{ "<string>"  }, std::vector<std::string>{} );
+    type_map[ "std::string" ] = std::make_unique<CppType>( "std::string", std::vector<std::string>{}, std::vector<std::string>{ "<string>"  }, std::vector<std::string>{} );
 
     using A = std::array<std::string,2>;
     for( A p : { A{ "SI8" , "int8_t"  }, A{ "PI8" , "uint8_t"  },
                  A{ "SI16", "int16_t" }, A{ "PI16", "uint16_t" },
                  A{ "SI32", "int32_t" }, A{ "PI32", "uint32_t" },
                  A{ "SI64", "int64_t" }, A{ "PI64", "uint64_t" } } )
-        type_map[ p[ 0 ] ] = std::make_unique<CppType>( p[ 0 ], std::vector<std::string>{ "<cstdint>" }, std::vector<std::string>{ "using " + p[ 0 ] + " = std::" + p[ 1 ] + ";" } );
+        type_map[ p[ 0 ] ] = std::make_unique<CppType>( p[ 0 ], std::vector<std::string>{}, std::vector<std::string>{ "<cstdint>" }, std::vector<std::string>{ "using " + p[ 0 ] + " = std::" + p[ 1 ] + ";" } );
+
+    for( A p : { A{ "FP32" , "float" }, A{ "FP64" , "double" } } )
+        type_map[ p[ 0 ] ] = std::make_unique<CppType>( p[ 0 ], std::vector<std::string>{}, std::vector<std::string>{}, std::vector<std::string>{ "using " + p[ 0 ] + " = " + p[ 1 ] + ";" } );
 }
 
 TypeFactory::~TypeFactory() {
@@ -20,12 +23,9 @@ TypeFactory::~TypeFactory() {
 
 Type *TypeFactory::operator()( const std::string &name ) {
     // types that have to be registered
-    for( ; last_type_factory_registrar; last_type_factory_registrar = last_type_factory_registrar->prev_type_factory_registrar ) {
-        type_map[ last_type_factory_registrar->name ] = std::make_unique<CppType>(
-            last_type_factory_registrar->name,
-            last_type_factory_registrar->includes,
-            last_type_factory_registrar->preliminaries
-        );
+    while( TypeFactoryRegistrar *r = last_type_factory_registrar ) {
+        type_map[ r->name ] = std::make_unique<CppType>( r->name, r->include_directories, r->includes, r->preliminaries );
+        last_type_factory_registrar = r->prev_type_factory_registrar;
     }
 
     // if not found, assumes it is a simple CppType without any include or preliminary
@@ -68,7 +68,7 @@ std::unique_ptr<Type> TypeFactory::make_type_info( const std::string &name ) {
             }
         }
 
-        return base_type->copy_with_sub_type( std::move( sub_types ) );
+        return base_type->copy_with_sub_type( name, std::move( sub_types ) );
     }
 
     // else, we consider it as a simple cpp type

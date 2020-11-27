@@ -8,21 +8,23 @@
 */
 class CppType : public Type {
 public:
-    using                              VoidPtrFunc       = void(void *);
+    using                              VoidPtrFunc               = void(void *);
 
-    /**/                               CppType           ( std::string name, std::vector<std::string> includes = {}, std::vector<std::string> preliminaries = {}, std::vector<Type *> &&sub_types = {} );
+    /**/                               CppType                   ( std::string name, std::vector<std::string> include_directories = {}, std::vector<std::string> includes = {}, std::vector<std::string> preliminaries = {}, std::vector<Type *> &&sub_types = {} );
 
-    virtual UPType                     copy_with_sub_type( std::vector<Type *> &&sub_types ) const override;
-    virtual void                       for_each_include  ( const std::function<void(std::string)> &cb ) const override;
-    virtual void                       for_each_prelim   ( const std::function<void(std::string)> &cb ) const override;
-    virtual void                       write_to_stream   ( std::ostream &os ) const override;
-    virtual std::string                cpp_name          () const override;
-    virtual void                       destroy           ( void *data ) const override;
+    virtual void                       for_each_include_directory( const std::function<void(std::string)> &cb ) const override;
+    virtual UPType                     copy_with_sub_type        ( std::string name, std::vector<Type *> &&sub_types ) const override;
+    virtual void                       for_each_include          ( const std::function<void(std::string)> &cb ) const override;
+    virtual void                       for_each_prelim           ( const std::function<void(std::string)> &cb ) const override;
+    virtual void                       write_to_stream           ( std::ostream &os ) const override;
+    virtual std::string                cpp_name                  () const override;
+    virtual void                       destroy                   ( void *data ) const override;
 
-    mutable GeneratedSym<void(void *)> destructor_func;
-    std::vector<std::string>           preliminaries;
-    std::vector<Type *>                sub_types;
-    std::vector<std::string>           includes;
-    std::string                        name;
+    std::vector<std::string>           include_directories;      ///<
+    mutable GeneratedSym<void(void *)> destructor_func;          ///<
+    std::vector<std::string>           preliminaries;            ///<
+    std::vector<Type *>                sub_types;                ///<
+    std::vector<std::string>           includes;                 ///<
+    std::string                        name;                     ///<
 };
 

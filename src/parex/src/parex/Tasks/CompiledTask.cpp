@@ -35,9 +35,7 @@ void CompiledTask::exec() {
 
             // includes for types
             for( Type *type : children_types )
-                type->for_each_include( [&]( std::string i ) { src.includes << i; } );
-            for( Type *type : children_types )
-                type->for_each_prelim( [&]( std::string i ) { src.prelims << i; } );
+                type->add_needs_in( src );
 
             // surdefined part
             get_src_content( src, sw );

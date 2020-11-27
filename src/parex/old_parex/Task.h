@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TypedVariant.h"
 #include "type_name.h"
 #include "Kernel.h"
 #include "Output.h"

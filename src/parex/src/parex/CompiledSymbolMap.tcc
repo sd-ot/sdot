@@ -113,7 +113,7 @@ void CompiledSymbolMap::make_cmakelists( std::ostream &os, const SrcWriter &ff, 
             os << "\nset_property(SOURCE " << p.first << " PROPERTY INCLUDE_DIRECTORIES";
             for( const auto &include_directory : p.second.include_directories )
                 os << " " << include_directory;
-            os << ")";
+            os << "\n)";
         }
     }
 

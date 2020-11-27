@@ -1,4 +1,5 @@
 update_files.sh
+.generated_libs/
 .sdot_kernel.*
 .sdot_parex.*
 .sdot_elem.*

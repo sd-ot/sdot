@@ -1,5 +1,5 @@
 NSMAKE = nsmake run
-NSMAKE += -DPAREX_DIR=\"`pwd`\"
+NSMAKE += -DPAREX_DIR=\"`pwd`/src/parex\"
 NSMAKE += -DSDOT_DIR=\"`pwd`\"
 NSMAKE += --cpp-flag -std=c++17
 NSMAKE += -Isrc/parex/src
@@ -13,5 +13,5 @@ all:
 	${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
 
 c:
-	rm objects/lib/* objects/*.info
+	rm -rf .generated_libs
 	rm -rf /tmp/parex_*

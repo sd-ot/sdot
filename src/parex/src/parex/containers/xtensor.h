@@ -2,6 +2,7 @@
 
 #define XTENSOR_USE_XSIMD 1
 
+#include <xtensor/xrandom.hpp>
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xarray.hpp>
 #include <xtensor/xview.hpp>

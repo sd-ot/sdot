@@ -102,8 +102,8 @@ void GeneratedLib::make_cmake( const Path &path, SrcWriter &sw, const std::strin
         if ( ! p.second.include_directories.empty() ) {
             os << "\nset_property(SOURCE " << p.first << " PROPERTY INCLUDE_DIRECTORIES";
             for( const auto &include_directory : p.second.include_directories )
-                os << " " << include_directory;
-            os << ")";
+                os << "\n    " << std::filesystem::absolute( include_directory ).string();
+            os << "\n)";
         }
     }
 

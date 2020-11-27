@@ -84,8 +84,15 @@ int main() {
 //        P( i );
 //    } );
     Value v = (Task *)new CompiledTaskWithGeneratedSrc( "random", {}, [&]( Src &src, SrcWriter &/*sw*/ ) {
-        src << "proute";
+        src.include_directories << "ext/xtensor/install/include";
+        src.include_directories << "ext/xsimd/install/include";
+        src.includes << "<parex/containers/xtensor.h>";
+
+        src << "TaskOut<xt::xarray<double>> generated_func() {\n";
+        src << "    return new xt::xarray<double>( xt::arange( 10 ) );\n";
+        src << "\n}";
     } );
+
 
     P( v );
 }
