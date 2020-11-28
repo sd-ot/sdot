@@ -11,7 +11,8 @@ all:
 	# ${NSMAKE} tests/test_radix_sort.cpp
 	# ${NSMAKE} tests/test_parex.cpp
 	# ${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
-	${NSMAKE} tests/parex/test_GeneratedLibrarySet.cpp
+	# ${NSMAKE} tests/parex/test_GeneratedLibrarySet.cpp
+	${NSMAKE} tests/parex/test_CompiledTask.cpp
 
 c:
 	rm -rf .generated_libs

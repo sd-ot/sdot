@@ -1,6 +1,6 @@
 #include "ComputableTask.h"
-#include "../TODO.h"
-#include "../P.h"
+#include "TODO.h"
+#include "P.h"
 
 ComputableTask::ComputableTask( std::vector<Rc<Task>> &&children ) : children( std::move( children ) ) {
     scheduled = 0;

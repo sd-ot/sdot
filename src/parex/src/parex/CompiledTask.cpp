@@ -1,11 +1,8 @@
-#include "../GeneratedSym.h"
+#include "GeneratedLibrarySet.h"
 #include "CompiledTask.h"
 
 CompiledTask::CompiledTask( std::vector<Rc<Task>> &&children, int priority ) : ComputableTask( std::move( children ) ) {
     this->priority = priority;
-}
-
-CompiledTask::~CompiledTask() {
 }
 
 void CompiledTask::exec() {

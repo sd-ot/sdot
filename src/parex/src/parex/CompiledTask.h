@@ -1,18 +1,18 @@
 #pragma once
 
 #include "ComputableTask.h"
-#include "../TypeFactory.h"
-#include "../type_name.h"
-#include "../TaskOut.h"
+#include "TypeFactory.h"
+#include "type_name.h"
+#include "TaskOut.h"
 class SrcSet;
 class Src;
 
 /**
+Pb: .
 */
 class CompiledTask : public ComputableTask {
 public:
     /***/                  CompiledTask      ( std::vector<Rc<Task>> &&children, int priority = 0 );
-    virtual               ~CompiledTask      ();
 
     virtual void           exec              () override;
 
