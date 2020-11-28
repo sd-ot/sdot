@@ -23,7 +23,7 @@ protected:
     virtual void               get_summary           ( std::ostream &os ) const = 0;
     virtual std::string        func_name             ( const std::string &parameters ) const = 0;
 
-    virtual void               make_srcs             ( SrcWriter &ff ) const;
+    virtual void               make_srcs             ( SrcSet &ff ) const;
 
     mutable CompiledKernelCode ckc;                  ///< compiled code
 };

@@ -40,7 +40,7 @@ std::string CppType::cpp_name() const {
 
 void CppType::destroy( void *data ) const {
     if ( destructor_func.need_init() ) {
-        destructor_func.init( "destroy", cpp_name(), [&]( SrcWriter &sw ) {
+        destructor_func.init( "destroy", cpp_name(), [&]( SrcSet &sw ) {
             Src &src = sw.src( "destroy.cpp" );
             add_needs_in( src );
 

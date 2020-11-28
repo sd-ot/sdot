@@ -49,7 +49,7 @@ CompiledSymbolMap::DF CompiledSymbolMap::make_lib( const Path &output_directory,
     TmpDir tmp_dir;
 
     // make source files
-    SrcWriter ff;
+    SrcSet ff;
     ff.default_include_directories = { PAREX_DIR "/src" };
     ff.default_cpp_flags = "-g3 -march=native -O3";
     ff.compiled_symbol_map = this;
@@ -94,7 +94,7 @@ std::string CompiledSymbolMap::symbol_name( const std::string &/*parameters*/ ) 
     return "symbol_to_load";
 }
 
-void CompiledSymbolMap::make_cmakelists( std::ostream &os, const SrcWriter &ff, const std::string &shash ) const {
+void CompiledSymbolMap::make_cmakelists( std::ostream &os, const SrcSet &ff, const std::string &shash ) const {
     os << "cmake_minimum_required(VERSION 3.0)\n";
     os << "project(" << shash << ")\n";
 

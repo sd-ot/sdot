@@ -5,19 +5,23 @@
 
 /**
 */
-class SrcWriter {
+class SrcSet {
 public:
-    using            Path                         = Src::Path;
-    using            String                       = std::string;
-    using            MapStringSrc                 = std::map<String,Src>;
-    using            VecUniqueString              = VecUnique<String>;
+    using        Path                         = Src::Path;
+    using        VUPath                       = VecUnique<Path>;
+    using        VUString                     = VecUnique<std::string>;
+    using        MapPathSrc                   = std::map<Path,Src>;
 
-    Src&             src                          ( const Path &filename );
+    Src&         src                          ( const Path &filename = "main.cpp" );
 
-    VecUniqueString  default_include_directories; ///<
-    VecUniqueString  default_cpp_flags;           ///<
-    VecUniqueString  default_includes;            ///<
-    VecUniqueString  default_prelims;             ///<
-    MapStringSrc     src_map;                     ///<
+    void         write_files                  ( const Path &directory ) const;
+    std::string  summary                      () const;
+    operator     bool                         () const;
+
+    VUPath       default_include_directories; ///< used for creation of Src
+    VUString     default_cpp_flags;           ///< used for creation of Src
+    VUString     default_includes;            ///< used for creation of Src
+    VUString     default_prelims;             ///< used for creation of Src
+    MapPathSrc   src_map;                     ///<
 };
 

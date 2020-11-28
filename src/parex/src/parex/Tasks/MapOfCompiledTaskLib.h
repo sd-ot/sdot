@@ -6,7 +6,7 @@
 */
 class MapOfCompiledTaskLib {
 public:
-    using            Path              = GeneratedLib::Path;
+    using            Path              = GeneratedLibrarySet::Path;
 
     CompiledTaskLib* lib               ( const Path &src_path, const std::vector<Type *> &children_types );
 

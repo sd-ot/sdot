@@ -3,7 +3,7 @@
 #include "TmpDir.h"
 #include "TODO.h"
 
-Src &SrcWriter::src( std::string filename ) {
+Src &SrcSet::src( std::string filename ) {
     // try without _number.ext
     auto iter = src_map.find( filename );
     if ( iter == src_map.end() )
@@ -11,11 +11,11 @@ Src &SrcWriter::src( std::string filename ) {
     return iter->second;
 }
 
-void SrcWriter::close() {
+void SrcSet::close() {
     for( auto &p : src_map )
         p.second.fout.close();
 }
 
-std::string SrcWriter::main_cpp_name() const {
+std::string SrcSet::main_cpp_name() const {
     return compiled_symbol_map->symbol_name( parameters ) + ".cpp";
 }

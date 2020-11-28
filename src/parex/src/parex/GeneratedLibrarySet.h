@@ -1,33 +1,28 @@
 #pragma once
 
-#include <dynalo/dynalo.hpp>
-#include "SrcWriter.h"
-#include <filesystem>
+#include "DynamicLibrary.h"
 #include <functional>
-
-class SrcWriter;
+#include "SrcSet.h"
 
 /**
 */
-class GeneratedLib {
+class GeneratedLibrarySet {
 public:
-    using    Path            = std::filesystem::path;
+    using           Path               = DynamicLibrary::Path;
 
-    /**/     GeneratedLib    ( const std::string &name, const std::string &summary_of_parameters, const std::function<void( SrcWriter &sw )> &src_writer, const Path &base_output_directory = ".objects" );
-    /**/     GeneratedLib    ();
+    /**/            GeneratedLibrarySet( const Path &output_directory = ".generated_libs" );
 
-    void*    symbol          ( const std::string &symbol_name );
-    void     init            ( const std::string &name, const std::string &summary_of_parameters, const std::function<void( SrcWriter &sw )> &src_writer, const Path &base_output_directory = ".objects" );
-    operator bool            () const;
+    DynamicLibrary* get_library        ( const std::function<void(SrcSet&)> &src_writer, const std::string &summary_of_parameters = {}, SrcSet &&src_set = {} );
 
 private:
-    using    LibPtr          = std::unique_ptr<dynalo::library>;
+    using           LibMap             = std::map<std::string,DynamicLibrary>;
 
-    void     compile_lib     ( const Path &output_directory, const std::string &shash, const std::function<void( SrcWriter &sw )> &src_writer );
-    void     make_cmake      ( const Path &path, SrcWriter &sw, const std::string &shash );
-    void     load_lib        ( const Path &lib_path );
-    int      exec            ( std::string cmd ) const;
+    DynamicLibrary  load_or_make       ( const std::function<void(SrcSet&)> &src_writer, const std::string &summary_of_parameters, SrcSet &&src_set );
+    void            compile_lib        ( const std::string &shash, const SrcSet &src_set );
+    void            make_cmake         ( const Path &src_path, const std::string &shash, const SrcSet &src_set );
+    int             exec_cmd           ( std::string cmd ) const;
 
-    LibPtr   lib;
+    Path            output_directory;  ///< where lixxx.so and libxxx.so.info are written
+    LibMap          lib_map;
 };
 

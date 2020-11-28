@@ -4,7 +4,7 @@ CompiledTaskWithGeneratedSrc::CompiledTaskWithGeneratedSrc( const std::string ta
     CompiledTask( std::move( children ), priority ), code_gen_func( std::move( code_gen_func ) ), task_name( task_name ) {
 }
 
-void CompiledTaskWithGeneratedSrc::get_src_content( Src &src, SrcWriter &sw ) {
+void CompiledTaskWithGeneratedSrc::get_src_content( Src &src, SrcSet &sw ) {
     code_gen_func( src, sw );
 }
 

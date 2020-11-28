@@ -10,19 +10,19 @@
 */
 class Src {
 public:
-    using                  String               = std::string;
     using                  Path                 = std::filesystem::path;
-    using                  VUS                  = VecUnique<String>;
+    using                  VUPath               = VecUnique<Path>;
+    using                  VUString             = VecUnique<std::string>;
 
-    /**/                   Src                  ( VUS include_directories, VUS cpp_flags, VUS includes, VUS prelims );
+    /**/                   Src                  ( VUPath include_directories, VUString cpp_flags, VUString includes, VUString prelims );
 
     template<class T> Src& operator<<           ( const T &value ) { fout << value; return *this; }
     void                   write_to             ( std::ostream &os ) const;
 
-    VUS                    include_directories; ///<
-    VUS                    cpp_flags;           ///<
-    VUS                    includes;            ///<
-    VUS                    prelims;             ///<
+    VUPath                 include_directories; ///<
+    VUString               cpp_flags;           ///<
+    VUString               includes;            ///<
+    VUString               prelims;             ///<
     std::ostringstream     fout;                ///<
 };
 

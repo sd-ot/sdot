@@ -8,7 +8,7 @@ class TmpDir;
 
 /**
 */
-class SrcWriter {
+class SrcSet {
 public:
     using                    SrcMap                       = std::map<std::string,Src>;
     using                    Path                         = Src::Path;

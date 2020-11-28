@@ -15,7 +15,7 @@ void KernelWithCompiledCode::exec( Task *task ) const {
     func( task );
 }
 
-void KernelWithCompiledCode::make_srcs( SrcWriter &ff ) const {
+void KernelWithCompiledCode::make_srcs( SrcSet &ff ) const {
     std::vector<TypeInfo *> tis = type_infos( ff.parameters );
     ff.default_cpp_flags = "-march=native -O3 -g3 -std=c++17";
 

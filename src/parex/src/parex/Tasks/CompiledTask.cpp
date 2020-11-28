@@ -27,7 +27,7 @@ void CompiledTask::exec() {
         std::string func_name = this->func_name();
 
         iter = mctl.emplace_hint( iter, summary.str(), GeneratedSym<void(CompiledTask *)>{} );
-        iter->second.init( func_name, summary.str(), [&]( SrcWriter &sw ) {
+        iter->second.init( func_name, summary.str(), [&]( SrcSet &sw ) {
             Src &src = sw.src( func_name + ".cpp" );
             src.include_directories << PAREX_DIR "/src";
             src.cpp_flags << "-std=c++17" << "-g3";

@@ -12,7 +12,7 @@ public:
     /**/                CompiledTaskWithInclude( const Path &src_path, std::vector<Rc<Task>> &&children, int priority = 0 );
 
     virtual void        write_to_stream        ( std::ostream &os ) const override;
-    virtual void        get_src_content        ( Src &src, SrcWriter &sw ) override;
+    virtual void        get_src_content        ( Src &src, SrcSet &sw ) override;
     virtual std::string func_name              () override;
 
     VUS                 include_directories;   ///<

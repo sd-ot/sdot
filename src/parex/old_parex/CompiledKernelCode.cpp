@@ -13,6 +13,6 @@ CompiledKernelCode::Path CompiledKernelCode::output_directory( const std::string
     return kernel->output_directory( parameters );
 }
 
-void CompiledKernelCode::make_srcs( SrcWriter &ff ) const {
+void CompiledKernelCode::make_srcs( SrcSet &ff ) const {
     kernel->make_srcs( ff );
 }

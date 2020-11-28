@@ -10,7 +10,8 @@ all:
 	# ${NSMAKE} tests/test_PowerDiagram.cpp
 	# ${NSMAKE} tests/test_radix_sort.cpp
 	# ${NSMAKE} tests/test_parex.cpp
-	${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
+	# ${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
+	${NSMAKE} tests/parex/test_GeneratedLibrarySet.cpp
 
 c:
 	rm -rf .generated_libs

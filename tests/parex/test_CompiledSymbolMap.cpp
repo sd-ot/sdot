@@ -9,7 +9,7 @@ protected:
         return "objects/test";
     }
 
-    virtual void make_srcs( SrcWriter &ff ) const override {
+    virtual void make_srcs( SrcSet &ff ) const override {
         ff.new_cpp() << "extern \"C\" int " << ff.symbol_name << "() { return " + ff.parameters + "; }";
     }
 };

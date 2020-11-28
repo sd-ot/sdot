@@ -7,7 +7,7 @@ CompiledSymbolMap::Path Destructors::output_directory( const std::string & ) con
     return "objects/destroy";
 }
 
-void Destructors::make_srcs( SrcWriter &ff ) const {
+void Destructors::make_srcs( SrcSet &ff ) const {
     TypeInfo *type_info = type_info_factory( ff.parameters );
 
     type_info->get_includes( [&]( const std::string &include ) { ff << "#include " << include << "\n"; } );

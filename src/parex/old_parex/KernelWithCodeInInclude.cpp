@@ -17,7 +17,7 @@ void KernelWithCodeInInclude::get_summary( std::ostream &os ) const {
     os << "KernelWithInclude\n" << path.string();
 }
 
-void KernelWithCodeInInclude::make_srcs( SrcWriter &ff ) const {
+void KernelWithCodeInInclude::make_srcs( SrcSet &ff ) const {
     ff.default_includes.push_back( "<" + path.string() + ">" );
     KernelWithCompiledCode::make_srcs( ff );
 }

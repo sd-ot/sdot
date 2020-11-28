@@ -8,7 +8,7 @@ void GenericArithmeticOperation::write_to_stream( std::ostream &os ) const {
     os << "GenericArithmeticOperation<" << name_op << ">";
 }
 
-void GenericArithmeticOperation::get_src_content( Src &src, SrcWriter &/*sw*/ ) {
+void GenericArithmeticOperation::get_src_content( Src &src, SrcSet &/*sw*/ ) {
     src.includes << "<parex/TaskOut.h>";
     src.includes << "<parex/P.h>";
 

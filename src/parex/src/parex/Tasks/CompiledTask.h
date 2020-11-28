@@ -4,7 +4,7 @@
 #include "../TypeFactory.h"
 #include "../type_name.h"
 #include "../TaskOut.h"
-class SrcWriter;
+class SrcSet;
 class Src;
 
 /**
@@ -16,7 +16,7 @@ public:
 
     virtual void           exec              () override;
 
-    virtual void           get_src_content   ( Src &src, SrcWriter &sw ) = 0;
+    virtual void           get_src_content   ( Src &src, SrcSet &sw ) = 0;
     virtual void           get_summary       ( std::ostream &os );
     virtual std::string    func_name         ();
 

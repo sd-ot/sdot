@@ -16,7 +16,7 @@ public:
 
 protected:
     virtual Path            output_directory  ( const std::string &parameters ) const override;
-    virtual void            make_srcs         ( SrcWriter &ff ) const override;
+    virtual void            make_srcs         ( SrcSet &ff ) const override;
 
     KernelWithCompiledCode* kernel;
 };

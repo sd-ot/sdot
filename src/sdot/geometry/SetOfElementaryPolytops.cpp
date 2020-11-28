@@ -9,7 +9,7 @@
 namespace sdot {
 
 SetOfElementaryPolytops::SetOfElementaryPolytops( Value dim, Value scalar_type, Value index_type, Value elem_shapes ) {
-    Value v = (Task *)new CompiledTaskWithGeneratedSrc( "random", {}, [&]( Src &src, SrcWriter &/*sw*/ ) {
+    Value v = (Task *)new CompiledTaskWithGeneratedSrc( "random", {}, [&]( Src &src, SrcSet &/*sw*/ ) {
         src.include_directories << "ext/xtensor/install/include";
         src.include_directories << "ext/xsimd/install/include";
         src.includes << "<parex/containers/xtensor.h>";
