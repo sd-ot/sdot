@@ -1,28 +1,40 @@
-#include "SetOfElementaryPolytops.h"
-#include <parex/support/TODO.h>
-#include <parex/support/P.h>
+#include <parex/Tasks/CompiledTaskWithGeneratedSrc.h>
+#include <parex/Tasks/CompiledTaskWithInclude.h>
 #include <parex/Scheduler.h>
-using namespace parex;
+#include <parex/TODO.h>
+#include <parex/P.h>
+
+#include "SetOfElementaryPolytops.h"
 
 namespace sdot {
 
-SetOfElementaryPolytops::SetOfElementaryPolytops( const TaskRef &n_dim, const TaskRef &s_scalar_type, const TaskRef &s_index_type, std::string shape_list ) : shape_list( shape_list ) {
-    // types
-    std::string ds = "sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/";
+SetOfElementaryPolytops::SetOfElementaryPolytops( Value dim, Value scalar_type, Value index_type, Value elem_shapes ) {
+    Value v = (Task *)new CompiledTaskWithGeneratedSrc( "random", {}, [&]( Src &src, SrcWriter &/*sw*/ ) {
+        src.include_directories << "ext/xtensor/install/include";
+        src.include_directories << "ext/xsimd/install/include";
+        src.includes << "<parex/containers/xtensor.h>";
 
-    scheduler.kernel_code.includes[ "sdot::ShapeCutTmpData" ].push_back( "<" + ds + "ShapeCutTmpData.h>" );
-    scheduler.kernel_code.includes[ "sdot::ShapeData" ].push_back( "<" + ds + "ShapeData.h>" );
-    scheduler.kernel_code.includes[ "sdot::ShapeMap" ].push_back( "<" + ds + "ShapeMap.h>" );
+        src << "TaskOut<xt::xarray<double>> generated_func() {\n";
+        src << "    return new xt::xarray<double>( xt::arange( 10 ) );\n";
+        src << "\n}";
+   } );
 
-    // includes
-    scheduler.kernel_code.add_include_dir( KernelCode::path( SDOT_DIR ) / "src" );
+    //    // types
+    //    std::string ds = "sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/";
 
-    // creation of a void shape map
-    shape_map = Task::call_r( "sdot/geometry/kernels/SetOfElementaryPolytops/new_shape_map", {
-        s_scalar_type,
-        s_index_type,
-        n_dim
-    } );
+    //    scheduler.kernel_code.includes[ "sdot::ShapeCutTmpData" ].push_back( "<" + ds + "ShapeCutTmpData.h>" );
+    //    scheduler.kernel_code.includes[ "sdot::ShapeData" ].push_back( "<" + ds + "ShapeData.h>" );
+    //    scheduler.kernel_code.includes[ "sdot::ShapeMap" ].push_back( "<" + ds + "ShapeMap.h>" );
+
+    //    // includes
+    //    scheduler.kernel_code.add_include_dir( KernelCode::path( SDOT_DIR ) / "src" );
+
+    //    // creation of a void shape map
+    //    shape_map = Task::call_r( "sdot/geometry/kernels/SetOfElementaryPolytops/new_shape_map", {
+    //        s_scalar_type,
+    //        s_index_type,
+    //        n_dim
+    //    } );
 }
 
 SetOfElementaryPolytops::SetOfElementaryPolytops( int dim, std::string scalar_type, std::string index_type ) :

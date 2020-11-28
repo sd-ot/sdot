@@ -17,6 +17,9 @@ std::string CompiledTaskWithInclude::func_name() {
 }
 
 void CompiledTaskWithInclude::get_src_content( Src &src, SrcWriter &/*sw*/ ) {
+    for( std::string include_directory : include_directories )
+        src.include_directories << include_directory;
+
     src.includes << "<" + src_path.string() + ">";
 }
 
