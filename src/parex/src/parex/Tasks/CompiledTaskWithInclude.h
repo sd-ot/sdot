@@ -9,7 +9,7 @@ class CompiledTaskWithInclude : public CompiledTask {
 public:
     using               VUS                    = VecUnique<std::string>;
 
-    /**/                CompiledTaskWithInclude( const Path &src_path, std::vector<Rc<Task>> &&children, int priority = 0 );
+    /**/                CompiledTaskWithInclude( const Path &src_path, std::vector<Rc<Task>> &&children, double priority = 0 );
 
     virtual void        write_to_stream        ( std::ostream &os ) const override;
     virtual void        get_src_content        ( Src &src, SrcSet &sw ) override;

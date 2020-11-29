@@ -1,5 +1,6 @@
+#include "GeneratedLibrarySet.h"
 #include "CppType.h"
-#include "../P.h"
+#include "P.h"
 
 CppType::CppType( std::string name, std::vector<std::string> include_directories, std::vector<std::string> includes, std::vector<std::string> preliminaries, std::vector<Type *> &&sub_types ) :
     include_directories( include_directories ), preliminaries( preliminaries ), sub_types( std::move( sub_types ) ), includes( includes ), name( name ) {
@@ -39,13 +40,15 @@ std::string CppType::cpp_name() const {
 }
 
 void CppType::destroy( void *data ) const {
-    if ( destructor_func.need_init() ) {
-        destructor_func.init( "destroy", cpp_name(), [&]( SrcSet &sw ) {
+    if ( ! destructor_func ) {
+        static GeneratedLibrarySet destructors( ".generated_libs/destroy" );
+        destructor_func = { destructors.get_library( [&]( SrcSet &sw ) {
             Src &src = sw.src( "destroy.cpp" );
             add_needs_in( src );
 
             src << "extern \"C\" void destroy( void *data ) { delete reinterpret_cast<" << cpp_name() << " *>( data ); }";
-        } );
+        }, /*summary*/ cpp_name() ), "destroy" };
     }
-    destructor_func.sym( data );
+
+    destructor_func.symbol( data );
 }

@@ -1,7 +1,7 @@
 #include "CompiledTaskWithInclude.h"
 #include "../Src.h"
 
-CompiledTaskWithInclude::CompiledTaskWithInclude( const Path &src_path, std::vector<Rc<Task>> &&children, int priority ) : CompiledTask( std::move( children ), priority ), src_path( src_path ) {
+CompiledTaskWithInclude::CompiledTaskWithInclude( const Path &src_path, std::vector<Rc<Task>> &&children, double priority ) : CompiledTask( std::move( children ), priority ), src_path( src_path ) {
 }
 
 void CompiledTaskWithInclude::write_to_stream( std::ostream &os ) const {

@@ -1,6 +1,6 @@
 #include "CompiledTaskWithGeneratedSrc.h"
 
-CompiledTaskWithGeneratedSrc::CompiledTaskWithGeneratedSrc( const std::string task_name, std::vector<Rc<Task>> &&children, CodeGenFunc &&code_gen_func, int priority ) :
+CompiledTaskWithGeneratedSrc::CompiledTaskWithGeneratedSrc( const std::string task_name, std::vector<Rc<Task>> &&children, CodeGenFunc &&code_gen_func, double priority ) :
     CompiledTask( std::move( children ), priority ), code_gen_func( std::move( code_gen_func ) ), task_name( task_name ) {
 }
 

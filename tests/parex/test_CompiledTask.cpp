@@ -1,8 +1,11 @@
-#include <parex/CompiledTask.h>
+#include <parex/CompiledLambdaTask.h>
 #include <parex/P.h>
 
 int main() {
-    GeneratedLibrarySet gls;
-    DynamicLibrary *lib = gls.get_library( []( SrcSet &ss ) { ss.src() << "extern \"C\" int pouet() { return 17; };"; } );
-    P( lib->symbol<int(void)>( "pouet" )() );
+    CompiledLambdaTask clt( []( Src &src, SrcSet &, const std::vector<Rc<Task>> & ) {
+        src << "TaskOut<int> smurf() { return new int( 12 ); }";
+    }, {}, "smurf" );
+
+    clt.exec();
+    P( *clt.output_type );
 }

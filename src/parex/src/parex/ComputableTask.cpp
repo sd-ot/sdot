@@ -1,23 +1,12 @@
 #include "ComputableTask.h"
-#include "TODO.h"
-#include "P.h"
 
-ComputableTask::ComputableTask( std::vector<Rc<Task>> &&children ) : children( std::move( children ) ) {
+ComputableTask::ComputableTask( std::vector<Rc<Task>> &&children, double priority ) : children( std::move( children ) ), priority( priority ) {
     scheduled = 0;
-    in_front  = 0;
     computed  = 0;
-    priority  = 0;
-
-    type = nullptr;
-    data = nullptr;
+    in_front  = 0;
 
     for( Rc<Task> &ch : this->children )
         ch->parents.push_back( this );
-}
-
-ComputableTask::~ComputableTask() {
-    if ( type && data )
-        type->destroy( data );
 }
 
 bool ComputableTask::all_ch_computed() const {
@@ -49,13 +38,5 @@ void ComputableTask::get_front_rec( std::map<int,std::vector<ComputableTask *>> 
 
 bool ComputableTask::is_computed() const {
     return computed;
-}
-
-Type *ComputableTask::output_type() const {
-    return type;
-}
-
-void *ComputableTask::output_data() const {
-    return data;
 }
 

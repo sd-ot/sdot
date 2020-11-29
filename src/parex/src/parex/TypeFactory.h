@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Type.h"
-#include <memory>
-#include <string>
 #include <map>
 
 /**

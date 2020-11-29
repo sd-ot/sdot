@@ -1,34 +1,56 @@
 #pragma once
 
-#include <filesystem>
-#include "Task.h"
-#include "Rc.h"
+#include "TypeFactory.h"
+#include "type_name.h"
+#include "TaskOut.h"
 
 /**
 */
 class ComputableTask : public Task {
 public:
-    using                 Path           = std::filesystem::path;
+    /***/                  ComputableTask    ( std::vector<Rc<Task>> &&children, double priority = 0 );
 
-    /***/                 ComputableTask ( std::vector<Rc<Task>> &&children );
-    virtual              ~ComputableTask ();
+    virtual bool           all_ch_computed   () const;
+    virtual void           get_front_rec     ( std::map<int,std::vector<ComputableTask *>> &front ) override;
+    virtual bool           is_computed       () const override;
+    virtual void           exec              () = 0;
 
-    bool                  all_ch_computed() const;
+    // helper to create the output from a class with a operator()( Task * ) method
+    template<class F> void run_kernel_wrapper( const F &f );
+    template<class F> void run_void_or_not   ( std::integral_constant<bool,0>, const F &func );
+    template<class F> void run_void_or_not   ( std::integral_constant<bool,1>, const F &func );
+    template<class T> void make_outputs      ( TaskOut<T> &&ret );
 
-    virtual void          get_front_rec  ( std::map<int,std::vector<ComputableTask *>> &front ) override;
-    virtual bool          is_computed    () const override;
-    virtual Type*         output_type    () const override;
-    virtual void*         output_data    () const override;
+    // graph data
+    std::vector<Rc<Task>>  children;         ///<
+    double                 priority;         ///<
 
-    virtual void          exec           () = 0;
-
-    std::vector<Rc<Task>> children;      ///<
-
-    bool                  scheduled;     ///<
-    bool                  in_front;      ///<
-    bool                  computed;      ///<
-    int                   priority;      ///<
-    Type*                 type;          ///<
-    void*                 data;          ///<
+    bool                   scheduled;        ///<
+    bool                   in_front;         ///<
+    bool                   computed;         ///<
 };
 
+template<class T>
+void ComputableTask::make_outputs( TaskOut<T> &&ret ) {
+    TypeFactory &tf = type_factory_virtual();
+    output_is_owned = true;
+    output_type = tf( type_name<T>() );
+    output_data = ret.data;
+}
+
+
+template<class F>
+void ComputableTask::run_void_or_not( std::integral_constant<bool,0>, const F &func ) {
+    make_outputs( func( this ) );
+}
+
+template<class F>
+void ComputableTask::run_void_or_not( std::integral_constant<bool,1>, const F &func ) {
+    func( this );
+}
+
+template<class F>
+void ComputableTask::run_kernel_wrapper( const F &func ) {
+    constexpr bool void_ret = std::is_same<decltype( func( this ) ),void>::value;
+    run_void_or_not( std::integral_constant<bool,void_ret>(), func );
+}

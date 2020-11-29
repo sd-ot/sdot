@@ -1,12 +1,13 @@
 #include "TypeFactoryRegistrar.h"
-#include "Types/CppType.h"
 #include "TypeFactory.h"
+#include "CppType.h"
 #include "TODO.h"
 
 TypeFactory::TypeFactory() {
     // register the most common types. Less common one are handled by TypeFactoryRegistrar
     type_map[ "std::string" ] = std::make_unique<CppType>( "std::string", std::vector<std::string>{}, std::vector<std::string>{ "<string>"  }, std::vector<std::string>{} );
 
+    // integers
     using A = std::array<std::string,2>;
     for( A p : { A{ "SI8" , "int8_t"  }, A{ "PI8" , "uint8_t"  },
                  A{ "SI16", "int16_t" }, A{ "PI16", "uint16_t" },
@@ -14,6 +15,7 @@ TypeFactory::TypeFactory() {
                  A{ "SI64", "int64_t" }, A{ "PI64", "uint64_t" } } )
         type_map[ p[ 0 ] ] = std::make_unique<CppType>( p[ 0 ], std::vector<std::string>{}, std::vector<std::string>{ "<cstdint>" }, std::vector<std::string>{ "using " + p[ 0 ] + " = std::" + p[ 1 ] + ";" } );
 
+    // floating point numbers
     for( A p : { A{ "FP32" , "float" }, A{ "FP64" , "double" } } )
         type_map[ p[ 0 ] ] = std::make_unique<CppType>( p[ 0 ], std::vector<std::string>{}, std::vector<std::string>{}, std::vector<std::string>{ "using " + p[ 0 ] + " = " + p[ 1 ] + ";" } );
 }

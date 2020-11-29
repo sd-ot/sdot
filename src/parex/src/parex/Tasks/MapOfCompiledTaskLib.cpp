@@ -1,6 +1,6 @@
 #include "MapOfCompiledTaskLib.h"
 
-CompiledTaskLib *MapOfCompiledTaskLib::lib( const Path &src_path, const std::vector<Type *> &children_types, int priority ) {
+CompiledTaskLib *MapOfCompiledTaskLib::lib( const Path &src_path, const std::vector<Type *> &children_types, double priority ) {
     Params key( src_path, children_types, priority );
     auto iter = map.find( key );
     if ( iter == map.end() )
