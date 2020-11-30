@@ -9,9 +9,9 @@ using TF = double;
 
 void test_triangle( TI dim = 2, TI /*nb_triangles*/ = 15 ) {
     ElementaryPolytopInfoList epil( dim );
-    //    SetOfElementaryPolytops sp( epil );
+    SetOfElementaryPolytops sp( epil );
     //    scheduler.log = true;
-    P( epil );
+    P( sp );
 
     //    // construct
     //    sp.add_repeated( "3", nb_triangles,

@@ -1,39 +1,84 @@
-#include <parex/CompiledIncludeTask.h>
-#include <parex/CompiledLambdaTask.h>
+#include <parex/GeneratedLibrarySet.h>
 #include <parex/variable_encode.h>
+#include <parex/CompiledTask.h>
 #include <parex/Scheduler.h>
 #include <parex/CppType.h>
 #include <parex/TODO.h>
 #include <parex/P.h>
 #include <sstream>
 
+#include "internal/ElementaryPolytopInfoListContent.h"
 #include "SetOfElementaryPolytops.h"
 
 namespace sdot {
 
 SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Value &scalar_type, const Value &index_type, const Value &dim ) {
-    //    shape_map = static_cast<Task *>( new CompiledLambdaTask( []( Src &src, SrcSet &/*sw*/, const std::vector<Rc<Task>> &children ) {
-    //        //        // get output type
-    //        //        Type *map_type = type_of_shape_map(
-    //        //            *reinterpret_cast<int *>( children[ 0 ]->output_data ),
-    //        //            Task::type_factory( *reinterpret_cast<std::string *>( children[ 1 ]->output_data ) ),
-    //        //            Task::type_factory( *reinterpret_cast<std::string *>( children[ 2 ]->output_data ) ),
-    //        //            *reinterpret_cast<std::string *>( children[ 3 ]->output_data )
-    //        //            );
+    struct GetShapeMap : ComputableTask {
+        using ComputableTask::ComputableTask;
 
-    //        //        // register
-    //        //        map_type->add_needs_in( src );
+        virtual void write_to_stream( std::ostream &os ) const override {
+            os << "GetShapeMap";
+        }
 
-    //        //        // write src
-    //        //        src << "template<class... A>\n";
-    //        //        src << "TaskOut<" << map_type->cpp_name() << "> new_shape_map( const A& ... ) {\n";
-    //        //        src << "    return new " << map_type->cpp_name() << ";\n";
-    //        //        src << "}\n";
-    //    }, { elementary_polytop_info.task, scalar_type.to_string(), index_type.to_string(), dim.conv_to<int>() }, "new_shape_map" ) );
+        virtual void exec() override {
+            // inputs
+            const ElementaryPolytopInfoListContent *epil = reinterpret_cast<const ElementaryPolytopInfoListContent *>( children[ 0 ]->output_data );
+            Type *scalar_type = Task::type_factory( *reinterpret_cast<const std::string *>( children[ 1 ]->output_data ) );
+            Type *index_type = Task::type_factory( *reinterpret_cast<const std::string *>( children[ 2 ]->output_data ) );
+            int dim = *reinterpret_cast<const int *>( children[ 3 ]->output_data );
+            if ( ! dim )
+                dim = epil->default_dim;
+
+            // type name
+            std::string type_name = "ShapeMap";
+            type_name += "_" + variable_encode( epil->elem_names(), true );
+            type_name += "_" + variable_encode( scalar_type->cpp_name(), true );
+            type_name += "_" + variable_encode( index_type->cpp_name(), true );
+            type_name += "_" + std::to_string( dim );
+
+            P( type_name );
+            TODO;
+
+            //            // output type
+            //            output_type = type_factory().reg_cpp_type( "ElementaryPolytopInfoListContent", []( CppType &ct ) {
+            //                ct.includes << "<sdot/geometry/internal/ElementaryPolytopInfoListContent.h>";
+            //                ct.include_directories << SDOT_DIR "/src";
+            //            } );
+
+            //            // summary
+            //            std::string shape_types = *reinterpret_cast<const std::string *>( children[ 0 ]->output_data );
+
+            //            // find or create lib
+            //            static GeneratedLibrarySet gls;
+            //            DynamicLibrary *lib = gls.get_library( [&]( SrcSet &sw ) {
+            //                Src &src = sw.src( "get_ElementaryPolytopInfoList.cpp" );
+            //                src.includes << "<parex/ComputableTask.h>";
+            //                output_type->add_needs_in( src );
+
+            //                src << "\n";
+            //                src << "extern \"C\" void kernel( ComputableTask *task ) {\n";
+            //                src << "    static Epil res;\n";
+            //                src << "    task->output_data = &res;\n";
+            //                src << "    task->output_own = false;\n";
+            //                src << "}\n";
+            //            }, shape_types );
+
+            //            // execute the generated function to get the output_data
+            //            auto *func = lib->symbol<void( ComputableTask *)>( "kernel" );
+            //            func( this );
+        }
+    };
+
+    shape_map = new GetShapeMap( {
+        elementary_polytop_info.task,
+        scalar_type.to_string(),
+        index_type.to_string(),
+        dim.conv_to<int>()
+    } );
 }
 
 void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
-    os << shape_map;
+    os << Value( shape_map );
 }
 
 //void SetOfElementaryPolytops::display_vtk( const Value &filename ) const {

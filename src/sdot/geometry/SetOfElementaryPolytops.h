@@ -21,7 +21,7 @@ public:
     void                   plane_cut              ( const Value &normals, const Value &scalar_products, const Value &cut_ids );
 
 private:
-    Value                  shape_map;             ///<
+    Rc<Task>               shape_map;             ///<
 };
 
 }

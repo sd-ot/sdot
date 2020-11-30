@@ -72,12 +72,6 @@ void GetElementaryPolytopInfoListContent::exec() {
     func( this );
 }
 
-std::string GetElementaryPolytopInfoListContent::default_shape_types( int dim ) {
-    if ( dim == 3 ) return "[3S 3E 4S]";
-    if ( dim == 2 ) return "[3 4 5]";
-    TODO;
-    return {};
-}
 
 void GetElementaryPolytopInfoListContent::write_ctor( std::ostream &os, std::istringstream &&shape_types, const std::string &sp ) {
 
