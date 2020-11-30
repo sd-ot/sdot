@@ -5,7 +5,7 @@
 
 TypeFactory::TypeFactory() {
     // register the most common types. Less common one are handled by TypeFactoryRegistrar
-    type_map[ "std::string" ] = std::make_unique<CppType>( "std::string", std::vector<std::string>{}, std::vector<std::string>{ "<string>"  }, std::vector<std::string>{} );
+    type_map[ "std::string" ] = std::make_unique<CppType>( "std::string", VecUnique<std::string>{}, VecUnique<std::string>{ "<string>"  }, VecUnique<std::string>{} );
 
     // integers
     using A = std::array<std::string,2>;
@@ -13,11 +13,11 @@ TypeFactory::TypeFactory() {
                  A{ "SI16", "int16_t" }, A{ "PI16", "uint16_t" },
                  A{ "SI32", "int32_t" }, A{ "PI32", "uint32_t" },
                  A{ "SI64", "int64_t" }, A{ "PI64", "uint64_t" } } )
-        type_map[ p[ 0 ] ] = std::make_unique<CppType>( p[ 0 ], std::vector<std::string>{}, std::vector<std::string>{ "<cstdint>" }, std::vector<std::string>{ "using " + p[ 0 ] + " = std::" + p[ 1 ] + ";" } );
+        type_map[ p[ 0 ] ] = std::make_unique<CppType>( p[ 0 ], VecUnique<std::string>{}, VecUnique<std::string>{ "<cstdint>" }, VecUnique<std::string>{ "using " + p[ 0 ] + " = std::" + p[ 1 ] + ";" } );
 
     // floating point numbers
     for( A p : { A{ "FP32" , "float" }, A{ "FP64" , "double" } } )
-        type_map[ p[ 0 ] ] = std::make_unique<CppType>( p[ 0 ], std::vector<std::string>{}, std::vector<std::string>{}, std::vector<std::string>{ "using " + p[ 0 ] + " = " + p[ 1 ] + ";" } );
+        type_map[ p[ 0 ] ] = std::make_unique<CppType>( p[ 0 ], VecUnique<std::string>{}, VecUnique<std::string>{}, VecUnique<std::string>{ "using " + p[ 0 ] + " = " + p[ 1 ] + ";" } );
 }
 
 TypeFactory::~TypeFactory() {

@@ -4,6 +4,7 @@
 #include <ostream>
 #include <memory>
 #include <string>
+#include <vector>
 class Src;
 
 /**

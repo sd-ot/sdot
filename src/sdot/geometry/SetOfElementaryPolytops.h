@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ElementaryPolytopInfoList.h"
+#include <parex/containers/xtensor.h>
 #include <parex/Value.h>
 
 namespace sdot {
@@ -10,7 +12,7 @@ class SetOfElementaryPolytops {
 public:
     using                  TI                     = std::size_t;
 
-    /**/                   SetOfElementaryPolytops( Value dim, Value scalar_type = "FP64", Value index_type = "PI64", Value elem_shapes = "" );
+    /**/                   SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Value &scalar_type = "FP64", const Value &index_type = "PI64", const Value &dim = 0 );
 
     void                   write_to_stream        ( std::ostream &os ) const;
     void                   display_vtk            ( const Value &filename ) const;
@@ -19,8 +21,6 @@ public:
     void                   plane_cut              ( const Value &normals, const Value &scalar_products, const Value &cut_ids );
 
 private:
-    static std::string     default_shape_list     ( int dim );
-
     Value                  shape_map;             ///<
 };
 

@@ -32,10 +32,9 @@ public:
 
 template<class T>
 void ComputableTask::make_outputs( TaskOut<T> &&ret ) {
-    TypeFactory &tf = type_factory_virtual();
-    output_is_owned = true;
-    output_type = tf( type_name<T>() );
+    output_type = type_factory_virtual( type_name<T>() );
     output_data = ret.data;
+    output_own = true;
 }
 
 

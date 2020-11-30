@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RefCount.h"
+#include <ostream>
 #include <vector>
 #include <map>
 
@@ -21,12 +22,13 @@ public:
     virtual bool                  is_computed         () const;
 
     // how to get the global type_factory, even in dynamic libraries
+    virtual Type*                 type_factory_virtual( const std::string &name ); ///<
     virtual TypeFactory&          type_factory_virtual(); ///< return type_factory without the need for Task.cpp
     static Type*                  type_factory        ( const std::string &name );
     static TypeFactory&           type_factory        ();
 
     // output data
-    bool                          output_is_owned;    ///<
+    bool                          output_own;    ///<
     Type*                         output_type;        ///<
     void*                         output_data;        ///<
 

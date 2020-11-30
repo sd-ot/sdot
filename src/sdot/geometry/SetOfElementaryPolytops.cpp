@@ -5,60 +5,31 @@
 #include <parex/CppType.h>
 #include <parex/TODO.h>
 #include <parex/P.h>
+#include <sstream>
 
 #include "SetOfElementaryPolytops.h"
 
 namespace sdot {
 
-SetOfElementaryPolytops::SetOfElementaryPolytops( Value dim, Value scalar_type, Value index_type, Value elem_shapes ) {
-    shape_map = static_cast<Task *>( new CompiledLambdaTask( []( Src &src, SrcSet &/*sw*/, const std::vector<Rc<Task>> &children ) {
-        // parameter values
-        int dim = *reinterpret_cast<int *>( children[ 0 ]->output_data );
-        std::string scalar_type = *reinterpret_cast<std::string *>( children[ 1 ]->output_data );
-        std::string index_type  = *reinterpret_cast<std::string *>( children[ 2 ]->output_data );
-        std::string shape_types = *reinterpret_cast<std::string *>( children[ 3 ]->output_data );
-        if ( shape_types.empty() )
-            shape_types = default_shape_list( dim );
+SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Value &scalar_type, const Value &index_type, const Value &dim ) {
+    //    shape_map = static_cast<Task *>( new CompiledLambdaTask( []( Src &src, SrcSet &/*sw*/, const std::vector<Rc<Task>> &children ) {
+    //        // get output type
+    //        Type *map_type = type_of_shape_map(
+    //            *reinterpret_cast<int *>( children[ 0 ]->output_data ),
+    //            Task::type_factory( *reinterpret_cast<std::string *>( children[ 1 ]->output_data ) ),
+    //            Task::type_factory( *reinterpret_cast<std::string *>( children[ 2 ]->output_data ) ),
+    //            *reinterpret_cast<std::string *>( children[ 3 ]->output_data )
+    //        );
 
-        // make the output type
-        std::ostringstream nt;
-        nt << "ShapeMap" << '_' << dim
-           << '_' << variable_encode( scalar_type, true )
-           << '_' << variable_encode( index_type , true )
-           << '_' << variable_encode( shape_types, true );
+    //        // register
+    //        map_type->add_needs_in( src );
 
-        TypeFactory &tf = Task::type_factory();
-        Type *ns = tf.reg_cpp_type( nt.str(), [&]( CppType &ct ) {
-            std::ostringstream sd;
-            sd << "struct " << nt.str() << "{\n";
-            sd << "};\n";
-            ct.preliminaries.push_back( sd.str() );
-        } );
-
-        // write src
-        ns->add_needs_in( src );
-        src << "template<class... A>\n";
-        src << "TaskOut<" << ns->cpp_name() << "> new_shape_map( const A& ... ) {\n";
-        src << "    return new " << ns->cpp_name() << ";\n";
-        src << "}\n";
-    }, { dim.conv_to<int>(), scalar_type.to_string(), index_type.to_string(), elem_shapes.to_string() }, "new_shape_map" ) );
-
-    //    // types
-    //    std::string ds = "sdot/geometry/kernels/SetOfElementaryPolytops/data_structures/";
-
-    //    scheduler.kernel_code.includes[ "sdot::ShapeCutTmpData" ].push_back( "<" + ds + "ShapeCutTmpData.h>" );
-    //    scheduler.kernel_code.includes[ "sdot::ShapeData" ].push_back( "<" + ds + "ShapeData.h>" );
-    //    scheduler.kernel_code.includes[ "sdot::ShapeMap" ].push_back( "<" + ds + "ShapeMap.h>" );
-
-    //    // includes
-    //    scheduler.kernel_code.add_include_dir( KernelCode::path( SDOT_DIR ) / "src" );
-
-    //    // creation of a void shape map
-    //    shape_map = Task::call_r( "sdot/geometry/kernels/SetOfElementaryPolytops/new_shape_map", {
-    //        s_scalar_type,
-    //        s_index_type,
-    //        n_dim
-    //    } );
+    //        // write src
+    //        src << "template<class... A>\n";
+    //        src << "TaskOut<" << map_type->cpp_name() << "> new_shape_map( const A& ... ) {\n";
+    //        src << "    return new " << map_type->cpp_name() << ";\n";
+    //        src << "}\n";
+    //    }, { dim.conv_to<int>(), scalar_type.to_string(), index_type.to_string(), elem_shapes.to_string() }, "new_shape_map" ) );
 }
 
 void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
@@ -83,11 +54,50 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
 //                              }, /*append_parent_task*/ true );
 //}
 
-std::string SetOfElementaryPolytops::default_shape_list( int dim ) {
-    if ( dim == 3 ) return "3S 3E 4S";
-    if ( dim == 2 ) return "3 4 5";
-    TODO;
-    return {};
-}
+//Type *SetOfElementaryPolytops::type_of_shape_map( int dim, Type *scalar_type, Type *index_type, std::string shape_types ) {
+//    // shape types
+//    if ( shape_types.empty() )
+//        shape_types = default_shape_list( dim );
 
-}
+//    // output type name
+//    std::ostringstream nt;
+//    nt << "ShapeMap" << '_' << dim
+//       << '_' << variable_encode( scalar_type->cpp_name(), true )
+//       << '_' << variable_encode( index_type ->cpp_name(), true )
+//       << '_' << variable_encode( shape_types, true );
+
+//    // output type code
+//    TypeFactory &tf = Task::type_factory();
+//    return tf.reg_cpp_type( nt.str(), [&]( CppType &ct ) {
+//        ct.includes << "<sdot/geometry/SetOfElementaryPolytops/HomogeneousElementaryPolytopList.h>";
+//        ct.include_directories << SDOT_DIR "/ext/xtensor/install/include";
+//        ct.include_directories << SDOT_DIR "/ext/xsimd/install/include";
+//        ct.include_directories << SDOT_DIR "/src";
+
+//        ct.preliminaries << "using namespace sdot;";
+
+//        ct.sub_types.push_back( scalar_type );
+//        ct.sub_types.push_back( index_type );
+
+//        //
+//        std::vector<ElementaryPolytopInfo> epil = elementary_polytop_info_list( std::istringstream{ shape_types } );
+
+//        //
+//        std::ostringstream sd;
+//        sd << "\n";
+//        sd << "struct " << nt.str() << " {\n";
+//        sd << "    void write_to_stream( std::ostream &os ) const {\n";
+//        sd << "        os << \"" << nt.str() << "\";\n";
+//        sd << "    }\n";
+//        sd << "    \n";
+//        for( const ElementaryPolytopInfo &epi : epil )
+//            sd << "    HomogeneousElementaryPolytopList<" << scalar_type->cpp_name() << "," << index_type->cpp_name() << "," << epi.nb_nodes() << "," << dim << "> sl_" << epi.name << ";\n";
+
+//        sd << "};\n";
+//        sd << "\n";
+//        sd << "inline std::string type_name( S<" << nt.str() << "> ) { return \"" << nt.str() << "\"; };\n";
+//        ct.preliminaries << sd.str();
+//    } );
+//}
+
+} // namespace sdot

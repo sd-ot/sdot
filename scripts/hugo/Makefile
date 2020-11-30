@@ -13,6 +13,7 @@ all:
 	# ${NSMAKE} tests/parex/test_GeneratedLibrarySet.cpp
 	# ${NSMAKE} tests/parex/test_CompiledTask.cpp
 	# ${NSMAKE} tests/parex/test_Value.cpp
+	# ${NSMAKE} tests/test_ElementaryPolytopInfo.cpp
 	${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
 
 c:

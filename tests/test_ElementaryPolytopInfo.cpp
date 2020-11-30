@@ -1,4 +1,5 @@
 #include "../src/sdot/geometry/SetOfElementaryPolytops.h"
+#include <parex/containers/xtensor.h>
 #include <parex/Scheduler.h>
 #include <parex/P.h>
 
@@ -7,11 +8,9 @@ using namespace sdot;
 using TI = std::uint64_t;
 using TF = double;
 
-void test_triangle( TI dim = 2, TI /*nb_triangles*/ = 15 ) {
-    ElementaryPolytopInfoList epil( dim );
-    //    SetOfElementaryPolytops sp( epil );
-    //    scheduler.log = true;
-    P( epil );
+void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
+    SetOfElementaryPolytops sp( dim );
+    scheduler.log = true;
 
     //    // construct
     //    sp.add_repeated( "3", nb_triangles,
@@ -35,7 +34,7 @@ void test_triangle( TI dim = 2, TI /*nb_triangles*/ = 15 ) {
 
     //    sp.plane_cut( normals, scalar_products, new_face_ids );
     //    sp.display_vtk( "cut.vtk" );
-    //    P( sp );
+    P( sp );
 }
 
 //void test_quad( TI dim = 2, TI nb_quads = 36 ) {

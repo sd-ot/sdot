@@ -2,7 +2,7 @@
 #include <ostream>
 
 SrcTask::SrcTask( Type *type, void *data, bool own ) {
-    output_is_owned = own;
+    output_own = own;
     output_type = type;
     output_data = data;
 }

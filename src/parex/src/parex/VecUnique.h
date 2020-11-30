@@ -8,6 +8,8 @@
 template<class T>
 class VecUnique : public std::vector<T> {
 public:
+    using std::vector<T>::vector;
+
     template<class U>
     VecUnique &operator<<( U &&value ) {
         if ( std::find( this->begin(), this->end(), value ) == this->end() )
