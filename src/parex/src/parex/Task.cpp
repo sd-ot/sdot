@@ -2,9 +2,9 @@
 #include "Task.h"
 
 Task::Task() {
-    output_own = true;
     output_type = nullptr;
     output_data = nullptr;
+    output_own = true;
 }
 
 Task::~Task() {

@@ -1,9 +1,13 @@
 #include "CompiledLambdaTask.h"
 
-CompiledLambdaTask::CompiledLambdaTask( SrcWriter &&src_writer, std::vector<Rc<Task> > &&children, const std::string &called_func_name, double priority, const std::string &summary ) : CompiledTask( std::move( children ), priority ),
+CompiledLambdaTask::CompiledLambdaTask( StreamWriter &&get_summary, SrcWriter &&src_writer, std::vector<Rc<Task> > &&children, StreamWriter &&called_func_name_writer, double priority ) : CompiledTask( std::move( children ), priority ),
         called_func_name_( called_func_name ),
-        src_writer_( std::move( src_writer ) ),
-        summary_( summary ) {
+        summary_writer_( std::move( get_summary ) ),
+        src_writer_( std::move( src_writer ) ) {
+}
+
+CompiledLambdaTask::CompiledLambdaTask( SrcWriter &&src_writer, std::vector<Rc<Task>> &&children, StreamWriter &&called_func_name_writer, double priority ) :
+    CompiledLambdaTask( []( std::ostream &, const std::vector<Rc<Task>> & ) {}, std::move( src_writer ), std::move( children ), called_func_name, priority ) {
 }
 
 std::string CompiledLambdaTask::called_func_name() {
@@ -19,5 +23,7 @@ void CompiledLambdaTask::get_src_content( Src &src, SrcSet &sw ) {
 }
 
 std::string CompiledLambdaTask::summary() {
-    return summary_;
+    std::ostringstream os;
+    summary_writer_( os, children );
+    return os.str();
 }

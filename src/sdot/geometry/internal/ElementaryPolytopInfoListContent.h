@@ -1,18 +1,16 @@
 #pragma once
 
-#include <parex/containers/xtensor.h>
+#include <string>
 #include <vector>
 
 /**
 */
-class ElementaryPolytopInfo {
+class ElementaryPolytopInfoListContent {
 public:
-    using             TI                   = std::size_t;
+    struct ElemInfo {
+        std::string name;
+    };
 
-    /**/              ElementaryPolytopInfo( const std::string &name );
-    TI                nb_nodes             () const;
-
-    xt::xtensor<TI,1> nodes;
-    std::string       name;
+    std::vector<ElemInfo> elem_info;
 };
 

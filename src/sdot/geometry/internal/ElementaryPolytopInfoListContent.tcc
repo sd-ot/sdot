@@ -1,4 +1,4 @@
-#include "ElementaryPolytopInfo.h"
+#include "ElementaryPolytopInfoListContent.h"
 
 ElementaryPolytopInfo::ElementaryPolytopInfo( const std::string &name ) : name( name ) {
     TI n = std::stoi( name );

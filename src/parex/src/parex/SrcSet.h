@@ -12,6 +12,8 @@ public:
     using        VUString                     = VecUnique<std::string>;
     using        MapPathSrc                   = std::map<Path,Src>;
 
+    /**/         SrcSet                       ();
+
     Src&         src                          ( const Path &filename = "main.cpp" );
 
     void         write_files                  ( const Path &directory ) const;

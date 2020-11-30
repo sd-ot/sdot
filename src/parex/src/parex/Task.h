@@ -28,9 +28,9 @@ public:
     static TypeFactory&           type_factory        ();
 
     // output data
-    bool                          output_own;    ///<
     Type*                         output_type;        ///<
     void*                         output_data;        ///<
+    bool                          output_own;         ///<
 
     // graph data
     RefCount                      ref_count;          ///<

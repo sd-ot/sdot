@@ -1,4 +1,4 @@
-#include "GetElementaryPolytopInfoList.h"
+#include "GetElementaryPolytopInfoListContent.h"
 #include <parex/GeneratedLibrarySet.h>
 #include <parex/variable_encode.h>
 #include <parex/CppType.h>
@@ -7,43 +7,47 @@
 
 namespace sdot {
 
-GetElementaryPolytopInfoList::GetElementaryPolytopInfoList( const Rc<Task> &shape_types ) : ComputableTask( { shape_types } ) {
+GetElementaryPolytopInfoListContent::GetElementaryPolytopInfoListContent( const Rc<Task> &shape_types ) : ComputableTask( { shape_types } ) {
 }
 
-void GetElementaryPolytopInfoList::write_to_stream( std::ostream &os ) const {
+void GetElementaryPolytopInfoListContent::write_to_stream( std::ostream &os ) const {
     os << "GetElementaryPolytopInfoList";
 }
 
-void GetElementaryPolytopInfoList::exec() {
+void GetElementaryPolytopInfoListContent::exec() {
     // signature / output type name
     std::string shape_types = *reinterpret_cast<std::string *>( children[ 0 ]->output_data );
     if ( shape_types.empty() )
         ERROR( "" );
-    if ( shape_types[ 0 ] >= '0' && shape_types[ 0 ] <= '9' )
+    if ( shape_types[ 0 ] != '[' )
         shape_types = default_shape_types( std::stoi( shape_types ) );
+    if ( shape_types.back() != ']' )
+        ERROR( "" );
+    shape_types = shape_types.substr( 1, shape_types.size() - 2 );
 
-    std::string sg = "ElementaryPolytopInfoList_" + variable_encode( shape_types );
+    std::string sg = "ElementaryPolytopInfoListContent_" + variable_encode( shape_types );
 
     // create or get the type
     Type *output_type = type_factory().reg_cpp_type( sg, [&]( CppType &ct ) {
-        //
-        // std::vector<ElementaryPolytopInfo> epil = elementary_polytop_info_list( std::istringstream{ shape_types } );
+        // includes
+        ct.includes << "<sdot/geometry/internal/ElementaryPolytopInfoListContent.h>";
+        ct.include_directories << SDOT_DIR "/src";
 
-        //
+        // preliminaries
         std::ostringstream sd;
         sd << "\n";
-        sd << "struct " << sg << " {\n";
-        sd << "    void write_to_stream( std::ostream &os ) const {\n";
+        sd << "struct " << sg << " : ElementaryPolytopInfoListContent {\n";
+        sd << "    /***/        " << sg << "() {\n";
+        write_ctor( sd, std::istringstream{ shape_types }, "\n        " );
+        sd << "    }\n";
+        sd << "    virtual void write_to_stream( std::ostream &os ) const {\n";
         sd << "        os << \"" << sg << "\";\n";
         sd << "    }\n";
-        sd << "    \n";
-        //        for( const ElementaryPolytopInfo &epi : epil )
-        //            sd << "    HomogeneousElementaryPolytopList<" << scalar_type->cpp_name() << "," << index_type->cpp_name() << "," << epi.nb_nodes() << "," << dim << "> sl_" << epi.name << ";\n";
-
         sd << "};\n";
         sd << "\n";
         sd << "inline std::string type_name( S<" << sg << "> ) { return \"" << sg << "\"; };\n";
         ct.preliminaries << sd.str();
+
     } );
 
     // find or create lib
@@ -51,27 +55,32 @@ void GetElementaryPolytopInfoList::exec() {
     DynamicLibrary *lib = gls.get_library( [&]( SrcSet &sw ) {
         Src &src = sw.src( sg + ".cpp" );
 
-        src.include_directories << PAREX_DIR "/src";
         src.includes << "<parex/ComputableTask.h>";
+        output_type->add_needs_in( src );
 
-        src << "extern \"C\" void get_GetElementaryPolytopInfoList( ComputableTask *task ) {\n";
+        src << "extern \"C\" void get_ptr_GetElementaryPolytopInfoListContent( ComputableTask *task ) {\n";
+        src << "    static " << sg << " output_data;\n";
+        src << "    \n";
         src << "    task->output_type = task->type_factory_virtual( \"" << output_type->cpp_name() << "\");\n";
-        src << "    task->output_data = nullptr;\n";
+        src << "    task->output_data = &output_data;\n";
         src << "    task->output_own = false;\n";
         src << "}\n";
     }, sg );
 
     // execute the generated function
-    auto *func = lib->symbol<void( ComputableTask *)>( "get_GetElementaryPolytopInfoList" );
+    auto *func = lib->symbol<void( ComputableTask *)>( "get_ptr_GetElementaryPolytopInfoListContent" );
     func( this );
-
 }
 
-std::string GetElementaryPolytopInfoList::default_shape_types( int dim ) {
-    if ( dim == 3 ) return "CH3S CH3E CH4S";
-    if ( dim == 2 ) return "CH3 CH4 CH5";
+std::string GetElementaryPolytopInfoListContent::default_shape_types( int dim ) {
+    if ( dim == 3 ) return "[3S 3E 4S]";
+    if ( dim == 2 ) return "[3 4 5]";
     TODO;
     return {};
+}
+
+void GetElementaryPolytopInfoListContent::write_ctor( std::ostream &os, std::istringstream &&shape_types, const std::string &sp ) {
+
 }
 
 } // namespace sdot

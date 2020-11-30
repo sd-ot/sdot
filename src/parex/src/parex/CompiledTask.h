@@ -1,8 +1,7 @@
 #pragma once
 
 #include "ComputableTask.h"
-class SrcSet;
-class Src;
+#include "SrcSet.h"
 
 /**
 */

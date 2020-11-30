@@ -1,6 +1,9 @@
 #include "SrcSet.h"
 #include <fstream>
 
+SrcSet::SrcSet() : default_include_directories{ PAREX_DIR "/src" } {
+}
+
 Src &SrcSet::src( const Path &filename ) {
     auto iter = src_map.find( filename );
     if ( iter == src_map.end() )

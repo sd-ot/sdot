@@ -13,23 +13,23 @@ namespace sdot {
 
 SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Value &scalar_type, const Value &index_type, const Value &dim ) {
     //    shape_map = static_cast<Task *>( new CompiledLambdaTask( []( Src &src, SrcSet &/*sw*/, const std::vector<Rc<Task>> &children ) {
-    //        // get output type
-    //        Type *map_type = type_of_shape_map(
-    //            *reinterpret_cast<int *>( children[ 0 ]->output_data ),
-    //            Task::type_factory( *reinterpret_cast<std::string *>( children[ 1 ]->output_data ) ),
-    //            Task::type_factory( *reinterpret_cast<std::string *>( children[ 2 ]->output_data ) ),
-    //            *reinterpret_cast<std::string *>( children[ 3 ]->output_data )
-    //        );
+    //        //        // get output type
+    //        //        Type *map_type = type_of_shape_map(
+    //        //            *reinterpret_cast<int *>( children[ 0 ]->output_data ),
+    //        //            Task::type_factory( *reinterpret_cast<std::string *>( children[ 1 ]->output_data ) ),
+    //        //            Task::type_factory( *reinterpret_cast<std::string *>( children[ 2 ]->output_data ) ),
+    //        //            *reinterpret_cast<std::string *>( children[ 3 ]->output_data )
+    //        //            );
 
-    //        // register
-    //        map_type->add_needs_in( src );
+    //        //        // register
+    //        //        map_type->add_needs_in( src );
 
-    //        // write src
-    //        src << "template<class... A>\n";
-    //        src << "TaskOut<" << map_type->cpp_name() << "> new_shape_map( const A& ... ) {\n";
-    //        src << "    return new " << map_type->cpp_name() << ";\n";
-    //        src << "}\n";
-    //    }, { dim.conv_to<int>(), scalar_type.to_string(), index_type.to_string(), elem_shapes.to_string() }, "new_shape_map" ) );
+    //        //        // write src
+    //        //        src << "template<class... A>\n";
+    //        //        src << "TaskOut<" << map_type->cpp_name() << "> new_shape_map( const A& ... ) {\n";
+    //        //        src << "    return new " << map_type->cpp_name() << ";\n";
+    //        //        src << "}\n";
+    //    }, { elementary_polytop_info.task, scalar_type.to_string(), index_type.to_string(), dim.conv_to<int>() }, "new_shape_map" ) );
 }
 
 void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {

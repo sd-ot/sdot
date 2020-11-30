@@ -7,14 +7,15 @@ namespace sdot {
 
 /**
 */
-class GetElementaryPolytopInfoList : public ComputableTask {
+class GetElementaryPolytopInfoListContent : public ComputableTask {
 public:
-    /***/               GetElementaryPolytopInfoList( const Rc<Task> &shape_types );
-    virtual void        write_to_stream             ( std::ostream &os ) const override;
-    virtual void        exec                        () override;
+    /***/               GetElementaryPolytopInfoListContent( const Rc<Task> &shape_types );
+    virtual void        write_to_stream                    ( std::ostream &os ) const override;
+    virtual void        exec                               () override;
 
 private:
-    static std::string  default_shape_types( int dim );
+    static std::string  default_shape_types                ( int dim );
+    static void         write_ctor                         ( std::ostream &os, std::istringstream &&shape_types, const std::string &sp );
 };
 
 } // namespace sdot

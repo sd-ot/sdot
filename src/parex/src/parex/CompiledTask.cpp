@@ -47,7 +47,7 @@ void CompiledTask::exec() {
 }
 
 std::string CompiledTask::exported_func_name() {
-    return "exported_func";
+    return "kernel";
 }
 
 std::string CompiledTask::called_func_name() {
