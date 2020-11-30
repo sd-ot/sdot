@@ -1,7 +1,6 @@
 #pragma once
 
 #include <parex/Value.h>
-#include "Point.h"
 
 namespace sdot {
 
@@ -20,6 +19,8 @@ public:
     void                   plane_cut              ( const Value &normals, const Value &scalar_products, const Value &cut_ids );
 
 private:
+    static std::string     default_shape_list     ( int dim );
+
     Value                  shape_map;             ///<
 };
 

@@ -1,5 +1,5 @@
 #include "generic_ostream_output.h"
-#include "Tasks/ComputableTask.h"
+#include "ComputableTask.h"
 #include "Scheduler.h"
 #include <iostream>
 #include <map>

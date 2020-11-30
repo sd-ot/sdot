@@ -1,40 +1,39 @@
 #include "../src/sdot/geometry/SetOfElementaryPolytops.h"
-//#include <parex/containers/Vec.h>
-//#include <parex/Scheduler.h>
-#include <cmath>
+#include <parex/containers/xtensor.h>
+#include <parex/Scheduler.h>
+#include <parex/P.h>
 
 using namespace sdot;
 
-using Pt = Point<double,2>;
 using TI = std::uint64_t;
-using TF = Pt::TF;
+using TF = double;
 
 void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
     SetOfElementaryPolytops sp( dim );
     scheduler.log = true;
 
-    // construct
-    sp.add_repeated( "3", nb_triangles,
-        Vec<TF>{ 0, 0, 1, 0, 0, 1 },
-        Vec<TI>{ 0, 1, 2 }
-    );
+    //    // construct
+    //    sp.add_repeated( "3", nb_triangles,
+    //        Vec<TF>{ 0, 0, 1, 0, 0, 1 },
+    //        Vec<TI>{ 0, 1, 2 }
+    //    );
 
-    // cut
-    Tensor<TF> normals( { nb_triangles, dim } );
-    Vec<TF> scalar_products( nb_triangles );
-    Vec<TI> new_face_ids( nb_triangles );
-    for( std::size_t i = 0; i < nb_triangles; ++i ) {
-        TF a = 2 * M_PI * i / nb_triangles;
-        Pt p = { std::cos( a ), std::sin( a ) };
+    //    // cut
+    //    Tensor<TF> normals( { nb_triangles, dim } );
+    //    Vec<TF> scalar_products( nb_triangles );
+    //    Vec<TI> new_face_ids( nb_triangles );
+    //    for( std::size_t i = 0; i < nb_triangles; ++i ) {
+    //        TF a = 2 * M_PI * i / nb_triangles;
+    //        Pt p = { std::cos( a ), std::sin( a ) };
 
-        scalar_products[ i ] = dot( p, Pt{ 0.33, 0.33 } );
-        normals.ptr( 0 )[ i ] = p[ 0 ];
-        normals.ptr( 1 )[ i ] = p[ 1 ];
-        new_face_ids[ i ] = 100 + i;
-    }
+    //        scalar_products[ i ] = dot( p, Pt{ 0.33, 0.33 } );
+    //        normals.ptr( 0 )[ i ] = p[ 0 ];
+    //        normals.ptr( 1 )[ i ] = p[ 1 ];
+    //        new_face_ids[ i ] = 100 + i;
+    //    }
 
-    sp.plane_cut( normals, scalar_products, new_face_ids );
-    sp.display_vtk( "cut.vtk" );
+    //    sp.plane_cut( normals, scalar_products, new_face_ids );
+    //    sp.display_vtk( "cut.vtk" );
     P( sp );
 }
 

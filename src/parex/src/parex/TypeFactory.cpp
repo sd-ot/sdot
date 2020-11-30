@@ -37,6 +37,18 @@ Type *TypeFactory::operator()( const std::string &name ) {
     return iter->second.get();
 }
 
+Type *TypeFactory::reg_cpp_type( const std::string &name, const std::function<void(CppType &)> &f ) {
+    auto iter = type_map.find( name );
+    if ( iter == type_map.end() ) {
+        auto res = std::make_unique<CppType>( name );
+        f( *res );
+
+        iter = type_map.insert( iter, { name, std::move( res ) } );
+    }
+
+    return iter->second.get();
+}
+
 std::unique_ptr<Type> TypeFactory::make_type_info( const std::string &name ) {
     // it's a pointer ?
     if ( name.size() && name[ name.size() - 1 ] == '*' )

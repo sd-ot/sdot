@@ -13,7 +13,7 @@ void GenericArithmeticOperation::get_src_content( Src &src, SrcSet &/*sw*/ ) {
     src.includes << "<parex/P.h>";
 
     src << "template<class T>\n";
-    src << "TaskOut<T> " << func_name() << "( TaskOut<T> &a, TaskOut<T> &b ) {\n";
+    src << "TaskOut<T> " << called_func_name() << "( TaskOut<T> &a, TaskOut<T> &b ) {\n";
     //    src << "    if ( t->move_arg( 0 ) )\n";
     //    src << "        return a " << name_op << "= b, nullptr;\n";
     //    src << "    if ( t->move_arg( 1 ) )\n";

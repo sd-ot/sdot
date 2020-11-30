@@ -2,6 +2,7 @@
 
 #include "Type.h"
 #include <map>
+class CppType;
 
 /**
 */
@@ -11,6 +12,8 @@ public:
     virtual      ~TypeFactory   ();
 
     virtual Type* operator()    ( const std::string &name );
+
+    Type*         reg_cpp_type  ( const std::string &name, const std::function<void(CppType &)> &f );
 
 private:
     using         TypePtr       = std::unique_ptr<Type>;

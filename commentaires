@@ -82,4 +82,5 @@ Prop: TypedOutput<T>{ T *data; std::size_t ref_count; }
 mais pour conversion vers output, il faudrait Output { void *data; std::size_t *ref_count; std::string type; }
 
 ========================================================================================================================================
-Pb: 
+Pb: il faut créer une structure ShapeMap_... avec les paramètres 
+  
