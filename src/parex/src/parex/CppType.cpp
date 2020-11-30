@@ -1,9 +1,9 @@
-#include "GeneratedLibrarySet.h"
+#include "GeneratedSymbolSet.h"
 #include "CppType.h"
 #include "P.h"
 
 CppType::CppType( std::string name, VecUnique<std::string> include_directories, VecUnique<std::string> includes, VecUnique<std::string> preliminaries, std::vector<Type *> &&sub_types ) :
-    include_directories( include_directories ), preliminaries( preliminaries ), sub_types( std::move( sub_types ) ), includes( includes ), name( name ) {
+    include_directories( include_directories ), destructor_func( nullptr ), preliminaries( preliminaries ), sub_types( std::move( sub_types ) ), includes( includes ), name( name ) {
 }
 
 Type::UPType CppType::copy_with_sub_type( std::string name, std::vector<Type *> &&sub_types ) const {
@@ -41,14 +41,14 @@ std::string CppType::cpp_name() const {
 
 void CppType::destroy( void *data ) const {
     if ( ! destructor_func ) {
-        static GeneratedLibrarySet destructors( ".generated_libs/destroy" );
-        destructor_func = { destructors.get_library( [&]( SrcSet &sw ) {
+        static GeneratedSymbolSet destructors( ".generated_libs/destroy" );
+        destructor_func = destructors.get_symbol<void(void *)>( [&]( SrcSet &sw ) {
             Src &src = sw.src( "destroy.cpp" );
             add_needs_in( src );
 
             src << "extern \"C\" void destroy( void *data ) { delete reinterpret_cast<" << cpp_name() << " *>( data ); }";
-        }, /*summary*/ cpp_name() ), "destroy" };
+        }, /*summary*/ cpp_name(), "destroy" );
     }
 
-    destructor_func.symbol( data );
+    destructor_func( data );
 }

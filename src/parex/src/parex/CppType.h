@@ -1,6 +1,5 @@
 #pragma once
 
-#include "DynamicSymbol.h"
 #include "VecUnique.h"
 #include "Type.h"
 
@@ -21,7 +20,7 @@ public:
     virtual void                        destroy                   ( void *data ) const override;
 
     VecUnique<std::string>              include_directories;      ///<
-    mutable DynamicSymbol<void(void *)> destructor_func;          ///<
+    mutable VoidPtrFunc*                destructor_func;          ///<
     VecUnique<std::string>              preliminaries;            ///<
     std::vector<Type *>                 sub_types;                ///<
     VecUnique<std::string>              includes;                 ///<

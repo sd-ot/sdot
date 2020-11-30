@@ -1,4 +1,4 @@
-#include "GeneratedLibrarySet.h"
+#include "GeneratedSymbolSet.h"
 #include "CompiledTask.h"
 
 CompiledTask::CompiledTask( std::vector<Rc<Task>> &&children, double priority ) : ComputableTask( std::move( children ), priority ) {
@@ -6,8 +6,8 @@ CompiledTask::CompiledTask( std::vector<Rc<Task>> &&children, double priority ) 
 
 void CompiledTask::exec() {
     // find or create in a static map
-    static GeneratedLibrarySet gls;
-    DynamicLibrary *lib = gls.get_library( [&]( SrcSet &sw ) {
+    static GeneratedSymbolSet gls;
+    auto *func = gls.get_symbol<void( CompiledTask *)>( [&]( SrcSet &sw ) {
         Src &src = sw.src( called_func_name() + ".cpp" );
         src.include_directories << PAREX_DIR "/src";
         src.cpp_flags << "-std=c++17" << "-g3";
@@ -39,10 +39,9 @@ void CompiledTask::exec() {
         src << "extern \"C\" void " << exported_func_name() << "( CompiledTask *task ) {\n";
         src << "    task->run_kernel_wrapper( KernelWrapper() );\n";
         src << "}\n";
-    }, summary() );
+    }, summary(), exported_func_name() );
 
-    // execute the generated function
-    auto *func = lib->symbol<void( CompiledTask *)>( exported_func_name() );
+    // call
     func( this );
 }
 

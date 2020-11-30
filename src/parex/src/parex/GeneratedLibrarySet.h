@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DynamicLibrary.h"
+#include <unordered_map>
 #include <functional>
 #include "SrcSet.h"
 
@@ -15,7 +16,7 @@ public:
     DynamicLibrary* get_library        ( const std::function<void(SrcSet&)> &src_writer, const std::string &summary_of_parameters = {}, SrcSet &&src_set = {} );
 
 private:
-    using           LibMap             = std::map<std::string,DynamicLibrary>;
+    using           LibMap             = std::unordered_map<std::string,DynamicLibrary>;
 
     DynamicLibrary  load_or_make       ( const std::function<void(SrcSet&)> &src_writer, const std::string &summary_of_parameters, SrcSet &&src_set );
     void            compile_lib        ( const std::string &shash, const SrcSet &src_set );

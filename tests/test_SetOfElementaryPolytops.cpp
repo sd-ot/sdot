@@ -7,17 +7,25 @@ using namespace sdot;
 using TI = std::uint64_t;
 using TF = double;
 
-void test_triangle( TI dim = 2, TI /*nb_triangles*/ = 15 ) {
+void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
     ElementaryPolytopInfoList epil( dim );
     SetOfElementaryPolytops sp( epil );
     //    scheduler.log = true;
-    P( sp );
+    PN( sp );
 
-    //    // construct
-    //    sp.add_repeated( "3", nb_triangles,
-    //        Vec<TF>{ 0, 0, 1, 0, 0, 1 },
-    //        Vec<TI>{ 0, 1, 2 }
-    //    );
+    // construct
+    sp.add_repeated( "3", nb_triangles,
+        xt::xarray<TF>{
+            { 0.0, 0.0 },
+            { 1.0, 0.0 },
+            { 0.0, 1.0 }
+        },
+        xt::xarray<TF>{
+            0,
+            1,
+            2
+        }
+    );
 
     //    // cut
     //    Tensor<TF> normals( { nb_triangles, dim } );

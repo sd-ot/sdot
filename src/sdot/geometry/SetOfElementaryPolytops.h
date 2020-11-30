@@ -4,6 +4,8 @@
 #include <parex/containers/xtensor.h>
 #include <parex/Value.h>
 
+class ElementaryPolytopInfoListContent;
+
 namespace sdot {
 
 /**
@@ -21,6 +23,8 @@ public:
     void                   plane_cut              ( const Value &normals, const Value &scalar_products, const Value &cut_ids );
 
 private:
+    static Type*           shape_map_type         ( const std::string &type_name, const ElementaryPolytopInfoListContent *epil, Type *scalar_type, Type *index_type, int dim );
+
     Rc<Task>               shape_map;             ///<
 };
 

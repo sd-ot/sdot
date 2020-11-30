@@ -1,7 +1,7 @@
 #include "internal/SymbolicElementaryPolytop.h"
 #include "ElementaryPolytopInfoList.h"
 
-#include <parex/GeneratedLibrarySet.h>
+#include <parex/GeneratedSymbolSet.h>
 #include <parex/ComputableTask.h>
 #include <parex/CppType.h>
 #include <parex/TODO.h>
@@ -11,7 +11,6 @@ namespace sdot {
 ElementaryPolytopInfoList::ElementaryPolytopInfoList( const Value &dim_or_shape_types ) {
     struct GetElementaryPolytopInfoList : ComputableTask {
         GetElementaryPolytopInfoList( Rc<Task> &&shape_types ) : ComputableTask( { std::move( shape_types ) } ) {
-
         }
 
         virtual void write_to_stream( std::ostream &os ) const override {
@@ -19,7 +18,7 @@ ElementaryPolytopInfoList::ElementaryPolytopInfoList( const Value &dim_or_shape_
         }
 
         virtual void exec() override {
-            // output type
+            // set the output type
             output_type = type_factory().reg_cpp_type( "ElementaryPolytopInfoListContent", []( CppType &ct ) {
                 ct.includes << "<sdot/geometry/internal/ElementaryPolytopInfoListContent.h>";
                 ct.include_directories << SDOT_DIR "/src";
@@ -29,8 +28,8 @@ ElementaryPolytopInfoList::ElementaryPolytopInfoList( const Value &dim_or_shape_
             std::string shape_types = *reinterpret_cast<const std::string *>( children[ 0 ]->output_data );
 
             // find or create lib
-            static GeneratedLibrarySet gls;
-            DynamicLibrary *lib = gls.get_library( [&]( SrcSet &sw ) {
+            static GeneratedSymbolSet gls;
+            auto *func = gls.get_symbol<void( ComputableTask *)>( [&]( SrcSet &sw ) {
                 Src &src = sw.src( "get_ElementaryPolytopInfoList.cpp" );
                 // src.cpp_flags << "-std=c++17" << "-g3";
                 src.includes << "<parex/ComputableTask.h>";
@@ -45,7 +44,7 @@ ElementaryPolytopInfoList::ElementaryPolytopInfoList( const Value &dim_or_shape_
                 src << "}\n";
 
                 src << "\n";
-                src << "extern \"C\" void kernel( ComputableTask *task ) {\n";
+                src << "extern \"C\" void exported( ComputableTask *task ) {\n";
                 src << "    static Epil res;\n";
                 src << "    task->output_data = &res;\n";
                 src << "    task->output_own = false;\n";
@@ -53,7 +52,6 @@ ElementaryPolytopInfoList::ElementaryPolytopInfoList( const Value &dim_or_shape_
             }, shape_types );
 
             // execute the generated function to get the output_data
-            auto *func = lib->symbol<void( ComputableTask *)>( "kernel" );
             func( this );
         }
 
