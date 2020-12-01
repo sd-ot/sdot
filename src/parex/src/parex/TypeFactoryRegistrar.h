@@ -1,20 +1,16 @@
 #pragma once
 
-#include "VecUnique.h"
-#include <string>
+#include "CompilationEnvironment.h"
 
 /**
 */
 class TypeFactoryRegistrar {
 public:
-    /**/                   TypeFactoryRegistrar( std::string name, VecUnique<std::string> includes = {}, VecUnique<std::string> preliminaries = {}, VecUnique<std::string> include_directories = {} );
-
-    std::string            name;
-    VecUnique<std::string> includes;
-    VecUnique<std::string> preliminaries;
-    VecUnique<std::string> include_directories;
+    /**/                   TypeFactoryRegistrar( std::string name, const CompilationEnvironment &compilation_environment );
 
     TypeFactoryRegistrar*  prev_type_factory_registrar;
+    CompilationEnvironment compilation_environment;
+    std::string            name;
 };
 
 extern TypeFactoryRegistrar *last_type_factory_registrar;

@@ -80,23 +80,36 @@ Type *SetOfElementaryPolytops::shape_map_type( const std::string &type_name, con
         ct.sub_types.push_back( scalar_type );
         ct.sub_types.push_back( index_type );
 
-        // preliminaries
+        // def struct in preliminaries
         std::ostringstream pr;
         pr << "struct " << type_name << " {\n";
         pr << "    using TF = " << scalar_type->cpp_name() << ";\n";
         pr << "    using TI = " << index_type->cpp_name() << ";\n";
         pr << "    using HL = HomogeneousElementaryPolytopList<TF,TI>;\n";
+
+        // ctor
+        pr << "    \n";
+        pr << "    " << type_name << "() {\n";
+        for( const ElementaryPolytopInfo &elem : epil->elem_info )
+            pr << "        _" << elem.name << ".resize(  );\n";
+        pr << "    }\n";
+
+        // operator[]
         pr << "    \n";
         pr << "    HL *operator[]( const std::string &name ) const {\n";
         for( const ElementaryPolytopInfo &elem : epil->elem_info )
             pr << "        if ( name == \"" << elem.name << "\" ) return &_" << elem.name << ";\n";
         pr << "        return nullptr;\n";
         pr << "    }\n";
+
+        // write_to_stream
         pr << "    \n";
         pr << "    void write_to_stream( std::ostream &os ) const {\n";
         for( const ElementaryPolytopInfo &elem : epil->elem_info )
             pr << "        _" << elem.name << ".write_to_stream( os << \"" << elem.name << ":\", \"\\n  \" ); os << '\\n';\n";
         pr << "    }\n";
+
+        // attributes
         pr << "    \n";
         for( const ElementaryPolytopInfo &elem : epil->elem_info )
             pr << "    HL _" << elem.name << ";\n";
