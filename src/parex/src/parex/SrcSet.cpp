@@ -14,7 +14,8 @@ Src &SrcSet::src( const Path &filename ) {
 
 void SrcSet::write_files( const Path &directory ) const {
     for( const auto &p : src_map ) {
-        std::ofstream fout( directory / p.first );
+        Path name = directory / p.first;
+        std::ofstream fout( name );
         p.second.write_to( fout );
     }
 }

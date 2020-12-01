@@ -74,14 +74,18 @@ void GeneratedLibrarySet::make_cmake( const Path &src_path, const std::string &s
     std::ofstream os( src_path / "CMakeLists.txt" );
 
     //
+    VecUnique<std::string> cxxs;
+    for( const auto &p : src_set.src_map )
+        cxxs << p.second.compilation_environment.cxx;
 
-
-
+    //
     os << "cmake_minimum_required(VERSION 3.0)\n";
     os << "project(" << shash << " LANGUAGES CXX";
+    if ( cxxs.contains( "nvcc" ) )
+        os << " CUDA";
     os << ")\n";
 
-    // roject(cmake_and_cuda CUDA)
+    // project(cmake_and_cuda CUDA)
     os << "\n";
     os << "add_library(" << shash << " SHARED\n";
     for( const auto &p : src_set.src_map )

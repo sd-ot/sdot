@@ -11,8 +11,13 @@ public:
     using std::vector<T>::vector;
 
     template<class U>
+    bool contains( const U &value ) const {
+        return std::find( this->begin(), this->end(), value ) != this->end();
+    }
+
+    template<class U>
     VecUnique &operator<<( U &&value ) {
-        if ( std::find( this->begin(), this->end(), value ) == this->end() )
+        if ( ! contains( value ) )
             this->push_back( std::forward<U>( value ) );
         return *this;
     }
