@@ -45,7 +45,7 @@ SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoLis
             auto *func = gls.get_symbol<void( ComputableTask *)>( [&]( SrcSet &sw ) {
                 Src &src = sw.src( "get_NewShapeMap.cpp" );
 
-                src.includes << "<parex/ComputableTask.h>";
+                src.compilation_environment.includes << "<parex/ComputableTask.h>";
                 output_type->add_needs_in( src );
 
                 src << "\n";
@@ -92,7 +92,6 @@ Type *SetOfElementaryPolytops::shape_map_type( const std::string &type_name, con
         //
         std::string allocator_TF = dst->allocator( ct.compilation_environment, scalar_type );
         std::string allocator_TI = dst->allocator( ct.compilation_environment, index_type );
-
 
         // def struct in preliminaries
         std::ostringstream pr;

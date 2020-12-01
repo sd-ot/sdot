@@ -2,33 +2,18 @@
 #include "CppType.h"
 #include "P.h"
 
-CppType::CppType( std::string name, const CompilationEnvironment &compilation_environment, std::vector<Type *> &&sub_types ) :
-    compilation_environment( compilation_environment ), destructor_func( nullptr ), sub_types( std::move( sub_types ) ), name( name ) {
+CppType::CppType( std::string name, const CompilationEnvironment &compilation_environment, std::vector<Type *> &&sub_types ) : destructor_func( nullptr ), sub_types( std::move( sub_types ) ), name( name ) {
+    this->compilation_environment = compilation_environment;
 }
 
 Type::UPType CppType::copy_with_sub_type( std::string name, std::vector<Type *> &&sub_types ) const {
     return std::make_unique<CppType>( name, compilation_environment, std::move( sub_types ) );
 }
 
-void CppType::for_each_include_directory( const std::function<void (std::string)> &cb ) const {
+void CppType::for_each_type_rec( const std::function<void(const Type *)> &cb ) const {
     for( Type *sub_type : sub_types )
-        sub_type->for_each_include_directory( cb );
-    for( const auto &p : compilation_environment.include_directories )
-        cb( p );
-}
-
-void CppType::for_each_prelim( const std::function<void(std::string)> &cb ) const {
-    for( Type *sub_type : sub_types )
-        sub_type->for_each_prelim( cb );
-    for( const auto &p : compilation_environment.preliminaries )
-        cb( p );
-}
-
-void CppType::for_each_include( const std::function<void(std::string)> &cb ) const {
-    for( Type *sub_type : sub_types )
-        sub_type->for_each_include( cb );
-    for( const auto &p : compilation_environment.includes )
-        cb( p );
+        cb( sub_type );
+    cb( this );
 }
 
 void CppType::write_to_stream( std::ostream &os ) const {

@@ -16,4 +16,11 @@ public:
             this->push_back( std::forward<U>( value ) );
         return *this;
     }
+
+    template<class U>
+    VecUnique &operator<<( const VecUnique<U> &values ) {
+        for( const U &value : values )
+            operator<<( value );
+        return *this;
+    }
 };

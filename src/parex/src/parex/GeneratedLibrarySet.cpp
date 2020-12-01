@@ -83,22 +83,30 @@ void GeneratedLibrarySet::make_cmake( const Path &src_path, const std::string &s
     os << ")";
 
     os << "\n";
+    VecUnique<std::string> libs;
     for( const auto &p : src_set.src_map ) {
-        if ( ! p.second.cpp_flags.empty() ) {
+        if ( ! p.second.compilation_environment.cpp_flags.empty() ) {
             os << "\nset_property(SOURCE " << p.first.string() << " PROPERTY COMPILE_OPTIONS";
-            for( const auto &cpp_flag : p.second.cpp_flags )
+            for( const auto &cpp_flag : p.second.compilation_environment.cpp_flags )
                 os << " " << cpp_flag;
             os << ")";
         }
 
-        if ( ! p.second.include_directories.empty() ) {
+        if ( ! p.second.compilation_environment.include_directories.empty() ) {
             os << "\nset_property(SOURCE " << p.first.string() << " PROPERTY INCLUDE_DIRECTORIES";
-            for( const auto &include_directory : p.second.include_directories )
+            for( const auto &include_directory : p.second.compilation_environment.include_directories )
                 os << "\n    " << std::filesystem::absolute( include_directory ).string();
             os << "\n)";
         }
+
+        libs << p.second.compilation_environment.libraries;
     }
 
+    os << "\n";
+    os << "target_link_libraries(" << shash;
+    for( const auto &lib : libs )
+        os << "\n    " << lib;
+    os << ")\n";
     os << "\n";
     os << "install(TARGETS " << shash << " DESTINATION .)\n";
 }

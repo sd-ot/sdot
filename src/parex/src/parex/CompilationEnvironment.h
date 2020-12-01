@@ -6,10 +6,21 @@
 /*
 */
 struct CompilationEnvironment {
-    VecUnique<std::string> includes;
-    VecUnique<std::string> preliminaries;
-    VecUnique<std::string> include_directories;
+    using VS        = VecUnique<std::string>;
 
-    VecUnique<std::string> cmake_packages;
-    VecUnique<std::string> cmake_libraries;
+    void  operator+=( const CompilationEnvironment &that ) {
+        includes << that.includes;
+        cpp_flags << that.cpp_flags;
+        libraries << that.libraries;
+        preliminaries << that.preliminaries;
+        cmake_packages << that.cmake_packages;
+        include_directories << that.include_directories;
+    }
+
+    VS    includes;
+    VS    cpp_flags;
+    VS    libraries;
+    VS    preliminaries;
+    VS    cmake_packages;
+    VS    include_directories;
 };

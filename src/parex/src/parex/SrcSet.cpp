@@ -1,13 +1,14 @@
 #include "SrcSet.h"
 #include <fstream>
 
-SrcSet::SrcSet() : default_include_directories{ PAREX_DIR "/src" } {
+SrcSet::SrcSet() {
+    compilation_environment.include_directories << PAREX_DIR "/src";
 }
 
 Src &SrcSet::src( const Path &filename ) {
     auto iter = src_map.find( filename );
     if ( iter == src_map.end() )
-        iter = src_map.insert( iter, { filename, Src{ default_include_directories, default_cpp_flags, default_includes, default_prelims } } );
+        iter = src_map.insert( iter, { filename, Src{ compilation_environment } } );
     return iter->second;
 }
 

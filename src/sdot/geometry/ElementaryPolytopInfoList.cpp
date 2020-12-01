@@ -31,8 +31,9 @@ ElementaryPolytopInfoList::ElementaryPolytopInfoList( const Value &dim_or_shape_
             static GeneratedSymbolSet gls;
             auto *func = gls.get_symbol<void( ComputableTask *)>( [&]( SrcSet &sw ) {
                 Src &src = sw.src( "get_ElementaryPolytopInfoList.cpp" );
+
                 // src.cpp_flags << "-std=c++17" << "-g3";
-                src.includes << "<parex/ComputableTask.h>";
+                src.compilation_environment.includes << "<parex/ComputableTask.h>";
                 output_type->add_needs_in( src );
 
                 src << "namespace {\n";

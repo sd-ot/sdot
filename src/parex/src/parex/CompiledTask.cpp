@@ -9,9 +9,10 @@ void CompiledTask::exec() {
     static GeneratedSymbolSet gls;
     auto *func = gls.get_symbol<void( CompiledTask *)>( [&]( SrcSet &sw ) {
         Src &src = sw.src( called_func_name() + ".cpp" );
-        src.include_directories << PAREX_DIR "/src";
-        src.cpp_flags << "-std=c++17" << "-g3";
-        src.includes << "<parex/CompiledTask.h>";
+
+        src.compilation_environment.include_directories << PAREX_DIR "/src";
+        src.compilation_environment.cpp_flags << "-std=c++17" << "-g3";
+        src.compilation_environment.includes << "<parex/CompiledTask.h>";
 
         // includes for types
         for( const Rc<Task> &ch : children )
