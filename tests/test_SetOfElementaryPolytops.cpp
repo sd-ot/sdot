@@ -27,8 +27,6 @@ void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
         }
     );
 
-    PN( sp );
-
     //    // cut
     //    Tensor<TF> normals( { nb_triangles, dim } );
     //    Vec<TF> scalar_products( nb_triangles );
@@ -44,8 +42,8 @@ void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
     //    }
 
     //    sp.plane_cut( normals, scalar_products, new_face_ids );
-    //    sp.display_vtk( "cut.vtk" );
-    //    P( sp );
+    sp.display_vtk( "cut.vtk" );
+    P( sp );
 }
 
 //void test_quad( TI dim = 2, TI nb_quads = 36 ) {

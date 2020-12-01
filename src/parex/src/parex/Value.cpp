@@ -35,7 +35,7 @@ Value &Value::operator*=( const Value &that ) { task = new GenericArithmeticOper
 Value &Value::operator/=( const Value &that ) { task = new GenericArithmeticOperation( "/", { task, that.task } ); return *this; }
 
 Rc<Task> Value::to_string( double priority ) const {
-    return static_cast<Task *>( new CompiledIncludeTask( "parex/kernels/to_string.h", { task }, {}, priority ) );
+    return new CompiledIncludeTask( "parex/kernels/to_string.h", { task }, {}, priority );
 }
 
 Rc<Task> Value::conv_to( Type *type ) const {

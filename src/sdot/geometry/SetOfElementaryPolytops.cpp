@@ -144,4 +144,10 @@ void SetOfElementaryPolytops::add_repeated( const Value &shape_name, const Value
     shape_map = new CompiledIncludeTask( "sdot/geometry/internal/add_repeated.h", { shape_map, shape_name.task, count.task, coordinates.task, face_ids.task, beg_ids.task } );
 }
 
+void SetOfElementaryPolytops::display_vtk( const Value &filename ) const {
+    Rc<Task> ts = new CompiledIncludeTask( "sdot/geometry/internal/display_vtk.h", { shape_map, filename.task }, {}, std::numeric_limits<double>::max() );
+    scheduler.append( ts );
+    scheduler.run();
+}
+
 } // namespace sdot
