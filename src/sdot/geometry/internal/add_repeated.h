@@ -9,10 +9,12 @@
 
 #include <sstream>
 
-template<class TF,class TI,class TC,class A,class B,class TB>
-void add_repeated_( HomogeneousElementaryPolytopList<TF,TI> &hl, TC count, const A &coordinates, const B &face_ids, TB beg_ids ) {
+template<class AF,class AI,class TC,class A,class B,class TB>
+void add_repeated_( HomogeneousElementaryPolytopList<AF,AI> &hl, AF &allocator_TF, AI &allocator_TI, TC count, const A &coordinates, const B &face_ids, TB beg_ids ) {
+    using TI = typename AI::value_type;
+
     TI os = hl.size(), ns = os + count;
-    hl.resize( ns );
+    hl.resize( allocator_TF, allocator_TI, ns );
 
     for( TI i = 0; i < hl.nb_nodes(); ++i )
         for( TI d = 0; d < hl.dim(); ++d )
@@ -24,6 +26,6 @@ void add_repeated_( HomogeneousElementaryPolytopList<TF,TI> &hl, TC count, const
 
 template<class ShapeMap,class TI,class A,class B,class C>
 TaskOut<ShapeMap> add_repeated( TaskOut<ShapeMap> &shape_map, TaskOut<std::string> &shape_name, TaskOut<TI> &count, TaskOut<A> &coordinates, TaskOut<B> &face_ids, TaskOut<C> &beg_ids ) {
-    add_repeated_( *(*shape_map)[ *shape_name ], *count, *coordinates, *face_ids, *beg_ids );
+    add_repeated_( *shape_map->sub_list( *shape_name ), shape_map->allocator_TF, shape_map->allocator_TI, *count, *coordinates, *face_ids, *beg_ids );
     return std::move( shape_map );
 }

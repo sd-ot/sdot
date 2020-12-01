@@ -1,14 +1,14 @@
 #include "HomogeneousElementaryPolytopList.h"
 
-template<class TF,class TI>
-HomogeneousElementaryPolytopList<TF,TI>::HomogeneousElementaryPolytopList( TI nb_nodes, TI nb_faces, TI dim, TI rese_items ) {
-    positions.resize( { nb_nodes, dim, rese_items } );
-    face_ids.resize( { nb_faces, rese_items } );
-    ids.resize( { rese_items } );
+template<class AF,class AI>
+HomogeneousElementaryPolytopList<AF,AI>::HomogeneousElementaryPolytopList( AF &allocator_TF, AI &allocator_TI, TI nb_nodes, TI nb_faces, TI dim, TI rese_items ) {
+    positions.resize( allocator_TF, nb_nodes, dim, rese_items );
+    face_ids.resize( allocator_TI, nb_faces, rese_items );
+    ids.resize( allocator_TI, rese_items );
 }
 
-template<class TF, class TI>
-void HomogeneousElementaryPolytopList<TF,TI>::write_to_stream( std::ostream &os, const std::string &sp ) const {
+template<class AF,class AI>
+void HomogeneousElementaryPolytopList<AF,AI>::write_to_stream( std::ostream &os, const std::string &sp ) const {
     for( TI num_item = 0; num_item < size(); ++num_item ) {
         os << sp;
         for( TI num_node = 0; num_node < nb_nodes(); ++num_node ) {
@@ -27,9 +27,9 @@ void HomogeneousElementaryPolytopList<TF,TI>::write_to_stream( std::ostream &os,
     }
 }
 
-template<class TF, class TI>
-void HomogeneousElementaryPolytopList<TF,TI>::resize( TI new_size ) {
-    positions.resize( { nb_nodes(), dim(), new_size } );
-    face_ids.resize( { nb_faces(), new_size } );
-    ids.resize( { new_size } );
+template<class AF,class AI>
+void HomogeneousElementaryPolytopList<AF,AI>::resize( AF &allocator_TF, AI &allocator_TI, TI new_size ) {
+    positions.resize( allocator_TF, nb_nodes(), dim(), new_size );
+    face_ids.resize( allocator_TI, nb_faces(), new_size );
+    ids.resize( allocator_TI, new_size );
 }

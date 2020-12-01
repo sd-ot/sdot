@@ -6,11 +6,11 @@
 */
 class TypeFactoryRegistrar {
 public:
-    /**/                   TypeFactoryRegistrar( std::string name, const CompilationEnvironment &compilation_environment );
+    /**/                     TypeFactoryRegistrar( std::vector<std::string> names, const CompilationEnvironment &compilation_environment );
 
-    TypeFactoryRegistrar*  prev_type_factory_registrar;
-    CompilationEnvironment compilation_environment;
-    std::string            name;
+    TypeFactoryRegistrar*    prev_type_factory_registrar;
+    CompilationEnvironment   compilation_environment;
+    std::vector<std::string> names;
 };
 
 extern TypeFactoryRegistrar *last_type_factory_registrar;

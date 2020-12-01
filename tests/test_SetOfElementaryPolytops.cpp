@@ -14,12 +14,12 @@ void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
 
     // construct
     sp.add_repeated( "3", nb_triangles,
-        xt::xarray<TF>{
+        xt::xtensor<TF,2>{
             { 0.0, 0.0 },
             { 1.0, 0.0 },
             { 0.0, 1.0 }
         },
-        xt::xarray<TF>{
+        xt::xtensor<TF,1>{
             0,
             1,
             2

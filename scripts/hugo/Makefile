@@ -3,6 +3,7 @@ NSMAKE += -DPAREX_DIR=\"`pwd`/src/parex\"
 NSMAKE += -DSDOT_DIR=\"`pwd`\"
 NSMAKE += --cpp-flag -std=c++17
 NSMAKE += -Isrc/parex/src
+NSMAKE += -Isrc/asimd/src
 NSMAKE += -Isrc
 NSMAKE += -g3
 
@@ -14,7 +15,8 @@ all:
 	# ${NSMAKE} tests/parex/test_CompiledTask.cpp
 	# ${NSMAKE} tests/parex/test_Value.cpp
 	# ${NSMAKE} tests/test_ElementaryPolytopInfo.cpp
-	${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
+	# ${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
+	${NSMAKE} tests/parex/test_gtensor.cpp
 
 c:
 	rm -rf .generated_libs

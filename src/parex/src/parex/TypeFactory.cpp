@@ -26,7 +26,8 @@ TypeFactory::~TypeFactory() {
 Type *TypeFactory::operator()( const std::string &name ) {
     // types that have to be registered
     while( TypeFactoryRegistrar *r = last_type_factory_registrar ) {
-        type_map[ r->name ] = std::make_unique<CppType>( r->name, r->compilation_environment );
+        for( const std::string &name : r->names )
+            type_map[ name ] = std::make_unique<CppType>( name, r->compilation_environment );
         last_type_factory_registrar = r->prev_type_factory_registrar;
     }
 
