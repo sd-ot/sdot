@@ -2,7 +2,7 @@
 
 #include "ElementaryPolytopInfoList.h"
 #include <parex/containers/xtensor.h>
-#include <parex/Memory.h>
+#include <parex/MemoryCpu.h>
 #include <parex/Value.h>
 
 class ElementaryPolytopInfoListContent;
@@ -13,9 +13,9 @@ namespace sdot {
 */
 class SetOfElementaryPolytops {
 public:
-    using                  TI                     = std::size_t;
+    struct                 Parm                   { const Value &scalar_type = "FP64"; const Value &index_type = "PI64"; Memory *dst = nullptr; const Value &dim = 0; };
 
-    /**/                   SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Value &scalar_type = "FP64", const Value &index_type = "PI64", Memory *dst = nullptr, const Value &dim = 0 );
+    /**/                   SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Parm &types );
 
     void                   write_to_stream        ( std::ostream &os ) const;
     void                   display_vtk            ( const Value &filename ) const;

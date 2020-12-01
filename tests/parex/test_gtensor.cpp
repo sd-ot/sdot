@@ -8,16 +8,17 @@
 /// nsmake cxx_name nvcc
 
 int main() {
-    using Al = asimd::AlignedAllocator<double,64>;
+    //    using Al = asimd::GpuAllocator<double>;
+    using Al = asimd::GpuAllocator<double>;
     Al al;
 
     gtensor<double,3,Al> t;
     t.resize( al, 2, 3, 4 );
     P( t.shape() );
 
-    for( std::size_t i = 0; i < 8*3*2; ++i )
-        t.data()[ i ] = i;
+    for( std::size_t i = 0; i < t.shape( 0 ); ++i )
+        for( std::size_t j = 0; j < t.shape( 1 ); ++j )
+            asimd::assign_scalar( t.data( i, j, 0 ), 10 * i + j, 4 );
 
-    asimd::assign_scalar( t.data( 0, 0, 0 ), 17.0, 4 );
     P( t );
 }

@@ -12,6 +12,8 @@ public:
     virtual std::string allocator( CompilationEnvironment &compilation_environment, Type *type ) const override;
     virtual std::string name     () const override;
 
+    static MemoryGpu*   gpu      ( int num );
+
     int                 num_gpu = 0;
 };
 

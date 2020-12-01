@@ -1,4 +1,5 @@
 #include "../src/sdot/geometry/SetOfElementaryPolytops.h"
+#include <parex/MemoryGpu.h>
 #include <parex/Scheduler.h>
 #include <parex/P.h>
 
@@ -9,7 +10,7 @@ using TF = double;
 
 void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
     ElementaryPolytopInfoList epil( dim );
-    SetOfElementaryPolytops sp( epil );
+    SetOfElementaryPolytops sp( epil, { .dst = MemoryGpu::gpu( 0 ) } );
     // scheduler.log = true;
 
     // construct

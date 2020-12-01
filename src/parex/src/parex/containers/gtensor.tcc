@@ -37,20 +37,25 @@ void gtensor<T,N,A>::resize( A &allocator, Args&& ...args ) {
 
 template<class T,std::size_t N,class A>
 void gtensor<T,N,A>::write_to_stream( std::ostream &os, const A &allocator ) const {
-    for_each_index( [&]( auto... ind ) {
-        // spacing
-        std::array<I,N> inds = { ind... };
-        for( std::size_t n = N - 1; n--; ) {
-            if ( inds[ n ] ) {
-                if ( n )
-                    while( n-- )
-                        os << "\n";
-                else
-                    os << " ";
-                break;
-            }
+    auto add_spaces = []( std::ostream &os, std::array<I,N> inds ) {
+        if ( inds[ N - 1 ] ) {
+            os << " ";
+            return;
         }
 
+        for( int n = N - 1; ; ) {
+            if ( n-- == 0 )
+                return;
+            if ( inds[ n ] ) {
+                while( ++n < N )
+                    os << "\n";
+                return;
+            }
+        }
+    };
+
+    for_each_index( [&]( auto... ind ) {
+        add_spaces( os, { ind... } );
         os << at( allocator, ind... );
     } );
 }

@@ -14,10 +14,10 @@ struct HomogeneousElementaryPolytopList {
 
     /**/  HomogeneousElementaryPolytopList( Allocator_TF &allocator_TF, Allocator_TI &allocator_TI, TI nb_nodes, TI nb_faces, TI dim, TI rese_items = 0 );
 
-    void  write_to_stream                 ( std::ostream &os, const std::string &sp = "\n" ) const;
+    void  write_to_stream                 ( std::ostream &os, const Allocator_TF &af = {}, const Allocator_TI &ai = {}, const std::string &sp = "\n" ) const;
     TI    nb_nodes                        () const { return positions.shape()[ 0 ]; }
     TI    nb_faces                        () const { return face_ids.shape()[ 0 ]; }
-    TI    size                            () const { return ids.size(); }
+    TI    size                            () const { return ids.shape( 0 ); }
     TI    dim                             () const { return positions.shape()[ 1 ]; }
 
     void  resize                          ( Allocator_TF &allocator_TF, Allocator_TI &allocator_TI, TI new_size );

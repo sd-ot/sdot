@@ -8,7 +8,7 @@ HomogeneousElementaryPolytopList<AF,AI>::HomogeneousElementaryPolytopList( AF &a
 }
 
 template<class AF,class AI>
-void HomogeneousElementaryPolytopList<AF,AI>::write_to_stream( std::ostream &os, const std::string &sp ) const {
+void HomogeneousElementaryPolytopList<AF,AI>::write_to_stream( std::ostream &os, const AF &af, const AI &ai, const std::string &sp ) const {
     for( TI num_item = 0; num_item < size(); ++num_item ) {
         os << sp;
         for( TI num_node = 0; num_node < nb_nodes(); ++num_node ) {
@@ -17,13 +17,13 @@ void HomogeneousElementaryPolytopList<AF,AI>::write_to_stream( std::ostream &os,
             for( TI d = 0; d < dim(); ++d ) {
                 if ( d )
                     os << " ";
-                os << positions( num_node, d, num_item );
+                os << positions.at( af, num_node, d, num_item );
             }
         }
         os << ";";
         for( TI num_face = 0; num_face < nb_faces(); ++num_face )
-            os << " " << face_ids( num_face, num_item );
-        os << "; " << ids( num_item );
+            os << " " << face_ids.at( ai, num_face, num_item );
+        os << "; " << ids.at( ai, num_item );
     }
 }
 

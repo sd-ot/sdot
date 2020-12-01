@@ -33,6 +33,7 @@ public:
     void                             write_to_stream( std::ostream &os, const Allocator &allocator = {} ) const;
     template<class F> void           for_each_index ( F &&f ) const;
     template<class... Args> I        index          ( Args&& ...args ) const;
+    I                                shape          ( I d ) const { return _size[ d ]; }
     S                                shape          () const { return _size; }
     S                                cpre           () const { return _cpre; }
     template<class... Args> T        at             ( const Allocator &allocator, Args&& ...args ) const;

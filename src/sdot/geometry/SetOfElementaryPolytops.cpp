@@ -2,7 +2,6 @@
 #include <parex/GeneratedSymbolSet.h>
 #include <parex/variable_encode.h>
 #include <parex/Scheduler.h>
-#include <parex/MemoryCpu.h>
 #include <parex/CppType.h>
 #include <parex/TODO.h>
 #include <parex/P.h>
@@ -13,7 +12,7 @@
 
 namespace sdot {
 
-SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Value &scalar_type, const Value &index_type, Memory *dst, const Value &dim ) {
+SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Parm &types ) {
     struct NewShapeMap : ComputableTask {
         NewShapeMap( std::vector<Rc<Task>> &&children, Memory *dst ) : ComputableTask( std::move( children ) ), dst( dst ) {
         }
@@ -63,14 +62,13 @@ SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoLis
         Memory *dst;
     };
 
-    if ( ! dst )
-        dst = &memory_cpu;
+    Memory *dst = types.dst ? types.dst : &memory_cpu;
 
     shape_map = new NewShapeMap( {
         elementary_polytop_info.task,
-        scalar_type.to_string(),
-        index_type.to_string(),
-        dim.conv_to<int>()
+        types.scalar_type.to_string(),
+        types.index_type.to_string(),
+        types.dim.conv_to<int>()
     }, dst );
 }
 
@@ -80,11 +78,13 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
 
 Type *SetOfElementaryPolytops::shape_map_type( const std::string &type_name, const ElementaryPolytopInfoListContent *epil, Type *scalar_type, Type *index_type, Memory *dst, int dim ) {
     return Task::type_factory().reg_cpp_type( type_name, [&]( CppType &ct ) {
-        ct.compilation_environment.includes << "<sdot/geometry/internal/HomogeneousElementaryPolytopList.h>";
         ct.compilation_environment.include_directories << SDOT_DIR "/ext/xtensor/install/include";
         ct.compilation_environment.include_directories << SDOT_DIR "/ext/xsimd/install/include";
         ct.compilation_environment.include_directories << SDOT_DIR "/src/asimd/src";
         ct.compilation_environment.include_directories << SDOT_DIR "/src";
+
+        ct.compilation_environment.includes << "<sdot/geometry/internal/HomogeneousElementaryPolytopList.h>";
+        ct.compilation_environment.includes << "<parex/type_name.h>";
 
         ct.sub_types.push_back( scalar_type );
         ct.sub_types.push_back( index_type );
@@ -121,7 +121,7 @@ Type *SetOfElementaryPolytops::shape_map_type( const std::string &type_name, con
         pr << "    \n";
         pr << "    void write_to_stream( std::ostream &os ) const {\n";
         for( const ElementaryPolytopInfo &elem : epil->elem_info )
-            pr << "        _" << elem.name << ".write_to_stream( os << \"" << elem.name << ":\", \"\\n  \" ); os << '\\n';\n";
+            pr << "        _" << elem.name << ".write_to_stream( os << \"" << elem.name << ":\", allocator_TF, allocator_TI, \"\\n  \" ); os << '\\n';\n";
         pr << "    }\n";
 
         // attributes
