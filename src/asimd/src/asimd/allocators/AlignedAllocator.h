@@ -12,6 +12,7 @@ namespace asimd {
 template<class T,std::size_t alig>
 struct AlignedAllocator : std::allocator<T> {
     static constexpr size_t  alignment       = alig;
+    static constexpr bool    cpu             = true;
 
     /**/                     AlignedAllocator() {}
 

@@ -73,9 +73,15 @@ void GeneratedLibrarySet::compile_lib( const std::string &shash, const SrcSet &s
 void GeneratedLibrarySet::make_cmake( const Path &src_path, const std::string &shash, const SrcSet &src_set ) {
     std::ofstream os( src_path / "CMakeLists.txt" );
 
-    os << "cmake_minimum_required(VERSION 3.0)\n";
-    os << "project(" << shash << ")\n";
+    //
 
+
+
+    os << "cmake_minimum_required(VERSION 3.0)\n";
+    os << "project(" << shash << " LANGUAGES CXX";
+    os << ")\n";
+
+    // roject(cmake_and_cuda CUDA)
     os << "\n";
     os << "add_library(" << shash << " SHARED\n";
     for( const auto &p : src_set.src_map )

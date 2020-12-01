@@ -11,6 +11,11 @@ T ceil( T a, U m ) {
     return ( a + m - 1 ) / m * m;
 }
 
+template<class T,class U>
+T div_up( T a, U m ) {
+    return ( a + m - 1 ) / m;
+}
+
 template<class T>
 T factorial( T val ) {
     return val ? val * factorial( val - T( 1 ) ) : T( 1 );

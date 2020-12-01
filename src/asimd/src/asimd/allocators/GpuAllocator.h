@@ -12,6 +12,8 @@ namespace asimd {
 template<class T>
 struct GpuAllocator : std::allocator<T> {
     static constexpr size_t  alignment   = 256;
+    static constexpr bool    gpu         = true;
+
     template<class U> struct rebind      { using other = GpuAllocator<U>; };
 
     /**/                     GpuAllocator( int num_gpu = 0 ) : num_gpu( num_gpu ) {}
