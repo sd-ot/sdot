@@ -89,21 +89,21 @@ void GeneratedLibrarySet::make_cmake( const Path &src_path, const std::string &s
     os << "\n";
     os << "add_library(" << shash << " SHARED\n";
     for( const auto &p : src_set.src_map )
-        os << "    " << p.first.string() << "\n";
+        os << "    " << p.second.filename().string() << "\n";
     os << ")";
 
     os << "\n";
     VecUnique<std::string> libs;
     for( const auto &p : src_set.src_map ) {
         if ( ! p.second.compilation_environment.cpp_flags.empty() ) {
-            os << "\nset_property(SOURCE " << p.first.string() << " PROPERTY COMPILE_OPTIONS";
+            os << "\nset_property(SOURCE " << p.second.filename().string() << " PROPERTY COMPILE_OPTIONS";
             for( const auto &cpp_flag : p.second.compilation_environment.cpp_flags )
                 os << " " << cpp_flag;
             os << ")";
         }
 
         if ( ! p.second.compilation_environment.include_directories.empty() ) {
-            os << "\nset_property(SOURCE " << p.first.string() << " PROPERTY INCLUDE_DIRECTORIES";
+            os << "\nset_property(SOURCE " << p.second.filename().string() << " PROPERTY INCLUDE_DIRECTORIES";
             for( const auto &include_directory : p.second.compilation_environment.include_directories )
                 os << "\n    " << std::filesystem::absolute( include_directory ).string();
             os << "\n)";
@@ -116,7 +116,7 @@ void GeneratedLibrarySet::make_cmake( const Path &src_path, const std::string &s
     os << "target_link_libraries(" << shash;
     for( const auto &lib : libs )
         os << "\n    " << lib;
-    os << ")\n";
+    os << "\n)\n";
     os << "\n";
     os << "install(TARGETS " << shash << " DESTINATION .)\n";
 }
@@ -127,7 +127,7 @@ int GeneratedLibrarySet::exec_cmd( std::string cmd ) const {
     // fout << cmd << "\n";
 
     // cmd += " 2>&1 > /dev/null"; // + log.string();
-    cmd += " > /dev/null"; // + log.string();
+    // cmd += " > /dev/null"; // + log.string();
     int res = system( cmd.c_str() ); // cmd += " 2>&1 > " + log.string();
     if ( res )
         ERROR( "Error in cmd: {}", cmd ); // ERROR( "Error in cmd: {}\nSee log file '{}'", cmd, log.string() );

@@ -11,7 +11,7 @@ void CompiledTask::exec() {
         Src &src = sw.src( called_func_name() + ".cpp" );
 
         src.compilation_environment.include_directories << PAREX_DIR "/src";
-        src.compilation_environment.cpp_flags << "-std=c++17" << "-g3";
+        src.compilation_environment.cpp_flags << "-std=c++17" << "-g";
         src.compilation_environment.includes << "<parex/CompiledTask.h>";
 
         // includes for types

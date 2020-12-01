@@ -8,13 +8,13 @@ SrcSet::SrcSet() {
 Src &SrcSet::src( const Path &filename ) {
     auto iter = src_map.find( filename );
     if ( iter == src_map.end() )
-        iter = src_map.insert( iter, { filename, Src{ compilation_environment } } );
+        iter = src_map.insert( iter, { filename, Src{ filename, compilation_environment } } );
     return iter->second;
 }
 
 void SrcSet::write_files( const Path &directory ) const {
     for( const auto &p : src_map ) {
-        Path name = directory / p.first;
+        Path name = directory / p.second.filename();
         std::ofstream fout( name );
         p.second.write_to( fout );
     }
