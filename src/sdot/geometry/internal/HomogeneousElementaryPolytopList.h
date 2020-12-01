@@ -5,12 +5,19 @@
 
 template<class TF,class TI>
 struct HomogeneousElementaryPolytopList {
-    void              write_to_stream( std::ostream &os, const std::string &sp = "\n" ) const;
-    TI                size           () const { return ids.size(); }
+    /**/              HomogeneousElementaryPolytopList( TI nb_nodes, TI nb_faces, TI dim, TI rese_items = 0 );
 
-    xt::xtensor<TF,3> positions;     ///< ( num_item, num_node, num_dim )
-    xt::xtensor<TI,2> face_ids;      ///< ( num_item, num_face )
-    xt::xtensor<TI,1> ids;           ///< ( num_item )
+    void              write_to_stream                 ( std::ostream &os, const std::string &sp = "\n" ) const;
+    TI                nb_nodes                        () const { return positions.shape()[ 0 ]; }
+    TI                nb_faces                        () const { return face_ids.shape()[ 0 ]; }
+    TI                size                            () const { return ids.size(); }
+    TI                dim                             () const { return positions.shape()[ 1 ]; }
+
+    void              resize                          ( TI new_size );
+
+    xt::xtensor<TF,3> positions;                      ///< ( num_node, num_dim, num_item )
+    xt::xtensor<TI,2> face_ids;                       ///< ( num_face, num_item )
+    xt::xtensor<TI,1> ids;                            ///< ( num_item )
 };
 
 #include "HomogeneousElementaryPolytopList.tcc"

@@ -20,8 +20,8 @@ ElementaryPolytopInfoList::ElementaryPolytopInfoList( const Value &dim_or_shape_
         virtual void exec() override {
             // set the output type
             output_type = type_factory().reg_cpp_type( "ElementaryPolytopInfoListContent", []( CppType &ct ) {
-                ct.includes << "<sdot/geometry/internal/ElementaryPolytopInfoListContent.h>";
-                ct.include_directories << SDOT_DIR "/src";
+                ct.compilation_environment.includes << "<sdot/geometry/internal/ElementaryPolytopInfoListContent.h>";
+                ct.compilation_environment.include_directories << SDOT_DIR "/src";
             } );
 
             // summary

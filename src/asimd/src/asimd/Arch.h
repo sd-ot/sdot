@@ -9,7 +9,7 @@ namespace Arch {
 
 template<int ptr_size=8*sizeof(void *)>
 struct Generic {
-    using size_t = typename std::conditional<ptr_size==64,std::uint64_t,std::uint32_t>::value;
+    using size_t = typename std::conditional<ptr_size==64,std::uint64_t,std::uint32_t>::type;
     static std::string name() { return "Generic<" + std::to_string( ptr_size ) + ">"; }
     enum { cpu = 1 };
 

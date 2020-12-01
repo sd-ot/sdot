@@ -35,6 +35,9 @@ void ComputableTask::make_outputs( TaskOut<T> &&ret ) {
     output_type = type_factory_virtual( type_name<T>() );
     output_data = ret.data;
     output_own = true;
+
+    if ( ret.task )
+        ret.task->output_own = false;
 }
 
 

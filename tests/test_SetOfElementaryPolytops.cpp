@@ -10,8 +10,7 @@ using TF = double;
 void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
     ElementaryPolytopInfoList epil( dim );
     SetOfElementaryPolytops sp( epil );
-    //    scheduler.log = true;
-    PN( sp );
+    // scheduler.log = true;
 
     // construct
     sp.add_repeated( "3", nb_triangles,
@@ -26,6 +25,8 @@ void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
             2
         }
     );
+
+    PN( sp );
 
     //    // cut
     //    Tensor<TF> normals( { nb_triangles, dim } );

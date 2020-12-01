@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Arch.h"
-#include "S.h"
+#include "../S.h"
 
 #include <ostream>
 

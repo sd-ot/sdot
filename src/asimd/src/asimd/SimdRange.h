@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../support/N.h"
 #include "SimdVec.h"
+#include "N.h"
 
 namespace asimd {
 

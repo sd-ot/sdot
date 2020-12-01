@@ -4,9 +4,9 @@
 #include "internal/SimdVecInternal_AVX512.h"
 #include "internal/SimdVecInternal_AVX2.h"
 #include "internal/SimdVecInternal_SSE2.h"
-#include "internal/S.h"
-#include "internal/N.h"
 #include "SimdSize.h"
+#include "S.h"
+#include "N.h"
 
 namespace asimd {
 

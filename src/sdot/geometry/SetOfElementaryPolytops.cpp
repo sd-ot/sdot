@@ -43,6 +43,7 @@ SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoLis
             static GeneratedSymbolSet gls;
             auto *func = gls.get_symbol<void( ComputableTask *)>( [&]( SrcSet &sw ) {
                 Src &src = sw.src( "get_NewShapeMap.cpp" );
+
                 src.includes << "<parex/ComputableTask.h>";
                 output_type->add_needs_in( src );
 
@@ -72,10 +73,11 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
 
 Type *SetOfElementaryPolytops::shape_map_type( const std::string &type_name, const ElementaryPolytopInfoListContent *epil, Type *scalar_type, Type *index_type, int dim ) {
     return Task::type_factory().reg_cpp_type( type_name, [&]( CppType &ct ) {
-        ct.includes << "<sdot/geometry/internal/HomogeneousElementaryPolytopList.h>";
-        ct.include_directories << SDOT_DIR "/ext/xtensor/install/include";
-        ct.include_directories << SDOT_DIR "/ext/xsimd/install/include";
-        ct.include_directories << SDOT_DIR "/src";
+        ct.compilation_environment.includes << "<sdot/geometry/internal/HomogeneousElementaryPolytopList.h>";
+        ct.compilation_environment.include_directories << SDOT_DIR "/ext/xtensor/install/include";
+        ct.compilation_environment.include_directories << SDOT_DIR "/ext/xsimd/install/include";
+        ct.compilation_environment.include_directories << SDOT_DIR "/src/asimd/src";
+        ct.compilation_environment.include_directories << SDOT_DIR "/src";
 
         ct.sub_types.push_back( scalar_type );
         ct.sub_types.push_back( index_type );
@@ -89,14 +91,14 @@ Type *SetOfElementaryPolytops::shape_map_type( const std::string &type_name, con
 
         // ctor
         pr << "    \n";
-        pr << "    " << type_name << "() {\n";
-        for( const ElementaryPolytopInfo &elem : epil->elem_info )
-            pr << "        _" << elem.name << ".resize(  );\n";
-        pr << "    }\n";
+        pr << "    " << type_name << "()";
+        for( std::size_t i = 0; i < epil->elem_info.size(); ++i )
+            pr << ( i ? ", " : " : " ) << "_" << epil->elem_info[ i ].name << "( " << epil->elem_info[ i ].nb_nodes << ", " << epil->elem_info[ i ].nb_faces << ", " << dim << " )";
+        pr << " {}\n";
 
         // operator[]
         pr << "    \n";
-        pr << "    HL *operator[]( const std::string &name ) const {\n";
+        pr << "    HL *operator[]( const std::string &name ) {\n";
         for( const ElementaryPolytopInfo &elem : epil->elem_info )
             pr << "        if ( name == \"" << elem.name << "\" ) return &_" << elem.name << ";\n";
         pr << "        return nullptr;\n";
@@ -114,7 +116,12 @@ Type *SetOfElementaryPolytops::shape_map_type( const std::string &type_name, con
         for( const ElementaryPolytopInfo &elem : epil->elem_info )
             pr << "    HL _" << elem.name << ";\n";
         pr << "};\n";
-        ct.preliminaries << pr.str();
+
+        // type_name
+        pr << "\n";
+        pr << "inline std::string type_name( S<" << type_name << "> ) { return \"" << type_name << "\"; }\n";
+
+        ct.compilation_environment.preliminaries << pr.str();
     } );
 }
 
