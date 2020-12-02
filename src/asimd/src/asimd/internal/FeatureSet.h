@@ -3,7 +3,10 @@
 #include <string>
 
 namespace asimd {
+namespace processing_units {
 
+/**
+*/
 template<class... Features>
 class FeatureSet {
     template<class... T> struct Has_;
@@ -34,5 +37,5 @@ public:
     }
 };
 
-
+} // namespace processing_units
 } //  namespace asimd

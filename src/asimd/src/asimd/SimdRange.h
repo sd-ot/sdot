@@ -28,9 +28,11 @@ struct SimdRange {
     template<class TI,class Func>
     static void for_each( TI beg, TI end, Func &&func ) {
         // go to a aligned beg
-        if ( TI mod = beg % size )
-            for( TI mnd = std::min( beg + size - mod, end ); beg < mnd; ++beg )
-                func( beg, N<1>() );
+        if ( TI mod = beg % size ) {
+            TI nxt = std::min( beg + size - mod, end );
+            SimdRange<next_size>::for_each( beg, nxt, std::forward<Func>( func ) );
+            beg = nxt;
+        }
         for_each_with_beg_aligned( beg, end, std::forward<Func>( func ) );
     }
 };

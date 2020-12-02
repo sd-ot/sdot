@@ -3,6 +3,8 @@
 #include "catch_main.h"
 #include "P.h"
 
+using namespace asimd;
+
 template<class V>
 bool equal( const V &a, const V &b ) {
     if ( a.size() != b.size() )
@@ -14,7 +16,7 @@ bool equal( const V &a, const V &b ) {
 }
 
 TEST_CASE( "InstructionSet", "[asimd]" ) {
-    using namespace asimd::InstructionSet;
+    using namespace processing_units;
 
     using Is = X86<8,Features::SSE2,Features::AVX2>;
     SECTION( Is::name() ) {
@@ -26,12 +28,15 @@ TEST_CASE( "InstructionSet", "[asimd]" ) {
         CHECK( Is::SimdSize<double     >::value == 4 );
         CHECK( Is::SimdSize<float      >::value == 8 );
     }
+
+    using Cs = NvidiaGpu<8>;
+    SECTION( Cs::name() ) {
+        CHECK( Cs::SimdSize<float      >::value == 1 );
+    }
 }
 
 TEST_CASE( "SimdVec", "[asimd]" ) {
-    using namespace asimd;
-
-    using Is = InstructionSet::X86<8,InstructionSet::Features::SSE2>;
+    using Is = processing_units::X86<8,processing_units::Features::SSE2>;
     SECTION( Is::name() ) {
         using VI = SimdVec<int,SimdSize<int>::value>;
         VI v( 10 ), w = VI::iota();
@@ -42,16 +47,14 @@ TEST_CASE( "SimdVec", "[asimd]" ) {
     }
 }
 TEST_CASE( "SimdRange", "[asimd]" ) {
-    using namespace asimd;
-
-    using Is = InstructionSet::X86<8,InstructionSet::Features::SSE2>;
+    using Is = processing_units::X86<8,processing_units::Features::SSE2>;
     SECTION( Is::name() ) {
         std::vector<int> simd_sizes, indices;
-        SimdRange<SimdSize<int,Is>::value,2>::for_each( 0, 11, [&]( unsigned index, auto simd_size ) {
+        SimdRange<4,2>::for_each( 1, 15, [&]( unsigned index, auto simd_size ) {
             simd_sizes.push_back( simd_size );
             indices.push_back( index );
         } );
-        CHECK( equal( simd_sizes, { 4, 4, 2,  1 } ) );
-        CHECK( equal( indices   , { 0, 4, 8, 10 } ) );
+        CHECK( equal( simd_sizes, { 1,2,4,4, 2, 1 } ) );
+        CHECK( equal( indices   , { 1,2,4,8,12,14 } ) );
     }
 }
