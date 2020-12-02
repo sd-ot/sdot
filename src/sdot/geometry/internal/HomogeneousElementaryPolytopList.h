@@ -3,7 +3,7 @@
 
 #include <parex/containers/gtensor.h>
 
-template<class Allocator_TF,class Allocator_TI>
+template<class TF,class TI,class Memory>
 struct HomogeneousElementaryPolytopList {
     using TF                              = typename Allocator_TF::value_type;
     using TI                              = typename Allocator_TI::value_type;

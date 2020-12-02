@@ -1,5 +1,4 @@
-#ifndef SDOT_SIMD_VEC_H
-#define SDOT_SIMD_VEC_H
+#pragma once
 
 #include "internal/SimdVecInternal_AVX512.h"
 #include "internal/SimdVecInternal_AVX2.h"
@@ -65,8 +64,6 @@ struct SimdVec {
     SimdVec                          operator/    ( const SimdVec &that ) const { return SimdVecInternal::div( impl, that.impl ); }
 
     auto                             operator>    ( const SimdVec &that ) const { return SimdVecInternal::gt ( impl, that.impl );  }
-    // std::uint64_t                 is_neg       () const { return value < 0; }
-    // std::uint64_t                 nz           () const { return value != 0; }
 
     T                                sum          () const { return SimdVecInternal::horizontal_sum( impl ); }
 
@@ -88,5 +85,3 @@ SimdVec<T,size,Arch> max( const SimdVec<T,size,Arch> &a, const SimdVec<T,size,Ar
 
 
 } // namespace asimd
-
-#endif // SDOT_SIMD_VEC_H

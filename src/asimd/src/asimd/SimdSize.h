@@ -1,15 +1,10 @@
 #pragma once
 
-#ifndef SDOT_SIMD_VEC_H
-#error SimdSize should be included via SimdVec
-#endif
-
-#include "SimdVec.h"
-#include "Arch.h"
+#include "InstructionSet.h"
 
 namespace asimd {
 
-template<class T,class Arch=Arch::Native>
+template<class T,class Arch=InstructionSet::Native>
 struct SimdSize {
     enum { value = 1 };
 };

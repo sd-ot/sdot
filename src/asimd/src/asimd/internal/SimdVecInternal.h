@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Arch.h"
+#include "../InstructionSet.h"
 #include "../S.h"
 
 #include <ostream>

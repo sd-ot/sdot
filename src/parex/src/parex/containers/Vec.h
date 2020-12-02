@@ -2,7 +2,7 @@
 #define PAREX_VEC_H
 
 #include <asimd/AlignedAllocator.h>
-#include <asimd/Arch.h>
+#include <asimd/InstructionSet.h>
 #include <functional>
 #include <vector>
 

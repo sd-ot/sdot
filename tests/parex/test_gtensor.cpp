@@ -1,5 +1,5 @@
-#include <asimd/operations/assign_scalar.h>
-#include <asimd/allocators/GpuAllocator.h>
+//#include <asimd/operations/assign_scalar.h>
+//#include <asimd/allocators/GpuAllocator.h>
 #include <parex/containers/gtensor.h>
 #include <parex/P.h>
 
