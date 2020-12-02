@@ -16,7 +16,8 @@ all:
 	# ${NSMAKE} tests/parex/test_Value.cpp
 	# ${NSMAKE} tests/test_ElementaryPolytopInfo.cpp
 	# ${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
-	${NSMAKE} tests/parex/test_gtensor.cpp
+	# ${NSMAKE} tests/parex/test_gtensor.cpp
+	${NSMAKE} tests/asimd/test_asimd.cpp
 
 c:
 	rm -rf .generated_libs
