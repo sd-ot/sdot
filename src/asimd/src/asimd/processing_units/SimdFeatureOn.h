@@ -4,7 +4,7 @@
 
 namespace asimd {
 namespace processing_units {
-namespace Features {
+namespace features {
 
 /**
 */

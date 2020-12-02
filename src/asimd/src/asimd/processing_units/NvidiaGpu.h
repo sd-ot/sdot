@@ -13,7 +13,8 @@ struct NvidiaGpu : FeatureSet<Features...> {
 
     std::size_t        L1_cache_size; ///<
     std::size_t        L2_cache_size; ///<
-    std::size_t        nb_cores;      ///< nb SM
+    std::size_t        nb_cores;      ///< actually nb of SMs
+    int                num_gpu;       ///<
 };
 
 } // namespace processing_units

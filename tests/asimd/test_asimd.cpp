@@ -15,14 +15,14 @@ bool equal( const V &a, const V &b ) {
     return true;
 }
 
-TEST_CASE( "InstructionSet", "[asimd]" ) {
+TEST_CASE( "processing_units", "[asimd]" ) {
     using namespace processing_units;
 
-    using Is = X86<8,Features::SSE2,Features::AVX2>;
+    using Is = X86<8,features::SSE2,features::AVX2>;
     SECTION( Is::name() ) {
-        CHECK( Is::Has<Features::AVX512>::value == 0 );
-        CHECK( Is::Has<Features::SSE2  >::value == 1 );
-        CHECK( Is::Has<Features::AVX2  >::value == 1 );
+        CHECK( Is::Has<features::AVX512>::value == 0 );
+        CHECK( Is::Has<features::SSE2  >::value == 1 );
+        CHECK( Is::Has<features::AVX2  >::value == 1 );
 
         CHECK( Is::SimdSize<std::string>::value == 1 );
         CHECK( Is::SimdSize<double     >::value == 4 );
@@ -36,7 +36,7 @@ TEST_CASE( "InstructionSet", "[asimd]" ) {
 }
 
 TEST_CASE( "SimdVec", "[asimd]" ) {
-    using Is = processing_units::X86<8,processing_units::Features::SSE2>;
+    using Is = processing_units::X86<8,processing_units::features::SSE2>;
     SECTION( Is::name() ) {
         using VI = SimdVec<int,SimdSize<int>::value>;
         VI v( 10 ), w = VI::iota();
@@ -47,7 +47,7 @@ TEST_CASE( "SimdVec", "[asimd]" ) {
     }
 }
 TEST_CASE( "SimdRange", "[asimd]" ) {
-    using Is = processing_units::X86<8,processing_units::Features::SSE2>;
+    using Is = processing_units::X86<8,processing_units::features::SSE2>;
     SECTION( Is::name() ) {
         std::vector<int> simd_sizes, indices;
         SimdRange<4,2>::for_each( 1, 15, [&]( unsigned index, auto simd_size ) {

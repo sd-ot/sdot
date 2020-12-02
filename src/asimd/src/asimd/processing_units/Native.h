@@ -1,7 +1,7 @@
 #pragma once
 
-#include "internal/NvidiaGpu.h"
-#include "internal/X86.h"
+#include "NvidiaGpu.h"
+#include "X86.h"
 
 namespace asimd {
 namespace processing_units {
@@ -19,7 +19,7 @@ using Native = X86< 8 * sizeof( void * )
        , Features::AVX
     #endif
     #ifdef __SSE2__
-        , Features::SSE2
+        , features::SSE2
     #endif
 >;
 #endif // __x86_64__
