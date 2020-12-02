@@ -71,6 +71,7 @@ ElementaryPolytopInfoList::ElementaryPolytopInfoList( const Value &dim_or_shape_
                 src << sp << "e_" << num_elem << ".name = \"" << se.name << "\";";
                 src << sp << "e_" << num_elem << ".nb_nodes = " << se.nb_nodes() << ";";
                 src << sp << "e_" << num_elem << ".nb_faces = " << se.nb_faces() << ";";
+                src << sp << "e_" << num_elem << ".vtk_elements = " << se.vtk_output() << ";";
                 src << sp << "elem_info.push_back( std::move( e_" << num_elem << " ) );";
             }
         }

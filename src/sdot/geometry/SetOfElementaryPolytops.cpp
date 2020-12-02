@@ -12,7 +12,7 @@
 
 namespace sdot {
 
-SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Parm &types ) {
+SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Parm &types ) : elem_info( elementary_polytop_info.task ) {
     struct NewShapeMap : ComputableTask {
         NewShapeMap( std::vector<Rc<Task>> &&children, Memory *dst ) : ComputableTask( std::move( children ) ), dst( dst ) {
         }
@@ -85,6 +85,7 @@ Type *SetOfElementaryPolytops::shape_map_type( const std::string &type_name, con
 
         ct.compilation_environment.includes << "<sdot/geometry/internal/HomogeneousElementaryPolytopList.h>";
         ct.compilation_environment.includes << "<parex/type_name.h>";
+        ct.compilation_environment.includes << "<functional>";
 
         ct.sub_types.push_back( scalar_type );
         ct.sub_types.push_back( index_type );
@@ -116,6 +117,13 @@ Type *SetOfElementaryPolytops::shape_map_type( const std::string &type_name, con
         pr << "        return nullptr;\n";
         pr << "    }\n";
 
+        // for_each_shape_type
+        pr << "    \n";
+        pr << "    void for_each_shape_type( const std::function<void(const std::string &name)> &f ) {\n";
+        for( const ElementaryPolytopInfo &elem : epil->elem_info )
+            pr << "        f( \"" << elem.name << "\" );\n";
+        pr << "    }\n";
+
         // write_to_stream
         pr << "    \n";
         pr << "    void write_to_stream( std::ostream &os ) const {\n";
@@ -145,9 +153,7 @@ void SetOfElementaryPolytops::add_repeated( const Value &shape_name, const Value
 }
 
 void SetOfElementaryPolytops::display_vtk( const Value &filename ) const {
-    Rc<Task> ts = new CompiledIncludeTask( "sdot/geometry/internal/display_vtk.h", { shape_map, filename.task }, {}, std::numeric_limits<double>::max() );
-    scheduler.append( ts );
-    scheduler.run();
+    scheduler.run( new CompiledIncludeTask( "sdot/geometry/internal/display_vtk.h", { filename.task, shape_map, elem_info }, {}, std::numeric_limits<double>::max() ) );
 }
 
 } // namespace sdot

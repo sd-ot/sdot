@@ -1,4 +1,4 @@
-#include <parex/support/StaticRange.h>
+#include "../support/StaticRange.h"
 #include "../support/conv.h"
 #include "Point.h"
 
@@ -7,7 +7,7 @@ namespace sdot {
 template<class TF,int dim> template<class TG>
 Point<TF,dim>::Point( const Point<TG,dim> &p ) {
     for( int i = 0; i < dim; ++i )
-        data[ i ] = conv( p.data[ i ], parex::S<TF>() );
+        data[ i ] = conv( p.data[ i ], S<TF>() );
 }
 
 template<class TF,int dim> template<class TG>
@@ -316,7 +316,7 @@ Point<TF,dim> ortho_norm( Point<TF,dim> D, Point<TF,dim> N ) {
 template<class TF,int dim>
 std::vector<Point<TF,dim>> base_from( const std::vector<Point<TF,dim>> &dirs ) {
     std::vector<Point<TF,dim>> res;
-    parex::StaticRange<1,dim+1>::for_each_cont( [&]( auto d ) {
+    StaticRange<1,dim+1>::for_each_cont( [&]( auto d ) {
         // try to add a new dir
         for( const Point<TF,dim> &pd : dirs ) {
             std::array<std::array<TF,d.value>,d.value> M;
@@ -343,7 +343,7 @@ template<class TF,int dim>
 int rank_pts( const std::vector<Point<TF,dim>> &pts ) {
     int res = 0;
     std::vector<Point<TF,dim>> dirs;
-    parex::StaticRange<1,dim+1>::for_each_cont( [&]( auto d ) {
+    StaticRange<1,dim+1>::for_each_cont( [&]( auto d ) {
         // try to add a new dir
         for( std::size_t i = 1; i < pts.size(); ++i ) {
             Point<TF,dim> pd = pts[ i ] - pts[ 0 ];

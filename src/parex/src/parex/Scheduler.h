@@ -10,6 +10,7 @@ public:
     /***/                 Scheduler();
 
     void                  append   ( const Rc<Task> &target );
+    void                  run      ( const Rc<Task> &target );
     void                  run      ();
 
     bool                  log;

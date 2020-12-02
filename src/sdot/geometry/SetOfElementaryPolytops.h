@@ -26,6 +26,7 @@ public:
 private:
     static Type*           shape_map_type         ( const std::string &type_name, const ElementaryPolytopInfoListContent *epil, Type *scalar_type, Type *index_type, Memory *dst, int dim );
 
+    Rc<Task>               elem_info;             ///<
     Rc<Task>               shape_map;             ///<
 };
 

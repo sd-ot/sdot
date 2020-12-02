@@ -14,6 +14,11 @@ void Scheduler::append( const Rc<Task> &target ) {
     targets.push_back( target );
 }
 
+void Scheduler::run( const Rc<Task> &target ) {
+    append( target );
+    run();
+}
+
 void Scheduler::run() {
     std::map<int,std::vector<ComputableTask *>> front;
     for( const Rc<Task> &target : targets )

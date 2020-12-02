@@ -1,8 +1,8 @@
 #ifndef SDOT_POINT_H
 #define SDOT_POINT_H
 
-#include <parex/support/TensorOrder.h>
-#include <parex/support/Math.h>
+// #include <parex/TensorOrder.h>
+#include <parex/Math.h>
 #include <ostream>
 #include <vector>
 
@@ -40,8 +40,7 @@ struct Point {
     TF                              data[ dim ];
 };
 
-template<class TF,int dim> struct TensorOrder<Point<TF,dim>> { enum { value = TensorOrder<TF>::value + 1 }; };
-
+// template<class TF,int dim> struct TensorOrder<Point<TF,dim>> { enum { value = TensorOrder<TF>::value + 1 }; };
 
 template<class TF,int dim> TF                         norm_2_p2 ( Point<TF,dim> p );
 template<class TF,int dim> TF                         norm_2    ( Point<TF,dim> p );
