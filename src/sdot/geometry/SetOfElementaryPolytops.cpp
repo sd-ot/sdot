@@ -156,4 +156,8 @@ void SetOfElementaryPolytops::display_vtk( const Value &filename ) const {
     scheduler.run( new CompiledIncludeTask( "sdot/geometry/internal/display_vtk.h", { filename.task, shape_map, elem_info }, {}, std::numeric_limits<double>::max() ) );
 }
 
+void SetOfElementaryPolytops::plane_cut( const Value &normals, const Value &scalar_products, const Value &cut_ids ) {
+    P( normals );
+}
+
 } // namespace sdot

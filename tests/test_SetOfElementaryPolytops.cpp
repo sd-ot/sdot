@@ -4,30 +4,36 @@
 #include <parex/P.h>
 
 using namespace sdot;
+using namespace xt;
 
 using TI = std::uint64_t;
 using TF = double;
 
-void test_triangle( TI dim = 2, TI nb_triangles = 15 ) {
+void test_triangle( TI dim = 2, TI nb_triangles = 5 ) {
     ElementaryPolytopInfoList epil( dim );
     SetOfElementaryPolytops sp( epil, { /*.dst = MemoryGpu::gpu( 0 )*/ } );
     // scheduler.log = true;
 
     // construct
     sp.add_repeated( "3", nb_triangles,
-        xt::xtensor<TF,2>{
+        xtensor<TF,2>{
             { 0.0, 0.0 },
             { 1.0, 0.0 },
             { 0.0, 1.0 }
         },
-        xt::xtensor<TF,1>{
+        xtensor<TF,1>{
             0,
             1,
             2
         }
     );
 
-    //    // cut
+    // cut
+    xtensor<TF,2> angles = linspace<TF>( 0, 2 * M_PI, nb_triangles, false );
+    xtensor<TF,2> normals = hstack( xtuple( cos( angles ), sin( angles ) ) );
+    P( normals.shape() );
+    //xtensor<TF,2> normals = hstack( xtuple( cos( angles ), sin( angles ) ) );
+
     //    Tensor<TF> normals( { nb_triangles, dim } );
     //    Vec<TF> scalar_products( nb_triangles );
     //    Vec<TI> new_face_ids( nb_triangles );
@@ -83,8 +89,8 @@ int main() {
     //        src.include_directories << "ext/xsimd/install/include";
     //        src.includes << "<parex/containers/xtensor.h>";
 
-    //        src << "TaskOut<xt::xarray<double>> generated_func() {\n";
-    //        src << "    return new xt::xarray<double>( xt::arange( 10 ) );\n";
+    //        src << "TaskOut<xarray<double>> generated_func() {\n";
+    //        src << "    return new xarray<double>( arange( 10 ) );\n";
     //        src << "\n}";
     //    } );
 }
