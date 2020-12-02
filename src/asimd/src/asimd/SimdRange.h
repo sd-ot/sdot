@@ -1,61 +1,52 @@
 #pragma once
 
+#include "internal/N.h"
 #include "SimdVec.h"
-#include "N.h"
 
 namespace asimd {
 
 /**
+  next_size = size/2 => use of smaller SIMD instruction at the end before size 1 (might be faster in some cases, but needing more instructions)
 */
-template<int s>
+template<int size,int next_size=1>
 struct SimdRange {
-    template<class TI,class F>
-    static void for_each( TI end, const F &func ) {
-        for_each_al<TI>( 0, end, func );
-    }
-
-    template<class TI,class F>
-    static void for_each_al( TI beg, TI end, const F &func ) { ///< al means that beg is aligned
+    /// func( TI index, N<simd_size> )
+    /// Version with beg % size assumed to be 0
+    template<class TI,class Func>
+    static void for_each_with_beg_aligned( TI beg, TI end, Func &&func ) {
         for( TI cur = beg, nxt; ; cur = nxt ) {
-            nxt = cur + s;
+            nxt = cur + size;
             if ( nxt > end )
-                return SimdRange<s/2>::for_each_al( cur, end, func );
-            func( cur, N<s>() );
+                return SimdRange<next_size>::for_each_with_beg_aligned( cur, end, std::forward<Func>( func ) );
+
+            func( cur, N<size>() );
         }
     }
 
-    template<class TI,class F>
-    static void for_each_with_iota( TI beg, TI end, const F &func, TI ini = 0 ) {
-        using SV = SimdVec<TI,s>;
-        SV v = SV::iota( ini );
-        for( TI cur = beg, nxt; ; cur = nxt ) {
-            nxt = cur + s;
-            if ( nxt > end )
-                return SimdRange<s/2>::for_each_with_iota( cur, end, func, v[ 0 ] );
-            func( cur, v, N<s>() );
-            v = v + s;
-        }
+    /// func( TI index, N<simd_size> )
+    /// beg % size may be != 0. It it's the case,
+    template<class TI,class Func>
+    static void for_each( TI beg, TI end, Func &&func ) {
+        // go to a aligned beg
+        if ( TI mod = beg % size )
+            for( TI mnd = std::min( beg + size - mod, end ); beg < mnd; ++beg )
+                func( beg, N<1>() );
+        for_each_with_beg_aligned( beg, end, std::forward<Func>( func ) );
     }
 };
 
 //
-template<>
-struct SimdRange<1> {
-    template<class TI,class F>
-    static void for_each( TI end, const F &func ) {
-        for_each_al<TI>( 0, end, func );
+template<int next_size>
+struct SimdRange<1,next_size> {
+    template<class TI,class Func>
+    static void for_each_with_beg_aligned( TI beg, TI end, Func &&func ) {
+        for_each( beg, end, std::forward<Func>( func ) );
     }
 
-    template<class TI,class F>
-    static void for_each_al( TI beg, TI end, const F &func ) { ///< al means that beg is aligned
+    template<class TI,class Func>
+    static void for_each( TI beg, TI end, Func &&func ) {
         for( TI cur = beg; cur < end; ++cur )
             func( cur, N<1>() );
-    }
-
-    template<class TI,class F>
-    static void for_each_with_iota( TI beg, TI end, const F &func, TI ini = 0 ) { ///< al means that beg is aligned
-        for( TI cur = beg; cur < end; ++cur, ++ini )
-            func( cur, ini, N<1>() );
     }
 };
 

@@ -4,17 +4,9 @@
 
 namespace asimd {
 
-template<class T,class Arch=InstructionSet::Native>
+template<class T,class Is=InstructionSet::Native>
 struct SimdSize {
-    enum { value = 1 };
+    static constexpr int value = Is::template SimdSize<T>::value;
 };
-
-template<class T,class Arch>
-struct SimdAlig {
-    enum { value = SimdSize<T,Arch>::value };
-};
-
-#define DECL_SIMD_SIZE( T, ARCH, SIZE ) \
-    template<int ptr_size> struct SimdSize<T,ARCH<ptr_size>> { enum { value = SIZE }; }
 
 } // namespace asimd

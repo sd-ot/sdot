@@ -3,7 +3,7 @@
 namespace asimd {
 
 /**
-  std::integral_constant
+  like std::integral_constant
 */
 template<int n>
 struct N {

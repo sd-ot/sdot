@@ -1,12 +1,12 @@
 #pragma once
 
 #include "../InstructionSet.h"
-#include "../S.h"
+#include "S.h"
 
 #include <ostream>
 
 namespace asimd {
-namespace SimdVecInternal {
+namespace SimdVecImpl {
 
 // Impl ---------------------------------------------------------
 template<class T,int size,class Arch,class Enable=void>
@@ -27,7 +27,7 @@ struct Impl<T,1,Arch,Enable> {
 /// Helper to make Impl with a register
 #define SIMD_VEC_IMPL_REG( COND, T, SIZE, TREG ) \
     template<class Arch> \
-    struct Impl<T,SIZE,Arch,typename std::enable_if<COND>::type> { \
+    struct Impl<T,SIZE,Arch,typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value>::type> { \
         union { \
             Impl<T,(SIZE)/2,Arch> split[ 2 ]; \
             T values[ SIZE ]; \
@@ -103,31 +103,31 @@ void init( Impl<T,size,Arch> &vec, Impl<T,size/2,Arch> a, Impl<T,size/2,Arch> b 
 
 #define SIMD_VEC_IMPL_REG_INIT_1( COND, T, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND>::type init( Impl<T,SIZE,Arch> &vec, T a ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value>::type init( Impl<T,SIZE,Arch> &vec, T a ) { \
         vec.data.reg = FUNC; \
     }
 
 #define SIMD_VEC_IMPL_REG_INIT_2( COND, T, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND>::type init( Impl<T,SIZE,Arch> &vec, T a, T b ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value>::type init( Impl<T,SIZE,Arch> &vec, T a, T b ) { \
         vec.data.reg = FUNC; \
     }
 
 #define SIMD_VEC_IMPL_REG_INIT_4( COND, T, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND>::type init( Impl<T,SIZE,Arch> &vec, T a, T b, T c, T d ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value>::type init( Impl<T,SIZE,Arch> &vec, T a, T b, T c, T d ) { \
         vec.data.reg = FUNC; \
     }
 
 #define SIMD_VEC_IMPL_REG_INIT_8( COND, T, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND>::type init( Impl<T,SIZE,Arch> &vec, T a, T b, T c, T d, T e, T f, T g, T h ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value>::type init( Impl<T,SIZE,Arch> &vec, T a, T b, T c, T d, T e, T f, T g, T h ) { \
         vec.data.reg = FUNC; \
     }
 
 #define SIMD_VEC_IMPL_REG_INIT_16( COND, T, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND>::type init( Impl<T,SIZE,Arch> &vec, T a, T b, T c, T d, T e, T f, T g, T h, T i, T j, T k, T l, T m, T n, T o, T p ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value>::type init( Impl<T,SIZE,Arch> &vec, T a, T b, T c, T d, T e, T f, T g, T h, T i, T j, T k, T l, T m, T n, T o, T p ) { \
         vec.data.reg = FUNC; \
     }
 
@@ -149,13 +149,13 @@ Impl<T,1,Arch> load_aligned( const G *data, S<Impl<T,1,Arch>> ) {
 
 #define SIMD_VEC_IMPL_REG_LOAD_ALIGNED( COND, T, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND,Impl<T,SIZE,Arch>>::type load_aligned( const T *data, S<Impl<T,SIZE,Arch>> ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value,Impl<T,SIZE,Arch>>::type load_aligned( const T *data, S<Impl<T,SIZE,Arch>> ) { \
         Impl<T,SIZE,Arch> res; res.data.reg = FUNC; return res; \
     }
 
 #define SIMD_VEC_IMPL_REG_LOAD_ALIGNED_FOT( COND, T, G, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND,Impl<T,SIZE,Arch>>::type load_aligned( const G *data, S<Impl<T,SIZE,Arch>> ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value,Impl<T,SIZE,Arch>>::type load_aligned( const G *data, S<Impl<T,SIZE,Arch>> ) { \
         Impl<T,SIZE,Arch> res; res.data.reg = FUNC; return res; \
     }
 
@@ -177,13 +177,13 @@ Impl<T,1,Arch> load( const G *data, S<Impl<T,1,Arch>> ) {
 
 #define SIMD_VEC_IMPL_REG_LOAD( COND, T, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND,Impl<T,SIZE,Arch>>::type load( const T *data, S<Impl<T,SIZE,Arch>> ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value,Impl<T,SIZE,Arch>>::type load( const T *data, S<Impl<T,SIZE,Arch>> ) { \
         Impl<T,SIZE,Arch> res; res.data.reg = FUNC; return res; \
     }
 
 #define SIMD_VEC_IMPL_REG_LOAD_FOT( COND, T, G, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND,Impl<T,SIZE,Arch>>::type load( const G *data, S<Impl<T,SIZE,Arch>> ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value,Impl<T,SIZE,Arch>>::type load( const G *data, S<Impl<T,SIZE,Arch>> ) { \
         Impl<T,SIZE,Arch> res; res.data.reg = FUNC; return res; \
     }
 
@@ -201,7 +201,7 @@ void store_aligned( G *data, const Impl<T,1,Arch> &impl ) {
 
 #define SIMD_VEC_IMPL_REG_STORE_ALIGNED( COND, T, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND>::type store_aligned( T *data, const Impl<T,SIZE,Arch> &impl ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value>::type store_aligned( T *data, const Impl<T,SIZE,Arch> &impl ) { \
         FUNC; \
     }
 
@@ -219,7 +219,7 @@ void store( G *data, const Impl<T,1,Arch> &impl ) {
 
 #define SIMD_VEC_IMPL_REG_STORE( COND, T, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND>::type store( T *data, const Impl<T,SIZE,Arch> &impl ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value>::type store( T *data, const Impl<T,SIZE,Arch> &impl ) { \
         FUNC; \
     }
 
@@ -251,7 +251,7 @@ void store( G *data, const Impl<T,1,Arch> &impl ) {
 
 #define SIMD_VEC_IMPL_REG_ARITHMETIC_OP( COND, T, SIZE, NAME, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND,Impl<T,SIZE,Arch>>::type NAME( const Impl<T,SIZE,Arch> &a, const Impl<T,SIZE,Arch> &b ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value,Impl<T,SIZE,Arch>>::type NAME( const Impl<T,SIZE,Arch> &a, const Impl<T,SIZE,Arch> &b ) { \
         Impl<T,SIZE,Arch> res; res.data.reg = FUNC( a.data.reg, b.data.reg ); return res; \
     }
 
@@ -291,7 +291,7 @@ SIMD_VEC_IMPL_CMP_OP( gt, > )
 
 #define SIMD_VEC_IMPL_CMP_OP_SIMDVEC( COND, T, I, SIZE, NAME, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND,Impl<I,SIZE,Arch>>::type NAME##_SimdVec( const Impl<T,SIZE,Arch> &a, const Impl<T,SIZE,Arch> &b, S<Impl<I,SIZE,Arch>> ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value,Impl<I,SIZE,Arch>>::type NAME##_SimdVec( const Impl<T,SIZE,Arch> &a, const Impl<T,SIZE,Arch> &b, S<Impl<I,SIZE,Arch>> ) { \
         Impl<I,SIZE,Arch> res; res.data.reg = FUNC; return res; \
     }
 
@@ -352,7 +352,7 @@ void scatter( G *ptr, const V &ind, const Impl<T,1,Arch> &vec ) {
 
 #define SIMD_VEC_IMPL_REG_SCATTER( COND, T, I, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND>::type scatter( T *data, const Impl<I,SIZE,Arch> &ind, const Impl<T,SIZE,Arch> &vec ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value>::type scatter( T *data, const Impl<I,SIZE,Arch> &ind, const Impl<T,SIZE,Arch> &vec ) { \
         ; FUNC; \
     }
 
@@ -374,7 +374,7 @@ Impl<T,1,Arch> gather( const G *data, const V &ind, S<Impl<T,1,Arch>> ) {
 
 #define SIMD_VEC_IMPL_REG_GATHER( COND, T, I, SIZE, FUNC ) \
     template<class Arch> \
-    typename std::enable_if<COND,Impl<T,SIZE,Arch>>::type gather( const T *data, const Impl<I,SIZE,Arch> &ind, S<Impl<T,SIZE,Arch>> ) { \
+    typename std::enable_if<Arch::template Has<InstructionSet::Features::COND>::value,Impl<T,SIZE,Arch>>::type gather( const T *data, const Impl<I,SIZE,Arch> &ind, S<Impl<T,SIZE,Arch>> ) { \
         Impl<T,SIZE,Arch> res; res.data.reg = FUNC; return res; \
     }
 
