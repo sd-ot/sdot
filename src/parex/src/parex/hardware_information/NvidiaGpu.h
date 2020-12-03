@@ -8,10 +8,9 @@ namespace hardware_information {
 
 /**
 */
-class X86 : public ProcessingUnitWithFeatureMap {
+class NvidiaGpu : public ProcessingUnitWithFeatureMap {
 public:
     static void         get_locals ( std::vector<std::unique_ptr<ProcessingUnit>> &pus );
-
     virtual std::size_t ptr_size   () const override;
     virtual std::string name       () const override;
 

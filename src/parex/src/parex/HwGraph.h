@@ -22,7 +22,6 @@ public:
 
 private:
     void  get_local_info    ();
-    PPU   local_cpu         ();
 };
 
 } // namespace parex

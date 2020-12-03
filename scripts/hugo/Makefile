@@ -5,7 +5,7 @@ NSMAKE += --cpp-flag -std=c++17
 NSMAKE += -Isrc/parex/src
 NSMAKE += -Isrc/asimd/src
 NSMAKE += -Isrc
-# NSMAKE += -g
+NSMAKE += -g3
 
 all:
 	# ${NSMAKE} tests/test_PowerDiagram.cpp
@@ -19,6 +19,7 @@ all:
 	# ${NSMAKE} tests/parex/test_gtensor.cpp
 	# ${NSMAKE} tests/asimd/test_asimd.cpp
 	# ${NSMAKE} tests/asimd/test_asimd_gpu.cpp
+	# ${NSMAKE} tests/parex/test_starpu.cpp
 	${NSMAKE} tests/parex/test_HwGraph.cpp
 
 c:

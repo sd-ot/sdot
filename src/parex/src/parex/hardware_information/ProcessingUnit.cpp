@@ -8,7 +8,7 @@ ProcessingUnit::~ProcessingUnit() {
 
 void ProcessingUnit::write_to_stream( std::ostream &os ) const {
     os << asimd_name();
-    asimd_init( os, "_" );
+    asimd_init( os, "_", " " );
 }
 
 } // namespace hardware_information

@@ -1,4 +1,5 @@
 #include <cpu_features/cpu_features_macros.h>
+#include "hardware_information/NvidiaGpu.h"
 #include "hardware_information/X86.h"
 #include "HwGraph.h"
 #include "TODO.h"
@@ -16,12 +17,8 @@ void HwGraph::write_to_stream( std::ostream &os ) const {
 }
 
 void HwGraph::get_local_info() {
-    processing_units.push_back( local_cpu() );
-}
-
-std::unique_ptr<ProcessingUnit> HwGraph::local_cpu() {
-    if ( std::unique_ptr<ProcessingUnit> res = X86::local() ) return res;
-    TODO;
+    NvidiaGpu::get_locals( processing_units );
+    X86      ::get_locals( processing_units );
 }
 
 } // namespace parex
