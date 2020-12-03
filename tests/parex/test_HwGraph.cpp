@@ -1,9 +1,9 @@
-#include <parex/hardware_information/HwGraph.h>
+#include <parex/HwGraph.h>
 #include <parex/P.h>
 
-// using namespace parex;
+using namespace parex;
 
 int main() {
-
-    P( Value( 16 ) );
+    HwGraph hg;
+    P( hg );
 }

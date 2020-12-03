@@ -1,21 +1,22 @@
 #pragma once
 
-#include "ProcessingUnit.h"
+#include "hardware_information/ProcessingUnit.h"
 #include <vector>
 #include <memory>
 
-namespace asimd {
-namespace hardware_information {
+namespace parex {
 
 /**
 
 */
 class HwGraph {
 public:
-    using PPU               = std::unique_ptr<ProcessingUnit>;
+    using PPU               = std::unique_ptr<hardware_information::ProcessingUnit>;
     using VPPU              = std::vector<PPU>;
 
     /**/  HwGraph           ();
+
+    void  write_to_stream   ( std::ostream &os ) const;
 
     VPPU  processing_units; ///<
 
@@ -24,5 +25,4 @@ private:
     PPU   local_cpu         ();
 };
 
-} // namespace hardware_information
-} // namespace asimd
+} // namespace parex

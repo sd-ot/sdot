@@ -1,13 +1,18 @@
 #include <cpu_features/cpu_features_macros.h>
-#include "../TODO.h"
+#include "hardware_information/X86.h"
 #include "HwGraph.h"
-#include "X86.h"
+#include "TODO.h"
 
-namespace asimd {
-namespace hardware_information {
+namespace parex {
+using namespace hardware_information;
 
 HwGraph::HwGraph() {
     get_local_info();
+}
+
+void HwGraph::write_to_stream( std::ostream &os ) const {
+    for( const std::unique_ptr<ProcessingUnit> &pu : processing_units )
+        os << *pu << "\n";
 }
 
 void HwGraph::get_local_info() {
@@ -19,5 +24,4 @@ std::unique_ptr<ProcessingUnit> HwGraph::local_cpu() {
     TODO;
 }
 
-} // namespace hardware_information
-} // namespace asimd
+} // namespace parex

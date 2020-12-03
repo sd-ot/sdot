@@ -1,6 +1,6 @@
 #include "ProcessingUnit.h"
 
-namespace asimd {
+namespace parex {
 namespace hardware_information {
 
 ProcessingUnit::~ProcessingUnit() {
@@ -8,7 +8,8 @@ ProcessingUnit::~ProcessingUnit() {
 
 void ProcessingUnit::write_to_stream( std::ostream &os ) const {
     os << asimd_name();
+    asimd_init( os, "_" );
 }
 
 } // namespace hardware_information
-} // namespace asimd
+} // namespace parex
