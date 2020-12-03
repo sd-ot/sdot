@@ -18,7 +18,7 @@ bool equal( const V &a, const V &b ) {
 TEST_CASE( "processing_units", "[asimd]" ) {
     using namespace processing_units;
 
-    using Is = X86<8,features::SSE2,features::AVX2>;
+    using Is = X86<8,features::SSE2,features::AVX2,features::L1Cache,features::L2Cache>;
     SECTION( Is::name() ) {
         CHECK( Is::Has<features::AVX512>::value == 0 );
         CHECK( Is::Has<features::SSE2  >::value == 1 );
@@ -27,6 +27,13 @@ TEST_CASE( "processing_units", "[asimd]" ) {
         CHECK( Is::SimdSize<std::string>::value == 1 );
         CHECK( Is::SimdSize<double     >::value == 4 );
         CHECK( Is::SimdSize<float      >::value == 8 );
+
+        Is inst;
+        auto &l1 = inst.value<features::L1Cache>();
+        auto &l2 = inst.value<features::L2Cache>();
+        l1.amount = 0;
+        l2.amount = 1;
+        CHECK( l1.amount != l2.amount );
     }
 
     using Cs = NvidiaGpu<8>;
