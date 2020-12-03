@@ -1,10 +1,14 @@
 #include <cpu_features/cpu_features_macros.h>
+#include "CpuMemory.h"
 #include <thread>
 #include "X86.h"
 
 #ifdef CPU_FEATURES_ARCH_X86
 #include <cpu_features/cpuinfo_x86.h>
 #endif
+
+#include <sys/sysinfo.h>
+#include <unistd.h>
 
 namespace parex {
 namespace hardware_information {
@@ -17,23 +21,23 @@ std::string X86::name() const {
     return "X86";
 }
 
-void X86::get_locals ( std::vector<std::unique_ptr<ProcessingUnit>> &pus ) {
+void X86::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, std::vector<std::unique_ptr<Memory>> &memories ) {
     #if defined(CPU_FEATURES_ARCH_X86)
-    std::unique_ptr<X86> res = std::make_unique<X86>();
-    res->ptr_size_ = 8 * sizeof( void * );
+    std::unique_ptr<X86> cpu = std::make_unique<X86>();
+    cpu->ptr_size_ = 8 * sizeof( void * );
 
     // instructions
     cpu_features::X86Info xi = cpu_features::GetX86Info();
-    if ( xi.features.avx512f ) res->features[ "AVX512" ];
-    if ( xi.features.avx2    ) res->features[ "AVX2"   ];
-    if ( xi.features.avx     ) res->features[ "AVX"    ];
-    if ( xi.features.sse2    ) res->features[ "SSE2"   ];
+    if ( xi.features.avx512f ) cpu->features[ "AVX512" ];
+    if ( xi.features.avx2    ) cpu->features[ "AVX2"   ];
+    if ( xi.features.avx     ) cpu->features[ "AVX"    ];
+    if ( xi.features.sse2    ) cpu->features[ "SSE2"   ];
 
     // caches
     cpu_features::CacheInfo ci = cpu_features::GetX86CacheInfo();
     for( int num = 0; num < ci.size; ++num ) {
         if ( ci.levels[ num ].cache_type == cpu_features::CPU_FEATURE_CACHE_DATA || ci.levels[ num ].cache_type == cpu_features::CPU_FEATURE_CACHE_UNIFIED ) {
-            res->features[ "L" + std::to_string( ci.levels[ num ].level ) + "Cache" ] = std::string( "{ " ) +
+            cpu->features[ "L" + std::to_string( ci.levels[ num ].level ) + "Cache" ] = std::string( "{ " ) +
                 ".amount = " + std::to_string( ci.levels[ num ].cache_size ) + ", " +
                 ".ways = " + std::to_string( ci.levels[ num ].ways ) + ", " +
                 ".line_size = " + std::to_string( ci.levels[ num ].line_size ) +
@@ -43,9 +47,19 @@ void X86::get_locals ( std::vector<std::unique_ptr<ProcessingUnit>> &pus ) {
 
     // multithreading
     if ( int n = std::thread::hardware_concurrency() )
-        res->features[ "Multithread" ] = std::to_string( n );
+        cpu->features[ "Multithread" ] = std::to_string( n );
 
-    pus.push_back( std::move( res ) );
+    // memory
+    std::unique_ptr<CpuMemory> mem = std::make_unique<CpuMemory>();
+    mem->amount = get_phys_pages() * sysconf( _SC_PAGESIZE );
+    mem->register_link( {
+        .processing_unit = cpu.get(),
+        .bandwidth = 90e9
+    } );
+
+    // register
+    memories.push_back( std::move( mem ) );
+    pus.push_back( std::move( cpu ) );
     #endif
 }
 

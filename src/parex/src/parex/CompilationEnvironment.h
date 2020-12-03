@@ -5,7 +5,8 @@
 
 /*
 */
-struct CompilationEnvironment {
+class CompilationEnvironment {
+public:
     using VS        = VecUnique<std::string>;
 
     void  operator+=( const CompilationEnvironment &that ) {
