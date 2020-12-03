@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../internal/S.h"
+#include "../internal/N.h"
 #include <utility>
 #include <string>
 
@@ -11,6 +12,13 @@ namespace processing_units {
 */
 template<class... Features>
 class FeatureSet {
+    template<class Feature,class T,class dummy=N<0>> struct SimdSizeFeature {
+        static constexpr int value = 1;
+    };
+    template<class Feature,class T> struct SimdSizeFeature<Feature,T,N<Feature::template SimdSize<T>::value*0>> {
+        static constexpr int value = Feature::template SimdSize<T>::value;
+    };
+
     template<class... _Features> struct Content {
         template<class Feature> struct Has { enum { value = false }; };
         template<class T> struct SimdSize { static constexpr int value = 1; };
@@ -20,13 +28,12 @@ class FeatureSet {
     template<class Head,class... Tail> struct Content<Head,Tail...> {
         using Next = Content<Tail...>;
 
-        template<class T,int dummy=0> struct SimdSize { static constexpr int value = Next::template SimdSize<T>::value; };
-        template<class T> struct SimdSize<T,Head::template SimdSize<float>::value*0> { static constexpr int value = std::max( Head::template SimdSize<T>::value, Next::template SimdSize<T>::value ); };
-
-        static std::string feature_names( std::string prefix = "," ) { return prefix + Head::name() + Next::feature_names(); }
-
         template<class Feature,int dummy=0> struct Has { enum { value = Next::template Has<Feature>::value }; };
         template<int dummy> struct Has<Head,dummy> { enum { value = true }; };
+
+        template<class T> struct SimdSize { static constexpr int value = std::max( SimdSizeFeature<Head,T>::value, Next::template SimdSize<T>::value ); };
+
+        static std::string feature_names( std::string prefix = "," ) { return prefix + Head::name() + Next::feature_names(); }
 
         template<class T> auto &value_( S<T> s ) { return next.value_( s ); }
         auto &value_( S<Head> ) { return value; }

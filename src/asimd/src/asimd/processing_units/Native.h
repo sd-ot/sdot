@@ -7,7 +7,7 @@ namespace asimd {
 namespace processing_units {
 
 // -------------------------- Native --------------------------
-#ifdef __x86_64__
+#if ( defined(_M_IX86) || defined(__i386__) || defined(_M_X64) || defined(__x86_64__) )
 using Native = X86< 8 * sizeof( void * )
     #ifdef __AVX512F__
         , Features::AVX512
@@ -22,7 +22,7 @@ using Native = X86< 8 * sizeof( void * )
         , features::SSE2
     #endif
 >;
-#endif // __x86_64__
+#endif // x86
 
 } // namespace processing_units
 } // namespace asimd
