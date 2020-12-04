@@ -27,6 +27,11 @@ public:
     static Type*                  type_factory        ( const std::string &name );
     static TypeFactory&           type_factory        ();
 
+    //
+    std::vector<bool>             possible_variants;  ///<
+    std::size_t                   chosen_variant;     ///<
+    std::size_t                   machine_id;         ///<
+
     // output data
     Type*                         output_type;        ///<
     void*                         output_data;        ///<
