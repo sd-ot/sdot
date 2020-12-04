@@ -14,9 +14,6 @@ public:
     /**/         TaskWrapper    ( Task *task );
     /**/         TaskWrapper    ();
 
-    TaskWrapper& operator=      ( const TaskWrapper &that ) = delete;
-    TaskWrapper& operator=      ( TaskWrapper &&that ) = default;
-
     void         write_to_stream( std::ostream &os ) const;
     Rc<Task>     to_string      ( double priority = 0 ) const;
 
@@ -25,7 +22,7 @@ public:
     Rc<Task>     conv_to        ( std::string type_name ) const;
     Rc<Task>     conv_to        ( Type *type ) const;
 
-    Rc<Task> task;
+    Rc<Task>     task;
 };
 
 } // namespace parex

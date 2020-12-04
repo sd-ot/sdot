@@ -14,6 +14,9 @@ TaskWrapper::TaskWrapper( Rc<Task> &&task ) : task( std::move( task ) ) {
 TaskWrapper::TaskWrapper( Task *task ) : task( task ) {
 }
 
+TaskWrapper::TaskWrapper() {
+}
+
 void TaskWrapper::write_to_stream( std::ostream &os ) const {
     Rc<Task> ts = to_string( std::numeric_limits<double>::max() );
     scheduler.append( ts );

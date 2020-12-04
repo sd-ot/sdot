@@ -21,5 +21,6 @@ template<> struct TypeInfo<std::int64_t > { static std::string name() { return "
 
 template<> struct TypeInfo<float        > { static std::string name() { return "FP32"       ; } };
 template<> struct TypeInfo<double       > { static std::string name() { return "FP64"       ; } };
+template<> struct TypeInfo<long double  > { static std::string name() { return "FP80"       ; } };
 
 } // namespace parex

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../data/TypeInfo.h"
-#include "../tasks/SrcTask.h"
 #include "TaskWrapper.h"
+#include "IsScalar.h"
 
 namespace parex {
 
@@ -15,28 +14,34 @@ namespace parex {
 */
 class Scalar : public TaskWrapper {
 public:
-    using             TaskWrapper::TaskWrapper;
-    /**/              Scalar     ( const char *str );           ///< conversion to a std::string
-    template<class T> Scalar     ( T &&value );                 ///< make a copy (or a move) of value
-    template<class T> Scalar     ( T *ptr, bool owned = true ); ///<
+    template      <class T,class = typename std::enable_if<IsScalar<T>::value>::type>
+    /**/          Scalar    ( T &&value );                 ///< make a copy or get data from a value
+    /**/          Scalar    ( Task *t );
+    /**/          Scalar    ();                            ///< start with a Zero
 
-    Scalar            operator+  ( const Scalar &that ) const;
-    Scalar            operator-  ( const Scalar &that ) const;
-    Scalar            operator*  ( const Scalar &that ) const;
-    Scalar            operator/  ( const Scalar &that ) const;
+    template      <class T,class = typename std::enable_if<IsScalar<T>::value>::type>
+    static Scalar from_ptr  ( T *ptr, bool owned = true );
 
-    Scalar&           operator+= ( const Scalar &that );
-    Scalar&           operator-= ( const Scalar &that );
-    Scalar&           operator*= ( const Scalar &that );
-    Scalar&           operator/= ( const Scalar &that );
+    Scalar        operator+ ( const Scalar &that ) const;
+    Scalar        operator- ( const Scalar &that ) const;
+    Scalar        operator* ( const Scalar &that ) const;
+    Scalar        operator/ ( const Scalar &that ) const;
+
+    Scalar&       operator+=( const Scalar &that );
+    Scalar&       operator-=( const Scalar &that );
+    Scalar&       operator*=( const Scalar &that );
+    Scalar&       operator/=( const Scalar &that );
 };
 
-template<class T>
-Scalar::Scalar( T *ptr, bool owned ) : TaskWrapper( new SrcTask( Task::type_factory( TypeInfo<T>::name() ), ptr, owned ) ) {
+template<class T,class>
+Scalar::Scalar( T &&value ) {
+    using U = typename std::decay<T>::type;
+    task = SrcTask::from_ptr( new U( std::forward<T>( value ) ), /*owned*/ true );
 }
 
-template<class T>
-Scalar::Scalar( T &&value ) : Scalar( new typename std::decay<T>::type( std::forward<T>( value ) ), /*owned*/ true ) {
+template<class T,class>
+Scalar Scalar::from_ptr( T *ptr, bool owned ) {
+    return SrcTask::from_ptr( ptr, owned );
 }
 
 } // namespace parex
