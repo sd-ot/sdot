@@ -1,6 +1,6 @@
-#include "../CompilationEnvironment.h"
+#include "../plugin_managers/CompilationEnvironment.h"
+#include "../plugin_managers/Src.h"
 #include "CpuMemory.h"
-#include "../Src.h"
 
 namespace parex {
 namespace hardware_information {

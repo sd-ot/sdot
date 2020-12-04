@@ -1,12 +1,12 @@
-#include "../CompilationEnvironment.h"
+#include "../plugin_managers/CompilationEnvironment.h"
+#include "../plugin_managers/Src.h"
 #include "GpuMemory.h"
-#include "../Src.h"
 
 namespace parex {
 namespace hardware_information {
 
 void GpuMemory::write_to_stream( std::ostream &os ) const {
-    os << "GpuMemory";
+    os << "GpuMemory(amount=" << amount << ")";
 }
 
 std::string GpuMemory::kernel_type( CompilationEnvironment &compilation_environment ) const {

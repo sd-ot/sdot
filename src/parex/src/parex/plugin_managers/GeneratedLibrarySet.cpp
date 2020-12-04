@@ -1,6 +1,7 @@
 #include "GeneratedLibrarySet.h"
 #include "TmpDir.h"
-#include "ERROR.h"
+
+#include "../utility/ERROR.h"
 
 #include <iostream>
 #include <fstream>

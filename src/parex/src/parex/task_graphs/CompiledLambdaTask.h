@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../plugin_managers/SrcSet.h"
 #include "CompiledTask.h"
-#include "SrcSet.h"
 
 /**
 */

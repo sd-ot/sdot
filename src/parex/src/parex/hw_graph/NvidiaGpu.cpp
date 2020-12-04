@@ -1,7 +1,7 @@
+#include "../utility/S.h"
 #include "NvidiaGpu.h"
 #include "GpuMemory.h"
 #include <sstream>
-#include "../S.h"
 
 #if __has_include(<cuda_runtime.h>)
 #define HAS_CUDA_HEADER 1

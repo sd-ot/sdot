@@ -1,8 +1,8 @@
 #pragma once
 
+#include "../utility/S.h"
 #include <cstdint>
 #include <string>
-#include "S.h"
 
 namespace parex {
 

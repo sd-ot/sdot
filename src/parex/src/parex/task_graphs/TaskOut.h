@@ -1,8 +1,8 @@
 #ifndef PAREX_TaskOut__H
 #define PAREX_TaskOut__H
 
+#include "../utility/Rc.h"
 #include "Task.h"
-#include "Rc.h"
 
 /**
   Reference to an output of a task

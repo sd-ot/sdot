@@ -1,6 +1,6 @@
+#include "../plugin_managers/Src.h"
+#include "../utility/P.h"
 #include "Type.h"
-#include "Src.h"
-#include "P.h"
 
 Type::~Type() {
 }

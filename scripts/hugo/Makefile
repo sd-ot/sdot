@@ -19,9 +19,9 @@ all:
 	# ${NSMAKE} tests/asimd/test_asimd_gpu.cpp
 	# ${NSMAKE} tests/parex/test_starpu.cpp
 	# ${NSMAKE} tests/parex/test_HwGraph.cpp
-	# ${NSMAKE} tests/parex/test_Scalar.cpp
 	# ${NSMAKE} tests/parex/test_gtensor.cpp
-	${NSMAKE} tests/parex/test_gvector.cpp
+	# ${NSMAKE} tests/parex/test_gvector.cpp
+	${NSMAKE} tests/parex/test_Scalar.cpp
 
 c:
 	rm -rf .generated_libs

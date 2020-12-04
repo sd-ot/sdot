@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../CompiledTask.h"
+#include "CompiledTask.h"
 
 /***/
 class GenericArithmeticOperation : public CompiledTask {

@@ -1,7 +1,6 @@
-#include "Tasks/GenericArithmeticOperation.h"
-#include "CompiledIncludeTask.h"
+#include "../task_graphs/GenericArithmeticOperation.h"
+#include "../task_graphs/CompiledIncludeTask.h"
 #include "Scalar.h"
-#include "P.h"
 
 namespace parex {
 

@@ -1,9 +1,9 @@
 #include <cpu_features/cpu_features_macros.h>
-#include "hardware_information/CpuMemory.h"
-#include "hardware_information/NvidiaGpu.h"
-#include "hardware_information/X86.h"
+#include "../utility/TODO.h"
+#include "CpuMemory.h"
+#include "NvidiaGpu.h"
 #include "HwGraph.h"
-#include "TODO.h"
+#include "X86.h"
 
 namespace parex {
 using namespace hardware_information;

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "../output_types/type_name.h"
+#include "../task_graphs/SrcTask.h"
 #include "TaskWrapper.h"
-#include "type_name.h"
 
 namespace parex {
 
@@ -14,7 +15,7 @@ namespace parex {
 */
 class Scalar : public TaskWrapper {
 public:
-    using             TaskWrapper::  TaskWrapper;
+    using             TaskWrapper    ::TaskWrapper;
     /**/              Scalar         ( const char *str );           ///< conversion to a std::string
     template<class T> Scalar         ( T &&value );                 ///< make a copy (or a move) of value
     template<class T> Scalar         ( T *ptr, bool owned = true ); ///<
@@ -37,7 +38,7 @@ Scalar::Scalar( T *ptr, bool owned ) : TaskWrapper( new SrcTask( Task::type_fact
 }
 
 template<class T>
-Scalar::Scalar( T &&value ) : TaskWrapper( new typename std::decay<T>::type( std::forward<T>( value ) ), /*owned*/ true ) {
+Scalar::Scalar( T &&value ) : Scalar( new typename std::decay<T>::type( std::forward<T>( value ) ), /*owned*/ true ) {
 }
 
 } // namespace parex

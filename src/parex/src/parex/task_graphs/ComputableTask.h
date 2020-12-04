@@ -1,7 +1,7 @@
 #pragma once
 
-#include "TypeFactory.h"
-#include "type_name.h"
+#include "../output_types/TypeFactory.h"
+#include "../output_types/type_name.h"
 #include "TaskOut.h"
 
 /**

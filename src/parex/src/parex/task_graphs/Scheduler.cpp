@@ -1,4 +1,4 @@
-#include "generic_ostream_output.h"
+#include "../utility/generic_ostream_output.h"
 #include "ComputableTask.h"
 #include "Scheduler.h"
 #include <iostream>

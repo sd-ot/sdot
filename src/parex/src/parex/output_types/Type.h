@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CompilationEnvironment.h"
+#include "../plugin_managers/CompilationEnvironment.h"
 #include <functional>
 #include <ostream>
 #include <memory>

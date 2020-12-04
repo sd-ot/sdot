@@ -1,5 +1,5 @@
 #include "GenericArithmeticOperation.h"
-#include "../Src.h"
+#include "../plugin_managers/Src.h"
 
 GenericArithmeticOperation::GenericArithmeticOperation( std::string name_op, std::vector<Rc<Task>> &&children ) : CompiledTask( std::move( children ) ), name_op( name_op ) {
 }

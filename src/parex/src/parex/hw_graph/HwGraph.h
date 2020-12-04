@@ -1,7 +1,7 @@
 #pragma once
 
-#include "hardware_information/ProcessingUnit.h"
-#include "hardware_information/Memory.h"
+#include "ProcessingUnit.h"
+#include "Memory.h"
 #include <vector>
 #include <memory>
 

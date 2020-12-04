@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VecUnique.h"
+#include "../utility/VecUnique.h"
 #include <string>
 
 /*

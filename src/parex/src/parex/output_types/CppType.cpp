@@ -1,6 +1,6 @@
-#include "GeneratedSymbolSet.h"
+#include "../plugin_managers/GeneratedSymbolSet.h"
+#include "../utility/P.h"
 #include "CppType.h"
-#include "P.h"
 
 CppType::CppType( std::string name, const CompilationEnvironment &compilation_environment, std::vector<Type *> &&sub_types ) : destructor_func( nullptr ), sub_types( std::move( sub_types ) ), name( name ) {
     this->compilation_environment = compilation_environment;

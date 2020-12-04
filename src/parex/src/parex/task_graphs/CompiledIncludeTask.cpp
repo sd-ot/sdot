@@ -1,5 +1,5 @@
 #include "CompiledIncludeTask.h"
-#include "P.h"
+#include "../utility/P.h"
 
 CompiledIncludeTask::CompiledIncludeTask( const Path &include_path, std::vector<Rc<Task> > &&children, const std::string &called_func_name, double priority, const std::string &summary ) : CompiledTask( std::move( children ), priority ),
         called_func_name_( called_func_name.empty() ? include_path.stem().string() : called_func_name ),

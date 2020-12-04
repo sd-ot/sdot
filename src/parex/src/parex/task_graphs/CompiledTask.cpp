@@ -1,4 +1,4 @@
-#include "GeneratedSymbolSet.h"
+#include "../plugin_managers/GeneratedSymbolSet.h"
 #include "CompiledTask.h"
 
 CompiledTask::CompiledTask( std::vector<Rc<Task>> &&children, double priority ) : ComputableTask( std::move( children ), priority ) {

@@ -1,5 +1,5 @@
-#include <parex/HwGraph.h>
-#include <parex/P.h>
+#include <parex/hw_graph/HwGraph.h>
+#include <parex/utility/P.h>
 
 using namespace parex;
 

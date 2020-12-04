@@ -1,6 +1,6 @@
-#include "CompiledIncludeTask.h"
+#include "../task_graphs/CompiledIncludeTask.h"
+#include "../task_graphs/Scheduler.h"
 #include "TaskWrapper.h"
-#include "Scheduler.h"
 #include <limits>
 
 namespace parex {
