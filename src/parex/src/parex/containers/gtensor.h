@@ -29,7 +29,7 @@ public:
     gtensor&                         operator=      ( const gtensor & ) = delete;
     gtensor&                         operator=      ( gtensor && ) = delete;
 
-    template<class... Args> void     resize         ( Allocator &allocator, Args&& ...args );
+    template<class... Args> void     resize         ( Args&& ...args );
 
     void                             write_to_stream( std::ostream &os ) const;
     template<class F> void           for_each_index ( F &&f ) const;

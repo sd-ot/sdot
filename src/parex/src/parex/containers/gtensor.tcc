@@ -31,7 +31,7 @@ gtensor<T,N,A>::~gtensor() {
 }
 
 template<class T,int N,class A> template<class... Args>
-void gtensor<T,N,A>::resize( A &allocator, Args&& ...args ) {
+void gtensor<T,N,A>::resize( Args&& ...args ) {
     S  old_cprs = _cprs;
     T *old_data = _data;
 
@@ -43,7 +43,7 @@ void gtensor<T,N,A>::resize( A &allocator, Args&& ...args ) {
 
     if ( old_cprs[ N - 1 ] ) {
         TODO; // copy of content
-        allocator.deallocate( old_data );
+        _allocator->deallocate( old_data );
     }
 }
 

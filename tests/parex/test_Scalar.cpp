@@ -1,5 +1,5 @@
-#include <parex/Scalar.h>
-#include <parex/P.h>
+#include <parex/task_wrappers/Scalar.h>
+#include <parex/utility/P.h>
 
 using namespace parex;
 
