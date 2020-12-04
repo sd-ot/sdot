@@ -4,6 +4,8 @@
 #include <sstream>
 #include <string>
 
+namespace parex {
+
 inline std::string va_string( const std::string &str ) {
     return str;
 }
@@ -17,3 +19,5 @@ std::string va_string( const std::string &str, const Head &head, const Tail &...
     ss << str.substr( 0, pos ) << head << str.substr( pos + 2 );
     return va_string( ss.str(), tail... );
 }
+
+} // namespace parex

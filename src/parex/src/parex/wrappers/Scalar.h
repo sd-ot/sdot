@@ -15,26 +15,24 @@ namespace parex {
 */
 class Scalar : public TaskWrapper {
 public:
-    using             TaskWrapper    ::TaskWrapper;
-    /**/              Scalar         ( const char *str );           ///< conversion to a std::string
-    template<class T> Scalar         ( T &&value );                 ///< make a copy (or a move) of value
-    template<class T> Scalar         ( T *ptr, bool owned = true ); ///<
+    using             TaskWrapper::TaskWrapper;
+    /**/              Scalar     ( const char *str );           ///< conversion to a std::string
+    template<class T> Scalar     ( T &&value );                 ///< make a copy (or a move) of value
+    template<class T> Scalar     ( T *ptr, bool owned = true ); ///<
 
-    void              write_to_stream( std::ostream &os ) const;
+    Scalar            operator+  ( const Scalar &that ) const;
+    Scalar            operator-  ( const Scalar &that ) const;
+    Scalar            operator*  ( const Scalar &that ) const;
+    Scalar            operator/  ( const Scalar &that ) const;
 
-    Scalar            operator+      ( const Scalar &that ) const;
-    Scalar            operator-      ( const Scalar &that ) const;
-    Scalar            operator*      ( const Scalar &that ) const;
-    Scalar            operator/      ( const Scalar &that ) const;
-
-    Scalar&           operator+=     ( const Scalar &that );
-    Scalar&           operator-=     ( const Scalar &that );
-    Scalar&           operator*=     ( const Scalar &that );
-    Scalar&           operator/=     ( const Scalar &that );
+    Scalar&           operator+= ( const Scalar &that );
+    Scalar&           operator-= ( const Scalar &that );
+    Scalar&           operator*= ( const Scalar &that );
+    Scalar&           operator/= ( const Scalar &that );
 };
 
 template<class T>
-Scalar::Scalar( T *ptr, bool owned ) : TaskWrapper( new SrcTask( Task::type_factory( type_name<T>() ), ptr, owned ) ) {
+Scalar::Scalar( T *ptr, bool owned ) : TaskWrapper( new SrcTask( Task::type_factory( TypeInfo<T>::name() ), ptr, owned ) ) {
 }
 
 template<class T>

@@ -3,7 +3,10 @@
 #include <algorithm>
 #include <vector>
 
+namespace parex {
+
 /**
+
 */
 template<class T>
 class VecUnique : public std::vector<T> {
@@ -29,3 +32,5 @@ public:
         return *this;
     }
 };
+
+} // namespace parex

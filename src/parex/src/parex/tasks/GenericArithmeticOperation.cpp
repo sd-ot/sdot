@@ -11,7 +11,8 @@ void GenericArithmeticOperation::write_to_stream( std::ostream &os ) const {
 }
 
 void GenericArithmeticOperation::get_src_content( Src &src, SrcSet &/*sw*/ ) {
-    src.compilation_environment.includes << "<parex/P.h>";
+    // src.compilation_environment.includes << "<parex/P.h>";
+    src.compilation_environment.preliminaries << "using namespace parex;";
 
     src << "template<class T>\n";
     src << "TaskOut<T> " << called_func_name() << "( TaskOut<T> &a, TaskOut<T> &b ) {\n";

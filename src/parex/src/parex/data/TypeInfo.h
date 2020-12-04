@@ -7,22 +7,19 @@ namespace parex {
 
 template<class T> struct TypeInfo;
 
-#define DECL_EXPLICIT_TYPE_INFO( NAME ) \
-    template<> struct parex::TypeInfo<NAME> { static std::string name() { return #NAME; } }
+template<> struct TypeInfo<std::string  > { static std::string name() { return "std::string"; } };
 
-DECL_EXPLICIT_TYPE_INFO( std::string   );
+template<> struct TypeInfo<std::uint8_t > { static std::string name() { return "PI8"        ; } };
+template<> struct TypeInfo<std::uint16_t> { static std::string name() { return "PI16"       ; } };
+template<> struct TypeInfo<std::uint32_t> { static std::string name() { return "PI32"       ; } };
+template<> struct TypeInfo<std::uint64_t> { static std::string name() { return "PI64"       ; } };
 
-DECL_EXPLICIT_TYPE_INFO( double        );
-DECL_EXPLICIT_TYPE_INFO( float         );
+template<> struct TypeInfo<std::int8_t  > { static std::string name() { return "SI8"        ; } };
+template<> struct TypeInfo<std::int16_t > { static std::string name() { return "SI16"       ; } };
+template<> struct TypeInfo<std::int32_t > { static std::string name() { return "SI32"       ; } };
+template<> struct TypeInfo<std::int64_t > { static std::string name() { return "SI64"       ; } };
 
-DECL_EXPLICIT_TYPE_INFO( std::int8_t   );
-DECL_EXPLICIT_TYPE_INFO( std::int16_t  );
-DECL_EXPLICIT_TYPE_INFO( std::int32_t  );
-DECL_EXPLICIT_TYPE_INFO( std::int64_t  );
-
-DECL_EXPLICIT_TYPE_INFO( std::uint8_t  );
-DECL_EXPLICIT_TYPE_INFO( std::uint16_t );
-DECL_EXPLICIT_TYPE_INFO( std::uint32_t );
-DECL_EXPLICIT_TYPE_INFO( std::uint64_t );
+template<> struct TypeInfo<float        > { static std::string name() { return "FP32"       ; } };
+template<> struct TypeInfo<double       > { static std::string name() { return "FP64"       ; } };
 
 } // namespace parex

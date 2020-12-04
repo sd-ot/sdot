@@ -1,10 +1,9 @@
-#include <parex/generic_ostream_output.h>
-#include <parex/TaskOut.h>
-#include <parex/P.h>
+#include <parex/utility/generic_ostream_output.h>
+#include <parex/tasks/TaskOut.h>
 #include <sstream>
 
 template<class T>
-TaskOut<std::string> to_string( const TaskOut<T> &value ) {
+parex::TaskOut<std::string> to_string( const parex::TaskOut<T> &value ) {
     std::ostringstream ss;
     ss << *value;
 

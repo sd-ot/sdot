@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+namespace parex {
+
 /**
 */
 struct RefCount {
@@ -10,3 +12,5 @@ struct RefCount {
 
     mutable std::size_t value    = 0;
 };
+
+} // namespace parex

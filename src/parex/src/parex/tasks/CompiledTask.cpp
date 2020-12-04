@@ -14,7 +14,7 @@ void CompiledTask::exec() {
 
         src.compilation_environment.include_directories << PAREX_DIR "/src";
         src.compilation_environment.cpp_flags << "-std=c++17" << "-g";
-        src.compilation_environment.includes << "<parex/CompiledTask.h>";
+        src.compilation_environment.includes << "<parex/tasks/CompiledTask.h>";
 
         // includes for types
         for( const Rc<Task> &ch : children )
@@ -27,9 +27,9 @@ void CompiledTask::exec() {
         src << "\n";
         src << "namespace {\n";
         src << "    struct KernelWrapper {\n";
-        src << "        auto operator()( ComputableTask *task ) const {\n";
+        src << "        auto operator()( parex::ComputableTask *task ) const {\n";
         for( std::size_t num_child = 0; num_child < children.size(); ++num_child )
-            src << "            TaskOut<" << children[ num_child ]->output_type->cpp_name() << "> arg_" << num_child << "( std::move( task->children[ " << num_child << " ] ) );\n";
+            src << "            parex::TaskOut<" << children[ num_child ]->output_type->cpp_name() << "> arg_" << num_child << "( std::move( task->children[ " << num_child << " ] ) );\n";
         src << "            return " << called_func_name() << "(";
         for( std::size_t num_child = 0; num_child < children.size(); ++num_child )
             src << ( num_child ? ", " : " " ) << "arg_" << num_child;
@@ -39,7 +39,7 @@ void CompiledTask::exec() {
         src << "}\n";
 
         src << "\n";
-        src << "extern \"C\" void " << exported_func_name() << "( CompiledTask *task ) {\n";
+        src << "extern \"C\" void " << exported_func_name() << "( parex::CompiledTask *task ) {\n";
         src << "    task->run_kernel_wrapper( KernelWrapper() );\n";
         src << "}\n";
     }, summary(), exported_func_name() );

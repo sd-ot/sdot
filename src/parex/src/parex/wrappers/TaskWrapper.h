@@ -21,7 +21,7 @@ public:
     Rc<Task>     to_string      ( double priority = 0 ) const;
 
     template     <class T>
-    Rc<Task>     conv_to        () const { return conv_to( type_name( S<T>() ) ); }
+    Rc<Task>     conv_to        () const { return conv_to( TypeInfo<T>::name() ); }
     Rc<Task>     conv_to        ( std::string type_name ) const;
     Rc<Task>     conv_to        ( Type *type ) const;
 
