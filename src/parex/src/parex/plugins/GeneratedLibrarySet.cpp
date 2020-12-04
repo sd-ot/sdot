@@ -6,6 +6,8 @@
 #include <iostream>
 #include <fstream>
 
+namespace parex {
+
 GeneratedLibrarySet::GeneratedLibrarySet( const Path &output_directory ) : output_directory( output_directory ) {
 }
 
@@ -136,3 +138,4 @@ int GeneratedLibrarySet::exec_cmd( std::string cmd ) const {
     return res;
 }
 
+} // namespace parex

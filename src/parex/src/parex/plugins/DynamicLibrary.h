@@ -3,6 +3,8 @@
 #include <dynalo/dynalo.hpp>
 #include <filesystem>
 
+namespace parex {
+
 /**
 */
 class DynamicLibrary {
@@ -16,3 +18,4 @@ private:
     dynalo::library      lib;
 };
 
+} // namespace parex

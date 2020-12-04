@@ -1,6 +1,8 @@
 #include "SrcTask.h"
 #include <ostream>
 
+namespace parex {
+
 SrcTask::SrcTask( Type *type, void *data, bool own ) {
     output_own = own;
     output_type = type;
@@ -10,3 +12,5 @@ SrcTask::SrcTask( Type *type, void *data, bool own ) {
 void SrcTask::write_to_stream( std::ostream &os ) const {
     os << "src";
 }
+
+} // namespace parex

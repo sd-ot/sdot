@@ -4,6 +4,8 @@
 #include "../utility/Rc.h"
 #include "Task.h"
 
+namespace parex {
+
 /**
   Reference to an output of a task
 */
@@ -22,6 +24,7 @@ public:
     T*       data;
 };
 
+} // namespace parex
 
 #include "TaskOut.tcc"
 

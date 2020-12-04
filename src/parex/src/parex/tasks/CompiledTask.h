@@ -1,7 +1,9 @@
 #pragma once
 
-#include "../plugin_managers/SrcSet.h"
+#include "../plugins/SrcSet.h"
 #include "ComputableTask.h"
+
+namespace parex {
 
 /**
 */
@@ -18,3 +20,4 @@ public:
     virtual std::string    summary           (); ///< by default, do not give aything, to let GeneratedLibrarySet make its own summary from the sources
 };
 
+} // namespace parex

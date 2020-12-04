@@ -1,5 +1,7 @@
-#include "../plugin_managers/GeneratedSymbolSet.h"
+#include "../plugins/GeneratedSymbolSet.h"
 #include "CompiledTask.h"
+
+namespace parex {
 
 CompiledTask::CompiledTask( std::vector<Rc<Task>> &&children, double priority ) : ComputableTask( std::move( children ), priority ) {
 }
@@ -57,3 +59,5 @@ std::string CompiledTask::called_func_name() {
 std::string CompiledTask::summary() {
     return {};
 }
+
+} // namespace parex

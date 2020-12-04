@@ -1,5 +1,7 @@
 #include "GenericArithmeticOperation.h"
-#include "../plugin_managers/Src.h"
+#include "../plugins/Src.h"
+
+namespace parex {
 
 GenericArithmeticOperation::GenericArithmeticOperation( std::string name_op, std::vector<Rc<Task>> &&children ) : CompiledTask( std::move( children ) ), name_op( name_op ) {
 }
@@ -20,3 +22,5 @@ void GenericArithmeticOperation::get_src_content( Src &src, SrcSet &/*sw*/ ) {
     src << "    return new T( *a " << name_op << " *b );\n";
     src << "}\n";
 }
+
+} // namespace parex

@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+namespace parex {
 
 /**
 */
@@ -24,3 +25,4 @@ public:
     std::ostringstream     fout;                    ///<
 };
 
+} // namespace parex

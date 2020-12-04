@@ -2,6 +2,8 @@
 
 #include "CompiledTask.h"
 
+namespace parex {
+
 /***/
 class GenericArithmeticOperation : public CompiledTask {
 public:
@@ -13,3 +15,4 @@ public:
     std::string  name_op;
 };
 
+} // namespace parex

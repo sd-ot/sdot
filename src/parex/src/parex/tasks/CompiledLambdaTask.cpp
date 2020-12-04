@@ -1,5 +1,8 @@
 #include "CompiledLambdaTask.h"
 
+namespace parex {
+} // namespace parex
+
 //CompiledLambdaTask::CompiledLambdaTask( StreamWriter &&get_summary, SrcWriter &&src_writer, std::vector<Rc<Task> > &&children, StreamWriter &&called_func_name_writer, double priority ) : CompiledTask( std::move( children ), priority ),
 //        called_func_name_( called_func_name ),
 //        summary_writer_( std::move( get_summary ) ),

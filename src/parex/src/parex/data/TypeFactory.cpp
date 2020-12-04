@@ -4,6 +4,8 @@
 
 #include "../utility/TODO.h"
 
+namespace parex {
+
 TypeFactory::TypeFactory() {
     // register the most common types. Less common one are handled by TypeFactoryRegistrar
     type_map[ "std::string" ] = std::make_unique<CppType>( "std::string", CompilationEnvironment{ .includes = { "<string>" } } );
@@ -91,3 +93,4 @@ std::unique_ptr<Type> TypeFactory::make_type_info( const std::string &name ) {
     return std::make_unique<CppType>( name, CompilationEnvironment{} );
 }
 
+} // namespace parex

@@ -1,6 +1,8 @@
-#include "../plugin_managers/GeneratedSymbolSet.h"
+#include "../plugins/GeneratedSymbolSet.h"
 #include "../utility/P.h"
 #include "CppType.h"
+
+namespace parex {
 
 CppType::CppType( std::string name, const CompilationEnvironment &compilation_environment, std::vector<Type *> &&sub_types ) : destructor_func( nullptr ), sub_types( std::move( sub_types ) ), name( name ) {
     this->compilation_environment = compilation_environment;
@@ -37,3 +39,5 @@ void CppType::destroy( void *data ) const {
 
     destructor_func( data );
 }
+
+} // namespace parex

@@ -1,5 +1,5 @@
-#include "../task_graphs/GenericArithmeticOperation.h"
-#include "../task_graphs/CompiledIncludeTask.h"
+#include "../tasks/GenericArithmeticOperation.h"
+#include "../tasks/CompiledIncludeTask.h"
 #include "Scalar.h"
 
 namespace parex {

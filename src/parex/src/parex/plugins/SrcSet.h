@@ -3,6 +3,8 @@
 #include "Src.h"
 #include <map>
 
+namespace parex {
+
 /**
 */
 class SrcSet {
@@ -22,3 +24,4 @@ public:
     MapPathSrc             src_map;                     ///<
 };
 
+} // namespace parex

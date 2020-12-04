@@ -1,5 +1,7 @@
 #include "ComputableTask.h"
 
+namespace parex {
+
 ComputableTask::ComputableTask( std::vector<Rc<Task>> &&children, double priority ) : children( std::move( children ) ), priority( priority ) {
     scheduled = 0;
     computed  = 0;
@@ -40,3 +42,4 @@ bool ComputableTask::is_computed() const {
     return computed;
 }
 
+} // namespace parex

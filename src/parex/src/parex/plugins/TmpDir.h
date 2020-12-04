@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+namespace parex {
+
 /**
 */
 class TmpDir {
@@ -14,3 +16,5 @@ public:
 
     Path     p;
 };
+
+} // namespace parex

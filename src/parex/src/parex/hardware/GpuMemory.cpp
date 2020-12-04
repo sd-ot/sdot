@@ -1,5 +1,5 @@
-#include "../plugin_managers/CompilationEnvironment.h"
-#include "../plugin_managers/Src.h"
+#include "../plugins/CompilationEnvironment.h"
+#include "../plugins/Src.h"
 #include "GpuMemory.h"
 
 namespace parex {

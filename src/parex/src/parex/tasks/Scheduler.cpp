@@ -4,6 +4,8 @@
 #include <iostream>
 #include <map>
 
+namespace parex {
+
 Scheduler scheduler;
 
 Scheduler::Scheduler() {
@@ -47,3 +49,5 @@ void Scheduler::run() {
 
     targets.clear();
 }
+
+} // namespace parex

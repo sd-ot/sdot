@@ -1,5 +1,7 @@
 #pragma once
 
+namespace parex {
+
 /**
   std::integral_constant
 */
@@ -18,3 +20,5 @@ struct N {
         return {};
     }
 };
+
+} // namespace parex

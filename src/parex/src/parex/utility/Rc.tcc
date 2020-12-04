@@ -1,5 +1,7 @@
 #include "Rc.h"
 
+namespace parex {
+
 template<class T,class DeleteMethod>
 Rc<T,DeleteMethod>::Rc() : data( 0 ) {
 }
@@ -145,3 +147,5 @@ void Rc<T,DeleteMethod>::dec_ref( T *data ) { if ( data && data->ref_count.decre
 
 template<class T>
 bool operator==( const T *p, const Rc<T> &q ) { return p == q.data; }
+
+} // namespace parex

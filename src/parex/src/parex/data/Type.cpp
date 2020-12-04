@@ -1,6 +1,8 @@
-#include "../plugin_managers/Src.h"
+#include "../plugins/Src.h"
 #include "../utility/P.h"
 #include "Type.h"
+
+namespace parex {
 
 Type::~Type() {
 }
@@ -14,3 +16,5 @@ void Type::add_needs_in( Src &src ) const {
         src.compilation_environment += t->compilation_environment;
     } );
 }
+
+} // namespace parex

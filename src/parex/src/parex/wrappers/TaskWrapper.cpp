@@ -1,5 +1,5 @@
-#include "../task_graphs/CompiledIncludeTask.h"
-#include "../task_graphs/Scheduler.h"
+#include "../tasks/CompiledIncludeTask.h"
+#include "../tasks/Scheduler.h"
 #include "TaskWrapper.h"
 #include <limits>
 

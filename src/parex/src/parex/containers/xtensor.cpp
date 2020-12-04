@@ -1,5 +1,7 @@
-#include "../TypeFactoryRegistrar.h"
+#include "../data/TypeFactoryRegistrar.h"
 #include "xtensor.h"
+
+namespace parex {
 
 // CompilationEnvironment for xt::xarray and xt::xtensor
 namespace { static TypeFactoryRegistrar _0( { "xt::xarray", "xt::xtensor" }, CompilationEnvironment{
@@ -8,3 +10,5 @@ namespace { static TypeFactoryRegistrar _0( { "xt::xarray", "xt::xtensor" }, Com
     .cmake_packages = { "xtl", "xtensor" },
     .include_directories = { "ext/xtensor/install/include", "ext/xsimd/install/include", "src/asimd/src" },
 } ); }
+
+} // namespace parex

@@ -3,6 +3,8 @@
 #include "../utility/VecUnique.h"
 #include <string>
 
+namespace parex {
+
 /*
 */
 class CompilationEnvironment {
@@ -27,3 +29,5 @@ public:
     VS    cmake_packages;
     VS    include_directories;
 };
+
+} // namespace parex

@@ -1,8 +1,10 @@
 #pragma once
 
-#include "../output_types/TypeFactory.h"
-#include "../output_types/type_name.h"
+#include "../data/TypeFactory.h"
+#include "../data/TypeInfo.h"
 #include "TaskOut.h"
+
+namespace parex {
 
 /**
 */
@@ -32,7 +34,7 @@ public:
 
 template<class T>
 void ComputableTask::make_outputs( TaskOut<T> &&ret ) {
-    output_type = type_factory_virtual( type_name<T>() );
+    output_type = type_factory_virtual( TypeInfo<T>::name() );
     output_data = ret.data;
     output_own = true;
 
@@ -56,3 +58,5 @@ void ComputableTask::run_kernel_wrapper( const F &func ) {
     constexpr bool void_ret = std::is_same<decltype( func( this ) ),void>::value;
     run_void_or_not( std::integral_constant<bool,void_ret>(), func );
 }
+
+} // namespace parex

@@ -5,6 +5,8 @@
 #include <vector>
 #include <map>
 
+namespace parex {
+
 template<class T> class TaskOut;
 class ComputableTask;
 class TypeFactory;
@@ -42,3 +44,4 @@ public:
     std::vector<ComputableTask *> parents;            ///<
 };
 
+} // namespace parex

@@ -1,11 +1,13 @@
 #pragma once
 
-#include "../plugin_managers/CompilationEnvironment.h"
+#include "../plugins/CompilationEnvironment.h"
 #include <functional>
 #include <ostream>
 #include <memory>
 #include <string>
 #include <vector>
+
+namespace parex {
 class Src;
 
 /**
@@ -27,3 +29,4 @@ public:
     CompilationEnvironment compilation_environment; ///<
 };
 
+} // namespace parex

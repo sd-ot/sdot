@@ -6,6 +6,7 @@
 #include <string>
 #include <tuple>
 
+namespace parex {
 template<class T>
 struct HasWriteToStream {
     template<class    U> static auto has_write_to_stream( const U& val, std::ostream &os ) -> typename std::tuple_element<1,std::tuple<decltype(val.write_to_stream(os)),std::true_type>>::type { return {}; }
@@ -31,16 +32,18 @@ struct HasPop {
     enum {                           value   = OutType::value };
 };
 
+} // namespace parex
+
 // operator<<( ostream ) if we have a `write to stream`
 template<class T>
-auto operator<<( std::ostream &os, const T &val ) -> typename std::enable_if<HasWriteToStream<T>::value,std::ostream &>::type {
+auto operator<<( std::ostream &os, const T &val ) -> typename std::enable_if<parex::HasWriteToStream<T>::value,std::ostream &>::type {
     val.write_to_stream( os );
     return os;
 }
 
 // operator<<( ostream ) if we have a `begin` but no `write to stream`
 template<class T>
-auto operator<<( std::ostream &os, const T &val ) -> typename std::enable_if<HasBegin<T>::value && ! HasWriteToStream<T>::value,std::ostream &>::type {
+auto operator<<( std::ostream &os, const T &val ) -> typename std::enable_if<parex::HasBegin<T>::value && ! parex::HasWriteToStream<T>::value,std::ostream &>::type {
     size_t s = 0;
     for( const auto &v : val )
         os << ( s++ ? "," : "" ) << v;
@@ -49,7 +52,7 @@ auto operator<<( std::ostream &os, const T &val ) -> typename std::enable_if<Has
 
 // operator<<( ostream ) if we have a `pop` but no `write to stream`
 template<class T>
-auto operator<<( std::ostream &os, const T &val ) -> typename std::enable_if<HasPop<T>::value && ! HasWriteToStream<T>::value,std::ostream &>::type {
+auto operator<<( std::ostream &os, const T &val ) -> typename std::enable_if<parex::HasPop<T>::value && ! parex::HasWriteToStream<T>::value,std::ostream &>::type {
     os << '[';
     int cpt = 0;
     for( T cp = val; cp; ++cpt )
@@ -73,6 +76,7 @@ inline std::ostream &operator<<( std::ostream &os, const std::string &val ) {
     os.write( val.data(), val.size() );
     return os;
 }
+
 
 //
 template<class A,class B>

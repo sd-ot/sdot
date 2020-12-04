@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../output_types/type_name.h"
-#include "../task_graphs/SrcTask.h"
+#include "../data/TypeInfo.h"
+#include "../tasks/SrcTask.h"
 #include "TaskWrapper.h"
 
 namespace parex {

@@ -1,28 +1,28 @@
 #pragma once
 
-#include "../utility/S.h"
 #include <cstdint>
 #include <string>
 
 namespace parex {
 
-inline std::string type_name( S<std::string  > ) { return "std::string"; }
+template<class T> struct TypeInfo;
 
-inline std::string type_name( S<double       > ) { return "FP64"       ; }
-inline std::string type_name( S<float        > ) { return "FP32"       ; }
+#define DECL_EXPLICIT_TYPE_INFO( NAME ) \
+    template<> struct parex::TypeInfo<NAME> { static std::string name() { return #NAME; } }
 
-inline std::string type_name( S<std::int8_t  > ) { return "SI8"        ; }
-inline std::string type_name( S<std::int16_t > ) { return "SI16"       ; }
-inline std::string type_name( S<std::int32_t > ) { return "SI32"       ; }
-inline std::string type_name( S<std::int64_t > ) { return "SI64"       ; }
+DECL_EXPLICIT_TYPE_INFO( std::string   );
 
-inline std::string type_name( S<std::uint8_t > ) { return "PI8"        ; }
-inline std::string type_name( S<std::uint16_t> ) { return "PI16"       ; }
-inline std::string type_name( S<std::uint32_t> ) { return "PI32"       ; }
-inline std::string type_name( S<std::uint64_t> ) { return "PI64"       ; }
+DECL_EXPLICIT_TYPE_INFO( double        );
+DECL_EXPLICIT_TYPE_INFO( float         );
 
-template<class T> std::string type_name( S<std::allocator<T>> ) { return "std::allocator<" + type_name( S<T>() ) + ">"; }
+DECL_EXPLICIT_TYPE_INFO( std::int8_t   );
+DECL_EXPLICIT_TYPE_INFO( std::int16_t  );
+DECL_EXPLICIT_TYPE_INFO( std::int32_t  );
+DECL_EXPLICIT_TYPE_INFO( std::int64_t  );
 
-template<class T> std::string type_name() { return type_name( S<T>() ); }
+DECL_EXPLICIT_TYPE_INFO( std::uint8_t  );
+DECL_EXPLICIT_TYPE_INFO( std::uint16_t );
+DECL_EXPLICIT_TYPE_INFO( std::uint32_t );
+DECL_EXPLICIT_TYPE_INFO( std::uint64_t );
 
 } // namespace parex

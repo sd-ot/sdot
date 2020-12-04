@@ -1,5 +1,7 @@
 #include "TaskOut.h"
 
+namespace parex {
+
 template<class T>
 TaskOut<T>::TaskOut( TaskOut &&task_out ) : task( std::move( task_out.task ) ), data( task_out.data ) {
 }
@@ -25,3 +27,5 @@ template<class T>
 T &TaskOut<T>::operator*() const {
     return *operator->();
 }
+
+} // namespace parex

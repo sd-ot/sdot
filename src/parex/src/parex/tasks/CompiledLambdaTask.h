@@ -1,7 +1,10 @@
 #pragma once
 
-#include "../plugin_managers/SrcSet.h"
+#include "../plugins/SrcSet.h"
 #include "CompiledTask.h"
+
+namespace parex {
+} // namespace parex
 
 /**
 */

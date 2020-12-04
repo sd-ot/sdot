@@ -5,6 +5,8 @@
 #include <functional>
 #include "SrcSet.h"
 
+namespace parex {
+
 /**
 */
 class GeneratedLibrarySet {
@@ -27,3 +29,4 @@ private:
     LibMap          lib_map;
 };
 
+} // namespace parex

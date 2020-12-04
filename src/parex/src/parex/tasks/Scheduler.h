@@ -3,6 +3,8 @@
 #include "../utility/Rc.h"
 #include "Task.h"
 
+namespace parex {
+
 /**
 */
 class Scheduler {
@@ -21,3 +23,5 @@ private:
 };
 
 extern Scheduler scheduler;
+
+} // namespace parex

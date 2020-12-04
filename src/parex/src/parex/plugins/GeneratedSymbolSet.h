@@ -3,6 +3,8 @@
 #include "GeneratedLibrarySet.h"
 #include <unordered_map>
 
+namespace parex {
+
 /**
 
 */
@@ -38,3 +40,5 @@ template<class T> T *GeneratedSymbolSet::get_symbol( const std::function<void(Sr
     //
     return reinterpret_cast<T *>( iter->second );
 }
+
+} // namespace parex

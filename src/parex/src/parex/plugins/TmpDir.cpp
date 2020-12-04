@@ -1,6 +1,8 @@
 #include "TmpDir.h"
 #include <random>
 
+namespace parex {
+
 TmpDir::TmpDir( std::string basename ) {
     while ( true ) {
         std::string name = basename + std::to_string( std::rand() );
@@ -20,3 +22,5 @@ TmpDir::~TmpDir() {
 TmpDir::operator std::string() const {
     return p.string();
 }
+
+} // namespace parex

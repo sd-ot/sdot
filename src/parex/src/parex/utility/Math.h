@@ -4,6 +4,8 @@
 #include <cmath>
 #include "N.h"
 
+namespace parex {
+
 template<class T,class U>
 T ceil( T a, U m ) {
     if ( not m )
@@ -117,3 +119,5 @@ auto mean( const V &v, const F &f ) -> typename std::decay<decltype( f( v[ 0 ] )
         res += f( v[ i ] );
     return res / T( v.size() );
 }
+
+} // namespace parex

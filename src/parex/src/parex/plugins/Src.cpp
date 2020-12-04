@@ -1,6 +1,8 @@
 #include <algorithm>
 #include "Src.h"
 
+namespace parex {
+
 Src::Src( Path name, const CompilationEnvironment &compilation_environment ) : compilation_environment( compilation_environment ), name( name ) {
 }
 
@@ -25,3 +27,5 @@ void Src::write_to( std::ostream &os ) const {
     os << "\n";
     os << fout.str();
 }
+
+} // namespace parex

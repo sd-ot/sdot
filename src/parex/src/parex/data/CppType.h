@@ -1,7 +1,9 @@
 #pragma once
 
-#include "../plugin_managers/CompilationEnvironment.h"
+#include "../plugins/CompilationEnvironment.h"
 #include "Type.h"
+
+namespace parex {
 
 /**
 */
@@ -22,3 +24,4 @@ public:
     std::string                         name;             ///<
 };
 
+} // namespace parex

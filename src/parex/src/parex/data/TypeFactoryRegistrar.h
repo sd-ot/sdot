@@ -1,6 +1,8 @@
 #pragma once
 
-#include "../plugin_managers/CompilationEnvironment.h"
+#include "../plugins/CompilationEnvironment.h"
+
+namespace parex {
 
 /**
 */
@@ -14,3 +16,5 @@ public:
 };
 
 extern TypeFactoryRegistrar *last_type_factory_registrar;
+
+} // namespace parex

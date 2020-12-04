@@ -2,6 +2,8 @@
 
 #include "Type.h"
 #include <map>
+
+namespace parex {
 class CppType;
 
 /**
@@ -25,3 +27,4 @@ private:
     TypeMap       type_map;     ///<
 };
 
+} // namespace parex

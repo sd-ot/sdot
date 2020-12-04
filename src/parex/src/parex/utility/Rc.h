@@ -5,6 +5,8 @@
 #include "Delete.h"
 #include "Free.h"
 
+namespace parex {
+
 /**
  *
  */
@@ -56,6 +58,8 @@ struct Rc {
 
 template<class T>
 bool operator==( const T *p, const Rc<T> &q );
+
+} // namespace parex
 
 #include "Rc.tcc"
 

@@ -1,6 +1,8 @@
 #include "SrcSet.h"
 #include <fstream>
 
+namespace parex {
+
 SrcSet::SrcSet() {
     compilation_environment.include_directories << PAREX_DIR "/src";
 }
@@ -37,3 +39,4 @@ SrcSet::operator bool() const {
     return ! src_map.empty();
 }
 
+} // namespace parex

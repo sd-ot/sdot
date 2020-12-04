@@ -2,6 +2,8 @@
 #include <iomanip>
 #include <sstream>
 
+namespace parex {
+
 std::string variable_encode( const std::string &inp, bool disp_length ) {
     if ( disp_length ) {
         std::string out = variable_encode( inp, false );
@@ -20,3 +22,5 @@ std::string variable_encode( const std::string &inp, bool disp_length ) {
 
     return res.str();
 }
+
+} // namespace parex

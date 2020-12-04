@@ -1,5 +1,7 @@
-#include "../output_types/TypeFactory.h"
+#include "../data/TypeFactory.h"
 #include "Task.h"
+
+namespace parex {
 
 Task::Task() {
     output_type = nullptr;
@@ -37,3 +39,5 @@ TypeFactory &Task::type_factory() {
     static TypeFactory res;
     return res;
 }
+
+} // namespace parex

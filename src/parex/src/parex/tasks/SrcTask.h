@@ -2,6 +2,8 @@
 
 #include "Task.h"
 
+namespace parex {
+
 /**
 */
 class SrcTask : public Task {
@@ -11,3 +13,4 @@ public:
     virtual void  write_to_stream( std::ostream &os ) const override;
 };
 
+} // namespace parex

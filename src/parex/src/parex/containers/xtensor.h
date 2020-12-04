@@ -2,14 +2,16 @@
 
 #define XTENSOR_USE_XSIMD 1
 
-#include <asimd/AllocatorTrait.h>
 #include <xtensor/xrandom.hpp>
 #include <xtensor/xtensor.hpp>
 #include <xtensor/xfixed.hpp>
 #include <xtensor/xarray.hpp>
 #include <xtensor/xview.hpp>
 #include <xtensor/xio.hpp>
-#include "../type_name.h"
+
+#include "../data/TypeInfo.h"
+
+namespace parex {
 
 inline std::string xt_layout_type_name( xt::layout_type lt ) {
     switch ( lt ) {
@@ -36,11 +38,4 @@ std::string type_name( S<xt::xtensor<T,N,lt,A>> ) {
     return "xt::xtensor<" + type_name( S<T>() ) + "," + std::to_string( N ) + "," + xt_layout_type_name( lt ) + "," + type_name( S<A>() ) + ">";
 }
 
-// AllocatorTrait
-namespace asimd {
-template<class T,std::size_t alig>
-    struct AllocatorTrait<xsimd::aligned_allocator<T,alig>> {
-        enum {                          alignment = alig };
-        static position::Cpu<alignment> position  ( const std::allocator<T> & = {} ) { return {}; }
-    };
-} // namespace asimd
+} // namespace parex
