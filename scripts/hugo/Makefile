@@ -13,14 +13,14 @@ all:
 	# ${NSMAKE} tests/test_parex.cpp
 	# ${NSMAKE} tests/parex/test_GeneratedLibrarySet.cpp
 	# ${NSMAKE} tests/parex/test_CompiledTask.cpp
-	# ${NSMAKE} tests/parex/test_Value.cpp
 	# ${NSMAKE} tests/test_ElementaryPolytopInfo.cpp
 	# ${NSMAKE} tests/test_SetOfElementaryPolytops.cpp
-	# ${NSMAKE} tests/parex/test_gtensor.cpp
 	# ${NSMAKE} tests/asimd/test_asimd.cpp
 	# ${NSMAKE} tests/asimd/test_asimd_gpu.cpp
 	# ${NSMAKE} tests/parex/test_starpu.cpp
-	${NSMAKE} tests/parex/test_HwGraph.cpp
+	# ${NSMAKE} tests/parex/test_HwGraph.cpp
+	# ${NSMAKE} tests/parex/test_Scalar.cpp
+	${NSMAKE} tests/parex/test_gtensor.cpp
 
 c:
 	rm -rf .generated_libs

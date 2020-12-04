@@ -1,24 +1,13 @@
-//#include <asimd/operations/assign_scalar.h>
-//#include <asimd/allocators/GpuAllocator.h>
 #include <parex/containers/gtensor.h>
-#include <parex/P.h>
+#include <parex/utility/P.h>
+#include "catch_main.h"
 
-// using namespace parex;
+using namespace parex;
 
-/// nsmake cxx_name nvcc
-
-int main() {
-    //    using Al = asimd::GpuAllocator<double>;
-    using Al = asimd::GpuAllocator<double>;
-    Al al;
-
-    gtensor<double,3,Al> t;
-    t.resize( al, 2, 3, 4 );
-    P( t.shape() );
-
-    for( std::size_t i = 0; i < t.shape( 0 ); ++i )
-        for( std::size_t j = 0; j < t.shape( 1 ); ++j )
-            asimd::assign_scalar( t.data( i, j, 0 ), 10 * i + j, 4 );
-
-    P( t );
+TEST_CASE( "gtensor", "[containers]" ) {
+    CpuAllocator allocator;
+    double data[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    gtensor<double,2,CpuAllocator> t( &allocator, { 2, 4 }, data, /*own*/ false );
+    CHECK( same_repr( t.shape(), "2,4" ) );
+    CHECK( same_repr( t, "1 2 3 4\n5 6 7 8" ) );
 }

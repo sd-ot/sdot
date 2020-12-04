@@ -1,13 +1,13 @@
-#include <parex/TODO.h>
-#include "GpuMemory.h"
+#include "../utility/TODO.h"
+#include "GpuAllocator.h"
 
-namespace asimd {
+namespace parex {
 
-GpuMemory::GpuMemory( int num_gpu ) : num_gpu( num_gpu ), used( 0 ) {
+GpuAllocator::GpuAllocator( int num_gpu ) : num_gpu( num_gpu ), used( 0 ) {
 }
 
-template<class T> void GpuMemory::deallocate( T *ptr, TI count ) {
-    TI size = sizeof( T ) * count;
+template<class T> void GpuAllocator::deallocate( T *ptr, I count ) {
+    I size = sizeof( T ) * count;
     used -= size;
 
     cudaSetDevice( num_gpu );
@@ -15,8 +15,8 @@ template<class T> void GpuMemory::deallocate( T *ptr, TI count ) {
 }
 
 template<class T>
-T *GpuMemory::allocate( TI count ) {
-    TI size = sizeof( T ) * count;
+T *GpuAllocator::allocate( I count ) {
+    I size = sizeof( T ) * count;
     used += size;
 
     T *res;
@@ -26,7 +26,7 @@ T *GpuMemory::allocate( TI count ) {
 }
 
 template<class T>
-T GpuMemory::value( const T *ptr ) {
+T GpuAllocator::value( const T *ptr ) {
     T res;
     cudaSetDevice( num_gpu );
     cudaMemcpy( &res, ptr, sizeof( T ), cudaMemcpyDeviceToHost );
@@ -34,7 +34,7 @@ T GpuMemory::value( const T *ptr ) {
 }
 
 template<class T,int n,class F>
-void get_memory_values( GpuMemory &dst, GpuMemory &src, std::array<std::pair<const T *,std::size_t>,n> src_ptrs, F &&f ) {
+void get_memory_values( GpuAllocator &dst, GpuAllocator &src, std::array<std::pair<const T *,std::size_t>,n> src_ptrs, F &&f ) {
     if ( dst.num_gpu == src.num_gpu ) {
         f( src_ptrs );
         return;
@@ -56,7 +56,7 @@ void get_memory_values( GpuMemory &dst, GpuMemory &src, std::array<std::pair<con
 }
 
 template<class T,int n,class F>
-void get_memory_values( CpuMemory &dst, GpuMemory &src, std::array<std::pair<const T *,std::size_t>,n> src_ptrs , F &&f ) {
+void get_memory_values( CpuAllocator &dst, GpuAllocator &src, std::array<std::pair<const T *,std::size_t>,n> src_ptrs , F &&f ) {
     std::array<std::pair<const T *,std::size_t>,n> dst_ptrs;
     for( int i = 0; i < n; ++i ) {
         dst_ptrs[ i ].first = dst.allocate<T>( src_ptrs[ i ].second );
@@ -74,7 +74,7 @@ void get_memory_values( CpuMemory &dst, GpuMemory &src, std::array<std::pair<con
 }
 
 template<class T,int n,class F>
-void get_memory_values( GpuMemory &dst, CpuMemory &/*src*/, std::array<std::pair<const T *,std::size_t>,n> src_ptrs, F &&f ) {
+void get_memory_values( GpuAllocator &dst, CpuAllocator &/*src*/, std::array<std::pair<const T *,std::size_t>,n> src_ptrs, F &&f ) {
     std::array<std::pair<const T *,std::size_t>,n> dst_ptrs;
     for( int i = 0; i < n; ++i ) {
         dst_ptrs[ i ].first = dst.allocate<T>( src_ptrs[ i ].second );
@@ -91,4 +91,4 @@ void get_memory_values( GpuMemory &dst, CpuMemory &/*src*/, std::array<std::pair
         dst.deallocate( dst_ptrs[ i ].first, dst_ptrs[ i ].second );
 }
 
-} // namespace asimd
+} // namespace parex
