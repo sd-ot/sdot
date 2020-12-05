@@ -5,6 +5,7 @@ namespace parex {
 
 SrcSet::SrcSet() {
     compilation_environment.include_directories << PAREX_DIR "/src";
+    compilation_environment.include_directories << ASIMD_DIR "/src";
 }
 
 Src &SrcSet::src( const Path &filename ) {

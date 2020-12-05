@@ -19,7 +19,7 @@ T CpuAllocator::value( const T *ptr ) {
 }
 
 template<class T,int n,class F>
-void get_Allocator_values( CpuAllocator &, CpuAllocator &, std::array<std::pair<const T *,std::size_t>,n> ptrs, F &&f ) {
+void get_memory_values( CpuAllocator &, CpuAllocator &, std::array<std::pair<const T *,std::size_t>,n> ptrs, F &&f ) {
     f( ptrs );
 }
 

@@ -1,5 +1,6 @@
 NSMAKE = nsmake run
 NSMAKE += -DPAREX_DIR=\"`pwd`/src/parex\"
+NSMAKE += -DASIMD_DIR=\"`pwd`/src/asimd\"
 NSMAKE += -DSDOT_DIR=\"`pwd`\"
 NSMAKE += --cpp-flag -std=c++17
 NSMAKE += -Isrc/parex/src
@@ -21,7 +22,8 @@ all:
 	# ${NSMAKE} tests/parex/test_HwGraph.cpp
 	# ${NSMAKE} tests/parex/test_gtensor.cpp
 	# ${NSMAKE} tests/parex/test_gvector.cpp
-	${NSMAKE} tests/parex/test_String.cpp
+	# ${NSMAKE} tests/parex/test_String.cpp
+	${NSMAKE} tests/parex/test_Tensor.cpp
 
 c:
 	rm -rf .generated_libs

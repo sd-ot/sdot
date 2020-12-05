@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../utility/IsScalar.h"
 #include "TaskWrapper.h"
-#include "IsScalar.h"
 
 namespace parex {
 
