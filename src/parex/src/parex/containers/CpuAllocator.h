@@ -26,6 +26,7 @@ struct CpuAllocator {
     template<class T> T*     allocate    ( I count );
     template<class T> T      value       ( const T *ptr );
 
+    static CpuAllocator      local;
     std::atomic<I>           used;
 };
 
@@ -39,7 +40,6 @@ struct TypeInfo<CpuAllocator> {
 template<class T,int n,class F>
 void get_memory_values( CpuAllocator &, CpuAllocator &, std::array<std::pair<const T *,std::size_t>,n> ptrs, F &&f );
 
-extern CpuAllocator local_cpu_allocator;
 
 } // namespace parex
 

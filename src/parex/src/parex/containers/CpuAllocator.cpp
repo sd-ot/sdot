@@ -2,6 +2,6 @@
 
 namespace parex {
 
-CpuAllocator local_cpu_allocator;
+CpuAllocator CpuAllocator::local;
 
 } // namespace parex
