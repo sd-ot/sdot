@@ -11,7 +11,7 @@ TaskOut<T>::TaskOut( Rc<Task> &&task, T *data ) : task( std::move( task ) ), dat
 }
 
 template<class T>
-TaskOut<T>::TaskOut( Rc<Task> &&task ) : task( std::move( task ) ), data( reinterpret_cast<T *>( this->task->output_data ) ) {
+TaskOut<T>::TaskOut( Rc<Task> &&task ) : task( std::move( task ) ), data( reinterpret_cast<T *>( this->task->output.data ) ) {
 }
 
 template<class T>

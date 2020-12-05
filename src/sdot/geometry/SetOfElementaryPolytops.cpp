@@ -50,8 +50,8 @@ SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoLis
 
                 src << "\n";
                 src << "extern \"C\" void exported( ComputableTask *task ) {\n";
-                src << "    task->output_data = new " << type_name << ";\n";
-                src << "    task->output_own = true;\n";
+                src << "    task->output.data = new " << type_name << ";\n";
+                src << "    task->output.own = true;\n";
                 src << "}\n";
             }, type_name );
 

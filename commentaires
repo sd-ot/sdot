@@ -82,5 +82,7 @@ Prop: TypedOutput<T>{ T *data; std::size_t ref_count; }
 mais pour conversion vers output, il faudrait Output { void *data; std::size_t *ref_count; std::string type; }
 
 ========================================================================================================================================
-Pb: il faut créer une structure ShapeMap_... avec les paramètres 
-  
+Prop: on donne permet de dire les types attendus.
+
+Ça peut être dans un pre_exec() qui va ajouter des conversions si nécessaire
+

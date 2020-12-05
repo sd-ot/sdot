@@ -1,9 +1,9 @@
 #include "GetElementaryPolytopInfoListContent.h"
-#include <parex/GeneratedLibrarySet.h>
-#include <parex/variable_encode.h>
-#include <parex/CppType.h>
-#include <parex/ERROR.h>
-#include <parex/TODO.h>
+#include <parex/plugins/GeneratedLibrarySet.h>
+#include <parex/plugins/variable_encode.h>
+#include <parex/utility/ERROR.h>
+#include <parex/utility/TODO.h>
+#include <parex/data/CppType.h>
 
 namespace sdot {
 
@@ -61,9 +61,9 @@ void GetElementaryPolytopInfoListContent::exec() {
         src << "extern \"C\" void get_ptr_GetElementaryPolytopInfoListContent( ComputableTask *task ) {\n";
         src << "    static " << sg << " output_data;\n";
         src << "    \n";
-        src << "    task->output_type = task->type_factory_virtual( \"" << output_type->cpp_name() << "\");\n";
-        src << "    task->output_data = &output_data;\n";
-        src << "    task->output_own = false;\n";
+        src << "    task->output.type = task->type_factory_virtual( \"" << output_type->cpp_name() << "\");\n";
+        src << "    task->output.data = &output_data;\n";
+        src << "    task->output.own = false;\n";
         src << "}\n";
     }, sg );
 

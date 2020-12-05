@@ -34,12 +34,12 @@ public:
 
 template<class T>
 void ComputableTask::make_outputs( TaskOut<T> &&ret ) {
-    output_type = type_factory_virtual( TypeInfo<T>::name() );
-    output_data = ret.data;
-    output_own = true;
+    output.type = type_factory_virtual( TypeInfo<T>::name() );
+    output.data = ret.data;
+    output.own = true;
 
     if ( ret.task )
-        ret.task->output_own = false;
+        ret.task->output.own = false;
 }
 
 

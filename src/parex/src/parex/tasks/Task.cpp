@@ -4,14 +4,9 @@
 namespace parex {
 
 Task::Task() {
-    output_type = nullptr;
-    output_data = nullptr;
-    output_own = true;
 }
 
 Task::~Task() {
-    if ( output_own && output_type && output_data )
-        output_type->destroy( output_data );
 }
 
 void Task::get_front_rec( std::map<int,std::vector<ComputableTask *>> &/*front*/ ) {

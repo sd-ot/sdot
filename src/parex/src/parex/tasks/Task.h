@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../utility/RefCount.h"
+#include "../data/Data.h"
 #include <ostream>
 #include <vector>
 #include <map>
@@ -33,11 +34,7 @@ public:
     std::vector<bool>             possible_variants;  ///<
     std::size_t                   chosen_variant;     ///<
     std::size_t                   machine_id;         ///<
-
-    // output data
-    Type*                         output_type;        ///<
-    void*                         output_data;        ///<
-    bool                          output_own;         ///<
+    Data                          output;             ///<
 
     // graph data
     RefCount                      ref_count;          ///<

@@ -22,7 +22,7 @@ void TaskWrapper::write_to_stream( std::ostream &os ) const {
     scheduler.append( ts );
     scheduler.run();
 
-    os << *reinterpret_cast<const std::string *>( ts->output_data );
+    os << *reinterpret_cast<const std::string *>( ts->output.data );
 }
 
 Rc<Task> TaskWrapper::to_string( double priority ) const {

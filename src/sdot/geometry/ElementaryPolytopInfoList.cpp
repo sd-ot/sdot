@@ -47,8 +47,8 @@ ElementaryPolytopInfoList::ElementaryPolytopInfoList( const Value &dim_or_shape_
                 src << "\n";
                 src << "extern \"C\" void exported( ComputableTask *task ) {\n";
                 src << "    static Epil res;\n";
-                src << "    task->output_data = &res;\n";
-                src << "    task->output_own = false;\n";
+                src << "    task->output.data = &res;\n";
+                src << "    task->output.own = false;\n";
                 src << "}\n";
             }, shape_types );
 
