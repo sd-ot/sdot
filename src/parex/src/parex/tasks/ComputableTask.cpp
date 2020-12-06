@@ -42,4 +42,7 @@ bool ComputableTask::is_computed() const {
     return computed;
 }
 
+void ComputableTask::prepare() {
+}
+
 } // namespace parex

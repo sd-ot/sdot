@@ -15,6 +15,32 @@ gtensor<T,N,Allocator>::gtensor( Allocator *allocator, S size, T *data, bool own
 }
 
 template<class T,int N,class A> template<class U>
+gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<std::initializer_list<std::initializer_list<U>>> &&l ) : _allocator( allocator ), _own( true ) {
+    static_assert( N == 3, "3 level initializer_list => dim = 3" );
+    if ( l.size() ) {
+        _size = { l.size(), l.begin()->size(), l.begin()->begin()->size() };
+        _rese = _size;
+        _update_rese();
+        _update_cprs();
+        _data = allocator->template allocate<T>( _cprs[ 0 ] );
+
+        I o = 0;
+        for( auto &s : l ) {
+            for( auto &t : s ) {
+                for( auto &v : t )
+                    _data[ o++ ] = std::move( v );
+                o += _rese[ N - 1 ] - _size[ N - 1 ];
+            }
+        }
+    } else {
+        _size = _null_S();
+        _rese = _null_S();
+        _cprs = _null_S();
+        _data = nullptr;
+    }
+}
+
+template<class T,int N,class A> template<class U>
 gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<std::initializer_list<U>> &&l ) : _allocator( allocator ), _own( true ) {
     static_assert( N == 2, "2 level initializer_list => dim = 2" );
     if ( l.size() ) {
@@ -27,7 +53,7 @@ gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<std::initializer_li
         I o = 0;
         for( auto &s : l ) {
             for( auto &v : s )
-                _data[ o++ ] = v;
+                _data[ o++ ] = std::move( v );
             o += _rese[ N - 1 ] - _size[ N - 1 ];
         }
     } else {
@@ -50,7 +76,7 @@ gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<U> &&l ) {
 
         I o = 0;
         for( auto &v : l )
-            _data[ o++ ] = v;
+            _data[ o++ ] = std::move( v );
     } else {
         _size = _null_S();
         _rese = _null_S();
@@ -121,9 +147,22 @@ void gtensor<T,N,A>::write_to_stream( std::ostream &os ) const {
         }
     };
 
+    // max entry width
+    I max_width = 0;
     for_each_index( [&]( auto... ind ) {
+        std::ostringstream ss;
+        ss << at( ind... );
+        max_width = std::max( max_width, ss.str().size() );
+    } );
+
+    //
+    for_each_index( [&]( auto... ind ) {
+        std::ostringstream ss;
+        ss << at( ind... );
+
         add_spaces( os, { ind... } );
-        os << at( ind... );
+        os << std::string( max_width - ss.str().size(), ' ' );
+        os << ss.str();
     } );
 }
 

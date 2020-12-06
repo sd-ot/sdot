@@ -11,6 +11,7 @@ namespace parex {
 */
 class Tensor : public TaskWrapper {
 public:
+    template<class T> Tensor    ( std::initializer_list<std::initializer_list<std::initializer_list<T>>> &&l );
     template<class T> Tensor    ( std::initializer_list<std::initializer_list<T>> &&l );
     template<class T> Tensor    ( std::initializer_list<T> &&l );
     /**/              Tensor    ( Task *t );
@@ -26,6 +27,11 @@ public:
     Tensor&           operator*=( const Tensor &that );
     Tensor&           operator/=( const Tensor &that );
 };
+
+template<class T>
+Tensor::Tensor( std::initializer_list<std::initializer_list<std::initializer_list<T>>> &&l ) {
+    task = SrcTask::from_ptr( new gtensor<T,3,CpuAllocator>( &CpuAllocator::local, std::move( l ) ), /*owned*/ true );
+}
 
 template<class T>
 Tensor::Tensor( std::initializer_list<std::initializer_list<T>> &&l ) {

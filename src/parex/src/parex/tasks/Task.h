@@ -8,7 +8,6 @@
 
 namespace parex {
 
-template<class T> class TaskOut;
 class ComputableTask;
 class TypeFactory;
 class Type;

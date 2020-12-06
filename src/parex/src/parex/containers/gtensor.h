@@ -21,6 +21,7 @@ public:
 
     /**/                             gtensor                  ( Allocator *allocator, S size = _null_S(), T *data = nullptr, bool own = true ); ///< data is NOT copied but taken as is for the content
     /**/                             gtensor                  ( Allocator *allocator, S size, S rese, T *data = nullptr, bool own = true ); ///< data is NOT copied but taken as is for the content
+    template<class U>                gtensor                  ( Allocator *allocator, std::initializer_list<std::initializer_list<std::initializer_list<U>>> &&l ); ///<
     template<class U>                gtensor                  ( Allocator *allocator, std::initializer_list<std::initializer_list<U>> &&l ); ///<
     template<class U>                gtensor                  ( Allocator *allocator, std::initializer_list<U> &&l ); ///<
     /**/                             gtensor                  ( const gtensor & ); ///< we need the allocator to make a copy

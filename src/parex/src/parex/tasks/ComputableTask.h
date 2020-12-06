@@ -15,6 +15,7 @@ public:
     virtual bool           all_ch_computed   () const;
     virtual void           get_front_rec     ( std::map<int,std::vector<ComputableTask *>> &front ) override;
     virtual bool           is_computed       () const override;
+    virtual void           prepare           (); ///< done before execution, each time there's something new in one child. Can be used to check the input types
     virtual void           exec              () = 0;
 
     // helper to create the output from a class with a operator()( Task * ) method

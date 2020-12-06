@@ -86,3 +86,5 @@ Prop: on donne permet de dire les types attendus.
 
 Ça peut être dans un pre_exec() qui va ajouter des conversions si nécessaire
 
+Pb: comment exprimer le besoin de types particuliers à l'entrée des noyaux ?
+  Prop: on propose pour prepare une fonction check_allocated_in
