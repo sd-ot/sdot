@@ -3,30 +3,31 @@
 #include "../plugins/CompilationEnvironment.h"
 #include <functional>
 #include <ostream>
-#include <memory>
 #include <string>
 #include <vector>
 
 namespace parex {
+namespace hardware_information { class Memory; }
 class Src;
 
 /**
 */
 class Type {
 public:
-    using                  UPType                   = std::unique_ptr<Type>;
+    using                  VoidPtrFunc              = void(void *);
+    using                  Memory                   = hardware_information::Memory;
 
     virtual               ~Type                     ();
 
-    virtual UPType         copy_with_sub_type       ( std::string name, std::vector<Type *> &&sub_types ) const = 0;
-    virtual void           for_each_type_rec        ( const std::function<void(const Type *)> &cb ) const;
-    virtual void           write_to_stream          ( std::ostream &os ) const = 0;
-    virtual std::string    cpp_name                 () const = 0;
-    virtual void           destroy                  ( void *data ) const = 0;
-
-    void                   add_needs_in             ( Src &src ) const;
+    virtual void           write_to_stream          ( std::ostream &os ) const;
+    virtual void           destroy                  ( void *data ) const;
 
     CompilationEnvironment compilation_environment; ///<
+    mutable VoidPtrFunc*   destructor_func;         ///<
+    VecUnique<Memory *>    used_memories;           ///<
+    std::string            base_name;               ///<
+    std::vector<Type *>    sub_types;               ///<
+    std::string            name;                    ///<
 };
 
 } // namespace parex

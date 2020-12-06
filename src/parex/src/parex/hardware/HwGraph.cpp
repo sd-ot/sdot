@@ -15,13 +15,25 @@ HwGraph::HwGraph() {
 void HwGraph::write_to_stream( std::ostream &os ) const {
     for( const std::unique_ptr<ProcessingUnit> &pu : processing_units )
         os << *pu << "\n";
-    for( const std::unique_ptr<Memory> &mem : memories )
+    for( const std::unique_ptr<Mem> &mem : memories )
         os << *mem << "\n";
+}
+
+HwGraph::Mem *HwGraph::local_memory() const {
+    for( const std::unique_ptr<Mem> &mem : memories )
+        if ( mem->local )
+            return mem.get();
+    return nullptr;
 }
 
 void HwGraph::get_local_info() {
     NvidiaGpu::get_locals( processing_units, memories );
     X86      ::get_locals( processing_units, memories );
+}
+
+HwGraph *hw_graph() {
+    static HwGraph res;
+    return &res;
 }
 
 } // namespace parex

@@ -41,7 +41,7 @@ Type *TypeFactory::operator()( const std::string &name ) {
     return iter->second.get();
 }
 
-Type *TypeFactory::reg_cpp_type( const std::string &name, const std::function<void(CppType &)> &f ) {
+Type *TypeFactory::reg_type( const std::string &name, const std::function<void(CppType &)> &f ) {
     auto iter = type_map.find( name );
     if ( iter == type_map.end() ) {
         auto res = std::make_unique<CppType>( name, CompilationEnvironment{} );
@@ -86,7 +86,7 @@ std::unique_ptr<Type> TypeFactory::make_type_info( const std::string &name ) {
             }
         }
 
-        return base_type->copy_with_sub_type( name, std::move( sub_types ) );
+        return base_type->copy_with_sub_types( name, std::move( sub_types ) );
     }
 
     // else, we consider it as a simple cpp type

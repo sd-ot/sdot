@@ -17,6 +17,7 @@ public:
     using               BwToPULink      = std::map<double,std::vector<PULink>>;
     using               PUToPULink      = std::map<ProcessingUnit *,PULink>;
 
+    /**/                Memory          ();
     virtual            ~Memory          ();
 
     virtual void        write_to_stream ( std::ostream &os ) const = 0;
@@ -26,6 +27,7 @@ public:
 
     BwToPULink          bw_to_pu_links; ///< bandwith => processing unit with link info
     PUToPULink          pu_to_pu_link;  ///< processing unit => link info
+    bool                local;          ///<
 };
 
 } // namespace hardware_information

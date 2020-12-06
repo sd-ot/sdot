@@ -12,20 +12,23 @@ namespace parex {
 */
 class HwGraph {
 public:
-    using    PMemory           = std::unique_ptr<hardware_information::Memory>;
-    using    PProc             = std::unique_ptr<hardware_information::ProcessingUnit>;
-    using    VPMemory          = std::vector<PMemory>;
-    using    VPProc            = std::vector<PProc>;
+    using    Proc              = hardware_information::ProcessingUnit;
+    using    Mem               = hardware_information::Memory;
+    using    VPProc            = std::vector<std::unique_ptr<Proc>>;
+    using    VPMem             = std::vector<std::unique_ptr<Mem>>;
 
     /**/     HwGraph           ();
 
     void     write_to_stream   ( std::ostream &os ) const;
+    Mem*     local_memory      () const;
 
     VPProc   processing_units; ///<
-    VPMemory memories; ///<
+    VPMem    memories;         ///<
 
 private:
     void     get_local_info    ();
 };
+
+HwGraph *hw_graph();
 
 } // namespace parex

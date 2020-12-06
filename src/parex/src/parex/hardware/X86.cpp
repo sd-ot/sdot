@@ -56,6 +56,7 @@ void X86::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, std::ve
         .processing_unit = cpu.get(),
         .bandwidth = 90e9
     } );
+    mem->local = true;
 
     // register
     memories.push_back( std::move( mem ) );

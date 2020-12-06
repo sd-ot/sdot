@@ -1,4 +1,7 @@
+#include "../hardware/Memory.h"
 #include "ComputableTask.h"
+
+#include "../utility/P.h"
 
 namespace parex {
 
@@ -43,6 +46,15 @@ bool ComputableTask::is_computed() const {
 }
 
 void ComputableTask::prepare() {
+    check_input_same_memory();
+}
+
+void ComputableTask::check_input_same_memory() {
+    VecUnique<hardware_information::Memory *> memories;
+    for( const Rc<Task> &ch : children )
+        if ( ch->output.type )
+            ch->output.type->get_used_memories( memories );
+    P( memories.size() );
 }
 
 } // namespace parex
