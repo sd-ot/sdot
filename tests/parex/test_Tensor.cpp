@@ -1,5 +1,6 @@
 #include <parex/containers/CudaAllocator.h>
 #include <parex/tasks/CompiledTask.h>
+#include <parex/tasks/Scheduler.h>
 #include <parex/hardware/HwGraph.h>
 #include <parex/wrappers/Tensor.h>
 #include <parex/utility/P.h>
@@ -23,7 +24,6 @@ public:
         type->get_memories( memories, children[ num_child ]->output.data );
         if ( std::find_if( memories.begin(), memories.end(), [&]( hardware_information::Memory *m ) { return m != mem; } ) != memories.end() ) {
             insert_child( num_child, type->conv_alloc_task( move_child( num_child ), mem ) );
-            P( memories, mem );
             computed = false;
         }
     }
@@ -40,7 +40,11 @@ public:
 
 
 TEST_CASE( "Tensor ctor", "[wrapper]" ) {
-    CHECK( same_repr( Tensor( {{0,1,2},{3,4,5}} ), "0 1 2\n3 4 5" ) );
+    CHECK( same_repr( Tensor( {
+        { 0, 1, 2 },
+        { 3, 4, 5 }
+    } ), "0 1 2\n3 4 5" ) );
+
     CHECK( same_repr( Tensor( {
         { { 0, 1, 2 }, { 3,  4,  5 } },
         { { 6, 7, 8 }, { 9, 10, 11 } }
@@ -49,6 +53,7 @@ TEST_CASE( "Tensor ctor", "[wrapper]" ) {
 
 TEST_CASE( "Tensor to allocator", "[wrapper]" ) {
     Tensor inp( { { 0, 1, 2 }, { 3, 4, 5 } } );
+    scheduler.log = true;
     for( const auto &mem : hw_graph()->memories ) {
         P( Scalar( new TestForceExecOnCpu( { inp.task }, mem.get() ) ) );
     }

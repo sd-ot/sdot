@@ -111,8 +111,8 @@ void Task::display_dot( const std::vector<Rc<Task>> &tasks, std::string f, const
                 if ( tr )
                     os << "  node_" << task << " -> node_" << tr.ptr() << ";\n";
 
-            //            for( const Task *tr : task->parents )
-            //                os << "  node_" << tr << " -> node_" << task << " [color=red];\n";
+            for( const Task *tr : task->parents )
+                os << "  node_" << tr << " -> node_" << task << " [color=red];\n";
 
         }, seen, /*go to parents*/ true );
     }

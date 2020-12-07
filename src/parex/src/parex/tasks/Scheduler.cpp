@@ -39,7 +39,7 @@ void Scheduler::run() {
             task->in_front = false;
             task->scheduled = false;
             task->get_front_rec( front );
-            // Task::display_dot( targets );
+            Task::display_dot( targets );
             continue;
         }
 
