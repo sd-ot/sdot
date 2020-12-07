@@ -256,13 +256,13 @@ typename gtensor<T,N,A>::S gtensor<T,N,A>::_null_S() {
 
 template<class T,int N,class A>
 void gtensor<T,N,A>::_set_at( I index, const T &value ) {
-    copy_memory_values( *_allocator, _data + index, CpuAllocator(), &value, 1 );
+    copy_memory_values( *_allocator, _data + index, BasicCpuAllocator(), &value, 1 );
 }
 
 template<class T,int N,class A>
 T gtensor<T,N,A>::_get_at( I index ) const {
     T value;
-    copy_memory_values( CpuAllocator(), &value, *_allocator, _data + index, 1 );
+    copy_memory_values( BasicCpuAllocator(), &value, *_allocator, _data + index, 1 );
     return value;
 }
 

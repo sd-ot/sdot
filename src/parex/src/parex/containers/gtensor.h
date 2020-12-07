@@ -1,7 +1,7 @@
 #ifndef PAREX_gtensor_HEADER
 #define PAREX_gtensor_HEADER
 
-#include "CpuAllocator.h"
+#include "../hardware/BasicCpuAllocator.h"
 #include "../utility/N.h"
 #include <ostream>
 #include <array>
@@ -13,7 +13,7 @@ namespace parex {
 
    Row major layout (no choice)
 */
-template<class T,int D,class Allocator=CpuAllocator>
+template<class T,int D,class Allocator=BasicCpuAllocator>
 class gtensor {
 public:
     using                            I                        = typename Allocator::I;
@@ -44,6 +44,7 @@ public:
     void                             write_to_stream          ( std::ostream &os ) const;
 
     static void                      update_rese              ( S &rese, Allocator &allocator );
+    Allocator*                       allocator                () const { return _allocator; }
     I                                nb_items                 () const { return _cprs[ 0 ]; }
     template<class... Args> I        offset                   ( Args&& ...args ) const;
     I                                shape                    ( I d ) const { return _shape[ d ]; }

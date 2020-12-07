@@ -1,16 +1,16 @@
-#include "ProcessingUnit.h"
+#include "Processor.h"
 
 namespace parex {
 
-ProcessingUnit::~ProcessingUnit() {
+Processor::~Processor() {
 }
 
-void ProcessingUnit::write_to_stream( std::ostream &os ) const {
+void Processor::write_to_stream( std::ostream &os ) const {
     os << asimd_name();
     asimd_init( os, "_", " " );
 }
 
-bool ProcessingUnit::cuda_device() const {
+bool Processor::cuda_device() const {
     return false;
 }
 

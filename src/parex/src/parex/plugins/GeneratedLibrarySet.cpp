@@ -130,7 +130,7 @@ int GeneratedLibrarySet::exec_cmd( std::string cmd ) const {
     // fout << cmd << "\n";
 
     // cmd += " 2>&1 > /dev/null"; // + log.string();
-     cmd += " > /dev/null"; // + log.string();
+    cmd += " > /dev/null"; // + log.string();
     int res = system( cmd.c_str() ); // cmd += " 2>&1 > " + log.string();
     if ( res )
         ERROR( "Error in cmd: {}", cmd ); // ERROR( "Error in cmd: {}\nSee log file '{}'", cmd, log.string() );

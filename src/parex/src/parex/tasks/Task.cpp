@@ -124,7 +124,7 @@ void Task::display_dot( const std::vector<Rc<Task>> &tasks, std::string f, const
 }
 
 void Task::check_input_same_memory() {
-    VecUnique<hardware_information::Memory *> memories;
+    VecUnique<Memory *> memories;
     for( const Rc<Task> &ch : children )
         if ( ch->output.type )
             ch->output.type->get_memories( memories, ch->output.data );

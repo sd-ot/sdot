@@ -8,15 +8,15 @@
 class CompilationEnvironment;
 
 namespace parex {
-class ProcessingUnit;
+class Processor;
 
 /**/
 class Memory {
 public:
-    struct              PULink          { ProcessingUnit *processing_unit; double bandwidth; };
-    using               BwToPULink      = std::map<double,std::vector<PULink>>; ///< bandwidth => links to processing units
-    using               PUToPULink      = std::map<ProcessingUnit *,PULink>; ///<processing units => links to processing units
     using               I               = std::uint64_t;
+    struct              ProcLink        { Processor *processing_unit; double bandwidth; };
+    using               BwToProcLink    = std::map<double,std::vector<ProcLink>>; ///< bandwidth => links to processing units
+    using               ProcToProcLink  = std::map<Processor *,ProcLink>; ///<processing units => links to processing units
 
     /**/                Memory          ();
     virtual            ~Memory          ();
@@ -25,10 +25,10 @@ public:
     virtual std::string allocator_type  () const = 0;
     virtual void*       allocator_data  () = 0;
 
-    void                register_link   ( const PULink &link );
+    void                register_link   ( const ProcLink &link );
 
-    BwToPULink          bw_to_pu_links; ///< bandwith => processing unit with link info
-    PUToPULink          pu_to_pu_link;  ///< processing unit => link info
+    BwToProcLink        bw_to_pu_links; ///< bandwith => processing unit with link info
+    ProcToProcLink      pu_to_pu_link;  ///< processing unit => link info
     I                   amount;         ///< in bytes
     std::atomic<I>      used;           ///< in bytes
 };

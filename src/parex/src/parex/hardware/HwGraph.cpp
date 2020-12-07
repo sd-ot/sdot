@@ -1,44 +1,41 @@
 #include <cpu_features/cpu_features_macros.h>
-#include "../utility/TODO.h"
+#include "../utility/generic_ostream_output.h"
+#include "default_CpuAllocator.h"
 #include "CpuMemory.h"
 #include "CudaProc.h"
 #include "HwGraph.h"
 #include "X86Proc.h"
 
 namespace parex {
-using namespace hardware_information;
 
 HwGraph::HwGraph() {
     get_local_info();
 }
 
 void HwGraph::write_to_stream( std::ostream &os ) const {
-    for( const std::unique_ptr<ProcessingUnit> &pu : processing_units )
-        os << *pu << "\n";
-    for( const std::unique_ptr<Mem> &mem : memories )
-        os << *mem << "\n";
+    for( const Processor *processor : processors )
+        os << *processor << "\n";
+    for( const Memory *memory : memories )
+        os << *memory << "\n";
 }
 
 int HwGraph::nb_cuda_devices() const {
     int res = 0;
-    for( const std::unique_ptr<ProcessingUnit> &pu : processing_units )
-        res += pu->cuda_device();
+    for( const Processor *processor : processors )
+        res += processor->cuda_device();
     return res;
 }
 
-HwGraph::Mem *HwGraph::local_memory() const {
-    for( const std::unique_ptr<Mem> &mem : memories )
-        if ( mem->is_local )
-            return mem.get();
-    return nullptr;
-}
-
 void HwGraph::get_local_info() {
-    CudaProc::get_locals( processing_units, memories );
-    X86Proc ::get_locals( processing_units, memories );
+    // main memory
+    memories.push_back( &default_CpuAllocator.mem );
+
+    // processors with associated specific memories
+    CudaProc::get_locals( pool, processors, memories );
+    X86Proc ::get_locals( pool, processors, memories );
 }
 
-HwGraph *hw_graph() {
+HwGraph *default_hw_graph() {
     static HwGraph res;
     return &res;
 }

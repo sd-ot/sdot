@@ -1,4 +1,5 @@
 #include <cpu_features/cpu_features_macros.h>
+#include "default_CpuAllocator.h"
 #include "CpuMemory.h"
 #include <thread>
 #include "X86Proc.h"
@@ -18,9 +19,9 @@ std::string X86Proc::name() const {
     return "X86Proc";
 }
 
-void X86Proc::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, std::vector<std::unique_ptr<Memory>> &memories ) {
+void X86Proc::get_locals( BumpPointerPool &pool, std::vector<Processor *> &processors, std::vector<Memory *> &/*memories*/ ) {
     #if defined(CPU_FEATURES_ARCH_X86)
-    std::unique_ptr<X86Proc> cpu = std::make_unique<X86Proc>();
+    X86Proc *cpu = pool.create<X86Proc>();
     cpu->ptr_size_ = 8 * sizeof( void * );
 
     // instructions
@@ -47,18 +48,13 @@ void X86Proc::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, std
         cpu->features[ "Multithread" ] = std::to_string( n );
 
     // memory
-    std::unique_ptr<CpuMemory> mem = std::make_unique<CpuMemory>();
-    mem->allocator = &CpuAllocator::local;
-    mem->is_local = true;
-
-    mem->register_link( {
-        .processing_unit = cpu.get(),
+    default_CpuAllocator.mem.register_link( {
+        .processing_unit = cpu,
         .bandwidth = 90e9
     } );
 
     // register
-    memories.push_back( std::move( mem ) );
-    pus.push_back( std::move( cpu ) );
+    processors.push_back( cpu );
     #endif
 }
 

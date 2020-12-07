@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ProcessingUnit.h"
+#include "Processor.h"
 #include <memory>
 #include <map>
 
@@ -8,7 +8,7 @@ namespace parex {
 
 /**
 */
-class ProcessingUnitWithFeatureMap : public ProcessingUnit {
+class ProcessorWithFeatureMap : public Processor {
 public:
     struct                            Feature    { std::string name; };
 
@@ -18,5 +18,4 @@ public:
     std::map<std::string,std::string> features;  ///<
 };
 
-} // namespace hardware_information
 } // namespace parex

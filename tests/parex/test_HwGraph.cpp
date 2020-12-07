@@ -1,9 +1,8 @@
-#include <parex/hw_graph/HwGraph.h>
+#include <parex/hardware/HwGraph.h>
 #include <parex/utility/P.h>
 
 using namespace parex;
 
 int main() {
-    HwGraph hg;
-    P( hg );
+    P( *default_hw_graph() );
 }
