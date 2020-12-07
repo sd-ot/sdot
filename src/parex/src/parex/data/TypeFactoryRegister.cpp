@@ -1,12 +1,20 @@
-#include "TypeFactoryRegistrar.h"
+#include "TypeFactoryRegister.h"
 
 namespace parex {
 
-TypeFactoryRegistrar *last_type_factory_registrar = nullptr;
+TypeFactoryRegister *last_type_factory_registrar = nullptr;
 
-TypeFactoryRegistrar::TypeFactoryRegistrar( std::vector<std::string> names, const CompilationEnvironment &compilation_environment ) : compilation_environment( compilation_environment ), names( names ) {
+static void reg_() {
+
+}
+
+TypeFactoryRegister::TypeFactoryRegister( std::vector<std::string> names, FuncVariant &&f ) : func_variant( std::move( tf ) ), names( names ) {
     prev_type_factory_registrar = last_type_factory_registrar;
     last_type_factory_registrar = this;
+}
+
+void TypeFactoryRegister::reg( TypeFactory &tf ) {
+    //reg_();
 }
 
 } // namespace parex

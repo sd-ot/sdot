@@ -1,11 +1,18 @@
-#include "../data/TypeFactoryRegistrar.h"
+#include "../data/TypeFactoryRegister.h"
 #include "gtensor.h"
 
 namespace parex {
 
-// CompilationEnvironment for xt::xarray and xt::xtensor
-namespace { static TypeFactoryRegistrar _0( { "parex::gtensor" }, CompilationEnvironment{
-    .includes = { "<parex/containers/gtensor.h>" },
+struct Type_gtensor : Type {
+
+};
+
+// CompilationEnvironment for gtensor
+namespace { static TypeFactoryRegister _0( { "parex::gtensor" }, []( TypeFactory &tf, const std::vector<std::string> &parameters ) {
+    Type_gtensor *res = new Type_gtensor;
+    res->compilation_environment.includes << "<parex/containers/gtensor.h>";
+    res->sub_types = { tf( parameters[ 0 ] ), tf( parameters[ 2 ] ) };
+    return res;
 } ); }
 
 } // namespace parex

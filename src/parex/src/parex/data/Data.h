@@ -8,6 +8,8 @@ namespace parex {
 */
 class Data {
 public:
+    /**/  Data();
+
     void* data;
     Type* type;
     bool  own;

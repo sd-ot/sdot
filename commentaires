@@ -88,3 +88,6 @@ Prop: on donne permet de dire les types attendus.
 
 Pb: comment exprimer le besoin de types particuliers à l'entrée des noyaux ?
   Prop: on propose pour prepare une fonction check_allocated_in
+
+Description d'un type:
+* 
