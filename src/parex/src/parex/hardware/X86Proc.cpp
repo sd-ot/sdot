@@ -9,7 +9,6 @@
 
 
 namespace parex {
-namespace hardware_information {
 
 std::size_t X86Proc::ptr_size() const {
     return ptr_size_;
@@ -63,5 +62,4 @@ void X86Proc::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, std
     #endif
 }
 
-} // namespace hardware_information
 } // namespace parex

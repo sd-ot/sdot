@@ -1,10 +1,8 @@
 #include "Memory.h"
 
 namespace parex {
-namespace hardware_information {
 
-Memory::Memory() {
-    is_local = false;
+Memory::Memory() : amount( I( -1 ) ), used( 0 ) {
 }
 
 Memory::~Memory() {
@@ -15,5 +13,4 @@ void Memory::register_link( const PULink &link ) {
     pu_to_pu_link[ link.processing_unit ] = link;
 }
 
-} // namespace hardware_information
 } // namespace parex

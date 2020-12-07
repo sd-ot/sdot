@@ -2,7 +2,6 @@
 #include <sstream>
 
 namespace parex {
-namespace hardware_information {
 
 void ProcessingUnitWithFeatureMap::asimd_init( std::ostream &os, const std::string &var_name, const std::string &sp ) const {
     for( const auto &p : features )
@@ -19,5 +18,4 @@ std::string ProcessingUnitWithFeatureMap::asimd_name() const {
     return ss.str();
 }
 
-} // namespace hardware_information
 } // namespace parex

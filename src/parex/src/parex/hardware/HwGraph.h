@@ -12,8 +12,8 @@ namespace parex {
 */
 class HwGraph {
 public:
-    using        Proc              = hardware_information::ProcessingUnit;
-    using        Mem               = hardware_information::Memory;
+    using        Proc              = ProcessingUnit;
+    using        Mem               = Memory;
     using        VPProc            = std::vector<std::unique_ptr<Proc>>;
     using        VPMem             = std::vector<std::unique_ptr<Mem>>;
 

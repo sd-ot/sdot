@@ -4,10 +4,10 @@
 #include <asimd/processing_units/LargestCpu.h>
 #include <asimd/SimdSize.h>
 #include <cstdlib>
-#include <atomic>
 #include <memory>
 #include <array>
 
+#include "../hardware/CpuMemory.h"
 #include "../data/TypeInfo.h"
 
 namespace parex {
@@ -27,8 +27,7 @@ struct CpuAllocator {
 
     static CpuAllocator              local;
 
-    I                                amount;
-    std::atomic<I>                   used;
+    CpuMemory                        memory;
 };
 
 template<>

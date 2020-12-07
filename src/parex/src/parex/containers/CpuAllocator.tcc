@@ -6,8 +6,7 @@
 
 namespace parex {
 
-inline CpuAllocator::CpuAllocator() : used( 0 ) {
-    amount = get_phys_pages() * sysconf( _SC_PAGESIZE );
+inline CpuAllocator::CpuAllocator() {
 }
 
 template<class T> void CpuAllocator::deallocate( T *ptr, I count ) {

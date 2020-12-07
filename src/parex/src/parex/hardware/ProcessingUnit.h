@@ -3,7 +3,6 @@
 #include <string>
 
 namespace parex {
-namespace hardware_information {
 
 /**
 */
@@ -19,5 +18,4 @@ public:
     virtual std::string      name           () const = 0;
 };
 
-} // namespace hardware_information
 } // namespace parex

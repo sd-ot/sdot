@@ -3,19 +3,17 @@
 #include "CudaMemory.h"
 
 namespace parex {
-namespace hardware_information {
 
 void CudaMemory::write_to_stream( std::ostream &os ) const {
-    os << "CudaMemory(num_gpu=" << allocator.num_gpu << ",amount=" << allocator.amount << ",used=" << allocator.used << ")";
+    os << "CpuMemory(amount=" << amount << ",used=" << amount << ")";
 }
 
 std::string CudaMemory::allocator_type() const {
     return TypeInfo<CudaAllocator>::name();
 }
 
-void *CudaMemory::allocator_data() const {
+void *CudaMemory::allocator_data() {
     return &allocator;
 }
 
-} // namespace hardware_information
 } // namespace parex

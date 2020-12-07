@@ -13,7 +13,6 @@
 #endif //  HAS_CUDA_HEADER
 
 namespace parex {
-namespace hardware_information {
 
 namespace {
 
@@ -86,5 +85,4 @@ std::string CudaProc::name() const {
     return "CudaProc";
 }
 
-} // namespace hardware_information
 } // namespace parex

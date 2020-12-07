@@ -5,7 +5,6 @@
 #include <map>
 
 namespace parex {
-namespace hardware_information {
 
 /**
 */

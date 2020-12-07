@@ -5,7 +5,6 @@
 #include <vector>
 
 namespace parex {
-namespace hardware_information {
 
 /**
 */
@@ -19,5 +18,4 @@ public:
     std::size_t         ptr_size_; ///<
 };
 
-} // namespace hardware_information
 } // namespace parex
