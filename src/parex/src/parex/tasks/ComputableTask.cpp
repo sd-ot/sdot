@@ -53,8 +53,8 @@ void ComputableTask::check_input_same_memory() {
     VecUnique<hardware_information::Memory *> memories;
     for( const Rc<Task> &ch : children )
         if ( ch->output.type )
-            ch->output.type->get_used_memories( memories );
-    P( memories.size() );
+            ch->output.type->get_memories( memories, ch->output.data );
+    // P( memories.size() );
 }
 
 } // namespace parex

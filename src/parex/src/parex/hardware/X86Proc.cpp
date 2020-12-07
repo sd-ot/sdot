@@ -1,7 +1,7 @@
 #include <cpu_features/cpu_features_macros.h>
 #include "CpuMemory.h"
 #include <thread>
-#include "X86.h"
+#include "X86Proc.h"
 
 #ifdef CPU_FEATURES_ARCH_X86
 #include <cpu_features/cpuinfo_x86.h>
@@ -13,17 +13,17 @@
 namespace parex {
 namespace hardware_information {
 
-std::size_t X86::ptr_size() const {
+std::size_t X86Proc::ptr_size() const {
     return ptr_size_;
 }
 
-std::string X86::name() const {
-    return "X86";
+std::string X86Proc::name() const {
+    return "X86Proc";
 }
 
-void X86::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, std::vector<std::unique_ptr<Memory>> &memories ) {
+void X86Proc::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, std::vector<std::unique_ptr<Memory>> &memories ) {
     #if defined(CPU_FEATURES_ARCH_X86)
-    std::unique_ptr<X86> cpu = std::make_unique<X86>();
+    std::unique_ptr<X86Proc> cpu = std::make_unique<X86Proc>();
     cpu->ptr_size_ = 8 * sizeof( void * );
 
     // instructions

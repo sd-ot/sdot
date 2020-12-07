@@ -1,4 +1,6 @@
+#include <parex/containers/CudaAllocator.h>
 #include <parex/tasks/CompiledTask.h>
+#include <parex/hardware/Memory.h>
 #include <parex/wrappers/Tensor.h>
 #include <parex/utility/P.h>
 #include "catch_main.h"
@@ -14,12 +16,17 @@ public:
         os << "TestForceExecOnCpu";
     }
 
+    virtual void prepare() override {
+        VecUnique<hardware_information::Memory *> memories;
+        children[ 0 ]->output.type->get_memories( memories, children[ 0 ]->output.data );
+        P( *memories[ 0 ] );
+    }
+
     virtual void get_src_content( Src &src, SrcSet &/*sw*/ ) override {
         src << "template<class T>\n";
         src << "auto " << called_func_name() << "( parex::TaskOut<T> &a ) {\n";
         src << "    return parex::TaskOut<int>( new int( 17 ) );\n";
         src << "}\n";
-
     }
 };
 
@@ -32,9 +39,7 @@ TEST_CASE( "Tensor ctor", "[wrapper]" ) {
     } ), " 0  1  2\n 3  4  5\n\n 6  7  8\n 9 10 11" ) );
 }
 
-TEST_CASE( "Tensor with transfer", "[wrapper]" ) {
-    Tensor t( {{0,1,2},{3,4,5}} );
-
-    P( Scalar( new TestForceExecOnCpu( { t.task } ) ) );
-
+TEST_CASE( "Tensor allocator", "[wrapper]" ) {
+    Tensor inp( { { 0, 1, 2 }, { 3, 4, 5 } } );
+    P( Scalar( new TestForceExecOnCpu( { inp.task } ) ) );
 }

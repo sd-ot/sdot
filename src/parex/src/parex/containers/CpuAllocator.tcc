@@ -1,4 +1,5 @@
 #include "CpuAllocator.h"
+#include <cstring>
 
 namespace parex {
 
@@ -14,8 +15,9 @@ T *CpuAllocator::allocate( I count ) {
 }
 
 template<class T>
-T CpuAllocator::value( const T *ptr ) {
-    return *ptr;
+void copy_memory_values( const CpuAllocator &, T *dst_data, const CpuAllocator &, const T *src_data, std::size_t len ) {
+    for( std::size_t i = 0; i < len; ++i )
+        dst_data[ i ] = src_data[ i ];
 }
 
 template<class T,int n,class F>

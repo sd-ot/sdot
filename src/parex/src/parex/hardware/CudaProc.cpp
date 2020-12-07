@@ -1,6 +1,6 @@
 #include "../utility/S.h"
-#include "NvidiaGpu.h"
-#include "GpuMemory.h"
+#include "CudaProc.h"
+#include "CudaMemory.h"
 #include <sstream>
 
 #if __has_include(<cuda_runtime.h>)
@@ -30,7 +30,7 @@ template<class T,class U> void get_value( std::ostream &os, T, U value ) {
 
 }
 
-void NvidiaGpu::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, std::vector<std::unique_ptr<Memory>> &memories ) {
+void CudaProc::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, std::vector<std::unique_ptr<Memory>> &memories ) {
     using A2 = std::array<int,2>;
     using A3 = std::array<int,3>;
 
@@ -47,17 +47,17 @@ void NvidiaGpu::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, s
         std::ostringstream io;
         io << "{ .num = " << i;
         #define NGIF( TYPE, NAME, INFO ) get_value( io << ", ." << #NAME << " = ", S<TYPE>(), prop.NAME );
-        #include <asimd/processing_units/NvidiaGpuInfoFeaturesDecl.h>
+        #include <asimd/processing_units/CudaProcInfoFeaturesDecl.h>
         #undef NGIF
         io << " }";
 
         // ProcessingUnit
-        std::unique_ptr<NvidiaGpu> gpu = std::make_unique<NvidiaGpu>();
-        gpu->features[ "NvidiaGpuInfoFeature" ] = io.str();
+        std::unique_ptr<CudaProc> gpu = std::make_unique<CudaProc>();
+        gpu->features[ "CudaProcInfoFeature" ] = io.str();
         gpu->ptr_size_ = 8 * sizeof( void * );
 
         // Memory
-        std::unique_ptr<GpuMemory> mem = std::make_unique<GpuMemory>();
+        std::unique_ptr<CudaMemory> mem = std::make_unique<CudaMemory>();
         mem->amount = prop.totalGlobalMem;
         mem->register_link( {
             .processing_unit = gpu.get(),
@@ -68,15 +68,19 @@ void NvidiaGpu::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, s
         memories.push_back( std::move( mem ) );
         pus.push_back( std::move( gpu ) );
     }
-    #endif //  HAS_CUDA_HEADER
+#endif //  HAS_CUDA_HEADER
 }
 
-std::size_t NvidiaGpu::ptr_size() const {
+bool CudaProc::cuda_device() const {
+    return true;
+}
+
+std::size_t CudaProc::ptr_size() const {
     return ptr_size_;
 }
 
-std::string NvidiaGpu::name() const {
-    return "NvidiaGpu";
+std::string CudaProc::name() const {
+    return "CudaProc";
 }
 
 } // namespace hardware_information

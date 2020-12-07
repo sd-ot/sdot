@@ -68,6 +68,9 @@ private:
     static S                         _null_S                  ();
     void                             _clear                   ();
 
+    void                             _set_at                  ( I index, const T &value );
+    T                                _get_at                  ( I index ) const;
+
     template<class... Args> I        _mul_cprs                ( I ind, I arg, Args&& ...args ) const { return _cprs[ ind ] * arg + _mul_cprs( ind + 1, std::forward<Args>( args )... ); }
     I                                _mul_cprs                ( I /*ind*/, I arg ) const { return arg; }
     I                                _mul_cprs                ( I /*ind*/ ) const { return 0; }

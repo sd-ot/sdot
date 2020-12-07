@@ -1,17 +1,17 @@
 #include "../plugins/CompilationEnvironment.h"
 #include "../plugins/Src.h"
-#include "GpuMemory.h"
+#include "CudaMemory.h"
 
 namespace parex {
 namespace hardware_information {
 
-void GpuMemory::write_to_stream( std::ostream &os ) const {
-    os << "GpuMemory(amount=" << amount << ")";
+void CudaMemory::write_to_stream( std::ostream &os ) const {
+    os << "CudaMemory(amount=" << amount << ")";
 }
 
-std::string GpuMemory::kernel_type( CompilationEnvironment &compilation_environment ) const {
-    compilation_environment.includes << "<parex/GpuMemory.h>";
-    return "parex::GpuMemory";
+std::string CudaMemory::kernel_type( CompilationEnvironment &compilation_environment ) const {
+    compilation_environment.includes << "<parex/CudaMemory.h>";
+    return "parex::CudaMemory";
 }
 
 } // namespace hardware_information

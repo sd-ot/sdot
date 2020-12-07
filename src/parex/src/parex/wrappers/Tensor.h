@@ -15,7 +15,7 @@ public:
     template<class T> Tensor    ( std::initializer_list<std::initializer_list<T>> &&l );
     template<class T> Tensor    ( std::initializer_list<T> &&l );
     /**/              Tensor    ( Task *t );
-    /**/              Tensor    ();                            ///< start with a Zero
+    /**/              Tensor    ();
 
     Tensor            operator+ ( const Tensor &that ) const;
     Tensor            operator- ( const Tensor &that ) const;

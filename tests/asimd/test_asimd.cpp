@@ -36,7 +36,7 @@ TEST_CASE( "processing_units", "[asimd]" ) {
         CHECK( l1.amount != l2.amount );
     }
 
-    using Cs = NvidiaGpu<8>;
+    using Cs = CudaProc<8>;
     SECTION( Cs::name() ) {
         CHECK( Cs::SimdSize<float      >::value == 1 );
     }

@@ -7,7 +7,7 @@ namespace hardware_information {
 
 /**
 */
-class GpuMemory : public Memory {
+class CudaMemory : public Memory {
 public:
     virtual void        write_to_stream( std::ostream &os ) const override;
     virtual std::string kernel_type    ( CompilationEnvironment &compilation_environment ) const override;

@@ -28,7 +28,7 @@ gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<std::initializer_li
         for( auto &s : l ) {
             for( auto &t : s ) {
                 for( auto &v : t )
-                    _data[ o++ ] = std::move( v );
+                    _set_at( o++, std::move( v ) );
                 o += _rese[ N - 1 ] - _size[ N - 1 ];
             }
         }
@@ -53,7 +53,7 @@ gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<std::initializer_li
         I o = 0;
         for( auto &s : l ) {
             for( auto &v : s )
-                _data[ o++ ] = std::move( v );
+                _set_at( o++, std::move( v ) );
             o += _rese[ N - 1 ] - _size[ N - 1 ];
         }
     } else {
@@ -76,7 +76,7 @@ gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<U> &&l ) {
 
         I o = 0;
         for( auto &v : l )
-            _data[ o++ ] = std::move( v );
+            _set_at( o++, std::move( v ) );
     } else {
         _size = _null_S();
         _rese = _null_S();
@@ -203,7 +203,7 @@ void gtensor<T,D,A>::for_each_index( F &&f ) const {
 
 template<class T,int N,class A> template<class... Args>
 T gtensor<T,N,A>::at( Args&& ...args ) const {
-    return _allocator->value( _data + offset( std::forward<Args>( args )... ) );
+    return _get_at( offset( std::forward<Args>( args )... ) );
 }
 
 template<class T,int N,class A> template<class... Args>
@@ -233,6 +233,18 @@ typename gtensor<T,N,A>::S gtensor<T,N,A>::_null_S() {
     for( std::size_t i = 0; i < N; ++i )
         res[ i ] = 0;
     return res;
+}
+
+template<class T,int N,class A>
+void gtensor<T,N,A>::_set_at( I index, const T &value ) {
+    copy_memory_values( *_allocator, _data + index, CpuAllocator(), &value, 1 );
+}
+
+template<class T,int N,class A>
+T gtensor<T,N,A>::_get_at( I index ) const {
+    T value;
+    copy_memory_values( CpuAllocator(), &value, *_allocator, _data + index, 1 );
+    return value;
 }
 
 } // namespace parex

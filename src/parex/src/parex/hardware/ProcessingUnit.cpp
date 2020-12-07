@@ -11,5 +11,9 @@ void ProcessingUnit::write_to_stream( std::ostream &os ) const {
     asimd_init( os, "_", " " );
 }
 
+bool ProcessingUnit::cuda_device() const {
+    return false;
+}
+
 } // namespace hardware_information
 } // namespace parex

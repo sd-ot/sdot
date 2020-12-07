@@ -40,6 +40,7 @@ void Scheduler::run() {
         // exec
         if ( log ) { task->write_to_stream( std::cout ); std::cout << std::endl; }
         task->computed = true;
+        task->prepare();
         task->exec();
 
         // parent task that can be executed
