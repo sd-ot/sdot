@@ -1,6 +1,6 @@
 #include <parex/containers/CudaAllocator.h>
 #include <parex/tasks/CompiledTask.h>
-#include <parex/hardware/Memory.h>
+#include <parex/hardware/HwGraph.h>
 #include <parex/wrappers/Tensor.h>
 #include <parex/utility/P.h>
 #include "catch_main.h"
@@ -10,24 +10,32 @@ using namespace parex;
 // a sample Task that will be executed on the CPU
 class TestForceExecOnCpu : public CompiledTask {
 public:
-    using CompiledTask::CompiledTask;
-
-    virtual void write_to_stream( std::ostream &os ) const override {
-        os << "TestForceExecOnCpu";
+    TestForceExecOnCpu( std::vector<Rc<Task>> &&children, hardware_information::Memory *mem ) : CompiledTask( "TestForceExecOnCpu", std::move( children ) ), mem( mem ) {
     }
 
     virtual void prepare() override {
+        check_output_alloc( 0, mem );
+    }
+
+    virtual void check_output_alloc( std::size_t num_child, hardware_information::Memory *mem ) {
+        Type *type = children[ num_child ]->output.type;
         VecUnique<hardware_information::Memory *> memories;
-        children[ 0 ]->output.type->get_memories( memories, children[ 0 ]->output.data );
-        P( *memories[ 0 ] );
+        type->get_memories( memories, children[ num_child ]->output.data );
+        if ( std::find_if( memories.begin(), memories.end(), [&]( hardware_information::Memory *m ) { return m != mem; } ) != memories.end() ) {
+            insert_child( num_child, type->conv_alloc_task( move_child( num_child ), mem ) );
+            P( memories, mem );
+            computed = false;
+        }
     }
 
     virtual void get_src_content( Src &src, SrcSet &/*sw*/ ) override {
-        src << "template<class T>\n";
-        src << "auto " << called_func_name() << "( parex::TaskOut<T> &a ) {\n";
-        src << "    return parex::TaskOut<int>( new int( 17 ) );\n";
+        src << "template<class T,int D,class A>\n";
+        src << "parex::TaskOut<std::string> " << called_func_name() << "( parex::TaskOut<parex::gtensor<T,D,A>> &a ) {\n";
+        src << "    return new std::string( parex::TypeInfo<A>::name() );\n";
         src << "}\n";
     }
+
+    hardware_information::Memory *mem;
 };
 
 
@@ -39,7 +47,9 @@ TEST_CASE( "Tensor ctor", "[wrapper]" ) {
     } ), " 0  1  2\n 3  4  5\n\n 6  7  8\n 9 10 11" ) );
 }
 
-TEST_CASE( "Tensor allocator", "[wrapper]" ) {
+TEST_CASE( "Tensor to allocator", "[wrapper]" ) {
     Tensor inp( { { 0, 1, 2 }, { 3, 4, 5 } } );
-    P( Scalar( new TestForceExecOnCpu( { inp.task } ) ) );
+    for( const auto &mem : hw_graph()->memories ) {
+        P( Scalar( new TestForceExecOnCpu( { inp.task }, mem.get() ) ) );
+    }
 }

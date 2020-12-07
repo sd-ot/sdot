@@ -19,8 +19,7 @@ TaskWrapper::TaskWrapper() {
 
 void TaskWrapper::write_to_stream( std::ostream &os ) const {
     Rc<Task> ts = to_string( std::numeric_limits<double>::max() );
-    scheduler.append( ts );
-    scheduler.run();
+    scheduler.run( ts );
 
     os << *reinterpret_cast<const std::string *>( ts->output.data );
 }
@@ -31,7 +30,7 @@ Rc<Task> TaskWrapper::to_string( double priority ) const {
 
 Rc<Task> TaskWrapper::conv_to( Type *type ) const {
     return static_cast<Task *>( new CompiledIncludeTask( "parex/kernels/conv_to.h", {
-        static_cast<Task *>( new SrcTask( type, nullptr, false ) ),
+        Task::new_src( type, nullptr, false ),
         task
     }, {} ) );
 }

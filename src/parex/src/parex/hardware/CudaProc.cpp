@@ -58,7 +58,10 @@ void CudaProc::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, st
 
         // Memory
         std::unique_ptr<CudaMemory> mem = std::make_unique<CudaMemory>();
-        mem->amount = prop.totalGlobalMem;
+        mem->allocator.amount = prop.totalGlobalMem;
+        mem->allocator.num_gpu = i;
+        mem->allocator.used = 0;
+
         mem->register_link( {
             .processing_unit = gpu.get(),
             .bandwidth = prop.memoryClockRate * 1000.0 * prop.memoryBusWidth / 8
@@ -68,7 +71,7 @@ void CudaProc::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, st
         memories.push_back( std::move( mem ) );
         pus.push_back( std::move( gpu ) );
     }
-#endif //  HAS_CUDA_HEADER
+    #endif //  HAS_CUDA_HEADER
 }
 
 bool CudaProc::cuda_device() const {

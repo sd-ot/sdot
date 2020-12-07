@@ -1,7 +1,14 @@
 #include "CpuAllocator.h"
 #include <cstring>
 
+#include <sys/sysinfo.h>
+#include <unistd.h>
+
 namespace parex {
+
+inline CpuAllocator::CpuAllocator() : used( 0 ) {
+    amount = get_phys_pages() * sysconf( _SC_PAGESIZE );
+}
 
 template<class T> void CpuAllocator::deallocate( T *ptr, I count ) {
     used -= sizeof( T ) * count;

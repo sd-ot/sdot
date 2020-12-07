@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../plugins/CompilationEnvironment.h"
+#include "../hardware/Memory.h"
+#include "../utility/Rc.h"
 #include <functional>
 #include <ostream>
 #include <string>
@@ -10,6 +12,7 @@ namespace parex {
 namespace hardware_information { class Memory; }
 class HwGraph;
 class SrcSet;
+class Task;
 class Src;
 
 /**
@@ -24,6 +27,7 @@ public:
     virtual                 ~Type                     ();
 
     virtual void             write_to_stream          ( std::ostream &os ) const;
+    virtual Rc<Task>         conv_alloc_task          ( const Rc<Task> &task, hardware_information::Memory *dst ) const; ///< new task to convert to a type allocated in dst
     virtual void             get_memories             ( VecUnique<hardware_information::Memory *> &memories, const void *data ) const;
     virtual void             destroy                  ( void *data ) const;
 

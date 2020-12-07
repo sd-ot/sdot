@@ -90,4 +90,10 @@ Pb: comment exprimer le besoin de types particuliers à l'entrée des noyaux ?
   Prop: on propose pour prepare une fonction check_allocated_in
 
 Description d'un type:
-* 
+*
+
+
+
+
+!!!! enlever this des parents dans TaskWrapper
+

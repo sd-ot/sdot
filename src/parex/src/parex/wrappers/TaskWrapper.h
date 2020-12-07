@@ -1,8 +1,7 @@
 #pragma once
 
 #include "../data/TypeInfo.h"
-#include "../tasks/SrcTask.h"
-#include "../utility/Rc.h"
+#include "../tasks/Task.h"
 
 namespace parex {
 

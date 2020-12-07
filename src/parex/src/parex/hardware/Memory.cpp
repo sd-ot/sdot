@@ -4,7 +4,7 @@ namespace parex {
 namespace hardware_information {
 
 Memory::Memory() {
-    local = false;
+    is_local = false;
 }
 
 Memory::~Memory() {

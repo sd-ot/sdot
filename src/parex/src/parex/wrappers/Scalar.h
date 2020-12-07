@@ -36,12 +36,12 @@ public:
 template<class T,class>
 Scalar::Scalar( T &&value ) {
     using U = typename std::decay<T>::type;
-    task = SrcTask::from_ptr( new U( std::forward<T>( value ) ), /*owned*/ true );
+    task = Task::new_src_from_ptr( new U( std::forward<T>( value ) ), /*owned*/ true );
 }
 
 template<class T,class>
 Scalar Scalar::from_ptr( T *ptr, bool owned ) {
-    return SrcTask::from_ptr( ptr, owned );
+    return Task::new_src_from_ptr( ptr, owned );
 }
 
 } // namespace parex

@@ -6,12 +6,15 @@ namespace parex {
 namespace hardware_information {
 
 void CudaMemory::write_to_stream( std::ostream &os ) const {
-    os << "CudaMemory(amount=" << amount << ")";
+    os << "CudaMemory(num_gpu=" << allocator.num_gpu << ",amount=" << allocator.amount << ",used=" << allocator.used << ")";
 }
 
-std::string CudaMemory::kernel_type( CompilationEnvironment &compilation_environment ) const {
-    compilation_environment.includes << "<parex/CudaMemory.h>";
-    return "parex::CudaMemory";
+std::string CudaMemory::allocator_type() const {
+    return TypeInfo<CudaAllocator>::name();
+}
+
+void *CudaMemory::allocator_data() const {
+    return &allocator;
 }
 
 } // namespace hardware_information

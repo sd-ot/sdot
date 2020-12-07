@@ -3,8 +3,8 @@
 
 namespace parex {
 
-CompiledIncludeTask::CompiledIncludeTask( const Path &include_path, std::vector<Rc<Task> > &&children, const std::string &called_func_name, double priority, const std::string &summary ) : CompiledTask( std::move( children ), priority ),
-        called_func_name_( called_func_name.empty() ? include_path.stem().string() : called_func_name ),
+CompiledIncludeTask::CompiledIncludeTask( const Path &include_path, std::vector<Rc<Task> > &&children, const std::string &called_func_name, double priority, const std::string &summary ) : CompiledTask( called_func_name.empty() ? include_path.stem().string() : std::string( called_func_name ), std::move( children ), priority ),
+        called_func_name_( this->name ),
         include_path_( include_path ),
         summary_( summary ) {
 }

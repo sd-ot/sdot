@@ -1,6 +1,9 @@
 #include "../plugins/GeneratedSymbolSet.h"
+#include "../tasks/CompiledTask.h"
 #include "../hardware/HwGraph.h"
+#include "../utility/ERROR.h"
 #include "../plugins/Src.h"
+#include "../tasks/Task.h"
 #include "../utility/P.h"
 #include "Type.h"
 
@@ -15,6 +18,23 @@ Type::~Type() {
 
 void Type::write_to_stream( std::ostream &os ) const {
     os << name;
+}
+
+Rc<Task> Type::conv_alloc_task( const Rc<Task> &task, hardware_information::Memory *mem ) const {
+    struct ConvAlloc : CompiledTask {
+        using CompiledTask::CompiledTask;
+
+        virtual void get_src_content( Src &src, SrcSet &/*sw*/ ) override {
+            src << "template<class Value,class Allocator>\n";
+            src << "auto " << called_func_name() << "( parex::TaskOut<Value> &value, parex::TaskOut<Allocator> &allocator ) {\n";
+            src << "    auto *res = parex::new_copy_in( *allocator, *value );\n";
+            src << "    return parex::TaskOut<typename std::decay<decltype(*res)>::type>( res );\n";
+            src << "}\n";
+        }
+    };
+
+    Task *at = Task::new_src( Task::type_factory( mem->allocator_type() ), mem->allocator_data(), false );
+    return new ConvAlloc( "ConvAlloc", { task, at } );
 }
 
 void Type::get_memories( VecUnique<hardware_information::Memory *> &memories, const void *data ) const {

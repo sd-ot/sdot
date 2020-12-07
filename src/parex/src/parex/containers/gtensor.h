@@ -19,8 +19,12 @@ public:
     using                            I                        = typename Allocator::I;
     using                            S                        = std::array<I,D>;
 
-    /**/                             gtensor                  ( Allocator *allocator, S size = _null_S(), T *data = nullptr, bool own = true ); ///< data is NOT copied but taken as is for the content
-    /**/                             gtensor                  ( Allocator *allocator, S size, S rese, T *data = nullptr, bool own = true ); ///< data is NOT copied but taken as is for the content
+    /**/                             gtensor                  ( Allocator *allocator, S shape, T *data, bool own = true ); ///< data is NOT copied but taken as is for the content
+    /**/                             gtensor                  ( Allocator *allocator, S shape, S rese, T *data, bool own = true ); ///< data is NOT copied but taken as is for the content
+    /**/                             gtensor                  ( Allocator *allocator, S shape, S rese ); ///< data is allocated inside the ctor
+    /**/                             gtensor                  ( Allocator *allocator, S shape ); ///< data is allocated inside the ctor
+    /**/                             gtensor                  ( Allocator *allocator ); ///<
+
     template<class U>                gtensor                  ( Allocator *allocator, std::initializer_list<std::initializer_list<std::initializer_list<U>>> &&l ); ///<
     template<class U>                gtensor                  ( Allocator *allocator, std::initializer_list<std::initializer_list<U>> &&l ); ///<
     template<class U>                gtensor                  ( Allocator *allocator, std::initializer_list<U> &&l ); ///<
@@ -39,9 +43,12 @@ public:
 
     void                             write_to_stream          ( std::ostream &os ) const;
 
+    static void                      update_rese              ( S &rese, Allocator &allocator );
+    I                                nb_items                 () const { return _cprs[ 0 ]; }
     template<class... Args> I        offset                   ( Args&& ...args ) const;
-    I                                shape                    ( I d ) const { return _size[ d ]; }
-    S                                shape                    () const { return _size; }
+    I                                shape                    ( I d ) const { return _shape[ d ]; }
+    S                                shape                    () const { return _shape; }
+    S                                rese                     () const { return _rese; }
     S                                cprs                     () const { return _cprs; }
     template<class... Args> T        at                       ( Args&& ...args ) const;
 
@@ -62,7 +69,6 @@ private:
     template                         <class F,class...Z>
     void                             _for_each_index          ( F &&f, N<D>, Z&& ...inds ) const;
 
-    void                             _update_rese             ();
     void                             _update_cprs             ();
     void                             _allocate                ();
     static S                         _null_S                  ();
@@ -76,7 +82,7 @@ private:
     I                                _mul_cprs                ( I /*ind*/ ) const { return 0; }
 
     Allocator*                       _allocator;              ///<
-    S                                _size;                   ///<
+    S                                _shape;                  ///<
     S                                _rese;                   ///<
     S                                _cprs;                   ///< cumulative product of reservation sizes
     T*                               _data;                   ///<
@@ -89,6 +95,9 @@ struct TypeInfo<gtensor<T,D,A>> {
         return "parex::gtensor<" + TypeInfo<T>::name() + "," + std::to_string( D ) + "," + TypeInfo<A>::name() + ">";
     }
 };
+
+template<class B,class T,int D,class A>
+gtensor<T,D,B> *new_copy_in( B &new_allocator, const gtensor<T,D,A> &value );
 
 } // namespace parex
 

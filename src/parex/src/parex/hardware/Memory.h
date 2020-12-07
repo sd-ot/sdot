@@ -21,13 +21,14 @@ public:
     virtual            ~Memory          ();
 
     virtual void        write_to_stream ( std::ostream &os ) const = 0;
-    virtual std::string kernel_type     ( CompilationEnvironment &compilation_environment ) const = 0;
+    virtual std::string allocator_type  () const = 0;
+    virtual void*       allocator_data  () const = 0;
 
     void                register_link   ( const PULink &link );
 
     BwToPULink          bw_to_pu_links; ///< bandwith => processing unit with link info
     PUToPULink          pu_to_pu_link;  ///< processing unit => link info
-    bool                local;          ///<
+    bool                is_local;       ///<
 };
 
 } // namespace hardware_information

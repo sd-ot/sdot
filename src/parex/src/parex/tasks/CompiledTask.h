@@ -1,15 +1,15 @@
 #pragma once
 
 #include "../plugins/SrcSet.h"
-#include "ComputableTask.h"
+#include "Task.h"
 
 namespace parex {
 
 /**
 */
-class CompiledTask : public ComputableTask {
+class CompiledTask : public Task {
 public:
-    /***/                  CompiledTask      ( std::vector<Rc<Task>> &&children, double priority = 0 );
+    /***/                  CompiledTask      ( std::string &&name, std::vector<Rc<Task>> &&children, double priority = 0 );
 
     virtual void           exec              () override; ///< look in the cache, compile, load and run
 

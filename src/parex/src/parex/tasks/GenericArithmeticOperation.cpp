@@ -3,11 +3,7 @@
 
 namespace parex {
 
-GenericArithmeticOperation::GenericArithmeticOperation( std::string name_op, std::vector<Rc<Task>> &&children ) : CompiledTask( std::move( children ) ), name_op( name_op ) {
-}
-
-void GenericArithmeticOperation::write_to_stream( std::ostream &os ) const {
-    os << "GenericArithmeticOperation<" << name_op << ">";
+GenericArithmeticOperation::GenericArithmeticOperation( std::string name_op, std::vector<Rc<Task>> &&children ) : CompiledTask( "GenericArithmeticOperation<" + name_op + ">", std::move( children ) ), name_op( name_op ) {
 }
 
 void GenericArithmeticOperation::get_src_content( Src &src, SrcSet &/*sw*/ ) {

@@ -23,7 +23,15 @@ struct CudaAllocator {
     template<class T> T*             allocate     ( I count );
 
     int                              num_gpu;     ///<
+    I                                amount;      ///<
     std::atomic<I>                   used;        ///<
+};
+
+template<>
+struct TypeInfo<CudaAllocator> {
+    static std::string name() {
+        return "parex::CudaAllocator";
+    }
 };
 
 template<class T> void copy_memory_values( const CudaAllocator &dst_alloc, T *dst_data, const CpuAllocator  &src_alloc, const T *src_data, std::size_t len );

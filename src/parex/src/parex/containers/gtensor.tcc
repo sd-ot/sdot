@@ -6,21 +6,42 @@
 namespace parex {
 
 template<class T,int N,class Allocator>
-gtensor<T,N,Allocator>::gtensor( Allocator *allocator, S size, S rese, T *data, bool own ) : _allocator( allocator ), _size( size ), _rese( rese ), _data( data ), _own( own ) {
+gtensor<T,N,Allocator>::gtensor( Allocator *allocator, S shape, S rese, T *data, bool own ) : _allocator( allocator ), _shape( shape ), _rese( rese ), _data( data ), _own( own ) {
     _update_cprs();
 }
 
 template<class T,int N,class Allocator>
-gtensor<T,N,Allocator>::gtensor( Allocator *allocator, S size, T *data, bool own ) : gtensor( allocator, size, size, data, own ) {
+gtensor<T,N,Allocator>::gtensor( Allocator *allocator, S shape, T *data, bool own ) : gtensor( allocator, shape, shape, data, own ) {
 }
+
+template<class T,int N,class Allocator>
+gtensor<T,N,Allocator>::gtensor( Allocator *allocator, S shape, S rese ) : _allocator( allocator ), _shape( shape ), _rese( rese ) {
+    update_rese( _rese, *_allocator );
+    _update_cprs();
+    _data = allocator->template allocate<T>( nb_items() );
+    _own = true;
+}
+
+template<class T,int N,class Allocator>
+gtensor<T,N,Allocator>::gtensor( Allocator *allocator, S shape ) : gtensor( allocator, shape, shape ) {
+}
+
+template<class T,int N,class Allocator>
+gtensor<T,N,Allocator>::gtensor( Allocator *allocator ) : _allocator( allocator ) {
+    _shape = _null_S();
+    _rese = _null_S();
+    _cprs = _null_S();
+    _data = nullptr;
+    _own = false;
+}
+
 
 template<class T,int N,class A> template<class U>
 gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<std::initializer_list<std::initializer_list<U>>> &&l ) : _allocator( allocator ), _own( true ) {
     static_assert( N == 3, "3 level initializer_list => dim = 3" );
     if ( l.size() ) {
-        _size = { l.size(), l.begin()->size(), l.begin()->begin()->size() };
-        _rese = _size;
-        _update_rese();
+        _shape = { l.size(), l.begin()->size(), l.begin()->begin()->size() };
+        update_rese( _rese = _shape, *_allocator );
         _update_cprs();
         _data = allocator->template allocate<T>( _cprs[ 0 ] );
 
@@ -29,11 +50,11 @@ gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<std::initializer_li
             for( auto &t : s ) {
                 for( auto &v : t )
                     _set_at( o++, std::move( v ) );
-                o += _rese[ N - 1 ] - _size[ N - 1 ];
+                o += _rese[ N - 1 ] - _shape[ N - 1 ];
             }
         }
     } else {
-        _size = _null_S();
+        _shape = _null_S();
         _rese = _null_S();
         _cprs = _null_S();
         _data = nullptr;
@@ -44,9 +65,8 @@ template<class T,int N,class A> template<class U>
 gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<std::initializer_list<U>> &&l ) : _allocator( allocator ), _own( true ) {
     static_assert( N == 2, "2 level initializer_list => dim = 2" );
     if ( l.size() ) {
-        _size = { l.size(), l.begin()->size() };
-        _rese = _size;
-        _update_rese();
+        _shape = { l.size(), l.begin()->size() };
+        update_rese( _rese = _shape, *allocator );
         _update_cprs();
         _data = allocator->template allocate<T>( _cprs[ 0 ] );
 
@@ -54,10 +74,10 @@ gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<std::initializer_li
         for( auto &s : l ) {
             for( auto &v : s )
                 _set_at( o++, std::move( v ) );
-            o += _rese[ N - 1 ] - _size[ N - 1 ];
+            o += _rese[ N - 1 ] - _shape[ N - 1 ];
         }
     } else {
-        _size = _null_S();
+        _shape = _null_S();
         _rese = _null_S();
         _cprs = _null_S();
         _data = nullptr;
@@ -68,9 +88,8 @@ template<class T,int N,class A> template<class U>
 gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<U> &&l ) {
     static_assert( N == 1, "1 level initializer_list => dim = 1" );
     if ( l.size() ) {
-        _size = { l.size() };
-        _rese = _size;
-        _update_rese();
+        _shape = { l.size() };
+        update_rese( _rese = _shape, *_allocator );
         _update_cprs();
         _data = allocator->template allocate<T>( _cprs[ 0 ] );
 
@@ -78,7 +97,7 @@ gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<U> &&l ) {
         for( auto &v : l )
             _set_at( o++, std::move( v ) );
     } else {
-        _size = _null_S();
+        _shape = _null_S();
         _rese = _null_S();
         _cprs = _null_S();
         _data = nullptr;
@@ -86,12 +105,12 @@ gtensor<T,N,A>::gtensor( A *allocator, std::initializer_list<U> &&l ) {
 }
 
 template<class T,int N,class A>
-gtensor<T,N,A>::gtensor( gtensor &&that ) : _allocator( that._allocator ), _size( that._size ), _rese( that._rese ), _cprs( that._cprs ), _data( that._data ), _own( that._own ) {
+gtensor<T,N,A>::gtensor( gtensor &&that ) : _allocator( that._allocator ), _shape( that._shape ), _rese( that._rese ), _cprs( that._cprs ), _data( that._data ), _own( that._own ) {
     that._clear();
 }
 
 template<class T,int N,class A>
-gtensor<T,N,A>::gtensor( const gtensor &that ) : _allocator( that._allocator ), _size( that._size ), _rese( that._rese ), _cprs( that._cprs ), _own( true ) {
+gtensor<T,N,A>::gtensor( const gtensor &that ) : _allocator( that._allocator ), _shape( that._shape ), _rese( that._rese ), _cprs( that._cprs ), _own( true ) {
     _allocate();
     TODO; // copy of data
 }
@@ -107,9 +126,9 @@ void gtensor<T,N,A>::resize( Args&& ...args ) {
     S  old_cprs = _cprs;
     T *old_data = _data;
 
-    _size = { I( args )... };
+    _shape = { I( args )... };
     _rese = { I( args )... };
-    _update_rese();
+    update_rese();
     _update_cprs();
     _allocate();
 
@@ -122,7 +141,7 @@ void gtensor<T,N,A>::resize( Args&& ...args ) {
 template<class T,int N,class A>
 void gtensor<T,N,A>::_clear() {
     _allocator = nullptr;
-    _size = _null_S();
+    _shape = _null_S();
     _rese = _null_S();
     _cprs = _null_S();
     _data = nullptr;
@@ -166,16 +185,21 @@ void gtensor<T,N,A>::write_to_stream( std::ostream &os ) const {
     } );
 }
 
+template<class T,int D,class A>
+void gtensor<T,D,A>::update_rese( S &rese, A & ) {
+    rese[ D - 1 ] = ceil( rese[ D - 1 ], A::template Alignment<T>::value );
+}
+
 template<class T,int D,class A> template<class F,int d,class...Z>
 void gtensor<T,D,A>::_for_each_offset_and_index( F &&f, N<d>, I off, Z&& ...inds ) const {
-    for( std::size_t i = 0; i < _size[ d ]; ++i )
+    for( std::size_t i = 0; i < _shape[ d ]; ++i )
         _for_each_offset_and_index( f, N<d+1>(), off + _cprs[ d + 1 ] * i, inds..., i );
 }
 
 template<class T,int D,class A> template<class F,class...Z>
 void gtensor<T,D,A>::_for_each_offset_and_index( F &&f, N<D-1>, I off, Z&& ...inds ) const {
     if ( D )
-        for( std::size_t i = 0; i < _size[ D - 1 ]; ++i )
+        for( std::size_t i = 0; i < _shape[ D - 1 ]; ++i )
             f( off++, inds..., i );
 }
 
@@ -187,7 +211,7 @@ void gtensor<T,D,A>::for_each_offset_and_index( F &&f ) const {
 
 template<class T,int D,class A> template<class F,int d,class...Z>
 void gtensor<T,D,A>::_for_each_index( F &&f, N<d>, Z&& ...inds ) const {
-    for( std::size_t i = 0; i < _size[ d ]; ++i )
+    for( std::size_t i = 0; i < _shape[ d ]; ++i )
         _for_each_index( f, N<d+1>(), inds..., i );
 }
 
@@ -218,11 +242,6 @@ void gtensor<T,N,A>::_update_cprs() {
 }
 
 template<class T,int N,class A>
-void gtensor<T,N,A>::_update_rese() {
-    _rese[ N - 1 ] = ceil( _rese[ N - 1 ], A::template Alignment<T>::value );
-}
-
-template<class T,int N,class A>
 void gtensor<T,N,A>::_allocate() {
     _data = _allocator->template allocate<T>( _cprs[ 0 ] );
 }
@@ -245,6 +264,17 @@ T gtensor<T,N,A>::_get_at( I index ) const {
     T value;
     copy_memory_values( CpuAllocator(), &value, *_allocator, _data + index, 1 );
     return value;
+}
+
+template<class B,class T,int D,class A>
+gtensor<T,D,B> *new_copy_in( B &new_allocator, const gtensor<T,D,A> &src ) {
+    gtensor<T,D,B> *dst = new gtensor<T,D,B>( &new_allocator, src.shape() );
+    if ( dst->rese() == src.rese() ) {
+        // TODO;
+    } else {
+        // TODO;
+    }
+    return dst;
 }
 
 } // namespace parex

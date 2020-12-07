@@ -7,8 +7,6 @@
 #include <cpu_features/cpuinfo_x86.h>
 #endif
 
-#include <sys/sysinfo.h>
-#include <unistd.h>
 
 namespace parex {
 namespace hardware_information {
@@ -51,12 +49,13 @@ void X86Proc::get_locals( std::vector<std::unique_ptr<ProcessingUnit>> &pus, std
 
     // memory
     std::unique_ptr<CpuMemory> mem = std::make_unique<CpuMemory>();
-    mem->amount = get_phys_pages() * sysconf( _SC_PAGESIZE );
+    mem->allocator = &CpuAllocator::local;
+    mem->is_local = true;
+
     mem->register_link( {
         .processing_unit = cpu.get(),
         .bandwidth = 90e9
     } );
-    mem->local = true;
 
     // register
     memories.push_back( std::move( mem ) );

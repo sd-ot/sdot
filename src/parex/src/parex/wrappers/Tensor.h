@@ -30,17 +30,17 @@ public:
 
 template<class T>
 Tensor::Tensor( std::initializer_list<std::initializer_list<std::initializer_list<T>>> &&l ) {
-    task = SrcTask::from_ptr( new gtensor<T,3,CpuAllocator>( &CpuAllocator::local, std::move( l ) ), /*owned*/ true );
+    task = Task::new_src_from_ptr( new gtensor<T,3,CpuAllocator>( &CpuAllocator::local, std::move( l ) ), /*owned*/ true );
 }
 
 template<class T>
 Tensor::Tensor( std::initializer_list<std::initializer_list<T>> &&l ) {
-    task = SrcTask::from_ptr( new gtensor<T,2,CpuAllocator>( &CpuAllocator::local, std::move( l ) ), /*owned*/ true );
+    task = Task::new_src_from_ptr( new gtensor<T,2,CpuAllocator>( &CpuAllocator::local, std::move( l ) ), /*owned*/ true );
 }
 
 template<class T>
 Tensor::Tensor( std::initializer_list<T> &&l ) {
-    task = SrcTask::from_ptr( new gtensor<T,1,CpuAllocator>( &CpuAllocator::local, std::move( l ) ), /*owned*/ true );
+    task = Task::new_src_from_ptr( new gtensor<T,1,CpuAllocator>( &CpuAllocator::local, std::move( l ) ), /*owned*/ true );
 }
 
 } // namespace parex

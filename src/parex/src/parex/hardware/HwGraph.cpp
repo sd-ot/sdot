@@ -28,7 +28,7 @@ int HwGraph::nb_cuda_devices() const {
 
 HwGraph::Mem *HwGraph::local_memory() const {
     for( const std::unique_ptr<Mem> &mem : memories )
-        if ( mem->local )
+        if ( mem->is_local )
             return mem.get();
     return nullptr;
 }

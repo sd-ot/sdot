@@ -1,5 +1,7 @@
 #include "../utility/generic_ostream_output.h"
-#include "ComputableTask.h"
+#include "../utility/TODO.h"
+#include "../utility/P.h"
+#include "SchedulerFront.h"
 #include "Scheduler.h"
 #include <iostream>
 #include <map>
@@ -22,29 +24,30 @@ void Scheduler::run( const Rc<Task> &target ) {
 }
 
 void Scheduler::run() {
-    std::map<int,std::vector<ComputableTask *>> front;
+    SchedulerFront front;
     for( const Rc<Task> &target : targets )
         target->get_front_rec( front );
 
-    //
-    while ( ! front.empty() ) {
-        // find the next task to execute
-        std::map<int,std::vector<ComputableTask *>>::iterator first_in_front = front.begin();
-        std::vector<ComputableTask *> &vf = first_in_front->second;
-        ComputableTask *task = vf.back();
-        vf.pop_back();
-
-        if ( vf.empty() )
-            front.erase( front.begin() );
-
-        // exec
+    // find the next task to execute
+    while ( Task *task = front.pop() ) {
         if ( log ) { task->write_to_stream( std::cout ); std::cout << std::endl; }
+
+        // preparation
         task->computed = true;
         task->prepare();
+        if ( ! task->computed ) {
+            task->in_front = false;
+            task->scheduled = false;
+            task->get_front_rec( front );
+            // Task::display_dot( targets );
+            continue;
+        }
+
+        // exec
         task->exec();
 
         // parent task that can be executed
-        for( ComputableTask *parent : task->parents )
+        for( Task *parent : task->parents )
             parent->get_front_rec( front );
     }
 

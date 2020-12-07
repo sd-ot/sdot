@@ -3,7 +3,7 @@
 
 namespace parex {
 
-CompiledTask::CompiledTask( std::vector<Rc<Task>> &&children, double priority ) : ComputableTask( std::move( children ), priority ) {
+CompiledTask::CompiledTask( std::string &&name, std::vector<Rc<Task>> &&children, double priority ) : Task( std::move( name ), std::move( children ), priority ) {
 }
 
 void CompiledTask::exec() {
@@ -27,9 +27,9 @@ void CompiledTask::exec() {
         src << "\n";
         src << "namespace {\n";
         src << "    struct KernelWrapper {\n";
-        src << "        auto operator()( parex::ComputableTask *task ) const {\n";
+        src << "        auto operator()( parex::Task *task ) const {\n";
         for( std::size_t num_child = 0; num_child < children.size(); ++num_child )
-            src << "            parex::TaskOut<" << children[ num_child ]->output.type->name << "> arg_" << num_child << "( std::move( task->children[ " << num_child << " ] ) );\n";
+            src << "            parex::TaskOut<" << children[ num_child ]->output.type->name << "> arg_" << num_child << "( task->move_child( " << num_child << " ) );\n";
         src << "            return " << called_func_name() << "(";
         for( std::size_t num_child = 0; num_child < children.size(); ++num_child )
             src << ( num_child ? ", " : " " ) << "arg_" << num_child;

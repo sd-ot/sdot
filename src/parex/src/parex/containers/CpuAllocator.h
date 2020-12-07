@@ -21,11 +21,13 @@ struct CpuAllocator {
     static constexpr bool            cpu         = true;
     using                            I           = std::size_t;
 
-    /**/                             CpuAllocator() : used( 0 ) {}
+    /**/                             CpuAllocator();
     template<class T> void           deallocate  ( T *ptr, I count );
     template<class T> T*             allocate    ( I count );
 
     static CpuAllocator              local;
+
+    I                                amount;
     std::atomic<I>                   used;
 };
 
