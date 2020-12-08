@@ -238,6 +238,31 @@ void gtensor<T,D,A>::for_each_index( F &&f ) const {
     _for_each_index( f, N<0>() );
 }
 
+template<class T,int D,class A> template<class F,class P>
+void gtensor<T,D,A>::for_each_oai_simd_mt( F &&f, P &thread_pool ) const {
+    TODO;
+}
+
+template<class T,int D,class A> template<class F,class P>
+void gtensor<T,D,A>::for_each_oajk_mt( F &&f, P &thread_pool ) const {
+    I nb_jobs = thread_pool.nb_threads();
+    I len_jk = 1;
+    for( I i = D - 1; --i; )
+        len_jk *= _rese[ i ];
+    thread_pool.execute( [&]( I num_job, int num_thread ) {
+        I beg_jk = ( len_jk + 0 ) * num_job / nb_jobs;
+        I end_jk = ( len_jk + 1 ) * num_job / nb_jobs;
+
+        S start;
+        for( I i = D - 1, cb = beg_jk; --i; ) {
+            start[ i ] = cb % _rese[ i ];
+            cb /= _rese[ i ];
+        }
+
+        _for_each_index
+    } );
+}
+
 template<class T,int N,class A> template<class... Args>
 T gtensor<T,N,A>::at( Args&& ...args ) const {
     return _get_at( offset( std::forward<Args>( args )... ) );

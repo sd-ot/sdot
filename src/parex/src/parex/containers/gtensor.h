@@ -40,6 +40,8 @@ public:
     template<class... Args> void     resize                   ( Args&& ...args );
 
     template<class F> void           for_each_offset_and_index( F &&f ) const;
+    template<class F,class P> void   for_each_oai_simd_mt     ( F &&f, P &thread_pool ) const; ///< f( I beg_offset, int num_thread, N<simd_size>, SimdVec<I> ind_0, ... )
+    template<class F,class P> void   for_each_oajk_mt         ( F &&f, P &thread_pool ) const; ///< f( I beg_offset, int num_thread, I ind_0, ... )
     template<class F> void           for_each_index           ( F &&f ) const;
 
     void                             write_to_stream          ( std::ostream &os ) const;

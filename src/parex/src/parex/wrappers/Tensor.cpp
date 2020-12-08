@@ -35,13 +35,21 @@ Tensor Tensor::from_function( std::function<void(Src &,SrcSet &)> &&code, const 
 
             // TODO: simd, gpu
             src << "    T *data = res.data();\n";
-            src << "    res.for_each_offset_and_index( [&]( I offset";
+            //            src << "    res.for_each_offset_and_index( [&]( I offset";
+            //            for( int i = 0; i < dim; ++i )
+            //                src << ", I " << ( dim < 7 ? std::string( 1, "ijklmno"[ i ] ) : "ind_" + std::to_string( i ) );
+            //            src << " ) {\n";
+            //            src << "        data[ offset ] = ";
+            //            code( src, sw );
+            //            src << ";\n";
+            //            src << "    } );\n";
+            src << "    res.for_each_oai_simd( [&]( I beg_offsets, auto s";
             for( int i = 0; i < dim; ++i )
-                src << ", I " << ( dim < 7 ? std::string( 1, "ijklmno"[ i ] ) : "ind_" + std::to_string( i ) );
+                src << ", auto " << ( dim < 7 ? std::string( 1, "ijklmno"[ i ] ) : "ind_" + std::to_string( i ) );
             src << " ) {\n";
-            src << "        data[ offset ] = ";
+            src << "        SimdVec<T,s.value>::store_aligned( data + beg_offsets, ";
             code( src, sw );
-            src << ";\n";
+            src << " );\n";
             src << "    } );\n";
 
             src << "    return new " + gt + "( std::move( res ) );\n";
