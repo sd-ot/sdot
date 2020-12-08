@@ -11,23 +11,33 @@ namespace parex {
 template<class T,class Allocator=BasicCpuAllocator>
 class gvector : public gtensor<T,1,Allocator> {
 public:
-    using                            P              = gtensor<T,1,Allocator>;
-    using                            I              = typename P::I;
-    using                            S              = typename P::S;
+    using                            PA       = gtensor<T,1,Allocator>;
+    using                            I        = typename PA::I;
+    using                            S        = typename PA::S;
 
-    /**/                             gvector        ( Allocator *allocator, I size, I rese, T *data, bool own = true ); ///< data is NOT copied but taken as is for the content
-    /**/                             gvector        ( Allocator *allocator, I size, T *data, bool own = true ); ///< data is NOT copied but taken as is for the content
-    template<class U>                gvector        ( Allocator *allocator, std::initializer_list<U> &&l ); ///< data is NOT copied but taken as is for the content
-    /**/                             gvector        ( const gvector & ); ///< we need the allocator to make a copy
-    /**/                             gvector        ( gvector && );
-    /**/                             gvector        ();
+    /**/                             gvector  ( Allocator *allocator, I size, I rese, T *data, bool own = true ); ///< data is NOT copied but taken as is for the content
+    /**/                             gvector  ( Allocator *allocator, I size, T *data, bool own = true ); ///< data is NOT copied but taken as is for the content
+    template<class U>                gvector  ( Allocator *allocator, std::initializer_list<U> &&l ); ///< data is NOT copied but taken as is for the content
+    /**/                             gvector  ( const gvector & ); ///< we need the allocator to make a copy
+    /**/                             gvector  ( gvector && );
+    /**/                             gvector  ();
 
-    gvector&                         operator=      ( const gvector & ) = delete;
-    gvector&                         operator=      ( gvector && ) = delete;
+    gvector&                         operator=( const gvector & ) = delete;
+    gvector&                         operator=( gvector && ) = delete;
 
-    void                             resize         ( I new_size );
-    I                                size           () const { return this->shape( 0 ); }
+    void                             resize   ( I new_size );
+    I                                size     () const { return this->shape( 0 ); }
 };
+
+template<class T,class A>
+struct TypeInfo<gvector<T,A>> {
+    static std::string name() {
+        return "parex::gvector<" + TypeInfo<T>::name() + "," + TypeInfo<A>::name() + ">";
+    }
+};
+
+template<class B,class T,class A>
+gvector<T,B> *new_copy_in( B &new_allocator, const gvector<T,A> &value );
 
 } // namespace parex
 

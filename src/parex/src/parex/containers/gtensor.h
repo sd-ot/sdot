@@ -19,17 +19,18 @@ public:
     using                            I                        = typename Allocator::I;
     using                            S                        = std::array<I,D>;
 
-    /**/                             gtensor                  ( Allocator *allocator, S shape, T *data, bool own = true ); ///< data is NOT copied but taken as is for the content
-    /**/                             gtensor                  ( Allocator *allocator, S shape, S rese, T *data, bool own = true ); ///< data is NOT copied but taken as is for the content
-    /**/                             gtensor                  ( Allocator *allocator, S shape, S rese ); ///< data is allocated inside the ctor
-    /**/                             gtensor                  ( Allocator *allocator, S shape ); ///< data is allocated inside the ctor
-    /**/                             gtensor                  ( Allocator *allocator ); ///<
 
     template<class U>                gtensor                  ( Allocator *allocator, std::initializer_list<std::initializer_list<std::initializer_list<U>>> &&l ); ///<
     template<class U>                gtensor                  ( Allocator *allocator, std::initializer_list<std::initializer_list<U>> &&l ); ///<
     template<class U>                gtensor                  ( Allocator *allocator, std::initializer_list<U> &&l ); ///<
+    /**/                             gtensor                  ( Allocator *allocator ); ///<
     /**/                             gtensor                  ( const gtensor & ); ///< we need the allocator to make a copy
     /**/                             gtensor                  ( gtensor && );
+
+    static gtensor                   from_data                ( Allocator *allocator, S shape, T *data, bool own = true ); ///< data is NOT copied but taken as is for the content
+    static gtensor                   from_data                ( Allocator *allocator, S shape, S rese, T *data, bool own = true ); ///< data is NOT copied but taken as is for the content
+    static gtensor                   empty                    ( Allocator *allocator, S shape, S rese ); ///< data is allocated inside the ctor
+    static gtensor                   empty                    ( Allocator *allocator, S shape ); ///< data is allocated inside the ctor
 
     /**/                            ~gtensor                  ();
 

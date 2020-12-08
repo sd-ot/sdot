@@ -1,6 +1,8 @@
 #include "../tasks/CompiledTask.h"
+#include "../containers/gtensor.h"
 #include "../plugins/Src.h"
 #include "Tensor.h"
+#include "Vector.h"
 
 namespace parex {
 

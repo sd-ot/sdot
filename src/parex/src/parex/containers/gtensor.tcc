@@ -6,27 +6,6 @@
 namespace parex {
 
 template<class T,int N,class Allocator>
-gtensor<T,N,Allocator>::gtensor( Allocator *allocator, S shape, S rese, T *data, bool own ) : _allocator( allocator ), _shape( shape ), _rese( rese ), _data( data ), _own( own ) {
-    _update_cprs();
-}
-
-template<class T,int N,class Allocator>
-gtensor<T,N,Allocator>::gtensor( Allocator *allocator, S shape, T *data, bool own ) : gtensor( allocator, shape, shape, data, own ) {
-}
-
-template<class T,int N,class Allocator>
-gtensor<T,N,Allocator>::gtensor( Allocator *allocator, S shape, S rese ) : _allocator( allocator ), _shape( shape ), _rese( rese ) {
-    update_rese( _rese, *_allocator );
-    _update_cprs();
-    _data = allocator->template allocate<T>( nb_items() );
-    _own = true;
-}
-
-template<class T,int N,class Allocator>
-gtensor<T,N,Allocator>::gtensor( Allocator *allocator, S shape ) : gtensor( allocator, shape, shape ) {
-}
-
-template<class T,int N,class Allocator>
 gtensor<T,N,Allocator>::gtensor( Allocator *allocator ) : _allocator( allocator ) {
     _shape = _null_S();
     _rese = _null_S();
@@ -115,10 +94,44 @@ gtensor<T,N,A>::gtensor( const gtensor &that ) : _allocator( that._allocator ), 
     TODO; // copy of data
 }
 
+template<class T,int N,class Allocator>
+gtensor<T,N,Allocator> gtensor<T,N,Allocator>::from_data( Allocator *allocator, S shape, S rese, T *data, bool own ) {
+    gtensor<T,N,Allocator> res( allocator );
+    res._shape = shape;
+    res._rese = rese;
+    res._data = data;
+    res._own = own;
+
+    res._update_cprs();
+
+    return res;
+}
+
+template<class T,int N,class Allocator>
+gtensor<T,N,Allocator> gtensor<T,N,Allocator>::from_data( Allocator *allocator, S shape, T *data, bool own ) {
+    return from_data( allocator, shape, shape, data, own );
+}
+
+template<class T,int N,class Allocator>
+gtensor<T,N,Allocator> gtensor<T,N,Allocator>::empty( Allocator *allocator, S shape, S rese ) {
+    I nb_items = 1;
+    for( I v : rese )
+        nb_items *= v;
+    T *data = allocator->template allocate<T>( nb_items );
+    return from_data( allocator, shape, rese, data, true );
+}
+
+template<class T,int N,class Allocator>
+gtensor<T,N,Allocator>gtensor<T,N,Allocator>::empty( Allocator *allocator, S shape ) {
+    S rese = shape;
+    update_rese( rese, *allocator );
+    return empty( allocator, shape, rese );
+}
+
 template<class T,int N,class A>
 gtensor<T,N,A>::~gtensor() {
-    if ( _own && _allocator && _cprs[ 0 ] )
-        _allocator->deallocate( _data, _cprs[ 0 ] );
+    if ( _own && _allocator && nb_items() )
+        _allocator->deallocate( _data, nb_items() );
 }
 
 template<class T,int N,class A> template<class... Args>

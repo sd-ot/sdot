@@ -53,7 +53,7 @@ TEST_CASE( "Tensor ctor", "[wrapper]" ) {
     }
 
     SECTION( "from function" ) {
-        PN( Tensor::from_function( "i == 5 && j == 5", 2 ) );
+        PN( Tensor::from_function( "i == 5 && j == 5", { 10, 10 } ) );
     }
 }
 

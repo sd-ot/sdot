@@ -15,8 +15,8 @@ mrf:
 	${NSMAKE} tests/parex/test_GeneratedLibrarySet.cpp
 	${NSMAKE} tests/parex/test_CompiledTask.cpp
 	${NSMAKE} tests/parex/test_TypeFactory.cpp
-	${NSMAKE} tests/parex/test_gvector.cpp
 	${NSMAKE} tests/parex/test_gtensor.cpp
+	${NSMAKE} tests/parex/test_gvector.cpp
 	${NSMAKE} tests/parex/test_HwGraph.cpp
 	${NSMAKE} tests/parex/test_String.cpp
 
