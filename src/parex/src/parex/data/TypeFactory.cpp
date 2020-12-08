@@ -22,9 +22,9 @@ TypeFactory::TypeFactory() {
 
     // floating point numbers
     using A = std::array<std::string,2>;
-    for( A p : { A{ "parex::FP32" , "float" }, A{ "parex::FP64" , "double" } } ) {
-        reg_type( p[ 0 ], [&]( Type *type ) {
-            type->compilation_environment.preliminaries << "using " + p[ 0 ] + " = " + p[ 1 ] + ";";
+    for( A p : { A{ "FP32" , "float" }, A{ "FP64" , "double" } } ) {
+        reg_type( "parex::" + p[ 0 ], [&]( Type *type ) {
+            type->compilation_environment.preliminaries << "namespace parex { using " + p[ 0 ] + " = " + p[ 1 ] + "; }";
         } );
     }
 }

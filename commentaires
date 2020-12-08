@@ -89,13 +89,7 @@ Prop: on donne permet de dire les types attendus.
 Pb: comment exprimer le besoin de types particuliers à l'entrée des noyaux ?
   Prop: on propose pour prepare une fonction check_allocated_in
 
-Description d'un type:
-*
 
-
-
-
-!!!! enlever this des parents dans TaskWrapper
 
 conformité
 retrouver le dossier des pieux
@@ -103,4 +97,10 @@ tirer les plans
 
 mettre dans la boite aux lettres demain
 vide sanitaire 60cm
+
+========================================================================================================================================
+* out of core
+* mpi
+* vues
+* exemple convection 1D
 

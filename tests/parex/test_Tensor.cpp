@@ -51,6 +51,10 @@ TEST_CASE( "Tensor ctor", "[wrapper]" ) {
             { { 6, 7, 8 }, { 9, 10, 11 } }
         } ), " 0  1  2\n 3  4  5\n\n 6  7  8\n 9 10 11" ) );
     }
+
+    SECTION( "from function" ) {
+        PN( Tensor::from_function( "i == 5 && j == 5", 2 ) );
+    }
 }
 
 //TEST_CASE( "Tensor on gpu", "[wrapper]" ) {

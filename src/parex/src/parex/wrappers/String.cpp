@@ -4,7 +4,7 @@
 
 namespace parex {
 
-String::String( const std::string &str ) : String( SrcTask::from_ptr( new std::string( str ), true ) ) {
+String::String( const std::string &str ) : String( Task::new_src_from_ptr( new std::string( str ), true ) ) {
 }
 
 String::String( const char *str ) : String( std::string( str ) ) {

@@ -1,8 +1,11 @@
-#pragma once
+#ifndef PAREX_Tensor_H
+#define PAREX_Tensor_H
 
 #include "../resources/default_CpuAllocator.h"
 #include "../containers/gtensor.h"
+#include "../tasks/ListOfTask.h"
 #include <initializer_list>
+#include "String.h"
 #include "Scalar.h"
 
 namespace parex {
@@ -12,36 +15,28 @@ namespace parex {
 */
 class Tensor : public TaskWrapper {
 public:
-    template<class T> Tensor    ( std::initializer_list<std::initializer_list<std::initializer_list<T>>> &&l );
-    template<class T> Tensor    ( std::initializer_list<std::initializer_list<T>> &&l );
-    template<class T> Tensor    ( std::initializer_list<T> &&l );
-    /**/              Tensor    ( Task *t );
-    /**/              Tensor    ();
+    template<class T> Tensor       ( std::initializer_list<std::initializer_list<std::initializer_list<T>>> &&l );
+    template<class T> Tensor       ( std::initializer_list<std::initializer_list<T>> &&l );
+    template<class T> Tensor       ( std::initializer_list<T> &&l );
+    /**/              Tensor       ( Task *t );
+    /**/              Tensor       ();
 
-    Tensor            operator+ ( const Tensor &that ) const;
-    Tensor            operator- ( const Tensor &that ) const;
-    Tensor            operator* ( const Tensor &that ) const;
-    Tensor            operator/ ( const Tensor &that ) const;
+    static Tensor     from_function( std::function<void(Src &,SrcSet &)> &&code, const Scalar &dim, ListOfTask &&args = {}, const String &type = "parex::FP64", Memory *memory = default_CpuAllocator.memory() );
+    static Tensor     from_function( const std::string &code, const Scalar &dim, ListOfTask &&args = {}, const String &type = "parex::FP64", Memory *memory = default_CpuAllocator.memory() );
 
-    Tensor&           operator+=( const Tensor &that );
-    Tensor&           operator-=( const Tensor &that );
-    Tensor&           operator*=( const Tensor &that );
-    Tensor&           operator/=( const Tensor &that );
+    Tensor            operator+    ( const Tensor &that ) const;
+    Tensor            operator-    ( const Tensor &that ) const;
+    Tensor            operator*    ( const Tensor &that ) const;
+    Tensor            operator/    ( const Tensor &that ) const;
+
+    Tensor&           operator+=   ( const Tensor &that );
+    Tensor&           operator-=   ( const Tensor &that );
+    Tensor&           operator*=   ( const Tensor &that );
+    Tensor&           operator/=   ( const Tensor &that );
 };
 
-template<class T>
-Tensor::Tensor( std::initializer_list<std::initializer_list<std::initializer_list<T>>> &&l ) {
-    task = Task::new_src_from_ptr( new gtensor<T,3,BasicCpuAllocator>( &default_CpuAllocator, std::move( l ) ), /*owned*/ true );
-}
-
-template<class T>
-Tensor::Tensor( std::initializer_list<std::initializer_list<T>> &&l ) {
-    task = Task::new_src_from_ptr( new gtensor<T,2,BasicCpuAllocator>( &default_CpuAllocator, std::move( l ) ), /*owned*/ true );
-}
-
-template<class T>
-Tensor::Tensor( std::initializer_list<T> &&l ) {
-    task = Task::new_src_from_ptr( new gtensor<T,1,BasicCpuAllocator>( &default_CpuAllocator, std::move( l ) ), /*owned*/ true );
-}
-
 } // namespace parex
+
+#include "Tensor.tcc"
+
+#endif // PAREX_Tensor_H
