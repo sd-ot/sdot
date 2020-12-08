@@ -1,7 +1,7 @@
 #ifndef PAREX_gtensor_HEADER
 #define PAREX_gtensor_HEADER
 
-#include "../hardware/BasicCpuAllocator.h"
+#include "../resources/BasicCpuAllocator.h"
 #include "../utility/N.h"
 #include <ostream>
 #include <array>

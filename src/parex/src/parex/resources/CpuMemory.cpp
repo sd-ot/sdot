@@ -3,6 +3,9 @@
 #include "BasicCpuAllocator.h"
 #include "CpuMemory.h"
 
+#include <sys/sysinfo.h>
+#include <unistd.h>
+
 namespace parex {
 
 CpuMemory::CpuMemory( BasicCpuAllocator *default_allocator ) : default_allocator( default_allocator ) {
@@ -14,11 +17,11 @@ void CpuMemory::write_to_stream( std::ostream &os ) const {
 }
 
 std::string CpuMemory::allocator_type() const {
-    return "parex::CpuAllocator";
+    return "parex::BasicCpuAllocator";
 }
 
 void *CpuMemory::allocator_data() {
-    return &default_allocator;
+    return default_allocator;
 }
 
 } // namespace parex

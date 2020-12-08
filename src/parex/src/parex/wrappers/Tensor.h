@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../hardware/default_CpuAllocator.h"
+#include "../resources/default_CpuAllocator.h"
 #include "../containers/gtensor.h"
 #include <initializer_list>
 #include "Scalar.h"

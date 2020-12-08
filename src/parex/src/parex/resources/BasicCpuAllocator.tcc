@@ -1,9 +1,6 @@
 #include "BasicCpuAllocator.h"
 #include <cstring>
 
-#include <sys/sysinfo.h>
-#include <unistd.h>
-
 namespace parex {
 
 template<class T> void BasicCpuAllocator::deallocate( T *ptr, I count ) {

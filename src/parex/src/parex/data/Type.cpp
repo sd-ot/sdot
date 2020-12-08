@@ -1,6 +1,6 @@
 #include "../plugins/GeneratedSymbolSet.h"
 #include "../tasks/CompiledTask.h"
-#include "../hardware/HwGraph.h"
+#include "../resources/HwGraph.h"
 #include "../utility/ERROR.h"
 #include "../plugins/Src.h"
 #include "../tasks/Task.h"
@@ -44,7 +44,7 @@ void Type::get_memories( VecUnique<Memory *> &memories, const void *data ) const
             Src &src = sw.src( "get_memories.cpp" );
             src.compilation_environment += compilation_environment;
             src.compilation_environment.includes << "<parex/utility/VecUnique.h>";
-            src.compilation_environment.includes << "<parex/hardware/HwGraph.h>";
+            src.compilation_environment.includes << "<parex/resources/HwGraph.h>";
 
             gen_func_get_memories( src, sw );
 
@@ -72,7 +72,7 @@ void Type::destroy( void *data ) const {
 }
 
 void Type::gen_func_get_memories( Src &src, SrcSet &/*sw*/ ) const {
-    // src.compilation_environment.includes << "<parex/hardware/default_CpuAllocator.h>";
+    // src.compilation_environment.includes << "<parex/resources/default_CpuAllocator.h>";
     // src << "    memories << &default_CpuAllocator.memory;\n";
     src << "template<class T> void get_memories( parex::VecUnique<parex::Memory *> &memories, const parex::HwGraph *hw_graph, const T */*data*/ ) {\n";
     src << "}\n";

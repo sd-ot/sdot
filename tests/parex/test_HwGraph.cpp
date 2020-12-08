@@ -1,4 +1,4 @@
-#include <parex/hardware/HwGraph.h>
+#include <parex/resources/HwGraph.h>
 #include <parex/utility/P.h>
 
 using namespace parex;

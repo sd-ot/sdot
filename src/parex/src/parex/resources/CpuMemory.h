@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Memory.h"
+#include <ostream>
 
 namespace parex {
 class BasicCpuAllocator;
@@ -14,6 +15,7 @@ public:
     virtual void        write_to_stream( std::ostream &os ) const override;
     virtual std::string allocator_type () const override;
     virtual void*       allocator_data () override;
+
 
     BasicCpuAllocator*  default_allocator;
 };

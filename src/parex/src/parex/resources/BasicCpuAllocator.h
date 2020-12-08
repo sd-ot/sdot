@@ -15,9 +15,9 @@ namespace parex {
  */
 class BasicCpuAllocator {
 public:
-    template<class T> struct         Alignment   { static constexpr std::size_t value = asimd::SimdSize<T,asimd::processing_units::LargestCpu>::value; };
-    static constexpr bool            cpu         = true;
-    using                            I           = std::size_t;
+    template<class T> struct         Alignment        { static constexpr std::size_t value = asimd::SimdSize<T,asimd::processing_units::LargestCpu>::value; };
+    static constexpr bool            cpu              = true;
+    using                            I                = std::size_t;
 
     /**/                             BasicCpuAllocator();
 

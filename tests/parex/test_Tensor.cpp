@@ -1,5 +1,5 @@
-#include <parex/hardware/BasicCudaAllocator.h>
-#include <parex/hardware/HwGraph.h>
+#include <parex/resources/BasicCudaAllocator.h>
+#include <parex/resources/HwGraph.h>
 #include <parex/tasks/CompiledTask.h>
 #include <parex/tasks/Scheduler.h>
 #include <parex/wrappers/Tensor.h>

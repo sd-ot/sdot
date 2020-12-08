@@ -1,6 +1,6 @@
-#include <parex/hardware/BasicCudaAllocator.h>
+#include <parex/resources/BasicCudaAllocator.h>
 #include <parex/containers/gtensor.h>
-#include <parex/hardware/HwGraph.h>
+#include <parex/resources/HwGraph.h>
 #include <parex/utility/P.h>
 #include "catch_main.h"
 

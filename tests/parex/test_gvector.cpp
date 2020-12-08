@@ -1,4 +1,4 @@
-#include <parex/hardware/default_CpuAllocator.h>
+#include <parex/resources/default_CpuAllocator.h>
 #include <parex/containers/gvector.h>
 #include <parex/utility/P.h>
 #include "catch_main.h"

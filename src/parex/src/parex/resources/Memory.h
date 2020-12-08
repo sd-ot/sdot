@@ -19,7 +19,7 @@ public:
     using               ProcToProcLink  = std::map<Processor *,ProcLink>; ///<processing units => links to processing units
 
     /**/                Memory          ();
-    virtual            ~Memory          ();
+    virtual            ~Memory          () {}
 
     virtual void        write_to_stream ( std::ostream &os ) const = 0;
     virtual std::string allocator_type  () const = 0;

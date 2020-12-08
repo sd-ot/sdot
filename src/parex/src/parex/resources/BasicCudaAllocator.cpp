@@ -5,7 +5,7 @@ namespace parex {
 
 // TypeFactory
 static TypeFactoryRegister _0( { "parex::BasicCudaAllocator" }, []( Type *res ) {
-    res->compilation_environment.includes << "<parex/hardware/BasicCudaAllocator.h>";
+    res->compilation_environment.includes << "<parex/resources/BasicCudaAllocator.h>";
 } );
 
 BasicCudaAllocator::BasicCudaAllocator( int num_gpu ) : mem( this, num_gpu ) {
