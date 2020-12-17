@@ -1,5 +1,6 @@
 #include <parex/instructions/CompiledLambdaInstruction.h>
 #include <parex/compilation/GeneratedSymbolSet.h>
+#include <parex/data/CompiledType.h>
 #include <parex/utility/va_string.h>
 #include <parex/utility/ASSERT.h>
 #include "ElementaryPolytopTypeSet.h"
@@ -13,15 +14,36 @@ ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Vector<parex::S
     public:
         using parex::CompiledInstruction::CompiledInstruction;
 
-        virtual void get_src_content( parex::Src &src, parex::SrcSet &/*sw*/ ) const override {
+        virtual void get_src_content( parex::Src &src, parex::SrcSet &/*sw*/, parex::TypeFactory *tf ) const override {
+            // name of the output type
+            std::string type_name = "ElementaryPolytopTypeSet";
+            for( const std::string &shape_name : shape_names() )
+                type_name += "_" + shape_name;
+
+            // create type if necessary
+            tf->reg_type( type_name, [&]( const std::string & ) {
+                std::ostringstream decl;
+                decl << "struct " << type_name << " {\n";
+                decl << "};\n";
+
+                parex::Type *res = new parex::CompiledType( type_name, type_name, {}, /*sub types*/ {} );
+                res->compilation_environment.preliminaries << decl.str();
+                return res;
+            } );
+
             // Pb 1: il faudrait générer le code en fonction du contenu. Prop: on passe par summary
+            //src << "struct Epil : ElementaryPolytopInfoListContent {\n";
+            src << "template<class T>\n";
+            src << "auto kernel( const T &shape_names ) {\n";
+            src << "    return new " << type_name << "{ &... };\n";
+            src << "}\n";
         }
 
         virtual std::string summary() const override {
             return parex::va_string( "GetElementaryPolytopCaracList {}", shape_names() );
         }
 
-        std::vector<std::string> &shape_names() const {
+        const std::vector<std::string> &shape_names() const {
             ASSERT( slots[ 0 ].input.first_slot() && slots[ 0 ].input.first_slot()->data, "" );
             return *reinterpret_cast<std::vector<std::string> *>( slots[ 0 ].input.data_ptr() );
         }
@@ -118,7 +140,7 @@ ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Scalar &dim ) :
 }
 
 parex::Vector<parex::String> ElementaryPolytopTypeSet::default_shape_names_for( const parex::Scalar &dim ) {
-    return { new parex::CompiledLambdaInstruction( "get_default_shapes", { dim.variable->get() }, []( parex::Src &src, parex::SrcSet & ) {
+    return { new parex::CompiledLambdaInstruction( "get_default_shapes", { dim.variable->get() }, []( parex::Src &src, parex::SrcSet &, parex::TypeFactory * ) {
         src.compilation_environment.includes << "<parex/utility/TODO.h>";
         src.compilation_environment.includes << "<vector>";
         src.compilation_environment.includes << "<string>";
