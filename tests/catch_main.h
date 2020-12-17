@@ -1,27 +1,13 @@
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch.hpp>
+#include <catch2/benchmark/catch_benchmark_all.hpp>
+#include <parex/utility/generic_ostream_output.h>
+#include <catch2/catch_test_macros.hpp>
+#include <parex/utility/P.h>
+#include <sstream>
 
-///
-template<class T,class M>
-struct WithinAbsMatcher : Catch::MatcherBase<T> {
-    WithinAbsMatcher(T target, M margin)
-        :m_target{ target }, m_margin{ margin } {
-        CATCH_ENFORCE( margin >= 0, "Invalid margin: " << margin << '.'
-            << " Margin has to be non-negative.");
-    }
-    bool match(T const& matchee) const override {
-        return ( matchee + m_margin >= m_target ) && ( m_target + m_margin >= matchee );
-    }
-    std::string describe() const override {
-        return "is within " + Catch::Detail::stringify( m_margin ) + " of " + Catch::Detail::stringify( m_target );
-    }
-private:
-    T m_target;
-    M m_margin;
-};
-
-template<class T,class M>
-WithinAbsMatcher<T,M> WithinAbs( T target, M margin ) {
-    return WithinAbsMatcher<T,M>( target, margin );
+template<class A,class B>
+bool same_repr( const A &a, const B &b ) {
+    std::ostringstream oa, ob;
+    oa << a;
+    ob << b;
+    return oa.str() == ob.str();
 }
-

@@ -1,18 +1,19 @@
 #pragma once
 
-#include <parex/Value.h>
+#include <parex/Vector.h>
 
 namespace sdot {
 
 /**
 */
-class ElementaryPolytopInfoList {
+class ElementaryPolytopTypeSet {
 public:
-    /**/     ElementaryPolytopInfoList( const Value &dim_or_shape_types );
+    /**/                       ElementaryPolytopTypeSet( const parex::String &list_of_shape_tpes );
+    /**/                       ElementaryPolytopTypeSet( const parex::Scalar &dim );
 
-    void     write_to_stream          ( std::ostream &os ) const;
+    void                       write_to_stream         ( std::ostream &os ) const;
 
-    Rc<Task> task;
+    parex::Rc<parex::Variable> variable;
 };
 
 } // namespace sdot

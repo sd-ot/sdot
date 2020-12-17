@@ -1,5 +1,5 @@
 #include "internal/SymbolicElementaryPolytop.h"
-#include "ElementaryPolytopInfoList.h"
+#include "ElementaryPolytopTypeSet.h"
 
 #include <parex/GeneratedSymbolSet.h>
 #include <parex/ComputableTask.h>
@@ -8,7 +8,7 @@
 
 namespace sdot {
 
-ElementaryPolytopInfoList::ElementaryPolytopInfoList( const Value &dim_or_shape_types ) {
+ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const Value &dim_or_shape_types ) {
     struct GetElementaryPolytopInfoList : ComputableTask {
         GetElementaryPolytopInfoList( Rc<Task> &&shape_types ) : ComputableTask( { std::move( shape_types ) } ) {
         }
@@ -103,7 +103,7 @@ ElementaryPolytopInfoList::ElementaryPolytopInfoList( const Value &dim_or_shape_
     task = new GetElementaryPolytopInfoList( new ToShapeTypes( dim_or_shape_types.to_string() ) );
 }
 
-void ElementaryPolytopInfoList::write_to_stream( std::ostream &os ) const {
+void ElementaryPolytopTypeSet::write_to_stream( std::ostream &os ) const {
     os << Value( task );
 }
 
