@@ -23,7 +23,7 @@ ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Vector<parex::S
             // create type if necessary
             tf->reg_type( type_name, [&]( const std::string & ) {
                 std::ostringstream decl;
-                decl << "struct " << type_name << " {\n";
+                decl << "struct " << type_name << " : ElementaryPolytopTypeSetAnc {\n";
                 decl << "};\n";
 
                 parex::Type *res = new parex::CompiledType( type_name, type_name, {}, /*sub types*/ {} );
@@ -35,7 +35,8 @@ ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Vector<parex::S
             //src << "struct Epil : ElementaryPolytopInfoListContent {\n";
             src << "template<class T>\n";
             src << "auto kernel( const T &shape_names ) {\n";
-            src << "    return new " << type_name << "{ &... };\n";
+            src << "    static " << type_name << " *( &... );\n";
+            src << "    return new " << type_name << " *( &... );\n";
             src << "}\n";
         }
 
