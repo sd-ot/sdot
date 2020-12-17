@@ -1,6 +1,6 @@
 #pragma once
 
-#include <parex/containers/xtensor.h>
+//#include <parex/containers/xtensor.h>
 #include <string>
 
 /**
@@ -15,7 +15,7 @@ public:
     unsigned          nb_nodes                 () const;
     unsigned          nb_faces                 () const;
 
-    xt::xtensor<TI,1> nodes;
+    //    xt::xtensor<TI,1> nodes;
     std::string       name;
 };
 

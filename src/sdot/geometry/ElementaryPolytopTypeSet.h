@@ -6,14 +6,16 @@ namespace sdot {
 
 /**
 */
-class ElementaryPolytopTypeSet {
+class ElementaryPolytopTypeSet : parex::VariableWrapper<ElementaryPolytopTypeSet> {
 public:
-    /**/                       ElementaryPolytopTypeSet( const parex::String &list_of_shape_tpes );
-    /**/                       ElementaryPolytopTypeSet( const parex::Scalar &dim );
+    using     VS                      = parex::Vector<parex::String>;
+    using     SC                      = parex::Scalar;
 
-    void                       write_to_stream         ( std::ostream &os ) const;
+    /**/      ElementaryPolytopTypeSet( const VS &shape_names );
+    /**/      ElementaryPolytopTypeSet( const SC &dim );
 
-    parex::Rc<parex::Variable> variable;
+    static VS default_shape_names_for ( const SC &dim );
+    void      write_to_stream         ( std::ostream &os ) const;
 };
 
 } // namespace sdot
