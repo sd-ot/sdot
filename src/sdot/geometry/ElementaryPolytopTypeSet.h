@@ -6,7 +6,7 @@ namespace sdot {
 
 /**
 */
-class ElementaryPolytopTypeSet : parex::VariableWrapper<ElementaryPolytopTypeSet> {
+class ElementaryPolytopTypeSet : public parex::VariableWrapper<ElementaryPolytopTypeSet> {
 public:
     using     VS                      = parex::Vector<parex::String>;
     using     SC                      = parex::Scalar;
@@ -15,7 +15,6 @@ public:
     /**/      ElementaryPolytopTypeSet( const SC &dim );
 
     static VS default_shape_names_for ( const SC &dim );
-    void      write_to_stream         ( std::ostream &os ) const;
 };
 
 } // namespace sdot

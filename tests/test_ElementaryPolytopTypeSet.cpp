@@ -8,5 +8,5 @@ using TF = double;
 
 TEST_CASE( "ElementaryPolytopTypeSet", "[geometry]" ) {
     ElementaryPolytopTypeSet s( 2 );
-
+    P( s );
 }

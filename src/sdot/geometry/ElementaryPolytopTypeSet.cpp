@@ -1,18 +1,32 @@
-#include <parex/instructions/CompiledInstruction.h>
+#include <parex/instructions/CompiledLambdaInstruction.h>
 #include <parex/compilation/GeneratedSymbolSet.h>
+#include <parex/utility/va_string.h>
+#include <parex/utility/ASSERT.h>
 #include "ElementaryPolytopTypeSet.h"
+
+#include <parex/utility/P.h>
 
 namespace sdot {
 
 ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Vector<parex::String> &shape_names ) {
-    P( shape_names );
-    //    struct GetElementaryPolytopInfoList : ComputableTask {
-    //        GetElementaryPolytopInfoList( Rc<Task> &&shape_types ) : ComputableTask( { std::move( shape_types ) } ) {
-    //        }
+    struct GetElementaryPolytopCaracList : parex::CompiledInstruction {
+    public:
+        using parex::CompiledInstruction::CompiledInstruction;
 
-    //        virtual void write_to_stream( std::ostream &os ) const override {
-    //            os << "GetElementaryPolytopInfoList";
-    //        }
+        virtual void get_src_content( parex::Src &src, parex::SrcSet &/*sw*/ ) const override {
+            // Pb 1: il faudrait générer le code en fonction du contenu. Prop: on passe par summary
+        }
+
+        virtual std::string summary() const override {
+            return parex::va_string( "GetElementaryPolytopCaracList {}", shape_names() );
+        }
+
+        std::vector<std::string> &shape_names() const {
+            ASSERT( slots[ 0 ].input.first_slot() && slots[ 0 ].input.first_slot()->data, "" );
+            return *reinterpret_cast<std::vector<std::string> *>( slots[ 0 ].input.data_ptr() );
+        }
+    };
+    variable = new parex::Variable( new GetElementaryPolytopCaracList( "GetElementaryPolytopCaracList", { shape_names.to<std::vector<std::string>>().variable->get() }, 1 ), 1 );
 
     //        virtual void exec() override {
     //            // set the output type
@@ -104,19 +118,17 @@ ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Scalar &dim ) :
 }
 
 parex::Vector<parex::String> ElementaryPolytopTypeSet::default_shape_names_for( const parex::Scalar &dim ) {
-    using namespace parex;
-    struct GetDefaultShapes : CompiledInstruction {
-        using parex::CompiledInstruction::CompiledInstruction;
-        virtual void get_src_content( Src &src, SrcSet &/*sw*/ ) const override {
-            src.compilation_environment.includes << "<parex/utility/TODO.h>";
-            src << "std::vector<std::string> *" << called_func_name() << "( int dim ) {\n";
-            src << "    if ( dim == 2 ) return new std::vector<std::string>{ \"3\" };\n";
-            src << "    if ( dim == 3 ) return new std::vector<std::string>{ \"3S\" };\n";
-            src << "    TODO; return nullptr;\n";
-            src << "}\n";
-        }
-    };
-    return { new GetDefaultShapes( "get_default_shapes", { dim.variable->get() }, 1 ), 1 };
+    return { new parex::CompiledLambdaInstruction( "get_default_shapes", { dim.variable->get() }, []( parex::Src &src, parex::SrcSet & ) {
+        src.compilation_environment.includes << "<parex/utility/TODO.h>";
+        src.compilation_environment.includes << "<vector>";
+        src.compilation_environment.includes << "<string>";
+
+        src << "std::vector<std::string> *func( int dim ) {\n";
+        src << "    if ( dim == 2 ) return new std::vector<std::string>{ \"3\" };\n";
+        src << "    if ( dim == 3 ) return new std::vector<std::string>{ \"3S\" };\n";
+        src << "    TODO; return nullptr;\n";
+        src << "}\n";
+    }, 1 ), 1 };
 }
 
 } // namespace sdot
