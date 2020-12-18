@@ -4,8 +4,8 @@
 
 namespace sdot {
 
-ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Vector<parex::String> &shape_names ) :
-    carac{ new GetElementaryPolytopCaracList( "GetElementaryPolytopCaracList", { shape_names.to<std::vector<std::string>>().variable->get() }, 1 ), 1 } {
+ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Vector<parex::String> &shape_names ) {
+    carac = new parex::Variable( new GetElementaryPolytopCaracList( shape_names ), 1 );
 }
 
 ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Scalar &dim ) : ElementaryPolytopTypeSet( default_shape_names_for( dim ) ) {
@@ -26,7 +26,7 @@ parex::Vector<parex::String> ElementaryPolytopTypeSet::default_shape_names_for( 
 }
 
 void ElementaryPolytopTypeSet::write_to_stream( std::ostream &os ) const {
-    carac.get().display_data( os );
+    carac->display_data( os );
 }
 
 } // namespace sdot

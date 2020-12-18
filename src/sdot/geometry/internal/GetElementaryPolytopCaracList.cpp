@@ -9,6 +9,10 @@
 
 namespace sdot {
 
+GetElementaryPolytopCaracList::GetElementaryPolytopCaracList( const parex::Vector<parex::String> &shape_names ) :
+    parex::CompiledInstruction( "GetElementaryPolytopCaracList", { shape_names.to<std::vector<std::string>>().variable->get() }, 1 ) {
+}
+
 void GetElementaryPolytopCaracList::prepare( parex::TypeFactory *tf, parex::SchedulerSession *) {
     // create type if necessary
     tf->reg_type( type_name(), [&]( const std::string & ) {

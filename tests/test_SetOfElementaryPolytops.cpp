@@ -6,29 +6,30 @@ using namespace sdot;
 using TI = std::uint64_t;
 using TF = double;
 
-void test_triangle( TI dim = 2, TI nb_triangles = 5 ) {
-    ElementaryPolytopInfoList epil( dim );
-    SetOfElementaryPolytops sp( epil, { /*.dst = MemoryGpu::gpu( 0 )*/ } );
+void test_triangle( TI dim = 2, TI /*nb_triangles*/ = 5 ) {
+    ElementaryPolytopTypeSet epts( dim );
+    SetOfElementaryPolytops sp( epts, { /*.dst = MemoryGpu::gpu( 0 )*/ } );
     // scheduler.log = true;
+    P( sp );
 
-    // construct
-    sp.add_repeated( "3", nb_triangles,
-        xtensor<TF,2>{
-            { 0.0, 0.0 },
-            { 1.0, 0.0 },
-            { 0.0, 1.0 }
-        },
-        xtensor<TF,1>{
-            0,
-            1,
-            2
-        }
-    );
+    //    // construct
+    //    sp.add_repeated( "3", nb_triangles,
+    //        xtensor<TF,2>{
+    //            { 0.0, 0.0 },
+    //            { 1.0, 0.0 },
+    //            { 0.0, 1.0 }
+    //        },
+    //        xtensor<TF,1>{
+    //            0,
+    //            1,
+    //            2
+    //        }
+    //    );
 
-    // cut
-    xtensor<TF,2> angles = linspace<TF>( 0, 2 * M_PI, nb_triangles, false );
-    xtensor<TF,2> normals = hstack( xtuple( cos( angles ), sin( angles ) ) );
-    P( normals.shape() );
+    //    // cut
+    //    xtensor<TF,2> angles = linspace<TF>( 0, 2 * M_PI, nb_triangles, false );
+    //    xtensor<TF,2> normals = hstack( xtuple( cos( angles ), sin( angles ) ) );
+    //    P( normals.shape() );
     //xtensor<TF,2> normals = hstack( xtuple( cos( angles ), sin( angles ) ) );
 
     //    Tensor<TF> normals( { nb_triangles, dim } );
@@ -45,8 +46,7 @@ void test_triangle( TI dim = 2, TI nb_triangles = 5 ) {
     //    }
 
     //    sp.plane_cut( normals, scalar_products, new_face_ids );
-    sp.display_vtk( "cut.vtk" );
-    P( sp );
+    //    sp.display_vtk( "cut.vtk" );
 }
 
 //void test_quad( TI dim = 2, TI nb_quads = 36 ) {
