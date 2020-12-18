@@ -75,12 +75,13 @@ std::string GetElementaryPolytopCaracList::type_name() const {
 void GetElementaryPolytopCaracList::write_carac( parex::Src &src, const SymbolicElementaryPolytop &se ) const {
     std::string vn = "ep_" + se.name;
 
-    src << "    sdot::ElementaryPolytopCarac " + vn + ";\n";
-    src << "    " + vn + ".vtk_elements = " << se.vtk_output() << ";\n";
-    src << "    " + vn + ".nb_nodes = " << se.nb_nodes() << ";\n";
-    src << "    " + vn + ".nb_faces = " << se.nb_faces() << ";\n";
-    src << "    " + vn + ".name = \"" << se.name << "\";\n";
-    src << "    res.elements.push_back( std::move( " + vn + " ) );\n";
+    src << "        sdot::ElementaryPolytopCarac " + vn + ";\n";
+    src << "        " + vn + ".vtk_elements = " << se.vtk_output() << ";\n";
+    src << "        " + vn + ".nb_nodes = " << se.nb_nodes() << ";\n";
+    src << "        " + vn + ".nb_faces = " << se.nb_faces() << ";\n";
+    src << "        " + vn + ".name = \"" << se.name << "\";\n";
+    src << "        " + vn + ".nvi = " << se.nvi << ";\n";
+    src << "        res.elements.push_back( std::move( " + vn + " ) );\n";
 }
 
 

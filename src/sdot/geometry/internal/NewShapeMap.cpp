@@ -1,3 +1,4 @@
+#include <parex/compilation/variable_encode.h>
 #include <parex/data/CompiledType.h>
 #include <parex/data/TypeFactory.h>
 #include <parex/utility/TODO.h>
@@ -19,12 +20,42 @@ NewShapeMap::NewShapeMap( const ElementaryPolytopTypeSet &elementary_polytop_typ
 void NewShapeMap::prepare( parex::TypeFactory *tf, parex::SchedulerSession * ) {
     // create the output type if necessary
     tf->reg_type( output_type_name(), [&]( const std::string &type_name ) {
-        auto epcl = reinterpret_cast<ElementaryPolytopCaracList *>( slots[ 0 ].input.first_slot()->data->ptr );
+        auto& epcl        = *reinterpret_cast<ElementaryPolytopCaracList *>( slots[ 0 ].input.data_ptr() );
+        auto& scalar_type = *reinterpret_cast<std::string *>( slots[ 1 ].input.data_ptr() );
+        auto& index_type  = *reinterpret_cast<std::string *>( slots[ 2 ].input.data_ptr() );
+        auto  dim         = *reinterpret_cast<int *>( slots[ 3 ].input.data_ptr() );
+        auto  al_TF       = dst->allocator_type( scalar_type, index_type );
+        auto  al_TI       = dst->allocator_type( index_type, index_type );
+
+        if ( dim == 0 )
+            dim = epcl.elements[ 0 ].nvi;
 
         std::ostringstream decl;
         decl << "struct " << type_name << " {\n";
-        for( const ElementaryPolytopCarac &element : epcl->elements )
-        decl << "    HomogeneousElementaryPolytopList<> _" << element.name << ";\n";
+        // using ...
+        decl << "    using TF = " << scalar_type << ";\n";
+        decl << "    using TI = " << index_type << ";\n";
+        decl << "    using Allocator_TF = " << al_TF << ";\n";
+        decl << "    using Allocator_TI = " << al_TI << ";\n";
+        for( const ElementaryPolytopCarac &element : epcl.elements ) {
+            decl << "    using TL_" << element.name << " = HomogeneousElementaryPolytopList<Allocator_TF,Allocator_TI,"
+                 << element.nb_nodes << ","
+                 << element.nb_faces << ","
+                 << element.nvi
+                 << ">;\n";
+        }
+
+        // methods
+        decl << "\n";
+        decl << "    " << type_name << "( const Allocator_TF &allocator_TF, const Allocator_TI &allocator_TI, TI rese_items = 0 )";
+        for( std::size_t i = 0; i < epcl.elements.size(); ++i )
+            decl << ( i ? ", _" : " : _" ) << epcl.elements[ i ].name << "( allocator_TF, allocator_TI, rese_items )";
+        decl << " {}\n";
+
+        // attributes
+        decl << "\n";
+        for( const ElementaryPolytopCarac &element : epcl.elements )
+            decl << "    TL_" << element.name << " _" << element.name << ";\n";
         decl << "};\n";
         decl << "PAREX_DECL_HOMO_TYPE_INFO( " << type_name << " );\n";
 
@@ -36,51 +67,33 @@ void NewShapeMap::prepare( parex::TypeFactory *tf, parex::SchedulerSession * ) {
     } );
 }
 
+std::string NewShapeMap::summary() const {
+    return "NewShapeMap " + output_type_name();
+}
+
 std::string NewShapeMap::output_type_name() const {
-    parex::Type *ct = slots[ 0 ].input.first_slot()->data->type;
-    return "ShapeMap_" + ct->name;
+    auto ct          = slots[ 0 ].input.first_slot()->data->type;
+    auto scalar_type = *reinterpret_cast<std::string *>( slots[ 1 ].input.data_ptr() );
+    auto index_type  = *reinterpret_cast<std::string *>( slots[ 2 ].input.data_ptr() );
+    auto dim         = *reinterpret_cast<int *>( slots[ 3 ].input.data_ptr() );
+
+    std::string res = "ShapeMap";
+    res += "_" + parex::variable_encode( dst->name(), true );
+    res += "_" + parex::variable_encode( scalar_type, true );
+    res += "_" + parex::variable_encode( index_type , true );
+    res += "_" + parex::variable_encode( ct->name   , true );
+    res += "_" + std::to_string( dim );
+    return res;
 }
 
 void NewShapeMap::get_src_content( parex::Src &src, parex::SrcSet &, parex::TypeFactory *tf ) const {
-    src.compilation_environment += tf->type( output_type_name() )->compilation_environment;
+    parex::Type *sm = tf->type( output_type_name() );
+    src.compilation_environment += sm->compilation_environment;
+
+    src << "template<class Carac>\n";
+    src << sm->name << " *" << called_func_name() << "( const Carac &carac, const std::string &, const std::string &, const int & ) {\n";
+    src << "    return new " << sm->name << "(  );\n";
+    src << "}\n";
 }
-
-//        virtual void exec() override {
-//            // inputs
-//            const ElementaryPolytopInfoListContent *epil = reinterpret_cast<const ElementaryPolytopInfoListContent *>( children[ 0 ]->output_data );
-//            Type *scalar_type = Task::type_factory( *reinterpret_cast<const std::string *>( children[ 1 ]->output_data ) );
-//            Type *index_type = Task::type_factory( *reinterpret_cast<const std::string *>( children[ 2 ]->output_data ) );
-//            int dim = *reinterpret_cast<const int *>( children[ 3 ]->output_data );
-//            if ( ! dim )
-//                dim = epil->default_dim;
-
-//            // type name
-//            std::string type_name = "ShapeMap";
-//            type_name += "_" + variable_encode( epil->elem_names(), true );
-//            type_name += "_" + variable_encode( scalar_type->cpp_name(), true );
-//            type_name += "_" + variable_encode( index_type->cpp_name(), true );
-//            type_name += "_" + std::to_string( dim );
-
-//            // set output type
-//            output_type = shape_map_type( type_name, epil, scalar_type, index_type, dst, dim );
-
-//            // find or create lib
-//            static GeneratedSymbolSet gls;
-//            auto *func = gls.get_symbol<void( ComputableTask *)>( [&]( SrcSet &sw ) {
-//                Src &src = sw.src( "get_NewShapeMap.cpp" );
-
-//                src.compilation_environment.includes << "<parex/ComputableTask.h>";
-//                output_type->add_needs_in( src );
-
-//                src << "\n";
-//                src << "extern \"C\" void exported( ComputableTask *task ) {\n";
-//                src << "    task->output.data = new " << type_name << ";\n";
-//                src << "    task->output.own = true;\n";
-//                src << "}\n";
-//            }, type_name );
-
-//            // execute the generated function to get the output_data
-//            func( this );
-//        }
 
 } // namespace sdot

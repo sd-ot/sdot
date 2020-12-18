@@ -1,30 +1,26 @@
 #ifndef SDOT_HomogeneousElementaryPolytopList_HEADER
 #define SDOT_HomogeneousElementaryPolytopList_HEADER
 
-#include <parex/containers/gtensor.h>
+#include <parex/containers/tensor.h>
 
-template<class TF,class TI,class Memory>
+template<class Allocator_TF,class Allocator_TI,int nb_nodes,int nb_faces,int dim>
 struct HomogeneousElementaryPolytopList {
-    using TF                              = typename Allocator_TF::value_type;
-    using TI                              = typename Allocator_TI::value_type;
+    using                      TF                              = typename Allocator_TF::value_type;
+    using                      TI                              = typename Allocator_TI::value_type;
 
-    using XF3                             = gtensor<TF,3,Allocator_TF>;
-    using XI2                             = gtensor<TI,2,Allocator_TI>;
-    using XI1                             = gtensor<TI,1,Allocator_TI>;
+    using                      XN                              = parex::tensor<parex::heap_tensor_block<Allocator_TF,3,parex::DynamicShape<nb_nodes,dim,parex::unspecified>>>;
+    using                      XF                              = parex::tensor<parex::heap_tensor_block<Allocator_TI,2,parex::DynamicShape<nb_faces,parex::unspecified>>>;
+    using                      XI                              = parex::tensor<parex::heap_tensor_block<Allocator_TI,1,parex::DynamicShape<>>>;
 
-    /**/  HomogeneousElementaryPolytopList( Allocator_TF &allocator_TF, Allocator_TI &allocator_TI, TI nb_nodes, TI nb_faces, TI dim, TI rese_items = 0 );
+    /**/                       HomogeneousElementaryPolytopList( const Allocator_TF &allocator_TF, const Allocator_TI &allocator_TI, TI rese_items = 0 );
 
-    void  write_to_stream                 ( std::ostream &os, const Allocator_TF &af = {}, const Allocator_TI &ai = {}, const std::string &sp = "\n" ) const;
-    TI    nb_nodes                        () const { return positions.shape()[ 0 ]; }
-    TI    nb_faces                        () const { return face_ids.shape()[ 0 ]; }
-    TI    size                            () const { return ids.shape( 0 ); }
-    TI    dim                             () const { return positions.shape()[ 1 ]; }
+    void                       write_to_stream                 ( std::ostream &os, const std::string &sp = "\n" ) const;
+    template<class Proc> void  resize                          ( TI new_size, const Proc &proc );
+    TI                         size                            () const { return ids.size(); }
 
-    void  resize                          ( Allocator_TF &allocator_TF, Allocator_TI &allocator_TI, TI new_size );
-
-    XF3   positions;                      ///< ( num_node, num_dim, num_item )
-    XI2   face_ids;                       ///< ( num_face, num_item )
-    XI1   ids;                            ///< ( num_item )
+    XN                         positions;                      ///< ( num_node, num_dim, num_item )
+    XF                         face_ids;                       ///< ( num_face, num_item )
+    XI                         ids;                            ///< ( num_item )
 };
 
 #include "HomogeneousElementaryPolytopList.tcc"

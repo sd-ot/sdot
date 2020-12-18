@@ -6,6 +6,7 @@ namespace sdot {
 SymbolicElementaryPolytop::SymbolicElementaryPolytop( const std::string &name ) : name( name ) {
     for( int i = 0; i < std::stoi( name ); ++i )
         nodes.push_back( i );
+    nvi = 2;
 }
 
 std::string SymbolicElementaryPolytop::vtk_output() const {

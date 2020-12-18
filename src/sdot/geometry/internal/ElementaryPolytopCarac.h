@@ -17,6 +17,7 @@ public:
     unsigned    nb_nodes;      ///<
     unsigned    nb_faces;      ///<
     std::string name;          ///<
+    unsigned    nvi;           ///< nb var inter
 };
 
 } // namespace sdot

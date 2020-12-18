@@ -8,7 +8,7 @@ namespace sdot {
 */
 class SetOfElementaryPolytops {
 public:
-    struct                     CtorParameters         { const parex::String &scalar_type = "FP64"; const parex::String &index_type = "PI64"; parex::Memory *dst = nullptr; parex::Scalar dim = 0; };
+    struct                     CtorParameters         { const parex::String &scalar_type = parex::TypeInfo<double>::name(); const parex::String &index_type = parex::TypeInfo<std::uint64_t>::name(); parex::Memory *dst = nullptr; parex::Scalar dim = 0; };
 
     /**/                       SetOfElementaryPolytops( const ElementaryPolytopTypeSet &elementary_polytop_type_set, const CtorParameters &parameters );
 

@@ -19,6 +19,7 @@ public:
 
     std::vector<TI> nodes;
     std::string     name;
+    TI              nvi;
 };
 
 } // namespace sdot
