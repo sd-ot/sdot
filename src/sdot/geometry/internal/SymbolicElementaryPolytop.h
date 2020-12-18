@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 
+namespace sdot {
+
 /**
 */
 class SymbolicElementaryPolytop {
@@ -19,3 +21,4 @@ public:
     std::string     name;
 };
 
+} // namespace sdot

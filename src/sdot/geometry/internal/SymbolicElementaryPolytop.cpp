@@ -1,6 +1,8 @@
 #include "SymbolicElementaryPolytop.h"
 #include <sstream>
 
+namespace sdot {
+
 SymbolicElementaryPolytop::SymbolicElementaryPolytop( const std::string &name ) : name( name ) {
     for( int i = 0; i < std::stoi( name ); ++i )
         nodes.push_back( i );
@@ -26,3 +28,5 @@ unsigned SymbolicElementaryPolytop::nb_nodes() const {
 unsigned SymbolicElementaryPolytop::nb_faces() const {
     return nodes.size();
 }
+
+} // namespace sdot

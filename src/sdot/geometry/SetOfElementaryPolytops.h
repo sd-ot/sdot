@@ -1,11 +1,6 @@
 #pragma once
 
-#include "ElementaryPolytopInfoList.h"
-#include <parex/containers/xtensor.h>
-#include <parex/MemoryCpu.h>
-#include <parex/Value.h>
-
-class ElementaryPolytopInfoListContent;
+#include "ElementaryPolytopTypeSet.h"
 
 namespace sdot {
 
@@ -13,21 +8,19 @@ namespace sdot {
 */
 class SetOfElementaryPolytops {
 public:
-    struct                 Parm                   { const Value &scalar_type = "FP64"; const Value &index_type = "PI64"; Memory *dst = nullptr; const Value &dim = 0; };
+    struct                     Parm                   { const parex::String &scalar_type = "FP64"; const parex::String &index_type = "PI64"; parex::Memory *dst = nullptr; parex::Scalar dim = 0; };
 
-    /**/                   SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Parm &types );
+    /**/                       SetOfElementaryPolytops( const ElementaryPolytopTypeSet &elementary_polytop_type_set, const Parm &parameters );
 
-    void                   write_to_stream        ( std::ostream &os ) const;
-    void                   display_vtk            ( const Value &filename ) const;
+    void                       write_to_stream        ( std::ostream &os ) const;
+    void                       display_vtk            ( const parex::String &filename ) const;
 
-    void                   add_repeated           ( const Value &shape_name, const Value &count, const Value &coordinates, const Value &face_ids = 0, const Value &beg_ids = 0 );
-    void                   plane_cut              ( const Value &normals, const Value &scalar_products, const Value &cut_ids );
+    //void                     add_repeated           ( const parex::String &shape_name, const Value &count, const Value &coordinates, const Value &face_ids = 0, const Value &beg_ids = 0 );
+    //void                     plane_cut              ( const parex::String &normals, const Value &scalar_products, const Value &cut_ids );
 
 private:
-    static Type*           shape_map_type         ( const std::string &type_name, const ElementaryPolytopInfoListContent *epil, Type *scalar_type, Type *index_type, Memory *dst, int dim );
-
-    Rc<Task>               elem_info;             ///<
-    Rc<Task>               shape_map;             ///<
+    parex::Rc<parex::Variable> elem_info;             ///<
+    parex::Rc<parex::Variable> shape_map;             ///<
 };
 
 }

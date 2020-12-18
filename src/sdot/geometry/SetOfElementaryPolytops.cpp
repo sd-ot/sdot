@@ -1,18 +1,18 @@
-#include <parex/CompiledIncludeTask.h>
-#include <parex/GeneratedSymbolSet.h>
-#include <parex/variable_encode.h>
-#include <parex/Scheduler.h>
-#include <parex/CppType.h>
-#include <parex/TODO.h>
-#include <parex/P.h>
-#include <sstream>
+//#include <parex/CompiledIncludeTask.h>
+//#include <parex/GeneratedSymbolSet.h>
+//#include <parex/variable_encode.h>
+//#include <parex/Scheduler.h>
+//#include <parex/CppType.h>
+//#include <parex/TODO.h>
+//#include <parex/P.h>
+//#include <sstream>
 
-#include "internal/ElementaryPolytopInfoListContent.h"
+//#include "internal/ElementaryPolytopInfoListContent.h"
 #include "SetOfElementaryPolytops.h"
 
 namespace sdot {
 
-SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopInfoList &elementary_polytop_info, const Parm &types ) : elem_info( elementary_polytop_info.task ) {
+SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopTypeSet &elementary_polytop_type_set, const Parm &parameters ) : elem_info( elementary_polytop_type_set.task ) {
     struct NewShapeMap : ComputableTask {
         NewShapeMap( std::vector<Rc<Task>> &&children, Memory *dst ) : ComputableTask( std::move( children ) ), dst( dst ) {
         }

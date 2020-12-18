@@ -1,10 +1,7 @@
 #include "../src/sdot/geometry/SetOfElementaryPolytops.h"
-#include <parex/MemoryGpu.h>
-#include <parex/Scheduler.h>
-#include <parex/P.h>
+#include "catch_main.h"
 
 using namespace sdot;
-using namespace xt;
 
 using TI = std::uint64_t;
 using TF = double;
