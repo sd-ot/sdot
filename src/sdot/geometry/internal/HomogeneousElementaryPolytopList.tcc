@@ -4,10 +4,9 @@
 #define C HomogeneousElementaryPolytopList<Allocator_TF,Allocator_TI,nb_nodes,nb_faces,dim>
 
 T C::HomogeneousElementaryPolytopList( const Allocator_TF &allocator_TF, const Allocator_TI &allocator_TI, TI rese_items ) :
-        positions( allocator_TF ), face_ids( allocator_TI ), ids( allocator_TI ) {
-//    positions.reserve_axis( allocator_TF, nb_nodes, dim, rese_items );
-//    face_ids.reserve_axis( allocator_TI, nb_faces, rese_items );
-//    ids.reserve_axis( allocator_TI, rese_items );
+        positions( XP::empty( allocator_TF, 0, rese_items ) ),
+        face_ids( XF::empty( allocator_TI, 0, rese_items ) ),
+        ids( XI::empty( allocator_TI, 0, rese_items ) ) {
 }
 
 T void C::write_to_stream( std::ostream &os, const std::string &sp ) const {

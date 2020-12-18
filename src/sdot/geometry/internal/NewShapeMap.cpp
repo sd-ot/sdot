@@ -1,5 +1,5 @@
+#include <parex/instructions/NotOwnedSrcInstruction.h>
 #include <parex/compilation/variable_encode.h>
-#include <parex/instructions/SrcInstruction.h>
 #include <parex/data/CompiledType.h>
 #include <parex/data/TypeFactory.h>
 #include <parex/utility/TODO.h>
@@ -15,7 +15,7 @@ NewShapeMap::NewShapeMap( const ElementaryPolytopTypeSet &elementary_polytop_typ
         scalar_type.to_string().expr(),
         index_type.to_string().expr(),
         dim.to<int>().expr(),
-        parex::Expression{ new parex::SrcInstruction<parex::Memory>( dst, /*own*/ false ), 0 }
+        parex::Expression{ new parex::NotOwnedSrcInstruction( dst->name(), dst ), 0 }
     }, 1 ), dst( dst ) {
 }
 
@@ -96,8 +96,8 @@ void NewShapeMap::get_src_content( parex::Src &src, parex::SrcSet &, parex::Type
     src.compilation_environment += sm->compilation_environment;
 
     src << "template<class Carac>\n";
-    src << sm->name << " *" << called_func_name() << "( const Carac &, const std::string &, const std::string &, const int &, " << dst->name() << " *memory ) {\n";
-    src << "    return new " << sm->name << "( memory, memory, /*rese*/ 0 );\n";
+    src << sm->name << " *" << called_func_name() << "( const Carac &, const std::string &, const std::string &, const int &, " << dst->name() << " &memory ) {\n";
+    src << "    return new " << sm->name << "( &memory, &memory, /*rese*/ 0 );\n";
     src << "}\n";
 }
 

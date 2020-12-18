@@ -23,6 +23,7 @@ void GetElementaryPolytopCaracList::prepare( parex::TypeFactory *tf, parex::Sche
         parex::Type *res = new parex::CompiledType( type_name(), {}, {}, /*sub types*/ {} );
         res->compilation_environment.includes << "<sdot/geometry/internal/ElementaryPolytopCaracList.h>";
         res->compilation_environment.includes << "<parex/data/TypeInfo.h>";
+        res->compilation_environment.include_directories << ASIMD_DIR "/src";
         res->compilation_environment.include_directories << SDOT_DIR "/src";
         res->compilation_environment.preliminaries << decl.str();
         return res;

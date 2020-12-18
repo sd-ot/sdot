@@ -8,7 +8,7 @@ struct HomogeneousElementaryPolytopList {
     using                      TF                              = typename Allocator_TF::value_type;
     using                      TI                              = typename Allocator_TI::value_type;
 
-    using                      XN                              = parex::tensor<parex::heap_tensor_block<Allocator_TF,3,parex::DynamicShape<nb_nodes,dim,parex::unspecified>>>;
+    using                      XP                              = parex::tensor<parex::heap_tensor_block<Allocator_TF,3,parex::DynamicShape<nb_nodes,dim,parex::unspecified>>>;
     using                      XF                              = parex::tensor<parex::heap_tensor_block<Allocator_TI,2,parex::DynamicShape<nb_faces,parex::unspecified>>>;
     using                      XI                              = parex::tensor<parex::heap_tensor_block<Allocator_TI,1,parex::DynamicShape<>>>;
 
@@ -18,7 +18,7 @@ struct HomogeneousElementaryPolytopList {
     template<class Proc> void  resize                          ( TI new_size, const Proc &proc );
     TI                         size                            () const { return ids.size(); }
 
-    XN                         positions;                      ///< ( num_node, num_dim, num_item )
+    XP                         positions;                      ///< ( num_node, num_dim, num_item )
     XF                         face_ids;                       ///< ( num_face, num_item )
     XI                         ids;                            ///< ( num_item )
 };
