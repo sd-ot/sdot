@@ -3,9 +3,11 @@
 #include <parex/data/CompiledType.h>
 #include <parex/utility/va_string.h>
 #include <parex/utility/ASSERT.h>
+#include <parex/utility/P.h>
+
+#include "internal/SymbolicElementaryPolytop.h"
 #include "ElementaryPolytopTypeSet.h"
 
-#include <parex/utility/P.h>
 
 namespace sdot {
 
@@ -14,29 +16,46 @@ ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Vector<parex::S
     public:
         using parex::CompiledInstruction::CompiledInstruction;
 
-        virtual void get_src_content( parex::Src &src, parex::SrcSet &/*sw*/, parex::TypeFactory *tf ) const override {
-            // name of the output type
-            std::string type_name = "ElementaryPolytopTypeSet";
-            for( const std::string &shape_name : shape_names() )
-                type_name += "_" + shape_name;
-
+        virtual void prepare( parex::TypeFactory *tf, parex::SchedulerSession */*ss*/ ) override {
             // create type if necessary
-            tf->reg_type( type_name, [&]( const std::string & ) {
+            tf->reg_type( type_name(), [&]( const std::string & ) {
                 std::ostringstream decl;
-                decl << "struct " << type_name << " : ElementaryPolytopTypeSetAnc {\n";
-                decl << "};\n";
+                decl << "struct " << type_name() << " : sdot::ElementaryPolytopCaracList {};\n";
+                decl << "PAREX_DECL_HOMO_TYPE_INFO( " << type_name() << " );\n";
 
-                parex::Type *res = new parex::CompiledType( type_name, type_name, {}, /*sub types*/ {} );
+                parex::Type *res = new parex::CompiledType( type_name(), {}, {}, /*sub types*/ {} );
+                res->compilation_environment.includes << "<sdot/geometry/internal/ElementaryPolytopCaracList.h>";
+                res->compilation_environment.includes << "<parex/data/TypeInfo.h>";
+                res->compilation_environment.include_directories << SDOT_DIR "/src";
                 res->compilation_environment.preliminaries << decl.str();
                 return res;
             } );
+        }
 
-            // Pb 1: il faudrait générer le code en fonction du contenu. Prop: on passe par summary
-            //src << "struct Epil : ElementaryPolytopInfoListContent {\n";
+        virtual void get_src_content( parex::Src &src, parex::SrcSet &/*sw*/, parex::TypeFactory *tf ) const override {
+            // type decl
+            parex::Type *type = tf->type( type_name() );
+            src.compilation_environment += type->compilation_environment;
+
+            // symbolic elements, constructed from names
+            std::vector<SymbolicElementaryPolytop> ses;
+            for( const std::string &shape_name : shape_names() )
+                ses.push_back( shape_name );
+
+            // maker
+            src << "    " << type->name << " make_" << type->name << "() {\n";
+            src << "        " << type->name << " res;\n";
+            for( const SymbolicElementaryPolytop &se : ses )
+                write_carac( src << "\n", se );
+            src << "        \n";
+            src << "        return res;\n";
+            src << "    }\n";
+
+            //
             src << "template<class T>\n";
             src << "auto kernel( const T &shape_names ) {\n";
-            src << "    static " << type_name << " *( &... );\n";
-            src << "    return new " << type_name << " *( &... );\n";
+            src << "    static " << type->name << " res = make_" << type->name << "();\n";
+            src << "    return parex::MakeOutputSlots::NotOwned<" << type->name << ">{ &res };\n";
             src << "}\n";
         }
 
@@ -48,93 +67,26 @@ ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Vector<parex::S
             ASSERT( slots[ 0 ].input.first_slot() && slots[ 0 ].input.first_slot()->data, "" );
             return *reinterpret_cast<std::vector<std::string> *>( slots[ 0 ].input.data_ptr() );
         }
+
+        std::string type_name() const {
+            std::string res = "ElementaryPolytopCaracList";
+            for( const std::string &shape_name : shape_names() )
+                res += "_" + shape_name;
+            return res;
+        }
+
+        void write_carac( parex::Src &src, const SymbolicElementaryPolytop &se ) const {
+            std::string vn = "ep_" + se.name;
+
+            src << "    sdot::ElementaryPolytopCarac " + vn + ";\n";
+            src << "    " + vn + ".vtk_elements = " << se.vtk_output() << ";\n";
+            src << "    " + vn + ".nb_nodes = " << se.nb_nodes() << ";\n";
+            src << "    " + vn + ".nb_faces = " << se.nb_faces() << ";\n";
+            src << "    " + vn + ".name = \"" << se.name << "\";\n";
+            src << "    res.elements.push_back( std::move( " + vn + " ) );\n";
+        }
     };
     variable = new parex::Variable( new GetElementaryPolytopCaracList( "GetElementaryPolytopCaracList", { shape_names.to<std::vector<std::string>>().variable->get() }, 1 ), 1 );
-
-    //        virtual void exec() override {
-    //            // set the output type
-    //            output_type = type_factory().reg_cpp_type( "ElementaryPolytopInfoListContent", []( CppType &ct ) {
-    //                ct.compilation_environment.includes << "<sdot/geometry/internal/ElementaryPolytopInfoListContent.h>";
-    //                ct.compilation_environment.include_directories << SDOT_DIR "/src";
-    //            } );
-
-    //            // summary
-    //            std::string shape_types = *reinterpret_cast<const std::string *>( children[ 0 ]->output_data );
-
-    //            // find or create lib
-    //            static GeneratedSymbolSet gls;
-    //            auto *func = gls.get_symbol<void( ComputableTask *)>( [&]( SrcSet &sw ) {
-    //                Src &src = sw.src( "get_ElementaryPolytopInfoList.cpp" );
-
-    //                // src.cpp_flags << "-std=c++17" << "-g3";
-    //                src.compilation_environment.includes << "<parex/ComputableTask.h>";
-    //                output_type->add_needs_in( src );
-
-    //                src << "namespace {\n";
-    //                src << "struct Epil : ElementaryPolytopInfoListContent {\n";
-    //                src << "    Epil() {";
-    //                write_epil_ctor( src, shape_types, "\n        " );
-    //                src << "    }\n";
-    //                src << "};\n";
-    //                src << "}\n";
-
-    //                src << "\n";
-    //                src << "extern \"C\" void exported( ComputableTask *task ) {\n";
-    //                src << "    static Epil res;\n";
-    //                src << "    task->output.data = &res;\n";
-    //                src << "    task->output.own = false;\n";
-    //                src << "}\n";
-    //            }, shape_types );
-
-    //            // execute the generated function to get the output_data
-    //            func( this );
-    //        }
-
-    //        void write_epil_ctor( Src &src, const std::string &shape_types, const std::string &sp ) {
-    //            std::vector<SymbolicElementaryPolytop> lst;
-    //            std::istringstream ss( shape_types );
-    //            for( std::string name; ss >> name; )
-    //                lst.push_back( name );
-
-    //            src << sp << "default_dim = 2;";
-
-    //            for( std::size_t num_elem = 0; num_elem < lst.size(); ++num_elem ) {
-    //                SymbolicElementaryPolytop &se = lst[ num_elem ];
-    //                src << sp << "";
-    //                src << sp << "ElementaryPolytopInfo e_" << num_elem << ";";
-    //                src << sp << "e_" << num_elem << ".name = \"" << se.name << "\";";
-    //                src << sp << "e_" << num_elem << ".nb_nodes = " << se.nb_nodes() << ";";
-    //                src << sp << "e_" << num_elem << ".nb_faces = " << se.nb_faces() << ";";
-    //                src << sp << "e_" << num_elem << ".vtk_elements = " << se.vtk_output() << ";";
-    //                src << sp << "elem_info.push_back( std::move( e_" << num_elem << " ) );";
-    //            }
-    //        }
-    //    };
-
-    //    struct ToShapeTypes : ComputableTask {
-    //        ToShapeTypes( Rc<Task> &&dim_or_shape_types ) : ComputableTask( { std::move( dim_or_shape_types ) } ) {
-    //        }
-
-    //        virtual void write_to_stream( std::ostream &os ) const override {
-    //            os << "ToShapeTypes";
-    //        }
-
-    //        void exec() override {
-    //            std::string shape_types = *reinterpret_cast<const std::string *>( children[ 0 ]->output_data );
-    //            if ( shape_types[ 0 ] >= '0' && shape_types[ 0 ] <= '9' )
-    //                shape_types = default_shape_types( std::stoi( shape_types ) );
-    //            make_outputs( TaskOut<std::string>( new std::string( shape_types ) ) );
-    //        }
-
-    //        static std::string default_shape_types( int dim ) {
-    //            if ( dim == 3 ) return "3S 3E 4S";
-    //            if ( dim == 2 ) return "3 4 5";
-    //            TODO;
-    //            return {};
-    //        }
-    //    };
-
-    //    task = new GetElementaryPolytopInfoList( new ToShapeTypes( dim_or_shape_types.to_string() ) );
 }
 
 ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Scalar &dim ) : ElementaryPolytopTypeSet( default_shape_names_for( dim ) ) {

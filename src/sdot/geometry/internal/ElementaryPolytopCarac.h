@@ -1,15 +1,17 @@
 #pragma once
 
-#include <parex/generic_ostream_output.h>
+#include <parex/utility/generic_ostream_output.h>
 #include <vector>
+
+namespace sdot {
 
 /**
 */
-class ElementaryPolytopInfo {
+class ElementaryPolytopCarac {
 public:
     using       VtkElements    = std::vector<std::pair<unsigned,std::vector<unsigned>>>; ///< [ vtk_type => list of nodes ]
 
-    void        write_to_stream( std::ostream &os ) const { os << name; }
+    void        write_to_stream( std::ostream &os ) const { os << name << "(nb_nodes=" << nb_nodes << ")"; }
 
     VtkElements vtk_elements;  ///<
     unsigned    nb_nodes;      ///<
@@ -17,3 +19,4 @@ public:
     std::string name;          ///<
 };
 
+} // namespace sdot

@@ -2,7 +2,8 @@
 #include <sstream>
 
 SymbolicElementaryPolytop::SymbolicElementaryPolytop( const std::string &name ) : name( name ) {
-    nodes = xt::arange( std::stoi( name ) );
+    for( int i = 0; i < std::stoi( name ); ++i )
+        nodes.push_back( i );
 }
 
 std::string SymbolicElementaryPolytop::vtk_output() const {
