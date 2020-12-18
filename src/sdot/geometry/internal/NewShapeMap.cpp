@@ -1,4 +1,5 @@
 #include <parex/compilation/variable_encode.h>
+#include <parex/instructions/SrcInstruction.h>
 #include <parex/data/CompiledType.h>
 #include <parex/data/TypeFactory.h>
 #include <parex/utility/TODO.h>
@@ -13,7 +14,8 @@ NewShapeMap::NewShapeMap( const ElementaryPolytopTypeSet &elementary_polytop_typ
         elementary_polytop_type_set.carac->get(),
         scalar_type.to_string().expr(),
         index_type.to_string().expr(),
-        dim.to<int>().expr()
+        dim.to<int>().expr(),
+        parex::Expression{ new parex::SrcInstruction<parex::Memory>( dst, /*own*/ false ), 0 }
     }, 1 ), dst( dst ) {
 }
 
@@ -35,10 +37,13 @@ void NewShapeMap::prepare( parex::TypeFactory *tf, parex::SchedulerSession * ) {
         // using ...
         decl << "    using TF = " << scalar_type << ";\n";
         decl << "    using TI = " << index_type << ";\n";
-        decl << "    using Allocator_TF = " << al_TF << ";\n";
-        decl << "    using Allocator_TI = " << al_TI << ";\n";
+        decl << "    using AF = " << al_TF << ";\n";
+        decl << "    using AI = " << al_TI << ";\n";
+
+        // type of homogeneous lists
+        decl << "\n";
         for( const ElementaryPolytopCarac &element : epcl.elements ) {
-            decl << "    using TL_" << element.name << " = HomogeneousElementaryPolytopList<Allocator_TF,Allocator_TI,"
+            decl << "    using TL_" << element.name << " = HomogeneousElementaryPolytopList<AF,AI,"
                  << element.nb_nodes << ","
                  << element.nb_faces << ","
                  << element.nvi
@@ -47,7 +52,7 @@ void NewShapeMap::prepare( parex::TypeFactory *tf, parex::SchedulerSession * ) {
 
         // methods
         decl << "\n";
-        decl << "    " << type_name << "( const Allocator_TF &allocator_TF, const Allocator_TI &allocator_TI, TI rese_items = 0 )";
+        decl << "    " << type_name << "( const AF &allocator_TF, const AI &allocator_TI, TI rese_items = 0 )";
         for( std::size_t i = 0; i < epcl.elements.size(); ++i )
             decl << ( i ? ", _" : " : _" ) << epcl.elements[ i ].name << "( allocator_TF, allocator_TI, rese_items )";
         decl << " {}\n";
@@ -91,8 +96,8 @@ void NewShapeMap::get_src_content( parex::Src &src, parex::SrcSet &, parex::Type
     src.compilation_environment += sm->compilation_environment;
 
     src << "template<class Carac>\n";
-    src << sm->name << " *" << called_func_name() << "( const Carac &carac, const std::string &, const std::string &, const int & ) {\n";
-    src << "    return new " << sm->name << "(  );\n";
+    src << sm->name << " *" << called_func_name() << "( const Carac &, const std::string &, const std::string &, const int &, " << dst->name() << " *memory ) {\n";
+    src << "    return new " << sm->name << "( memory, memory, /*rese*/ 0 );\n";
     src << "}\n";
 }
 
