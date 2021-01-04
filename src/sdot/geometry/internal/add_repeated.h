@@ -18,10 +18,10 @@ void add_repeated_( HomogeneousElementaryPolytopList<AF,AI> &hl, AF &allocator_T
 
     for( TI i = 0; i < hl.nb_nodes(); ++i )
         for( TI d = 0; d < hl.dim(); ++d )
-            asimd::assign_scalar( allocator_TF, hl.positions.data( i, d, os ), coordinates( i, d ), count );
+            parex::assign_scalar( allocator_TF, hl.positions.data( i, d, os ), coordinates( i, d ), count );
     for( TI i = 0; i < face_ids.size(); ++i )
-        asimd::assign_scalar( allocator_TI, hl.face_ids.data( i, os ), face_ids( i ), count );
-    asimd::assign_iota( allocator_TI, hl.ids.data( os ), beg_ids, count );
+        parex::assign_scalar( allocator_TI, hl.face_ids.data( i, os ), face_ids( i ), count );
+    parex::assign_iota( allocator_TI, hl.ids.data( os ), beg_ids, count );
 }
 
 template<class ShapeMap,class TI,class A,class B,class C>
