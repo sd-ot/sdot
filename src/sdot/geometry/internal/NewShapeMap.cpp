@@ -19,6 +19,16 @@ NewShapeMap::NewShapeMap( const ElementaryPolytopTypeSet &elementary_polytop_typ
     }, 1 ), dst( dst ) {
 }
 
+void NewShapeMap::get_src_content( parex::Src &src, parex::SrcSet &, parex::TypeFactory *tf ) const {
+    parex::Type *sm = tf->type( output_type_name() );
+    src.compilation_environment += sm->compilation_environment;
+
+    src << "template<class Carac>\n";
+    src << sm->name << " *" << called_func_name() << "( const Carac &, const std::string &, const std::string &, const int &, " << dst->name() << " &memory ) {\n";
+    src << "    return new " << sm->name << "( &memory, &memory, /*rese*/ 0 );\n";
+    src << "}\n";
+}
+
 void NewShapeMap::prepare( parex::TypeFactory *tf, parex::SchedulerSession * ) {
     // create the output type if necessary
     tf->reg_type( output_type_name(), [&]( const std::string &type_name ) {
@@ -40,7 +50,7 @@ void NewShapeMap::prepare( parex::TypeFactory *tf, parex::SchedulerSession * ) {
         decl << "    using AF = " << al_TF << ";\n";
         decl << "    using AI = " << al_TI << ";\n";
 
-        // type of homogeneous lists
+        // using ... = homogeneous list
         decl << "\n";
         for( const ElementaryPolytopCarac &element : epcl.elements ) {
             decl << "    using TL_" << element.name << " = HomogeneousElementaryPolytopList<AF,AI,"
@@ -50,12 +60,34 @@ void NewShapeMap::prepare( parex::TypeFactory *tf, parex::SchedulerSession * ) {
                  << ">;\n";
         }
 
-        // methods
+        // ctor
         decl << "\n";
         decl << "    " << type_name << "( const AF &allocator_TF, const AI &allocator_TI, TI rese_items = 0 )";
         for( std::size_t i = 0; i < epcl.elements.size(); ++i )
             decl << ( i ? ", _" : " : _" ) << epcl.elements[ i ].name << "( allocator_TF, allocator_TI, rese_items )";
         decl << " {}\n";
+
+        //        // operator[]
+        //        pr << "    \n";
+        //        pr << "    HL *sub_list( const std::string &name ) {\n";
+        //        for( const ElementaryPolytopInfo &elem : epil->elem_info )
+        //            pr << "        if ( name == \"" << elem.name << "\" ) return &_" << elem.name << ";\n";
+        //        pr << "        return nullptr;\n";
+        //        pr << "    }\n";
+
+        //        // for_each_shape_type
+        //        pr << "    \n";
+        //        pr << "    void for_each_shape_type( const std::function<void(const std::string &name)> &f ) {\n";
+        //        for( const ElementaryPolytopInfo &elem : epil->elem_info )
+        //            pr << "        f( \"" << elem.name << "\" );\n";
+        //        pr << "    }\n";
+
+        // write_to_stream
+        decl << "    \n";
+        decl << "    void write_to_stream( std::ostream &os ) const {\n";
+        for( std::size_t i = 0; i < epcl.elements.size(); ++i )
+            decl << "        _" << epcl.elements[ i ].name << ".write_to_stream( os << \"" << epcl.elements[ i ].name << ":\", \"\\n  \" ); os << '\\n';\n";
+        decl << "    }\n";
 
         // attributes
         decl << "\n";
@@ -90,16 +122,6 @@ std::string NewShapeMap::output_type_name() const {
     res += "_" + parex::variable_encode( ct->name   , true );
     res += "_" + std::to_string( dim );
     return res;
-}
-
-void NewShapeMap::get_src_content( parex::Src &src, parex::SrcSet &, parex::TypeFactory *tf ) const {
-    parex::Type *sm = tf->type( output_type_name() );
-    src.compilation_environment += sm->compilation_environment;
-
-    src << "template<class Carac>\n";
-    src << sm->name << " *" << called_func_name() << "( const Carac &, const std::string &, const std::string &, const int &, " << dst->name() << " &memory ) {\n";
-    src << "    return new " << sm->name << "( &memory, &memory, /*rese*/ 0 );\n";
-    src << "}\n";
 }
 
 } // namespace sdot

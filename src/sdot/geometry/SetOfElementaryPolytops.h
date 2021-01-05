@@ -15,7 +15,7 @@ public:
     void                       write_to_stream        ( std::ostream &os ) const;
     void                       display_vtk            ( const parex::String &filename ) const;
 
-    //void                     add_repeated           ( const parex::String &shape_name, const Value &count, const Value &coordinates, const Value &face_ids = 0, const Value &beg_ids = 0 );
+    void                       add_repeated           ( const parex::String &shape_name, const Value &count, const Value &coordinates, const Value &face_ids = 0, const Value &beg_ids = 0 );
     //void                     plane_cut              ( const parex::String &normals, const Value &scalar_products, const Value &cut_ids );
 
 private:

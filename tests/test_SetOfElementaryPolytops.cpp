@@ -10,21 +10,21 @@ void test_triangle( TI dim = 2, TI /*nb_triangles*/ = 5 ) {
     ElementaryPolytopTypeSet epts( dim );
     SetOfElementaryPolytops sp( epts, { /*.dst = MemoryGpu::gpu( 0 )*/ } );
     // scheduler.log = true;
-    P( sp );
 
-    //    // construct
-    //    sp.add_repeated( "3", nb_triangles,
-    //        xtensor<TF,2>{
-    //            { 0.0, 0.0 },
-    //            { 1.0, 0.0 },
-    //            { 0.0, 1.0 }
-    //        },
-    //        xtensor<TF,1>{
-    //            0,
-    //            1,
-    //            2
-    //        }
-    //    );
+    // construct
+    sp.add_repeated( "3", nb_triangles,
+    xtensor<TF,2>{
+        { 0.0, 0.0 },
+        { 1.0, 0.0 },
+        { 0.0, 1.0 }
+    },
+    xtensor<TF,1>{
+        0,
+        1,
+        2
+    } );
+
+    P( sp );
 
     //    // cut
     //    xtensor<TF,2> angles = linspace<TF>( 0, 2 * M_PI, nb_triangles, false );
