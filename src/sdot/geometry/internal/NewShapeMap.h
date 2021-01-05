@@ -15,7 +15,7 @@ struct NewShapeMap : parex::CompiledInstruction {
 
     virtual void        get_src_content ( parex::Src &src, parex::SrcSet &, parex::TypeFactory * ) const override;
     virtual void        prepare         ( parex::TypeFactory *tf, parex::SchedulerSession *) override;
-    virtual std::string summary         () const;
+    virtual std::string summary         () const override;
 
     virtual std::string output_type_name() const;
 

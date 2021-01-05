@@ -10,6 +10,7 @@ T C::HomogeneousElementaryPolytopList( const Allocator_TF &allocator_TF, const A
 }
 
 T void C::write_to_stream( std::ostream &os, const std::string &sp ) const {
+    os << sp << "nb_items=" << size();
     for( TI num_item = 0; num_item < size(); ++num_item ) {
         os << sp;
         for( TI num_node = 0; num_node < nb_nodes; ++num_node ) {
@@ -33,3 +34,10 @@ T template<class Proc> void C::resize( TI new_size, const Proc &proc ) {
     face_ids.resize_axis( 1, new_size, proc );
     ids.resize_axis( 0, new_size, proc );
 }
+
+T typename C::TI C::size() const {
+    return ids.size();
+}
+
+#undef T
+#undef C

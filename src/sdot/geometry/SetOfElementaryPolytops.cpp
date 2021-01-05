@@ -19,7 +19,8 @@ SetOfElementaryPolytops::SetOfElementaryPolytops( const ElementaryPolytopTypeSet
 }
 
 void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
-    shape_map->display_data( os );
+    //shape_map->display_data( os );
+    P( shape_map );
 }
 
 //Type *SetOfElementaryPolytops::shape_map_type( const std::string &type_name, const ElementaryPolytopInfoListContent *epil, Type *scalar_type, Type *index_type, Memory *dst, int dim ) {

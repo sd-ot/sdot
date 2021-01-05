@@ -1,10 +1,10 @@
 NSMAKE = nsmake run
 NSMAKE += -DPAREX_DIR=\"`pwd`/ext/parex\"
-NSMAKE += -DASIMD_DIR=\"`pwd`/ext/asimd\"
+# NSMAKE += -DASIMD_DIR=\"`pwd`/ext/asimd\"
 NSMAKE += -DSDOT_DIR=\"`pwd`\"
 NSMAKE += --cpp-flag -std=c++17
 NSMAKE += -Iext/parex/src
-NSMAKE += -Iext/asimd/src
+# NSMAKE += -Iext/asimd/src
 NSMAKE += -Isrc
 NSMAKE += -g3
 

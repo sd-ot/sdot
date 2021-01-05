@@ -65,6 +65,7 @@ void NewShapeMap::prepare( parex::TypeFactory *tf, parex::SchedulerSession * ) {
         decl << "PAREX_DECL_HOMO_TYPE_INFO( " << type_name << " );\n";
 
         parex::Type *res = new parex::CompiledType( type_name, {}, {}, /*sub types*/ {} );
+        res->compilation_environment.include_directories << SDOT_DIR "/src";
         res->compilation_environment.includes << "<sdot/geometry/internal/HomogeneousElementaryPolytopList.h>";
         res->compilation_environment.includes << "<parex/data/TypeInfo.h>";
         res->compilation_environment.preliminaries << decl.str();
