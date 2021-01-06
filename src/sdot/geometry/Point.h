@@ -2,7 +2,7 @@
 #define SDOT_POINT_H
 
 // #include <parex/TensorOrder.h>
-#include <parex/Math.h>
+// #include <parex/Math.h>
 #include <ostream>
 #include <vector>
 

@@ -15,6 +15,7 @@ public:
     /**/                       SetOfElementaryPolytops( const ElementaryPolytopTypeSet &elementary_polytop_type_set, const CtorParameters &parameters );
 
     void                       write_to_stream        ( std::ostream &os ) const;
+    void                       display_vtk            ( parex::Scheduler &scheduler, const parex::String &filename ) const;
     void                       display_vtk            ( const parex::String &filename ) const;
 
     void                       add_repeated           ( const parex::String &shape_name, const parex::Scalar &count, const parex::Tensor<> &coordinates, const parex::Vector<> &face_ids, const parex::Scalar &beg_ids = 0 );

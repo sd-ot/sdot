@@ -1,11 +1,11 @@
 #pragma once
 
-#include <parex/S.h>
+#include <parex/utility/S.h>
 
 namespace sdot {
 
 template<class T,class G>
-G conv( const T &val, S<G> ) {
+G conv( const T &val, parex::S<G> ) {
     return G( val );
 }
 

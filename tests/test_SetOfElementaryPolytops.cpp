@@ -1,22 +1,24 @@
 #include "../src/sdot/geometry/SetOfElementaryPolytops.h"
 #include "catch_main.h"
-
+using namespace parex;
 using namespace sdot;
 
-using TI = std::uint64_t;
-using TF = double;
-
-void test_triangle( TI dim = 2, TI /*nb_triangles*/ = 5 ) {
+void test_triangle( int dim = 2, std::size_t nb_triangles = 5 ) {
     ElementaryPolytopTypeSet epts( dim );
     SetOfElementaryPolytops sp( epts, { /*.dst = MemoryGpu::gpu( 0 )*/ } );
-    // scheduler.log = true;
 
     // construct
-    sp.add_repeated( "3", 4, { { 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 } }, { 0, 1, 2 } );
-    sp.add_repeated( "3", 4, { { 2.0, 0.0 }, { 3.0, 0.0 }, { 2.0, 1.0 } }, { 0, 1, 2 } );
+    sp.add_repeated( "3", nb_triangles, { { 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 } }, { 0, 1, 2 } );
 
+    Vector<> angles = Vector<>::linspace( 0, 2 * M_PI, nb_triangles, false );
+    P( angles );
+    //    Tensor<> normals;
+    //    Vector<> scalar_products;
+    //    Vector<> new_face_ids;
+    //    sp.plane_cut( normals, scalar_products, new_face_ids );
+
+    sp.display_vtk( "cut.vtk" );
     PN( sp );
-
     //    // cut
     //    xtensor<TF,2> angles = linspace<TF>( 0, 2 * M_PI, nb_triangles, false );
     //    xtensor<TF,2> normals = hstack( xtuple( cos( angles ), sin( angles ) ) );
@@ -36,8 +38,6 @@ void test_triangle( TI dim = 2, TI /*nb_triangles*/ = 5 ) {
     //        new_face_ids[ i ] = 100 + i;
     //    }
 
-    //    sp.plane_cut( normals, scalar_products, new_face_ids );
-    //    sp.display_vtk( "cut.vtk" );
 }
 
 //void test_quad( TI dim = 2, TI nb_quads = 36 ) {

@@ -77,7 +77,14 @@ void NewShapeMap::prepare( parex::TypeFactory *tf, parex::SchedulerSession * ) {
             decl << "        return func( _" << epcl.elements[ 0 ].name << " );\n";
         decl << "    }\n";
 
-        //        // for_each_shape_type
+        // for_each_shape_type
+        decl << "\n";
+        decl << "    template<class Func> auto for_each_shape_type( Func &&func ) {\n";
+        for( std::size_t i = 0; i < epcl.elements.size(); ++i )
+            decl << "        func( \"" << epcl.elements[ i ].name << "\", _" << epcl.elements[ i ].name << " );\n";
+        decl << "    }\n";
+
+        //        //
         //        pr << "    \n";
         //        pr << "    void for_each_shape_type( const std::function<void(const std::string &name)> &f ) {\n";
         //        for( const ElementaryPolytopInfo &elem : epil->elem_info )

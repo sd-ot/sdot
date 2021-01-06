@@ -30,12 +30,17 @@ void SetOfElementaryPolytops::add_repeated( const parex::String &shape_name, con
     } ), 0 );
 }
 
-//void add_repeated( const Value &shape_name, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
-//}
+void SetOfElementaryPolytops::display_vtk( parex::Scheduler &scheduler, const parex::String &filename ) const {
+    scheduler.append( new parex::CompiledIncludeInstruction( "sdot/geometry/internal/display_vtk.h", {
+        filename.variable->get(), shape_map->get(), elem_info->get()
+    } ) );
+}
 
-//void SetOfElementaryPolytops::display_vtk( const Value &filename ) const {
-//    scheduler.run( new CompiledIncludeTask( "sdot/geometry/internal/display_vtk.h", { filename.task, shape_map, elem_info }, {}, std::numeric_limits<double>::max() ) );
-//}
+void SetOfElementaryPolytops::display_vtk( const parex::String &filename ) const {
+    parex::Scheduler sch;
+    display_vtk( sch, filename );
+    sch.run();
+}
 
 //void SetOfElementaryPolytops::plane_cut( const Value &normals, const Value &scalar_products, const Value &cut_ids ) {
 //    P( normals );

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <parex/N.h>
+#include <parex/utility/N.h>
 #include <ostream>
 #include <vector>
 #include <array>
