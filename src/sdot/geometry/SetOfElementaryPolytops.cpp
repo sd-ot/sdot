@@ -8,6 +8,7 @@
 //#include <parex/P.h>
 //#include <sstream>
 
+#include <parex/instructions/CompiledIncludeInstruction.h>
 #include "SetOfElementaryPolytops.h"
 #include "internal/NewShapeMap.h"
 
@@ -22,8 +23,14 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
     shape_map->display_data( os );
 }
 
-//void SetOfElementaryPolytops::add_repeated( const Value &shape_name, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
-//    shape_map = new CompiledIncludeTask( "sdot/geometry/internal/add_repeated.h", { shape_map, shape_name.task, count.task, coordinates.task, face_ids.task, beg_ids.task } );
+void SetOfElementaryPolytops::add_repeated( const parex::String &shape_name, const parex::Scalar &count, const parex::Tensor<> &coordinates, const parex::Vector<> &face_ids, const parex::Scalar &beg_ids ) {
+    shape_map->set( new parex::CompiledIncludeInstruction( "sdot/geometry/internal/add_repeated.h", {
+        shape_map->get(), shape_name.variable->get(), count.variable->get(), coordinates.variable->get(),
+        face_ids.variable->get(), beg_ids.variable->get()
+    } ), 0 );
+}
+
+//void add_repeated( const Value &shape_name, const Value &count, const Value &coordinates, const Value &face_ids, const Value &beg_ids ) {
 //}
 
 //void SetOfElementaryPolytops::display_vtk( const Value &filename ) const {

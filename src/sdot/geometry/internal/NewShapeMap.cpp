@@ -67,13 +67,15 @@ void NewShapeMap::prepare( parex::TypeFactory *tf, parex::SchedulerSession * ) {
             decl << ( i ? ", _" : " : _" ) << epcl.elements[ i ].name << "( allocator_TF, allocator_TI, rese_items )";
         decl << " {}\n";
 
-        //        // operator[]
-        //        pr << "    \n";
-        //        pr << "    HL *sub_list( const std::string &name ) {\n";
-        //        for( const ElementaryPolytopInfo &elem : epil->elem_info )
-        //            pr << "        if ( name == \"" << elem.name << "\" ) return &_" << elem.name << ";\n";
-        //        pr << "        return nullptr;\n";
-        //        pr << "    }\n";
+        // apply
+        decl << "\n";
+        decl << "    template<class Func> auto apply_on( std::string shape_name, Func &&func ) {\n";
+        for( std::size_t i = 1; i < epcl.elements.size(); ++i )
+            decl << "if ( shape_name == \"" << epcl.elements[ i ].name << "\" ) return func( _" << epcl.elements[ i ].name << " );\n";
+        decl << "        ASSERT( shape_name == \"" << epcl.elements[ 0 ].name << "\", \"no element named {}\", shape_name );\n";
+        if ( epcl.elements.size() )
+            decl << "        return func( _" << epcl.elements[ 0 ].name << " );\n";
+        decl << "    }\n";
 
         //        // for_each_shape_type
         //        pr << "    \n";
@@ -99,6 +101,7 @@ void NewShapeMap::prepare( parex::TypeFactory *tf, parex::SchedulerSession * ) {
         parex::Type *res = new parex::CompiledType( type_name, {}, {}, /*sub types*/ {} );
         res->compilation_environment.include_directories << SDOT_DIR "/src";
         res->compilation_environment.includes << "<sdot/geometry/internal/HomogeneousElementaryPolytopList.h>";
+        res->compilation_environment.includes << "<parex/utility/ASSERT.h>";
         res->compilation_environment.includes << "<parex/data/TypeInfo.h>";
         res->compilation_environment.preliminaries << decl.str();
         return res;

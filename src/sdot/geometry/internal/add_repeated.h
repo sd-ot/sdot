@@ -1,31 +1,22 @@
+#include <parex/containers/kernels/init_vector_from_value.h>
+#include <parex/containers/kernels/init_vector_from_iota.h>
 #include "HomogeneousElementaryPolytopList.h"
 
-#include <asimd/operations/assign_scalar.h>
-#include <asimd/operations/assign_iota.h>
+using namespace parex;
 
-#include <parex/generic_ostream_output.h>
-#include <parex/TaskOut.h>
-#include <parex/P.h>
+template<class SM,class Coordinates,class FaceIds>
+void add_repeated( SM &shape_map, const std::string &shape_name, std::size_t count, const Coordinates &coordinates, const FaceIds &face_ids, std::size_t beg_ids ) {
+    using TI = std::size_t;
+    shape_map.apply_on( shape_name, [&]( auto &hl ) {
+        auto proc = hl.positions.default_processor();
+        TI os = hl.size(), ns = os + count;
+        hl.resize( ns, proc );
 
-#include <sstream>
-
-template<class AF,class AI,class TC,class A,class B,class TB>
-void add_repeated_( HomogeneousElementaryPolytopList<AF,AI> &hl, AF &allocator_TF, AI &allocator_TI, TC count, const A &coordinates, const B &face_ids, TB beg_ids ) {
-    using TI = typename AI::value_type;
-
-    TI os = hl.size(), ns = os + count;
-    hl.resize( allocator_TF, allocator_TI, ns );
-
-    for( TI i = 0; i < hl.nb_nodes(); ++i )
-        for( TI d = 0; d < hl.dim(); ++d )
-            parex::assign_scalar( allocator_TF, hl.positions.data( i, d, os ), coordinates( i, d ), count );
-    for( TI i = 0; i < face_ids.size(); ++i )
-        parex::assign_scalar( allocator_TI, hl.face_ids.data( i, os ), face_ids( i ), count );
-    parex::assign_iota( allocator_TI, hl.ids.data( os ), beg_ids, count );
-}
-
-template<class ShapeMap,class TI,class A,class B,class C>
-TaskOut<ShapeMap> add_repeated( TaskOut<ShapeMap> &shape_map, TaskOut<std::string> &shape_name, TaskOut<TI> &count, TaskOut<A> &coordinates, TaskOut<B> &face_ids, TaskOut<C> &beg_ids ) {
-    add_repeated_( *shape_map->sub_list( *shape_name ), shape_map->allocator_TF, shape_map->allocator_TI, *count, *coordinates, *face_ids, *beg_ids );
-    return std::move( shape_map );
+        for( TI i = 0; i < hl.nb_nodes; ++i )
+            for( TI d = 0; d < hl.dim; ++d )
+                parex::init_vector_from_value( proc, hl.positions.data( i, d, os ), *coordinates.data( i, d ), count );
+        for( TI i = 0; i < face_ids.size(); ++i )
+            parex::init_vector_from_value( proc, hl.face_ids.data( i, os ), *face_ids.data( i ), count );
+        parex::init_vector_from_iota( proc, hl.ids.data( os ), beg_ids, count );
+    } );
 }

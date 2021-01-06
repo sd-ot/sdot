@@ -3,10 +3,13 @@
 
 #include <parex/containers/tensor.h>
 
-template<class Allocator_TF,class Allocator_TI,int nb_nodes,int nb_faces,int dim>
+template<class Allocator_TF,class Allocator_TI,int _nb_nodes,int _nb_faces,int _dim>
 struct HomogeneousElementaryPolytopList {
     using                      TF                              = typename Allocator_TF::value_type;
     using                      TI                              = typename Allocator_TI::value_type;
+    static constexpr int       nb_nodes                        = _nb_nodes;
+    static constexpr int       nb_faces                        = _nb_faces;
+    static constexpr int       dim                             = _dim;
 
     using                      XP                              = parex::tensor<parex::heap_tensor_block<Allocator_TF,3,parex::DynamicShapeFactory<nb_nodes,dim,parex::unspecified_size>>>;
     using                      XF                              = parex::tensor<parex::heap_tensor_block<Allocator_TI,2,parex::DynamicShapeFactory<nb_faces,parex::unspecified_size>>>;
