@@ -11,10 +11,10 @@ void test_triangle( int dim = 2, std::size_t nb_triangles = 5 ) {
     sp.add_repeated( "3", nb_triangles, { { 0.0, 0.0 }, { 1.0, 0.0 }, { 0.0, 1.0 } }, { 0, 1, 2 } );
 
     Vector<> angles = Vector<>::linspace( 0, 2 * M_PI, nb_triangles, false );
-    P( angles );
-    //    Tensor<> normals( { 2ul, nb_triangles }, [&]( Number i, Number j ) -> Number {
-    //        return cos( j * 2 * M_PI / nb_triangles - i * M_PI / 2 );
-    //    } );
+
+    P( cos( angles ) );
+    P( sin( angles ) );
+    // Tensor<> normals = ;
     //    Vector<> scalar_products = ;
     //    Vector<> new_face_ids;
     //    sp.plane_cut( normals, scalar_products, new_face_ids );
