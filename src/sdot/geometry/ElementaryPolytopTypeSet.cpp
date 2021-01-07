@@ -8,10 +8,10 @@ ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Vector<parex::S
     carac = new parex::Variable( new GetElementaryPolytopCaracList( shape_names ), 1 );
 }
 
-ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Scalar &dim ) : ElementaryPolytopTypeSet( default_shape_names_for( dim ) ) {
+ElementaryPolytopTypeSet::ElementaryPolytopTypeSet( const parex::Number &dim ) : ElementaryPolytopTypeSet( default_shape_names_for( dim ) ) {
 }
 
-parex::Vector<parex::String> ElementaryPolytopTypeSet::default_shape_names_for( const parex::Scalar &dim ) {
+parex::Vector<parex::String> ElementaryPolytopTypeSet::default_shape_names_for( const parex::Number &dim ) {
     return { new parex::CompiledLambdaInstruction( "GetDefaultShapes", { dim.variable->get() }, []( parex::Src &src, parex::SrcSet &, parex::TypeFactory * ) {
         src.compilation_environment.includes << "<parex/utility/TODO.h>";
         src.compilation_environment.includes << "<vector>";

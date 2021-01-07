@@ -11,7 +11,7 @@ class ElementaryPolytopTypeSet;
 /**
 */
 struct NewShapeMap : parex::CompiledInstruction {
-    /**/                NewShapeMap     ( const ElementaryPolytopTypeSet &elementary_polytop_type_set, const parex::String &scalar_type, const parex::String &index_type, const parex::Scalar &dim, parex::Memory *dst );
+    /**/                NewShapeMap     ( const ElementaryPolytopTypeSet &elementary_polytop_type_set, const parex::String &scalar_type, const parex::String &index_type, const parex::Number &dim, parex::Memory *dst );
 
     virtual void        get_src_content ( parex::Src &src, parex::SrcSet &, parex::TypeFactory * ) const override;
     virtual void        prepare         ( parex::TypeFactory *tf, parex::SchedulerSession *) override;

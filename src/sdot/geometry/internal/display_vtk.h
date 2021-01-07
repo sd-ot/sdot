@@ -16,7 +16,6 @@ void display_vtk( const std::string &filename, ShapeMap &shape_map, const Elemen
                 //parex::get_local( hl.face_ids.default_processor(), hl.face_ids.data(), hl.face_ids.nb_reserved_items(), [&]( auto face_id_ptr ) {
                 parex::get_local( hl.ids.default_processor(), hl.ids.data(), hl.ids.nb_reserved_items(), [&]( auto id_ptr ) {
                     for( const std::pair<unsigned,std::vector<unsigned>> &ve : epc.vtk_elements ) { // [vtk_id + [node numbers]]
-                        P( ve.first );
                         std::vector<VtkOutput::Pt> pts( ve.second.size(), VtkOutput::Pt( 0.0 ) );
                         for( unsigned num_item = 0; num_item < hl.size(); ++num_item ) {
                             ids[ 0 ] = id_ptr[ hl.ids.offset( num_item ) ];

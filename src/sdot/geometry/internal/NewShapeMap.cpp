@@ -9,7 +9,7 @@
 
 namespace sdot {
 
-NewShapeMap::NewShapeMap( const ElementaryPolytopTypeSet &elementary_polytop_type_set, const parex::String &scalar_type, const parex::String &index_type, const parex::Scalar &dim, parex::Memory *dst ) :
+NewShapeMap::NewShapeMap( const ElementaryPolytopTypeSet &elementary_polytop_type_set, const parex::String &scalar_type, const parex::String &index_type, const parex::Number &dim, parex::Memory *dst ) :
     parex::CompiledInstruction( "NewShapeMap", {
         elementary_polytop_type_set.carac->get(),
         scalar_type.to_string().expr(),

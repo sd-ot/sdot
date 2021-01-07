@@ -9,7 +9,7 @@ namespace sdot {
 class ElementaryPolytopTypeSet {
 public:
     using                      VS                      = parex::Vector<parex::String>;
-    using                      SC                      = parex::Scalar;
+    using                      SC                      = parex::Number;
 
     /**/                       ElementaryPolytopTypeSet( const VS &shape_names );
     /**/                       ElementaryPolytopTypeSet( const SC &dim );

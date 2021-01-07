@@ -23,7 +23,7 @@ void SetOfElementaryPolytops::write_to_stream( std::ostream &os ) const {
     shape_map->display_data( os );
 }
 
-void SetOfElementaryPolytops::add_repeated( const parex::String &shape_name, const parex::Scalar &count, const parex::Tensor<> &coordinates, const parex::Vector<> &face_ids, const parex::Scalar &beg_ids ) {
+void SetOfElementaryPolytops::add_repeated( const parex::String &shape_name, const parex::Number &count, const parex::Tensor<> &coordinates, const parex::Vector<> &face_ids, const parex::Number &beg_ids ) {
     shape_map->set( new parex::CompiledIncludeInstruction( "sdot/geometry/internal/add_repeated.h", {
         shape_map->get(), shape_name.variable->get(), count.variable->get(), coordinates.variable->get(),
         face_ids.variable->get(), beg_ids.variable->get()
