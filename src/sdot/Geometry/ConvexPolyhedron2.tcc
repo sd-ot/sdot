@@ -1562,6 +1562,49 @@ typename Pc::TF ConvexPolyhedron2<Pc>::measure() const {
 }
 
 template<class Pc>
+typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::random_point() const {
+    using std::sqrt;
+
+    // hand coded version:
+    if ( _nb_points == 0 ) {
+        if ( sphere_radius > 0 )
+            TODO;
+        return TF( 0 );
+    }
+
+    // mass for each triangle
+    TF res = 0;
+    Pt A = point( 0 );
+    std::vector<TF> masses;
+    for( size_t i = 2; i < _nb_points; ++i ) {
+        Pt B = point( i - 1 );
+        Pt C = point( i - 0 );
+        res += A.x * ( B.y - C.y ) + B.x * ( C.y - A.y ) + C.x * ( A.y - B.y );
+        masses.push_back( res );
+    }
+
+    // arcs
+    if ( allow_ball_cut ) {
+        for( size_t i0 = _nb_points - 1, i1 = 0; i1 < _nb_points; i0 = i1++ )
+            if ( arcs[ i0 ] )
+                TODO; // res += _arc_area( point( i0 ), point( i1 ) );
+    }
+
+    // selection of the triangle
+    TF tgt_mass = rand() * masses.back() / RAND_MAX;
+    std::size_t ni = 0;
+    while( ni < masses.size() && masses[ ni ] < tgt_mass )
+        ++ni;
+
+    Pt B = point( ni + 1 );
+    Pt C = point( ni + 2 );
+    TF a = 1 - sqrt( TF( rand() ) / RAND_MAX );
+    TF b = TF( rand() ) * ( 1 - a ) / RAND_MAX;
+
+    return ( 1 - a - b ) * A + a * B + b * C;
+}
+
+template<class Pc>
 typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::ExpWmR2db<TF> func, TF w ) const {
     using std::sqrt;
     using std::exp;

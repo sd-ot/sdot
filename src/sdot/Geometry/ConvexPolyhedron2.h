@@ -105,6 +105,8 @@ public:
     //    TF                  boundary_measure          ( FunctionEnum::Unit          ) const;
     //    TF                  boundary_measure          () const;
 
+    Pt                        random_point              () const;
+
     template<class FU> Pt     centroid                  ( const FU &f, TF w = 0 ) const;
     Pt                        centroid                  () const;
 

@@ -1016,6 +1016,12 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum:
 }
 
 template<class Pc>
+typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::random_point() const {
+    TODO;
+    return { TF( 0 ) };
+}
+
+template<class Pc>
 typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::boundary_measure( FunctionEnum::Unit ) const {
     using std::sqrt;
     using std::pow;

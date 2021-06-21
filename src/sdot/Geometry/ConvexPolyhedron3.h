@@ -101,6 +101,8 @@ public:
     void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::Unit         , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
     void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::R2           , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
 
+    Pt                      random_point             () const;
+
     TF                      measure                  ( const FunctionEnum::Arfd &r, TF weight = 0 ) const { TODO; return 0; }
     TF                      measure                  ( FunctionEnum::ExpWmR2db<TF>, TF weight = 0 ) const;
     TF                      measure                  ( FunctionEnum::WmR2         , TF weight = 0 ) const;
