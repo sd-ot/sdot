@@ -28,7 +28,7 @@ ConvexPolyhedron2<Pc>::ConvexPolyhedron2( const Box &box, CI cut_id ) {
     max_coord = box.p1;
 
     //
-    _nb_points = 4;
+    set_nb_points( 4 );
 
     // points
     points [ 0 ][ 0 ] = box.p0[ 0 ]; points [ 1 ][ 0 ] = box.p0[ 1 ];
@@ -51,16 +51,16 @@ ConvexPolyhedron2<Pc>::ConvexPolyhedron2( const Box &box, CI cut_id ) {
 
 template<class Pc>
 ConvexPolyhedron2<Pc>::ConvexPolyhedron2( const ConvexPolyhedron2 &that ) {
-    _nb_points = that._nb_points;
+    set_nb_points( that.nb_points() );
 
-    for( size_t i = 0; i < _nb_points; ++i ) points[ 0 ][ i ] = that.points[ 0 ][ i ];
-    for( size_t i = 0; i < _nb_points; ++i ) points[ 1 ][ i ] = that.points[ 1 ][ i ];
-    for( size_t i = 0; i < _nb_points; ++i ) cut_ids[ i ] = that.cut_ids[ i ];
+    for( size_t i = 0; i < nb_points(); ++i ) points[ 0 ][ i ] = that.points[ 0 ][ i ];
+    for( size_t i = 0; i < nb_points(); ++i ) points[ 1 ][ i ] = that.points[ 1 ][ i ];
+    for( size_t i = 0; i < nb_points(); ++i ) cut_ids[ i ] = that.cut_ids[ i ];
 
     if ( store_the_normals ) {
-        for( size_t i = 0; i < _nb_points; ++i ) normals[ 0 ][ i ] = that.normals[ 0 ][ i ];
-        for( size_t i = 0; i < _nb_points; ++i ) normals[ 1 ][ i ] = that.normals[ 1 ][ i ];
-        for( size_t i = 0; i < _nb_points; ++i ) arcs.set( i, that.arcs[ i ] );
+        for( size_t i = 0; i < nb_points(); ++i ) normals[ 0 ][ i ] = that.normals[ 0 ][ i ];
+        for( size_t i = 0; i < nb_points(); ++i ) normals[ 1 ][ i ] = that.normals[ 1 ][ i ];
+        for( size_t i = 0; i < nb_points(); ++i ) arcs.set( i, that.arcs[ i ] );
     }
 
     sphere_center = that.sphere_center;
@@ -93,7 +93,7 @@ template<class FU> typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::int
 
 template<class Pc> template<class F>
 bool ConvexPolyhedron2<Pc>::all_pos( const F &f ) const {
-    for( size_t i = 0; i < _nb_points; ++i )
+    for( size_t i = 0; i < nb_points(); ++i )
         if ( f( point( i ) ) == false )
             return false;
     return true;
@@ -111,7 +111,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( const FunctionEnum::Arfd &ar
     using std::sqrt;
     using std::pow;
 
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         if ( sphere_radius >= 0 )
             TODO;
         return;
@@ -210,7 +210,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( const FunctionEnum::Arfd &ar
     TF inp_scaling = arf.inp_scaling ? arf.inp_scaling( weight ) : 1;
     TF out_scaling = arf.out_scaling ? arf.out_scaling( weight ) : 1;
 
-    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+    for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
         BoundaryItem item;
         item.id = cut_ids[ i0 ];
         item.points[ 0 ] = point( i0 );
@@ -233,7 +233,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF> 
     using std::exp;
     using std::pow;
 
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         if ( sphere_radius >= 0 ) {
             BoundaryItem item;
             item.id = sphere_cut_id;
@@ -245,7 +245,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF> 
         return;
     }
 
-    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+    for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
         BoundaryItem item;
         item.id = cut_ids[ i0 ];
         item.points[ 0 ] = point( i0 );
@@ -276,7 +276,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::WmR2 /*e*/, co
     using std::sqrt;
     using std::pow;
 
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         if ( sphere_radius >= 0 ) {
             BoundaryItem item;
             item.id = sphere_cut_id;
@@ -288,7 +288,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::WmR2 /*e*/, co
         return;
     }
 
-    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+    for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
         BoundaryItem item;
         item.id = cut_ids[ i0 ];
         item.points[ 0 ] = point( i0 );
@@ -319,7 +319,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::R2, const std:
 
 template<class Pc>
 void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::Unit, const std::function<void( const BoundaryItem &boundary_item )> &f, TF /*weight*/ ) const {
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         if ( sphere_radius >= 0 ) {
             BoundaryItem item;
             item.id = sphere_cut_id;
@@ -331,7 +331,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::Unit, const st
         return;
     }
 
-    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+    for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
         BoundaryItem item;
         item.id = cut_ids[ i0 ];
         item.points[ 0 ] = point( i0 );
@@ -356,12 +356,12 @@ template<class Pc>
 void ConvexPolyhedron2<Pc>::write_to_stream( std::ostream &os ) const {
     os << std::setprecision( 17 );
     os << "cuts: [";
-    for( std::size_t i = 0; i < _nb_points; ++i )
+    for( std::size_t i = 0; i < nb_points(); ++i )
         os << ( i ? "," : "" ) << "(" << point( i ) << ")";
     os << "]";
     if ( store_the_normals ) {
         os << " nrms: [";
-        for( std::size_t i = 0; i < _nb_points; ++i )
+        for( std::size_t i = 0; i < nb_points(); ++i )
             os << ( i ? "," : "" ) << "(" << normal( i ) << ")";
         os << "]";
     }
@@ -371,7 +371,7 @@ void ConvexPolyhedron2<Pc>::write_to_stream( std::ostream &os ) const {
 template<class Pc>
 typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::min_position() const {
     Pt res{ + std::numeric_limits<TF>::max(), + std::numeric_limits<TF>::max() };
-    for( std::size_t i = 0; i < _nb_points; ++i ) {
+    for( std::size_t i = 0; i < nb_points(); ++i ) {
         if ( arcs[ i ] )
             res = min( res, sphere_center - sphere_radius );
         else
@@ -383,7 +383,7 @@ typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::min_position() const {
 template<class Pc>
 typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::max_position() const {
     Pt res{ - std::numeric_limits<TF>::max(), - std::numeric_limits<TF>::max() };
-    for( std::size_t i = 0; i < _nb_points; ++i ) {
+    for( std::size_t i = 0; i < nb_points(); ++i ) {
         if ( arcs[ i ] )
             res = max( res, sphere_center + sphere_radius );
         else
@@ -394,9 +394,9 @@ typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::max_position() const {
 
 template<class Pc>
 void ConvexPolyhedron2<Pc>::set_cut_ids( CI cut_id ) {
-    if ( _nb_points > 64 )
+    if ( nb_points() > 64 )
         TODO;
-    for( std::size_t i = 0; i < _nb_points; ++i )
+    for( std::size_t i = 0; i < nb_points; ++i )
         cut_ids[ i ] = cut_id;
 }
 
@@ -416,19 +416,19 @@ void ConvexPolyhedron2<Pc>::ball_cut( Pt center, TF radius, CI cut_id ) {
     sphere_cut_id = cut_id;
 
     // void part ?
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         sphere_radius = 0;
         return;
     }
 
     //
-    if ( _nb_points > 64 )
+    if ( nb_points() > 64 )
         TODO;
 
     // distances
     bool all_inside = true;
-    AF distances;
-    for( std::size_t i = 0; i < _nb_points; ++i ) {
+    distances.resize( nb_points() );
+    for( std::size_t i = 0; i < nb_points(); ++i ) {
         auto px = points[ 0 ][ i ];
         auto py = points[ 1 ][ i ];
         auto d = pow( px - center.x, 2 ) + pow( py - center.y, 2 ) - pow( radius, 2 );
@@ -508,13 +508,13 @@ void ConvexPolyhedron2<Pc>::ball_cut( Pt center, TF radius, CI cut_id ) {
         }
     };
     _tmp_cuts.resize( 0 );
-    for( std::size_t i = 1; i < _nb_points; ++i )
+    for( std::size_t i = 1; i < nb_points(); ++i )
         cf( i - 1, i );
-    cf( _nb_points - 1, 0 );
+    cf( nb_points() - 1, 0 );
 
     // if no cut remaining, outside center => we don't keep anything
     if ( _tmp_cuts.empty() ) {
-        for( std::size_t i0 = 0; i0 < _nb_points; ++i0 ) {
+        for( std::size_t i0 = 0; i0 < nb_points(); ++i0 ) {
             if ( dot( sphere_center - point( i0 ), normal( i0 ) ) > 0 ) {
                 sphere_radius = 0;
                 break;
@@ -523,19 +523,29 @@ void ConvexPolyhedron2<Pc>::ball_cut( Pt center, TF radius, CI cut_id ) {
     }
 
     // copy _tmp_cuts content
-    _nb_points = _tmp_cuts.size();
-    if ( _nb_points > 64 ) {
-        TODO;
-    } else {
-        for( std::size_t i = 0; i < _nb_points; ++i ) {
-            for( std::size_t d = 0; d < 2; ++d ) {
-                normals[ d ][ i ] = _tmp_cuts[ i ].normal[ d ];
-                points[ d ][ i ] = _tmp_cuts[ i ].point[ d ];
-            }
-            cut_ids[ i ] = _tmp_cuts[ i ].cut_id;
-            arcs.set( i, _tmp_cuts[ i ].cut_type );
+    set_nb_points( _tmp_cuts.size() );
+    for( std::size_t i = 0; i < nb_points(); ++i ) {
+        for( std::size_t d = 0; d < 2; ++d ) {
+            normals[ d ][ i ] = _tmp_cuts[ i ].normal[ d ];
+            points[ d ][ i ] = _tmp_cuts[ i ].point[ d ];
         }
+        cut_ids[ i ] = _tmp_cuts[ i ].cut_id;
+        arcs[ i ] = _tmp_cuts[ i ].cut_type;
     }
+}
+
+template<class Pc>
+void ConvexPolyhedron2<Pc>::set_nb_points( std::size_t nb_points ) {
+    if ( nb_points > points[ 0 ].size() ) {
+        std::size_t ns = std::max( 2 * nb_points, 64ul );
+        normals[ 0 ].resize( ns );
+        normals[ 1 ].resize( ns );
+        points[ 0 ].resize( ns );
+        points[ 1 ].resize( ns );
+        cut_ids.resize( ns );
+        arcs.resize( ns );
+    }
+    _nb_points = nb_points;
 }
 
 template<class Pc>
@@ -545,17 +555,7 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id ) {
 
 template<class Pc> template<int no>
 bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> normal_is_normalized ) {
-    if ( _nb_points > 64 )
-        TODO;
-
-    //    auto ox = BF( origin.x );
-    //    auto oy = BF( origin.y );
-    //    auto nx = BF( normal.x );
-    //    auto ny = BF( normal.y );
-
-    alignas( 64 ) AF distances;
-    std::uint64_t outside = 0;
-    const std::size_t alig_nb_points = 0; // nb_points - nb_points % simd_size;
+    // const std::size_t alig_nb_points = 0; // nb_points - nb_points % simd_size;
     //    for( std::size_t i = 0; i < alig_nb_points; i += simd_size ) {
     //        auto px = xsimd::load_aligned( &points[ 0 ][ i ] );
     //        auto py = xsimd::load_aligned( &points[ 1 ][ i ] );
@@ -567,16 +567,20 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
     //            outside |= std::uint64_t( n[ j ] ) << ( i + j );
     //    }
 
-    for( std::size_t i = alig_nb_points; i < _nb_points; ++i ) {
+    distances.resize( nb_points() );
+    outside.resize( nb_points() );
+    for( std::size_t i = 0; i < nb_points(); ++i ) {
         auto px = points[ 0 ][ i ];
         auto py = points[ 1 ][ i ];
         auto d = ( origin.x - px ) * normal.x + ( origin.y - py ) * normal.y;
-        outside |= std::uint64_t( d < 0 ) << i;
+        outside.set( i, d < 0 );
         distances[ i ] = d;
     }
 
+    // P( outside );
+
     // all inside ?
-    if ( outside == 0 ) {
+    if ( outside.none() ) {
         #ifdef PD_WANT_STAT
         stat.add_for_dist( "nb outside during cut", 0 );
         #endif
@@ -584,13 +588,12 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
     }
 
     // all outside ?
-    const std::bitset<64> outside_bits( outside );
-    std::size_t nb_outside = outside_bits.count();
+    std::size_t nb_outside = outside.count();
     #ifdef PD_WANT_STAT
     stat.add_for_dist( "nb outside during cut", nb_outside );
     #endif
-    if ( nb_outside == _nb_points ) {
-        _nb_points = 0;
+    if ( nb_outside == nb_points() ) {
+        set_nb_points( 0 );
         return false;
     }
 
@@ -598,26 +601,17 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
     //
     if ( normal_is_normalized.val == 0 ) {
         TF n = 1 / norm_2( normal );
-        for( std::size_t i = 0; i < _nb_points; ++i )
+        for( std::size_t i = 0; i < nb_points(); ++i )
             distances[ i ] *= n;
         normal = n * normal;
     }
 
     // only 1 outside
-    #ifdef __AVX2__
-    std::size_t i1 = _tzcnt_u64( outside );
-    #else
-    std::size_t i1 = 0;
-    for( auto cp = outside; ( cp & 1 ) == 0; ++i1 )
-        cp /= 2;
-    #endif
+    std::size_t i1 = outside.find_first();
     if ( nb_outside == 1 ) {
-        if ( _nb_points == 64 )
-            TODO;
-
         // => creation of a new point
-        std::size_t i0 = ( i1 + _nb_points - 1 ) % _nb_points;
-        std::size_t i2 = ( i1 + 1 ) % _nb_points;
+        std::size_t i0 = ( i1 + nb_points() - 1 ) % nb_points();
+        std::size_t i2 = ( i1 + 1 ) % nb_points();
         Pt p0 { points[ 0 ][ i0 ], points[ 1 ][ i0 ] };
         Pt p1 { points[ 0 ][ i1 ], points[ 1 ][ i1 ] };
         Pt p2 { points[ 0 ][ i2 ], points[ 1 ][ i2 ] };
@@ -628,8 +622,11 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
         TF m0 = s0 / ( s1 - s0 );
         TF m1 = s2 / ( s1 - s2 );
 
+        // modify the number of points
+        set_nb_points( nb_points() + 1 );
+
         // shift points
-        for( std::size_t i = _nb_points; i > i1 + 1; --i ) {
+        for( std::size_t i = nb_points() - 1; i > i1 + 1; --i ) {
             points [ 0 ][ i ] = points [ 0 ][ i - 1 ];
             points [ 1 ][ i ] = points [ 1 ][ i - 1 ];
             cut_ids     [ i ] = cut_ids     [ i - 1 ];
@@ -638,9 +635,6 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
                 normals[ 1 ][ i ] = normals[ 1 ][ i - 1 ];
             }
         }
-
-        // modify the number of points
-        ++_nb_points;
 
         // modified or added points
         points[ 0 ][ i1 + 1 ] = p2.x - m1 * ( p1.x - p2.x );
@@ -662,13 +656,13 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
         return true;
     }
 
-    // 2 points are outside
+    // 2 points are outside.
     if ( nb_outside == 2 ) {
-        if ( i1 == 0 && ! ( outside & 2 ) )
-            i1 = _nb_points - 1;
-        std::size_t i0 = ( i1 + _nb_points - 1 ) % _nb_points;
-        std::size_t i2 = ( i1 + 1 ) % _nb_points;
-        std::size_t i3 = ( i1 + 2 ) % _nb_points;
+        if ( i1 == 0 && ! outside.test( 1 ) )
+            i1 = nb_points() - 1;
+        std::size_t i0 = ( i1 + nb_points() - 1 ) % nb_points();
+        std::size_t i2 = ( i1 + 1 ) % nb_points();
+        std::size_t i3 = ( i1 + 2 ) % nb_points();
         Pt p0 { points[ 0 ][ i0 ], points[ 1 ][ i0 ] };
         Pt p1 { points[ 0 ][ i1 ], points[ 1 ][ i1 ] };
         Pt p2 { points[ 0 ][ i2 ], points[ 1 ][ i2 ] };
@@ -697,15 +691,9 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
     }
 
     // more than 2 points are outside, outside points are before and after bit 0
-    if ( i1 == 0 && ( outside & ( 1ul << ( _nb_points - 1 ) ) ) ) {
-        std::size_t nb_inside = _nb_points - nb_outside;
-        #ifdef __AVX2__
-        std::size_t i3 = _tzcnt_u64( ~ outside );
-        #else
-        std::size_t i3 = 0;
-        for( auto cp = ~ outside; ( cp & 1 ) == 0; ++i3 )
-            cp /= 2;
-        #endif
+    if ( i1 == 0 && outside.test( nb_points() - 1 ) ) {
+        std::size_t nb_inside = nb_points() - nb_outside;
+        std::size_t i3 = ( ~ outside ).find_first();
         i1 = nb_inside + i3;
         std::size_t i0 = i1 - 1;
         std::size_t i2 = i3 - 1;
@@ -748,14 +736,15 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
             normals[ 1 ][ o ] = normal[ 1 ];
         }
 
-        _nb_points -= nb_outside - 2;
+        set_nb_points( nb_points() - nb_outside + 2 );
+
         return true;
     }
 
     // more than 2 points are outside, outside points do not cross `nb_points`
-    std::size_t i0 = ( i1 + _nb_points  - 1 ) % _nb_points;
-    std::size_t i2 = ( i1 + nb_outside - 1 ) % _nb_points;
-    std::size_t i3 = ( i1 + nb_outside     ) % _nb_points;
+    std::size_t i0 = ( i1 + nb_points() - 1 ) % nb_points();
+    std::size_t i2 = ( i1 + nb_outside  - 1 ) % nb_points();
+    std::size_t i3 = ( i1 + nb_outside      ) % nb_points();
     Pt p0 { points[ 0 ][ i0 ], points[ 1 ][ i0 ] };
     Pt p1 { points[ 0 ][ i1 ], points[ 1 ][ i1 ] };
     Pt p2 { points[ 0 ][ i2 ], points[ 1 ][ i2 ] };
@@ -786,7 +775,7 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
     }
 
     std::size_t nb_to_rem = nb_outside - 2;
-    for( std::size_t i = i2 + 1; i < _nb_points; ++i ) {
+    for( std::size_t i = i2 + 1; i < nb_points(); ++i ) {
         points[ 0 ][ i - nb_to_rem ] = points[ 0 ][ i ];
         points[ 1 ][ i - nb_to_rem ] = points[ 1 ][ i ];
         cut_ids    [ i - nb_to_rem ] = cut_ids    [ i ];
@@ -797,81 +786,7 @@ bool ConvexPolyhedron2<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
     }
 
     // modification of the number of points
-    _nb_points -= nb_to_rem;
-
-    //    //    bool all_ko = true;
-    //    //    bool all_ok = true;
-    //    //    for( std::size_t i = 0; i < _cuts.size(); ++i ) {
-    //    //        _distances[ i ] = dot( _cuts[ i ].point - origin, normal );
-    //    //        bool inside = _distances[ i ] <= 0;
-    //    //        all_ko &= ! inside;
-    //    //        all_ok &= inside;
-    //    //    }
-    //    bool all_ko_0 = true, all_ko_1 = true, all_ko_2 = true, all_ko_3 = true;
-    //    bool all_ok_0 = true, all_ok_1 = true, all_ok_2 = true, all_ok_3 = true;
-    //    for( int i = 0; i < (int)_cuts.size() - 3; i += 4 ) {
-    //        _distances[ i + 0 ] = dot( _cuts[ i + 0 ].point - origin, normal );
-    //        _distances[ i + 1 ] = dot( _cuts[ i + 1 ].point - origin, normal );
-    //        _distances[ i + 2 ] = dot( _cuts[ i + 2 ].point - origin, normal );
-    //        _distances[ i + 3 ] = dot( _cuts[ i + 3 ].point - origin, normal );
-    //        bool inside_0 = _distances[ i + 0 ] <= 0;
-    //        bool inside_1 = _distances[ i + 1 ] <= 0;
-    //        bool inside_2 = _distances[ i + 2 ] <= 0;
-    //        bool inside_3 = _distances[ i + 3 ] <= 0;
-    //        all_ko_0 &= ! inside_0;
-    //        all_ko_1 &= ! inside_1;
-    //        all_ko_2 &= ! inside_2;
-    //        all_ko_3 &= ! inside_3;
-    //        all_ok_0 &= inside_0;
-    //        all_ok_1 &= inside_1;
-    //        all_ok_2 &= inside_2;
-    //        all_ok_3 &= inside_3;
-    //    }
-    //    for( std::size_t i = _cuts.size() / 4 * 4; i < _cuts.size(); ++i ) {
-    //        _distances[ i ] = dot( _cuts[ i ].point - origin, normal );
-    //        bool inside = _distances[ i ] <= 0;
-    //        all_ko_0 &= ! inside;
-    //        all_ok_0 &= inside;
-    //    }
-    //    all_ko_0 &= all_ko_1;
-    //    all_ko_0 &= all_ko_2;
-    //    all_ko_0 &= all_ko_3;
-    //    all_ok_0 &= all_ok_1;
-    //    all_ok_0 &= all_ok_2;
-    //    all_ok_0 &= all_ok_3;
-
-    //    if ( all_ok_0 )
-    //        return;
-
-    //    if ( all_ko_0 ) {
-    //        _cuts.resize( 0 );
-    //        return;
-    //    }
-
-    //    auto cf = [&]( std::size_t i0, std::size_t i1 ) {
-    //        const PT &p0 = _cuts[ i0 ].point;
-    //        const PT &p1 = _cuts[ i1 ].point;
-    //        TF s0 = _distances[ i0 ];
-    //        TF s1 = _distances[ i1 ];
-    //        if ( s0 <= 0 ) { // => p0 is inside
-    //            if ( s1 <= 0 ) { // => p0 and p1 are inside
-    //                _old_cuts.push_back( { SegType::line, _cuts[ i0 ].cut_id, _cuts[ i0 ].normal, p0 } );
-    //            } else { // => p0 is inside, p1 is outside
-    //                PT it = p0 - ( s0 / ( s1 - s0 ) ) * ( p1 - p0 );
-    //                _old_cuts.push_back( { SegType::line, _cuts[ i0 ].cut_id, _cuts[ i0 ].normal, p0 } );
-    //                _old_cuts.push_back( { SegType::line,             cut_id,             normal, it } );
-    //            }
-    //        } else if ( s1 <= 0 ) { // => p0 is outside, p1 is inside
-    //            PT it = p0 + ( s0 / ( s0 - s1 ) ) * ( p1 - p0 );
-    //            _old_cuts.push_back( { SegType::line, _cuts[ i0 ].cut_id, _cuts[ i0 ].normal, it } );
-    //        }
-    //    };
-    //    _old_cuts.resize( 0 );
-    //    for( size_t i = 1; i < _cuts.size(); ++i )
-    //        cf( i - 1, i );
-    //    cf( _cuts.size() - 1, 0 );
-
-    //    std::swap( _old_cuts, _cuts );
+    set_nb_points( nb_points() - nb_to_rem );
 
     return true;
 }
@@ -890,7 +805,7 @@ bool ConvexPolyhedron2<Pc>::is_a_cutting_plane( Pt /*origin*/, Pt /*normal*/ ) c
 
 template<class Pc>
 bool ConvexPolyhedron2<Pc>::contains( const Pt &pos ) const {
-    for( TI i = 0; i < _nb_points; ++i )
+    for( TI i = 0; i < nb_points(); ++i )
         if ( dot( pos - point( i ), normal( i ) ) > 0 )
             return false;
     return true;
@@ -900,7 +815,7 @@ template<class Pc>
 typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::distance( const Pt &pos, bool count_domain_boundaries ) const {
     using std::max;
     TF res = - std::numeric_limits<TF>::max();
-    for( TI i = 0; i < _nb_points; ++i )
+    for( TI i = 0; i < nb_points(); ++i )
         if ( count_domain_boundaries || cut_ids[ i ] != -1ul )
             res = max( res, dot( pos - point( i ), normal( i ) ) );
     return res;
@@ -934,7 +849,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea ) const {
 template<class Pc>
 void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::Unit, SpaceFunctions::Constant<TF> sf, TF /*w*/ ) const {
     // hand coded version
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         if ( sphere_radius >= 0 ) {
             TF lea = pi() * pow( sphere_radius, 2 ) * sf.coeff;
             ctd += lea * sphere_center;
@@ -945,7 +860,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 
     // triangles
     Pt A = point( 0 );
-    for( size_t i = 2; i < _nb_points; ++i ) {
+    for( size_t i = 2; i < nb_points(); ++i ) {
         Pt B = point( i - 1 );
         Pt C = point( i - 0 );
         TF lea = 0.5 * ( A.x * ( B.y - C.y ) + B.x * ( C.y - A.y ) + C.x * ( A.y - B.y ) ) * sf.coeff;
@@ -955,7 +870,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 
     // arcs
     if ( allow_ball_cut )
-        for( std::size_t i0 = _nb_points - 1, i1 = 0; i1 < _nb_points; i0 = i1++ )
+        for( std::size_t i0 = nb_points() - 1, i1 = 0; i1 < nb_points(); i0 = i1++ )
             if ( arcs[ i0 ] )
                 _centroid_arc( ctd, mea, point( i0 ), point( i1 ), sf.coeff );
 }
@@ -996,11 +911,11 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
     };
 
     TF lea = 0;
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         if ( sphere_radius > 0 )
             lea = pi() * pow( sphere_radius, 2 ) * ( w - pow( sphere_radius, 2 ) / 2 );
     } else {
-        for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+        for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
             if ( arcs[ i0 ] )
                 lea += arc_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
             else
@@ -1012,7 +927,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
     ctd += lea * sphere_center;
     mea += lea;
 
-    if ( _nb_points == 0 )
+    if ( nb_points() == 0 )
         return;
 
     auto arc_val_centroid = [&]( TF &r_x, TF &r_y, Pt P0, Pt P1 ) {
@@ -1064,7 +979,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
         R_5 = (1.0/1920.0)*R_5; R_11 = R_5+R_11; r_x += R_11;
     };
 
-    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+    for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
         if ( arcs[ i0 ] )
             arc_val_centroid( ctd.x, ctd.y, point( i0 ) - sphere_center, point( i1 ) - sphere_center );
         else
@@ -1091,7 +1006,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const Functi
     TF lea{ 0 };
 
     // full sphere
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         if ( sphere_radius <= 0 )
             return;
         TODO;
@@ -1474,7 +1389,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const Functi
         }
     };
 
-    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+    for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
         if ( arcs[ i0 ] )
             arc_val( inp_scaling * ( point( i0 ) - sphere_center ), inp_scaling * ( point( i1 ) - sphere_center ) );
         else
@@ -1566,7 +1481,7 @@ typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::random_point() const {
     using std::sqrt;
 
     // hand coded version:
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         if ( sphere_radius > 0 )
             TODO;
         return TF( 0 );
@@ -1576,7 +1491,7 @@ typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::random_point() const {
     TF res = 0;
     Pt A = point( 0 );
     std::vector<TF> masses;
-    for( size_t i = 2; i < _nb_points; ++i ) {
+    for( size_t i = 2; i < nb_points(); ++i ) {
         Pt B = point( i - 1 );
         Pt C = point( i - 0 );
         res += A.x * ( B.y - C.y ) + B.x * ( C.y - A.y ) + C.x * ( A.y - B.y );
@@ -1585,7 +1500,7 @@ typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::random_point() const {
 
     // arcs
     if ( allow_ball_cut ) {
-        for( size_t i0 = _nb_points - 1, i1 = 0; i1 < _nb_points; i0 = i1++ )
+        for( size_t i0 = nb_points() - 1, i1 = 0; i1 < nb_points(); i0 = i1++ )
             if ( arcs[ i0 ] )
                 TODO; // res += _arc_area( point( i0 ), point( i1 ) );
     }
@@ -1650,11 +1565,11 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::ExpWmR2db<TF> 
 //template<class Pc>
 //typename Pc::TF ConvexPolyhedron2<Pc>::boundary_measure() const {
 //    using std::pow;
-//    if ( _nb_points == 0 )
+//    if ( nb_points() == 0 )
 //        return sphere_radius >= 0 ? 2 * pi() * sphere_radius : TF( 0 );
 
 //    TF res = 0;
-//    for( std::size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+//    for( std::size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
 //        if ( allow_ball_cut && arcs[ i0 ] )
 //            res += _arc_length( point( i0 ), point( i1 ) );
 //        else
@@ -1693,13 +1608,13 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::Unit, TF /*w*/
     //    return res;
 
     // hand coded version:
-    if ( _nb_points == 0 )
+    if ( nb_points() == 0 )
         return sphere_radius > 0 ? TF( pi() ) * pow( sphere_radius, 2 ) : TF( 0 );
 
     // triangles
     TF res = 0;
     Pt A = point( 0 );
-    for( size_t i = 2; i < _nb_points; ++i ) {
+    for( size_t i = 2; i < nb_points(); ++i ) {
         Pt B = point( i - 1 );
         Pt C = point( i - 0 );
         TF tr2_area = A.x * ( B.y - C.y ) + B.x * ( C.y - A.y ) + C.x * ( A.y - B.y );
@@ -1709,7 +1624,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::Unit, TF /*w*/
 
     // arcs
     if ( allow_ball_cut ) {
-        for( size_t i0 = _nb_points - 1, i1 = 0; i1 < _nb_points; i0 = i1++ )
+        for( size_t i0 = nb_points() - 1, i1 = 0; i1 < nb_points(); i0 = i1++ )
             if ( arcs[ i0 ] )
                 res += _arc_area( point( i0 ), point( i1 ) );
     }
@@ -1728,7 +1643,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
     arf.make_approximations_if_not_done();
 
     // full sphere
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         if ( sphere_radius <= 0 )
             return 0;
         TODO;
@@ -1895,7 +1810,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
     if ( arf.inp_scaling )
         inp_scaling = arf.inp_scaling( w );
 
-    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+    for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
         if ( arcs[ i0 ] )
             res += arc_val( inp_scaling * ( point( i0 ) - sphere_center ), inp_scaling * ( point( i1 ) - sphere_center ) );
         else
@@ -1921,7 +1836,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::WmR2, TF w ) c
     using std::pow;
 
     // hand coded version
-    if ( _nb_points == 0 ) 
+    if ( nb_points() == 0 )
         return sphere_radius > 0 ? pi() * pow( sphere_radius, 2 ) * ( w - pow( sphere_radius, 2 ) / 2 ) : 0;
 
     // hand coded version
@@ -1953,7 +1868,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::WmR2, TF w ) c
     };
 
     TF res = 0;
-    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+    for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
         if ( arcs[ i0 ] )
             res += arc_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
         else
@@ -1967,7 +1882,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R2, TF /*w*/ )
     using std::pow;
 
     // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function R2 --end-log-scale 100 --precision 1e-10 -r 100 -l 100
-    if ( _nb_points == 0 )
+    if ( nb_points() == 0 )
         return sphere_radius > 0 ? TF( 1 ) / 2 * pi() * pow( sphere_radius, 4 ) : 0;
 
     auto arc_val = []( Pt P0, Pt P1 ) {
@@ -1997,7 +1912,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R2, TF /*w*/ )
     };
 
     TF res = 0;
-    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+    for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
         if ( arcs[ i0 ] )
             res += arc_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
         else
@@ -2011,7 +1926,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R4, TF /*w*/ )
     using std::pow;
 
     // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function R4 --end-log-scale 100 --precision 1e-10 -r 100 -l 100
-    if ( _nb_points == 0 )
+    if ( nb_points() == 0 )
         return sphere_radius > 0 ? 2 * pi() / 6 * pow( sphere_radius, 6 ) : 0;
 
     auto arc_val = []( Pt P0, Pt P1 ) {
@@ -2044,7 +1959,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R4, TF /*w*/ )
     };
 
     TF res = 0;
-    for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+    for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
         if ( arcs[ i0 ] )
             res += arc_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
         else
@@ -2224,7 +2139,7 @@ void ConvexPolyhedron2<Pc>::display_html_canvas( std::ostream &os, TF /*weight*/
 
     os << "\n";
     std::string path = ext ? "path_ext" : "path_int";
-    for( TI i = 0; i < _nb_points; ++i ) {
+    for( TI i = 0; i < nb_points(); ++i ) {
         if ( ( cut_ids[ i ] == -1ul ) ^ ext )
             continue;
         Pt p0 = point( i ), p1 = point( ( i + 1 ) % nb_points() );
@@ -2261,12 +2176,12 @@ void ConvexPolyhedron2<Pc>::display_asy( std::ostream &os, const std::string &dr
 
         bool has_avoided_line = false;
         const auto &info = fill ? fill_info : draw_info;
-        if ( _nb_points ) {
+        if ( nb_points() ) {
             os << ( fill ? "fill" : "draw" ) << "(";
-            for( TI i = 0; i < _nb_points; ++i ) {
+            for( TI i = 0; i < nb_points(); ++i ) {
                 Pt p0 = point( i );
                 if ( arcs[ i ] ) {
-                    Pt p1 = point( ( i + 1 ) % _nb_points );
+                    Pt p1 = point( ( i + 1 ) % nb_points() );
                     TF a0 = atan2( p0.y - sphere_center.y, p0.x - sphere_center.x );
                     TF a1 = atan2( p1.y - sphere_center.y, p1.x - sphere_center.x );
                     if ( a1 < a0 )
@@ -2324,7 +2239,7 @@ void ConvexPolyhedron2<Pc>::intersect_with( const ConvexPolyhedron2 &cp ) {
             ball_cut( cp.sphere_center, cp.sphere_radius, cp.sphere_cut_id );
         } else {
             sphere_radius = -1;
-            _nb_points = 0;
+            set_nb_points( 0 );
         }
     }
 }
@@ -2362,7 +2277,7 @@ template<class Pc>
 void ConvexPolyhedron2<Pc>::for_each_approx_seg( const std::function<void( Pt )> &f, TF /*max_ratio_area_error*/ ) const {
     using std::atan2;
 
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         if ( sphere_radius > 0 ) {
             size_t n = 20;
             for( size_t i = 0; i <= n; ++i ) {
@@ -2375,8 +2290,8 @@ void ConvexPolyhedron2<Pc>::for_each_approx_seg( const std::function<void( Pt )>
         return;
     }
 
-    for( std::size_t i = 0; i < _nb_points; ++i ) {
-        std::size_t j = ( i + 1 ) % _nb_points;
+    for( std::size_t i = 0; i < nb_points(); ++i ) {
+        std::size_t j = ( i + 1 ) % nb_points();
         switch ( arcs[ i ] ) {
         case 0:
             f( point( i ) );
@@ -2405,21 +2320,21 @@ void ConvexPolyhedron2<Pc>::for_each_approx_seg( const std::function<void( Pt )>
 
 template<class Pc>
 void ConvexPolyhedron2<Pc>::for_each_simplex( const std::function<void( CI, CI )> &f ) const {
-    for( std::size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ )
+    for( std::size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ )
         if ( allow_ball_cut == false || ( arcs[ i0 ] == false && arcs[ i1 ] == false ) )
             f( cut_ids[ i0 ], cut_ids[ i1 ] );
 }
 
 template<class Pc>
 void ConvexPolyhedron2<Pc>::for_each_bound( const std::function<void(Pt,Pt,CI)> &f ) const {
-    for( std::size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ )
+    for( std::size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ )
         if ( allow_ball_cut == false || arcs[ i0 ] == false )
             f( point( i0 ), point( i1 ), cut_ids[ i0 ] );
 }
 
 template<class Pc>
 void ConvexPolyhedron2<Pc>::for_each_node( const std::function<void( Pt )> &f ) const {
-    for( std::size_t i = 0; i < _nb_points; ++i )
+    for( std::size_t i = 0; i < nb_points(); ++i )
         f( point( i ) );
 }
 
@@ -2430,7 +2345,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration_ap( const Fu &func, TF w, std
     };
 
     auto inside_semi_planes = [&]( Pt p ) {
-        for( size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ )
+        for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ )
             if ( ! arcs[ i0 ] && dot( p - point( i0 ), normal( i0 ) ) > 0 )
                 return false;
         return true;
@@ -2448,12 +2363,12 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration_ap( const Fu &func, TF w, std
                 value += func( p, sphere_center, w );
         }
     } else {
-        if ( _nb_points == 0 )
+        if ( nb_points() == 0 )
             return 0;
 
         mi = { + std::numeric_limits<TF>::max(), + std::numeric_limits<TF>::max() };
         ma = { - std::numeric_limits<TF>::max(), - std::numeric_limits<TF>::max() };
-        for( size_t i = 0; i < _nb_points; ++i ) {
+        for( size_t i = 0; i < nb_points(); ++i ) {
             mi = min( mi, point( i ) );
             ma = max( ma, point( i ) );
         }
@@ -2846,7 +2761,7 @@ void ConvexPolyhedron2<Pc>::_r_centroid_integration( TF &r_x, TF &r_y, const Coe
     };
 
 
-    for( std::size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ ) {
+    for( std::size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
         if ( arcs[ i0 ] )
             int_arc( r_x, r_y, scaling * ( point( i0 ) - sphere_center ), scaling * ( point( i1 ) - sphere_center ) );
         else
@@ -3224,7 +3139,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::_r_polynomials_integration( const Coeffs 
         return ( a1 - a0 ) * res;
     };
 
-    if ( _nb_points == 0 ) {
+    if ( nb_points() == 0 ) {
         TF res = 0, r2 = pow( scaling * sphere_radius, 2 );
         const auto &poly_coeffs = coeffs[ cut_index_r( r2 ) ].second;
         for( std::size_t d = 0; d < poly_coeffs.size(); ++d )
@@ -3233,7 +3148,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::_r_polynomials_integration( const Coeffs 
     }
 
     TF res = 0;
-    for( std::size_t i1 = 0, i0 = _nb_points - 1; i1 < _nb_points; i0 = i1++ )
+    for( std::size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ )
         if ( arcs[ i0 ] )
             res += int_arc( scaling * ( point( i0 ) - sphere_center ), scaling * ( point( i1 ) - sphere_center ) );
         else

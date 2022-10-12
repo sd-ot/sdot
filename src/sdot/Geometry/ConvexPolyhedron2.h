@@ -4,6 +4,7 @@
 #include "../Integration/SpaceFunctions/Constant.h"
 #include "../Integration/FunctionEnum.h"
 #include "../Display/VtkOutput.h"
+#include <boost/dynamic_bitset.hpp>
 #include <functional>
 #include <algorithm>
 #include <bitset>
@@ -27,6 +28,7 @@ class ConvexPolyhedron2 {
 public:
     static constexpr bool     keep_min_max_coords       = false;
     static constexpr bool     allow_ball_cut            = Pc::allow_ball_cut;
+    using                     VecBool                   = boost::dynamic_bitset<std::uint64_t>;
     using                     Node                      = std::size_t;
     using                     TI                        = typename Pc::TI; ///< index type
     using                     TF                        = typename Pc::TF; ///< index type
@@ -37,9 +39,9 @@ public:
     static constexpr bool     store_the_normals         = true;
 
     // types for simd
-    using                     AF                        = std::array<TF,64>;
-    using                     AC                        = std::array<CI,64>;
-    using                     AB                        = std::bitset<64>;
+    // using                  AF                        = std::array<TF,64>;
+    // using                  AC                        = std::array<CI,64>;
+    // using                  AB                        = std::bitset<64>;
 
     // types for the ctor
     struct                    EnglobingSimplex          { Pt p; TF r; };
@@ -135,10 +137,12 @@ public:
     TF                        measure_ap                ( TF max_ratio_area_error = 1e-4 ) const; ///<
     static TF                 pi                        () { if ( std::is_same<TF,double>::value ) return M_PI; using std::atan; return 4 * atan( TF( 1 ) ); }
 
-    AF                        normals[ 2 ];
-    AF                        points[ 2 ];
-    AC                        cut_ids;
-    AB                        arcs;
+    std::vector<TF>           normals[ 2 ];
+    std::vector<TF>           points[ 2 ];
+    std::vector<TF>           distances;
+    std::vector<CI>           cut_ids;
+    VecBool                   outside;
+    VecBool                   arcs;
 
     Pt                        sphere_center;
     TF                        sphere_radius;
@@ -157,6 +161,7 @@ private:
     TF                        _arc_length               ( Pt p0, Pt p1 ) const;
     TF                        _arc_area                 ( Pt p0, Pt p1 ) const;
 
+    void                      set_nb_points             ( std::size_t nb_points );
 
     std::size_t               _nb_points;
     std::vector<Cut>          _tmp_cuts;

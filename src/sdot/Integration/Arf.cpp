@@ -1,6 +1,6 @@
-#include <eigen3/Eigen/Cholesky>
 #include "../Support/Stream.h"
 #include "../Support/Assert.h"
+#include <Eigen/Cholesky>
 #include "Arf.h"
 
 namespace sdot {

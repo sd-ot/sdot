@@ -1,5 +1,5 @@
-#include <eigen3/Eigen/Cholesky>
 #include "../Support/Assert.h"
+#include <Eigen/Cholesky>
 #include "Arfd.h"
 
 namespace sdot {
