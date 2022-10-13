@@ -34,9 +34,14 @@ typename ScaledImage<Pc>::TI ScaledImage<Pc>::nb_pixels() const {
 
 template<class Pc>
 typename ScaledImage<Pc>::TF ScaledImage<Pc>::measure() const {
-    TF res = 1;
+    TF res = 0;
+    for( const TF &v : data )
+        res += v;
+    res /= data.size();
+
     for( std::size_t i = 0; i < dim; ++i )
         res *= max_pt[ i ] - min_pt[ i ];
+
     return res;
 }
 

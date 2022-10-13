@@ -396,7 +396,7 @@ template<class Pc>
 void ConvexPolyhedron2<Pc>::set_cut_ids( CI cut_id ) {
     if ( nb_points() > 64 )
         TODO;
-    for( std::size_t i = 0; i < nb_points; ++i )
+    for( std::size_t i = 0; i < nb_points(); ++i )
         cut_ids[ i ] = cut_id;
 }
 
