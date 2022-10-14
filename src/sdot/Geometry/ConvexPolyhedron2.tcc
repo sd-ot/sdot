@@ -537,7 +537,7 @@ void ConvexPolyhedron2<Pc>::ball_cut( Pt center, TF radius, CI cut_id ) {
 template<class Pc>
 void ConvexPolyhedron2<Pc>::set_nb_points( std::size_t nb_points ) {
     if ( nb_points > points[ 0 ].size() ) {
-        std::size_t ns = std::max( 2 * nb_points, 64ul );
+        std::size_t ns = std::max( std::size_t( 2 * nb_points ), std::size_t( 64 ) );
         normals[ 0 ].resize( ns );
         normals[ 1 ].resize( ns );
         points[ 0 ].resize( ns );
