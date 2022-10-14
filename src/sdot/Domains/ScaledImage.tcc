@@ -6,7 +6,7 @@ namespace sdot {
 
 template<class Pc>
 ScaledImage<Pc>::ScaledImage( Pt min_pt, Pt max_pt, const TF *data, std::array<TI,dim> sizes ) : min_pt( min_pt ), max_pt( max_pt ), sizes( sizes ), data( data, data + nb_pixels() ) {
-    englobing_polyheron = typename CP::Box{ min_pt, max_pt };
+    englobing_polyheron = { typename CP::Box{ min_pt, max_pt }, typename Pc::CI( -1 ) };
 }
 
 template<class Pc>
