@@ -1,6 +1,6 @@
 #include "Internal/AreaOutput.h"
 #include "ConvexPolyhedron2.h"
-#include <x86intrin.h>
+//#include <x86intrin.h>
 #include <iomanip>
 
 #ifdef PD_WANT_STAT
