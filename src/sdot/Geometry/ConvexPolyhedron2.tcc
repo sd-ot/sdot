@@ -871,8 +871,70 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea ) const {
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Polynomial<TF,6> &/*sf*/, const FunctionEnum::Unit &, TF /*w*/ ) const {
-    TODO;
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Polynomial<TF,6> &pol, const FunctionEnum::Unit &, TF /*w*/ ) const {
+    // hand coded version
+    if ( nb_points() == 0 ) {
+        if ( sphere_radius >= 0 ) {
+            TODO;
+        }
+        return;
+    }
+
+    // triangles
+    Pt A = point( 0 );
+    for( size_t i = 2; i < nb_points(); ++i ) {
+        Pt B = point( i - 1 );
+        Pt C = point( i - 0 );
+
+        TF R_0 = pol.coeffs[ 5 ]; TF R_1 = pol.coeffs[ 2 ]; TF R_2 = pol.coeffs[ 4 ]; TF R_3 = pol.coeffs[ 1 ];
+        TF R_4 = pol.coeffs[ 3 ]; TF R_5 = pol.coeffs[ 0 ]; TF R_6 = B.y; TF R_7 = C.x;
+        TF R_8 = 0.25*R_7; TF R_9 = 0.5*R_7; TF R_10 = A.y; TF R_11 = R_10+R_6;
+        TF R_12 = 0.125*R_11; TF R_13 = -0.5*R_11; R_11 = 0.25*R_11; R_10 = (-1.0)*R_10;
+        R_6 = R_6+R_10; TF R_14 = pow(R_6,2); R_14 = R_0*R_14; TF R_15 = R_6*R_2;
+        TF R_16 = C.y; TF R_17 = 0.25*R_16; R_17 = R_12+R_17; R_13 = R_16+R_13;
+        R_12 = R_0*R_13; R_12 = R_6*R_12; R_12 = 2.0*R_12; TF R_18 = pow(R_13,2);
+        R_18 = R_0*R_18; TF R_19 = R_2*R_13; TF R_20 = 0.5*R_16; R_11 = R_20+R_11;
+        R_0 = R_0*R_11; R_20 = 2.0*R_0; R_20 = R_1+R_20; TF R_21 = R_6*R_20;
+        R_20 = R_13*R_20; R_0 = R_1+R_0; R_0 = R_11*R_0; R_2 = R_2*R_11;
+        R_2 = R_3+R_2; R_10 = R_16+R_10; R_16 = A.x; R_3 = (-1.0)*R_16;
+        R_1 = R_7+R_3; R_1 = R_1*R_6; R_1 = (-1.0)*R_1; TF R_22 = B.x;
+        R_16 = R_16+R_22; TF R_23 = 0.125*R_16; R_8 = R_23+R_8; R_23 = -0.5*R_16;
+        R_23 = R_7+R_23; R_7 = R_4*R_23; R_19 = R_7+R_19; R_7 = R_23*R_19;
+        R_18 = R_7+R_18; R_7 = R_18*R_11; TF R_24 = R_13*R_18; R_24 = (-24.0)*R_24;
+        TF R_25 = R_23*R_18; R_25 = (-24.0)*R_25; R_16 = 0.25*R_16; R_16 = R_9+R_16;
+        R_9 = R_18*R_16; TF R_26 = R_19*R_16; TF R_27 = R_4*R_16; R_2 = R_27+R_2;
+        R_27 = R_23*R_2; R_27 = R_26+R_27; R_20 = R_27+R_20; R_27 = R_11*R_20;
+        R_26 = R_13*R_20; TF R_28 = R_16*R_20; TF R_29 = R_23*R_20; R_20 = (-2.0)*R_20;
+        TF R_30 = R_16*R_2; R_30 = R_5+R_30; R_0 = R_30+R_0; R_30 = R_13*R_0;
+        R_30 = R_27+R_30; R_30 = (-2.0)*R_30; R_17 = R_0*R_17; R_27 = R_23*R_0;
+        R_27 = R_28+R_27; R_27 = (-2.0)*R_27; R_8 = R_0*R_8; R_0 = 0.5*R_0;
+        R_3 = R_22+R_3; R_2 = R_3*R_2; R_19 = R_3*R_19; R_4 = R_3*R_4;
+        R_15 = R_4+R_15; R_4 = R_15*R_16; R_2 = R_4+R_2; R_21 = R_2+R_21;
+        R_2 = R_6*R_21; R_4 = (-1.0)*R_2; R_21 = R_3*R_21; R_22 = (-1.0)*R_21;
+        R_28 = R_15*R_23; R_19 = R_28+R_19; R_12 = R_19+R_12; R_6 = R_6*R_12;
+        R_12 = R_3*R_12; R_15 = R_3*R_15; R_14 = R_15+R_14; R_11 = R_14*R_11;
+        R_15 = (-1.0)*R_11; R_2 = R_11+R_2; R_2 = (1.0/96.0)*R_2; R_17 = R_2+R_17;
+        R_13 = R_14*R_13; R_6 = R_13+R_6; R_13 = 0.5*R_6; R_15 = R_13+R_15;
+        R_15 = R_4+R_15; R_15 = -0.25*R_15; R_15 = R_30+R_15; R_15 = R_26+R_15;
+        R_15 = R_7+R_15; R_6 = (-2.0)*R_6; R_6 = R_24+R_6; R_16 = R_14*R_16;
+        R_24 = (-1.0)*R_16; R_21 = R_16+R_21; R_21 = (1.0/96.0)*R_21; R_8 = R_21+R_8;
+        R_23 = R_14*R_23; R_12 = R_23+R_12; R_23 = 0.5*R_12; R_24 = R_23+R_24;
+        R_24 = R_22+R_24; R_24 = -0.25*R_24; R_24 = R_27+R_24; R_24 = R_29+R_24;
+        R_24 = R_9+R_24; R_12 = (-2.0)*R_12; R_25 = R_12+R_25; R_12 = 0.25*R_14;
+        R_12 = R_18+R_12; R_12 = R_20+R_12; R_14 = (1.0/96.0)*R_14; R_14 = R_0+R_14;
+        R_10 = R_3*R_10; R_1 = R_10+R_1; R_15 = R_1*R_15; R_15 = (1.0/24.0)*R_15;
+        R_17 = R_1*R_17; R_15 = R_17+R_15; R_6 = R_1*R_6; R_6 = (1.0/1920.0)*R_6;
+        R_15 = R_6+R_15; ctd.y += R_15; R_24 = R_1*R_24; R_24 = (1.0/24.0)*R_24;
+        R_8 = R_1*R_8; R_24 = R_8+R_24; R_25 = R_1*R_25; R_25 = (1.0/1920.0)*R_25;
+        R_24 = R_25+R_24; ctd.x += R_24; R_12 = R_1*R_12; R_12 = (1.0/24.0)*R_12;
+        R_14 = R_1*R_14; R_12 = R_14+R_12; mea += R_12;
+    }
+
+    // arcs
+    if ( allow_ball_cut )
+        for( std::size_t i0 = nb_points() - 1, i1 = 0; i1 < nb_points(); i0 = i1++ )
+            if ( arcs[ i0 ] )
+                TODO;
 }
 
 template<class Pc>
@@ -1998,8 +2060,11 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Consta
 template<class Pc>
 typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Polynomial<TF,6> &pol, const FunctionEnum::Unit &/*f*/, TF weight ) const {
     // hand coded version:
-    if ( nb_points() == 0 )
-        TODO;
+    if ( nb_points() == 0 ) {
+        if ( sphere_radius > 0 )
+            TODO;
+        return 0;
+    }
 
     // triangles
     TF res = 0;

@@ -1,4 +1,6 @@
 def integration( nb_coeffs )
+    info nb_coeffs
+
     A  := Vec[ Op, 2 ]( [ symbol( "A.x" ), symbol( "A.y" ) ] ) 
     B  := Vec[ Op, 2 ]( [ symbol( "B.x" ), symbol( "B.y" ) ] ) 
     C  := Vec[ Op, 2 ]( [ symbol( "C.x" ), symbol( "C.y" ) ] ) 
@@ -8,8 +10,12 @@ def integration( nb_coeffs )
 
     P := ( 1 - u - v ) * A + u * B + v * C 
 
+    det := Mat[Op]( [
+        P[ 0 ].diff( u ), P[ 0 ].diff( v )
+        P[ 1 ].diff( u ), P[ 1 ].diff( v )
+    ] ).det
+
     coeffs := Vec[ Op, nb_coeffs ]( x => symbol( "pol.coeffs[ $x ]" ) )
-    print( coeffs )
 
     val := coeffs[ 0 ]
     if nb_coeffs >= 2
@@ -20,15 +26,28 @@ def integration( nb_coeffs )
         val += coeffs[ 4 ] * P[ 0 ] * P[ 1 ]
         val += coeffs[ 5 ] * P[ 1 ] * P[ 1 ]
 
-    val *= det( ... )
+    val *= det
 
     r_0 := polynomial_integration( val, u, 0, 1 - v, deg_poly_max = 20 )
-    r_1 := polynomial_integration( r_0, v, 0, 1    , deg_poly_max = 20 )
+    r_0 = polynomial_integration( r_0, v, 0, 1, deg_poly_max = 20 )
 
-    cw := CodeWriter( "TF" )
-    cw.add( "res", r_1, add )
-    stdout << cw.to_string( 4 )
+    r_x := polynomial_integration( val * P[ 0 ], u, 0, 1 - v, deg_poly_max = 20 )
+    r_x = polynomial_integration( r_x, v, 0, 1, deg_poly_max = 20 )
+
+    r_y := polynomial_integration( val * P[ 1 ], u, 0, 1 - v, deg_poly_max = 20 )
+    r_y = polynomial_integration( r_y, v, 0, 1, deg_poly_max = 20 )
+
+    cw_i := CodeWriter( "TF" )
+    cw_i.add( "res", r_0, add )
+    stdout <<< "-------------"
+    stdout << cw_i.to_string( 4 )
+
+    cw_c := CodeWriter( "TF" )
+    cw_c.add( "mea", r_0, add )
+    cw_c.add( "ctd.x", r_x, add )
+    cw_c.add( "ctd.y", r_y, add )
+    stdout <<< "-------------"
+    stdout << cw_c.to_string( 4 )
 
 integration( 1 )
-
 integration( 6 )

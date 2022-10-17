@@ -104,11 +104,11 @@ public:
     bool                           contains                  ( const Pt &pos ) const;
 
     // computations
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF> &f, TF weight = 0 ) const;
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd          &f, TF weight = 0 ) const;
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2          &f, TF weight = 0 ) const;
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF> &f, TF weight = 0 ) const { TODO; }
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd          &f, TF weight = 0 ) const { TODO; }
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2          &f, TF weight = 0 ) const { TODO; }
     void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit          &f, TF weight = 0 ) const;
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2            &f, TF weight = 0 ) const;
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2            &f, TF weight = 0 ) const { TODO; }
 
     void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &f, TF weight = 0 ) const;
     void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd          &f, TF weight = 0 ) const;
@@ -128,13 +128,13 @@ public:
     Pt                             centroid                  () const;
     TF                             measure                   () const;
 
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF> &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2          &f, TF weight = 0 ) const;
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF> &f, TF weight = 0 ) const { TODO; return 0; }
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2          &f, TF weight = 0 ) const { TODO; return 0; }
     TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit          &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd          &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arf           &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2            &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R4            &f, TF weight = 0 ) const;
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd          &f, TF weight = 0 ) const { TODO; return 0; }
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arf           &f, TF weight = 0 ) const { TODO; return 0; }
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2            &f, TF weight = 0 ) const { TODO; return 0; }
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R4            &f, TF weight = 0 ) const { TODO; return 0; }
 
     TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &f, TF weight = 0 ) const;
     TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2          &f, TF weight = 0 ) const;
