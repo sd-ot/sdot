@@ -1,0 +1,34 @@
+def integration( nb_coeffs )
+    A  := Vec[ Op, 2 ]( [ symbol( "A.x" ), symbol( "A.y" ) ] ) 
+    B  := Vec[ Op, 2 ]( [ symbol( "B.x" ), symbol( "B.y" ) ] ) 
+    C  := Vec[ Op, 2 ]( [ symbol( "C.x" ), symbol( "C.y" ) ] ) 
+
+    u  := symbol( "u" )
+    v  := symbol( "v" )
+
+    P := ( 1 - u - v ) * A + u * B + v * C 
+
+    coeffs := Vec[ Op, nb_coeffs ]( x => symbol( "pol.coeffs[ $x ]" ) )
+    print( coeffs )
+
+    val := coeffs[ 0 ]
+    if nb_coeffs >= 2
+        val += coeffs[ 1 ] * P[ 0 ]
+        val += coeffs[ 2 ] * P[ 1 ]
+    if nb_coeffs >= 6
+        val += coeffs[ 3 ] * P[ 0 ] * P[ 0 ]
+        val += coeffs[ 4 ] * P[ 0 ] * P[ 1 ]
+        val += coeffs[ 5 ] * P[ 1 ] * P[ 1 ]
+
+    val *= det( ... )
+
+    r_0 := polynomial_integration( val, u, 0, 1 - v, deg_poly_max = 20 )
+    r_1 := polynomial_integration( r_0, v, 0, 1    , deg_poly_max = 20 )
+
+    cw := CodeWriter( "TF" )
+    cw.add( "res", r_1, add )
+    stdout << cw.to_string( 4 )
+
+integration( 1 )
+
+integration( 6 )

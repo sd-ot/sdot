@@ -163,7 +163,7 @@ public:
 
     // display
     void write_to_stream( std::ostream &os ) const {
-        int cpt = 0;
+        // int cpt = 0;
         visitor( [ &os ]( const Buffer *b, PT beg, PT end ) { // , &cpt
             os.write( (const char *)b->data + beg, end - beg );
             //for( PT i = beg; i < end; ++i )

@@ -166,17 +166,17 @@ void ConvexPolyhedron3<Pc>::intersect_with( const ConvexPolyhedron3 &cp ) {
 }
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::ExpWmR2db<TF>, const std::function<void(TF,CI)> &f, TF weight ) const {
+void ConvexPolyhedron3<Pc>::for_each_boundary_measure( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &/*rf*/, const std::function<void(TF,CI)> &f, TF weight ) const {
     TODO;
 }
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::WmR2, const std::function<void(TF,CI)> &f, TF weight ) const {
+void ConvexPolyhedron3<Pc>::for_each_boundary_measure( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::WmR2 &/*rf*/, const std::function<void(TF,CI)> &f, TF weight ) const {
     TODO;
 }
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::Unit, const std::function<void(TF,CI)> &f, TF weight ) const {
+void ConvexPolyhedron3<Pc>::for_each_boundary_measure( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &/*rf*/, const std::function<void(TF,CI)> &f, TF weight ) const {
     //    // round parts
     //    if ( flat_surfaces.empty() ) {
     //        if ( sphere_radius >= 0 )
@@ -194,7 +194,7 @@ void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::Unit, const
 
     // flat parts
     for( const Face &fp : faces )
-        f( area( fp ), fp.cut_id );
+        f( sf.coeff * area( fp ), fp.cut_id );
 
     //    // holes
     //    for( const Hole &hole : holes ) {
@@ -206,27 +206,27 @@ void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::Unit, const
 }
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::for_each_boundary_measure( FunctionEnum::R2, const std::function<void(TF,CI)> &f, TF weight ) const {
+void ConvexPolyhedron3<Pc>::for_each_boundary_measure( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R2 &/*rf*/, const std::function<void(TF,CI)> &f, TF weight ) const {
     TODO;
 }
 
 template<class Pc> template<class Fu>
-void ConvexPolyhedron3<Pc>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF>, const Fu &f, TF weight ) const {
+void ConvexPolyhedron3<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &/*rf*/, const Fu &f, TF weight ) const {
     TODO;
 }
 
 template<class Pc> template<class Fu>
-void ConvexPolyhedron3<Pc>::for_each_boundary_item( FunctionEnum::WmR2, const Fu &f, TF weight ) const {
+void ConvexPolyhedron3<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::WmR2 &/*rf*/, const Fu &f, TF weight ) const {
     TODO;
 }
 
 template<class Pc> template<class Fu>
-void ConvexPolyhedron3<Pc>::for_each_boundary_item( FunctionEnum::Unit, const Fu &f, TF weight ) const {
+void ConvexPolyhedron3<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &/*rf*/, const Fu &f, TF weight ) const {
     TODO;
 }
 
 template<class Pc> template<class Fu>
-void ConvexPolyhedron3<Pc>::for_each_boundary_item( FunctionEnum::R2, const Fu &f, TF weight ) const {
+void ConvexPolyhedron3<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R2 &/*rf*/, const Fu &f, TF weight ) const {
     TODO;
 }
 
@@ -839,17 +839,17 @@ void ConvexPolyhedron3<Pc>::clear( const Box &box, CI cut_id ) {
 }
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::ExpWmR2db<TF>, SpaceFunctions::Constant<TF> sf, TF weight ) const {
+void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &/*sf*/, const FunctionEnum::ExpWmR2db<TF> &/*rf*/, TF weight ) const {
     TODO;
 }
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::WmR2, SpaceFunctions::Constant<TF> sf, TF weight ) const {
+void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::WmR2 &/*rf*/, TF weight ) const {
     TODO;
 }
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::Unit, SpaceFunctions::Constant<TF> sf, TF weight ) const {
+void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &/*rf*/, TF weight ) const {
     // base
     if ( faces.empty() ) {
         TF vol = sf.coeff * 4 * M_PI / 3 * std::pow( std::max( TF( 0 ), sphere_radius ), 3 );
@@ -891,7 +891,7 @@ void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 }
 
 template<class Pc>
-void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::R2, SpaceFunctions::Constant<TF> sf, TF weight ) const {
+void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R2 &/*rf*/, TF weight ) const {
     TODO;
 }
 
@@ -943,37 +943,37 @@ typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::max_position() const {
 }
 
 template<class Pc>
-typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::centroid( FunctionEnum::Unit ) const {
+typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::centroid( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &rf ) const {
     TF mea = 0;
     Pt ctd = { 0, 0, 0 };
-    add_centroid_contrib( ctd, mea );
+    add_centroid_contrib( ctd, mea, sf, rf );
     return mea ? ctd / mea : ctd;
 }
 
 template<class Pc>
-typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration_der_wrt_weight( FunctionEnum::ExpWmR2db<TF> fu, TF weight ) const {
-    return measure( fu, weight ) / fu.eps;
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration_der_wrt_weight( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &fu, TF weight ) const {
+    return integration( sf, fu, weight ) / fu.eps;
 }
 
 template<class Pc> template<class FU>
-typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration_der_wrt_weight( const FU &, TF weight ) const {
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration_der_wrt_weight( const SpaceFunctions::Constant<TF> &sf, const FU &, TF weight ) const {
     return 0;
 }
 
 template<class Pc>
-typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum::ExpWmR2db<TF>, TF weight ) const {
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &/*rf*/, TF weight ) const {
     TODO;
     return 0;
 }
 
 template<class Pc>
-typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum::WmR2, TF weight ) const {
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::WmR2 &/*rf*/, TF weight ) const {
     TODO;
     return 0;
 }
 
 template<class Pc>
-typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum::Unit, TF weight ) const {
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &/*rf*/, TF weight ) const {
     TF res;
     if ( faces.empty() ) {
         res = sphere_radius > 0 ? 4 * M_PI / 3 * std::pow( sphere_radius, 3 ) : 0;
@@ -1006,11 +1006,11 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum:
         res -= M_PI / 3 * h * h * ( 3 * sphere_radius - h );
     }
 
-    return res;
+    return sf.coeff * res;
 }
 
 template<class Pc>
-typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::measure( FunctionEnum::R2, TF weight ) const {
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R2 &/*rf*/, TF weight ) const {
     TODO;
     return 0;
 }
@@ -1022,7 +1022,7 @@ typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::random_point() const {
 }
 
 template<class Pc>
-typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::boundary_measure( FunctionEnum::Unit ) const {
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::boundary_measure( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &/*rf*/ ) const {
     using std::sqrt;
     using std::pow;
     using std::max;
@@ -1054,7 +1054,7 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::boundary_measure( Func
         TF r = sqrt( sphere_radius * sphere_radius - s * s );
         res += M_PI * ( r * r - 2 * sphere_radius * ( sphere_radius - s ) );
     }
-    return res;
+    return sf.coeff * res;
 }
 
 template<class Pc> template<class Fu>

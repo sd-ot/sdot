@@ -1,11 +1,11 @@
-#include "../Integration/SpaceFunctions/Constant.h"
+#include "../Integration/SpaceFunctions/Polynomial.h"
 #include "../Support/CrossProdOfRanges.h"
 #include "ScaledImage.h"
 
 namespace sdot {
 
 template<class Pc>
-ScaledImage<Pc>::ScaledImage( Pt min_pt, Pt max_pt, const TF *data, std::array<TI,dim> sizes ) : min_pt( min_pt ), max_pt( max_pt ), sizes( sizes ), data( data, data + nb_pixels() ) {
+ScaledImage<Pc>::ScaledImage( Pt min_pt, Pt max_pt, const TF *data, std::array<TI,dim> sizes, TI nb_coeffs ) : nb_coeffs( nb_coeffs ), min_pt( min_pt ), max_pt( max_pt ), sizes( sizes ), data( data, data + nb_pixels() * nb_coeffs ) {
     englobing_polyheron = { typename CP::Box{ min_pt, max_pt }, typename Pc::CI( -1 ) };
 }
 
@@ -35,9 +35,13 @@ typename ScaledImage<Pc>::TI ScaledImage<Pc>::nb_pixels() const {
 template<class Pc>
 typename ScaledImage<Pc>::TF ScaledImage<Pc>::measure() const {
     TF res = 0;
-    for( const TF &v : data )
-        res += v;
-    res /= data.size();
+    if ( nb_coeffs == 1 ) {
+        for( const TF &v : data )
+            res += v;
+        res /= data.size();
+    } else {
+        TODO;
+    }
 
     for( std::size_t i = 0; i < dim; ++i )
         res *= max_pt[ i ] - min_pt[ i ];
@@ -46,15 +50,15 @@ typename ScaledImage<Pc>::TF ScaledImage<Pc>::measure() const {
 }
 
 template<class Pc>
-typename ScaledImage<Pc>::TF ScaledImage<Pc>::coeff_at( const Pt &pos ) const {
-    TI index = 0;
-    for( std::size_t d = 0, acc = 1; d < dim; ++d ) {
-        TI p = ( pos[ d ] - min_pt[ d ] ) * sizes[ d ] / ( max_pt[ d ] - min_pt[ d ] );
-        if ( p < 0 || p >= sizes[ d ] )
-            return 0;
+typename ScaledImage<Pc>::TF ScaledImage<Pc>::coeff_at( const Pt &pos, TI num_coeff ) const {
+    TI index = 0, acc = 1;
+    for( std::size_t d = 0; d < dim; ++d ) {
+        TI p = std::max( pos[ d ] - min_pt[ d ], TF( 0 ) ) * sizes[ d ] / ( max_pt[ d ] - min_pt[ d ] );
+        p = std::min( p, sizes[ d ] - 1 );
         index += acc * p;
         acc *= sizes[ d ];
     }
+    index += acc * num_coeff;
     return data[ index ];
 }
 
@@ -63,8 +67,11 @@ void ScaledImage<Pc>::for_each_intersection( CP &cp, const F &f ) const {
     using std::min;
     using std::max;
 
-    if ( nb_pixels() == 1 )
-        return f( cp, SpaceFunctions::Constant<TF>{ data[ 0 ] } );
+    if ( nb_pixels() == 1 ) {
+        return SpaceFunctions::apply_poly( N<dim>(), data.data(), nb_pixels(), nb_coeffs, [&]( const auto &sf ) {
+            return f( cp, sf );
+        } );
+    }
 
     // find min_y, max_y
     Pt ps;
@@ -96,6 +103,7 @@ void ScaledImage<Pc>::for_each_intersection( CP &cp, const F &f ) const {
             min_pt + ps * ( pf + TF( 0 ) ),
             min_pt + ps * ( pf + TF( 1 ) )
         }, typename Pc::CI(-1 ) };
+
         ccp.intersect_with( cp );
 
         f( ccp, SpaceFunctions::Constant<TF>{ data[ num_pix ] } );

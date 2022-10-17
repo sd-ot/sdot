@@ -60,11 +60,11 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
         TF mass = 0;
         Pt centroid = TF( 0 );
 
-        bounds.for_each_intersection( lc, [&]( auto &cp, SpaceFunctions::Constant<TF> space_func ) {
-            cp.add_centroid_contrib( centroid, mass, radial_func.func_for_final_cp_integration(), space_func, d0_weight );
+        bounds.for_each_intersection( lc, [&]( auto &cp, const auto &space_func ) {
+            cp.add_centroid_contrib( centroid, mass, space_func, radial_func.func_for_final_cp_integration(), d0_weight );
 
-            TF coeff = 0.5 * space_func.coeff;
-            cp.for_each_boundary_item( radial_func.func_for_final_cp_integration(), [&]( auto boundary_item ) {
+            TF coeff = 0.5;
+            cp.for_each_boundary_item( space_func, radial_func.func_for_final_cp_integration(), [&]( auto boundary_item ) {
                 auto boundary_measure = boundary_item.measure;
                 auto num_dirac_1 = boundary_item.id;
 
@@ -81,8 +81,8 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
 
                     if ( dim == 2 ) {
                         // measure / position
-                        TF mx = space_func.coeff * R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) );
-                        TF my = space_func.coeff * R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) );
+                        TF mx = R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) );
+                        TF my = R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) );
                         if ( boundary_item.a0 < boundary_item.a1 ) {
                             der_0[ nupd * dim + 0 ] += mx;
                             der_0[ nupd * dim + 1 ] += my;
@@ -99,22 +99,22 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
 
                         // centroid / position
                         if ( boundary_item.a0 < boundary_item.a1 ) {
-                            der_0[ nupd * 0 + 0 ] += mx * d0_center.x + space_func.coeff * R * R / 2 * (
+                            der_0[ nupd * 0 + 0 ] += mx * d0_center.x + R * R / 2 * (
                                 ( boundary_item.a1 + sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
                                 ( boundary_item.a0 + sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
                             );
-                            der_0[ nupd * 0 + 1 ] += my * d0_center.x + space_func.coeff * R * R / 4 * (
+                            der_0[ nupd * 0 + 1 ] += my * d0_center.x + R * R / 4 * (
                                 cos( 2 * boundary_item.a0 ) - cos( 2 * boundary_item.a1 )
                             );
-                            der_0[ nupd * 1 + 0 ] += mx * d0_center.y + space_func.coeff * R * R / 4 * (
+                            der_0[ nupd * 1 + 0 ] += mx * d0_center.y + R * R / 4 * (
                                 cos( 2 * boundary_item.a0 ) - cos( 2 * boundary_item.a1 )
                             );
-                            der_0[ nupd * 1 + 1 ] += my * d0_center.y + space_func.coeff * R * R / 2 * (
+                            der_0[ nupd * 1 + 1 ] += my * d0_center.y + R * R / 2 * (
                                 ( boundary_item.a1 - sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
                                 ( boundary_item.a0 - sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
                             );
                         } else {
-                            TF c = space_func.coeff * cp.pi() * R * R;
+                            TF c = cp.pi() * R * R;
                             der_0[ nupd * 0 + 0 ] += c;
                             der_0[ nupd * 1 + 1 ] += c;
                         }
@@ -176,7 +176,7 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
                 dpt.row_items.emplace_back( m_num_dirac_1, der_1 );
             }, weights[ num_dirac_0 ] );
 
-            der_0.back() += cp.integration_der_wrt_weight( radial_func.func_for_final_cp_integration(), d0_weight );
+            der_0.back() += cp.integration_der_wrt_weight( space_func, radial_func.func_for_final_cp_integration(), d0_weight );
         } );
         dpt.row_items.emplace_back( num_dirac_0, der_0 );
         std::sort( dpt.row_items.begin(), dpt.row_items.end() );

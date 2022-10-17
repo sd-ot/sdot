@@ -23,8 +23,8 @@ void get_der_boundary_integral( Pt *res, Grid &grid, Bounds &bounds, const Pt *p
 
     // for each cell that has an ext boundary, get num_dirac of neighbors
     grid.for_each_laguerre_cell( [&]( auto &lc, auto num_dirac, int num_thread ) {
-        bounds.for_each_intersection( lc, [&]( auto &cp, SpaceFunctions::Constant<TF> space_func ) {
-            cp.for_each_boundary_item( radial_func.func_for_final_cp_integration(), [&]( auto boundary_item ) {
+        bounds.for_each_intersection( lc, [&]( auto &cp, const auto &space_func ) {
+            cp.for_each_boundary_item( space_func, radial_func.func_for_final_cp_integration(), [&]( auto boundary_item ) {
                 if ( boundary_item.id == num_dirac ) {
                     TF R = sqrt( weights[ num_dirac ] );
                     res[ num_dirac ].x += R * ( sin( boundary_item.a0 ) - sin( boundary_item.a1 ) );

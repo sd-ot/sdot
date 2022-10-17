@@ -1,6 +1,5 @@
 #include "Internal/AreaOutput.h"
 #include "ConvexPolyhedron2.h"
-//#include <x86intrin.h>
 #include <iomanip>
 
 #ifdef PD_WANT_STAT
@@ -71,23 +70,23 @@ ConvexPolyhedron2<Pc>::ConvexPolyhedron2( const ConvexPolyhedron2 &that ) {
     max_coord = that.max_coord;
 }
 
-template<class Pc>
-typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( FunctionEnum::ExpWmR2db<TF> fu, TF weight ) const {
-    return integration( fu, weight ) / fu.eps;
+template<class Pc> template<class Sf>
+typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( const Sf &sf, const FunctionEnum::ExpWmR2db<TF> &fu, TF weight ) const {
+    return integration( sf, fu, weight ) / fu.eps;
 }
 
-template<class Pc>
-typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( const FunctionEnum::Arfd &arf, TF weight ) const {
-    return arf.der_w ? integration( *arf.der_w, weight ) : 0;
+template<class Pc> template<class Sf>
+typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( const Sf &sf, const FunctionEnum::Arfd &arf, TF weight ) const {
+    return arf.der_w ? integration( sf, *arf.der_w, weight ) : 0;
 }
 
-template<class Pc>
-typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( FunctionEnum::WmR2 /*fu*/, TF weight ) const {
-    return integration( FunctionEnum::Unit(), weight );
+template<class Pc> template<class Sf>
+typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( const Sf &sf, const FunctionEnum::WmR2 &/*fu*/, TF weight ) const {
+    return integration( sf, FunctionEnum::Unit(), weight );
 }
 
-template<class Pc>
-template<class FU> typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( const FU &, TF /*weight*/ ) const {
+template<class Pc> template<class Sf,class FU>
+typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( const Sf &sf, const FU &, TF /*weight*/ ) const {
     return 0;
 }
 
@@ -99,15 +98,40 @@ bool ConvexPolyhedron2<Pc>::all_pos( const F &f ) const {
     return true;
 }
 
-template<class Pc> template<class RF>
-void ConvexPolyhedron2<Pc>::for_each_boundary_measure( const RF &rf, const std::function<void( TF, CI )> &f, TF weight ) const {
-    for_each_boundary_item( rf, [&]( const BoundaryItem &boundary_item ) {
+template<class Pc> template<class S,class R>
+void ConvexPolyhedron2<Pc>::for_each_boundary_measure( const S &sf, const R &rf, const std::function<void( TF, CI )> &f, TF weight ) const {
+    for_each_boundary_item( sf, rf, [&]( const BoundaryItem &boundary_item ) {
         f( boundary_item.measure, boundary_item.id );
     }, weight );
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::for_each_boundary_item( const FunctionEnum::Arfd &arf, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF> &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight ) const {
+    TODO;
+}
+
+template<class Pc>
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight ) const {
+    TODO;
+}
+
+template<class Pc>
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2 &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight ) const {
+    TODO;
+}
+
+template<class Pc>
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight ) const {
+    TODO;
+}
+
+template<class Pc>
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2 &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight0 ) const {
+    TODO;
+}
+
+template<class Pc>
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Arfd &arf, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
     using std::sqrt;
     using std::pow;
 
@@ -217,17 +241,17 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( const FunctionEnum::Arfd &ar
         item.points[ 1 ] = point( i1 );
 
         if ( allow_ball_cut && arcs[ i0 ] ) {
-            item.measure = _arc_length( point( i0 ), point( i1 ) ) * out_scaling * arf.approx_value( inp_scaling * norm_2( point( i0 ) - sphere_center ) );
+            item.measure = sf.coeff * _arc_length( point( i0 ), point( i1 ) ) * out_scaling * arf.approx_value( inp_scaling * norm_2( point( i0 ) - sphere_center ) );
             f( item );
         } else {
-            item.measure = out_scaling / inp_scaling * seg_val( inp_scaling * ( point( i0 ) - sphere_center ), inp_scaling * ( point( i1 ) - sphere_center ) );
+            item.measure = sf.coeff * out_scaling / inp_scaling * seg_val( inp_scaling * ( point( i0 ) - sphere_center ), inp_scaling * ( point( i1 ) - sphere_center ) );
             f( item );
         }
     }
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF> e, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &e, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
     using std::sqrt;
     using std::erf;
     using std::exp;
@@ -237,7 +261,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF> 
         if ( sphere_radius >= 0 ) {
             BoundaryItem item;
             item.id = sphere_cut_id;
-            item.measure = 2 * pi() * sphere_radius * exp( ( weight - pow( sphere_radius, 2 ) ) / e.eps );
+            item.measure = sf.coeff * 2 * pi() * sphere_radius * exp( ( weight - pow( sphere_radius, 2 ) ) / e.eps );
             item.a0 = 1;
             item.a1 = 0;
             f( item );
@@ -253,7 +277,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF> 
 
         if ( allow_ball_cut && arcs[ i0 ] ) {
             TF c = exp( ( weight - pow( sphere_radius, 2 ) ) / e.eps );
-            item.measure = _arc_length( point( i0 ), point( i1 ) ) * c;
+            item.measure = sf.coeff * _arc_length( point( i0 ), point( i1 ) ) * c;
             f( item );
         } else {
             // Integrate[ Exp[ ( w - (bx+dx*u)*(bx+dx*u) - (by+dy*u)*(by+dy*u) ) / eps ], { u, 0, 1 } ]
@@ -264,7 +288,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF> 
                    erf( ( P1.x * ( P1.x - P0.x ) + P1.y * ( P1.y - P0.y ) ) / e5 / d1 ) -
                    erf( ( P0.x * ( P1.x - P0.x ) + P0.y * ( P1.y - P0.y ) ) / e5 / d1 )
                 );
-                item.measure = d1 * c;
+                item.measure = sf.coeff * d1 * c;
                 f( item );
             }
         }
@@ -272,7 +296,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::ExpWmR2db<TF> 
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::WmR2 /*e*/, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::WmR2 &/*e*/, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
     using std::sqrt;
     using std::pow;
 
@@ -280,7 +304,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::WmR2 /*e*/, co
         if ( sphere_radius >= 0 ) {
             BoundaryItem item;
             item.id = sphere_cut_id;
-            item.measure = 2 * pi() * sphere_radius * ( weight - pow( sphere_radius, 2 ) );
+            item.measure = sf.coeff * 2 * pi() * sphere_radius * ( weight - pow( sphere_radius, 2 ) );
             item.a0 = 1;
             item.a1 = 0;
             f( item );
@@ -296,7 +320,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::WmR2 /*e*/, co
 
         if ( allow_ball_cut && arcs[ i0 ] ) {
             TF c = weight - pow( sphere_radius, 2 );
-            item.measure = _arc_length( point( i0 ), point( i1 ) ) * c;
+            item.measure = sf.coeff * _arc_length( point( i0 ), point( i1 ) ) * c;
             f( item );
         } else {
             // Integrate[ w - (A+(B-A)*u)^2 - (C+(D-C)*u)^2, { u, 0, 1 } ]
@@ -305,7 +329,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::WmR2 /*e*/, co
                 TF d1 = sqrt( d2 );
                 TF c = weight - ( P0.x * ( P0.x + P1.x ) + P1.x * P1.x + 
                                   P0.y * ( P0.y + P1.y ) + P1.y * P1.y ) / 3;
-                item.measure = d1 * c;
+                item.measure = sf.coeff * d1 * c;
                 f( item );
             }
         }
@@ -313,17 +337,17 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::WmR2 /*e*/, co
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::R2, const std::function<void( const BoundaryItem &boundary_item )> &/*f*/, TF /*weight*/ ) const {
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R2 &, const std::function<void( const BoundaryItem &boundary_item )> &/*f*/, TF /*weight*/ ) const {
     TODO;
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::Unit, const std::function<void( const BoundaryItem &boundary_item )> &f, TF /*weight*/ ) const {
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &, const std::function<void( const BoundaryItem &boundary_item )> &f, TF /*weight*/ ) const {
     if ( nb_points() == 0 ) {
         if ( sphere_radius >= 0 ) {
             BoundaryItem item;
             item.id = sphere_cut_id;
-            item.measure = 2 * pi() * sphere_radius;
+            item.measure = sf.coeff * 2 * pi() * sphere_radius;
             item.a0 = 1;
             item.a1 = 0;
             f( item );
@@ -343,9 +367,9 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( FunctionEnum::Unit, const st
             item.a1 = atan2( point( i1 ).y - sphere_center.y, point( i1 ).x - sphere_center.x );
             if ( item.a1 < item.a0 )
                 item.a1 += 2 * pi();
-            item.measure = ( item.a1 - item.a0 ) * sphere_radius;
+            item.measure = sf.coeff * ( item.a1 - item.a0 ) * sphere_radius;
         } else {
-            item.measure = norm_2( point( i1 ) - point( i0 ) );
+            item.measure = sf.coeff * norm_2( point( i1 ) - point( i0 ) );
         }
 
         f( item );
@@ -843,11 +867,16 @@ void ConvexPolyhedron2<Pc>::clear( Pt /*englobing_center*/, TF /*englobing_radiu
 
 template<class Pc>
 void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea ) const {
-    add_centroid_contrib( ctd, mea, FunctionEnum::Unit(), SpaceFunctions::Constant<TF>{ 1.0 } );
+    add_centroid_contrib( ctd, mea, SpaceFunctions::Constant<TF>{ 1.0 }, FunctionEnum::Unit() );
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::Unit, SpaceFunctions::Constant<TF> sf, TF /*w*/ ) const {
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Polynomial<TF,6> &/*sf*/, const FunctionEnum::Unit &, TF /*w*/ ) const {
+    TODO;
+}
+
+template<class Pc>
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &, TF /*w*/ ) const {
     // hand coded version
     if ( nb_points() == 0 ) {
         if ( sphere_radius >= 0 ) {
@@ -876,10 +905,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::WmR2 /*func*/, SpaceFunctions::Constant<TF> sf, TF w ) const {
-    if ( sf.coeff != 1 )
-        TODO;
-
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::WmR2 &/*fu*/, TF w ) const {
     // hand coded version
     auto arc_val = [&]( Pt P0, Pt P1 ) {
         using std::atan2;
@@ -924,8 +950,8 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
     }
 
     // centroid part
-    ctd += lea * sphere_center;
-    mea += lea;
+    ctd += sf.coeff * lea * sphere_center;
+    mea += sf.coeff * lea;
 
     if ( nb_points() == 0 )
         return;
@@ -942,8 +968,8 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
         if ( a1 - a0 > pi() )
             a1 -= 2 * pi();
         TF c = w * pow( sphere_radius, 3 ) / 3 - pow( sphere_radius, 5 ) / 5;
-        r_x += c * ( sin( a1 ) - sin( a0 ) );
-        r_y += c * ( cos( a0 ) - cos( a1 ) );
+        r_x += sf.coeff * c * ( sin( a1 ) - sin( a0 ) );
+        r_y += sf.coeff * c * ( cos( a0 ) - cos( a1 ) );
     };
 
     // generated using metil src/sdot/PowerDiagram/offline_integration/lib/gen_WmR2.met
@@ -974,9 +1000,15 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
         R_14 = R_6+R_14; R_11 = R_14+R_11; R_18 = R_4*R_18; R_18 = 4.0*R_18;
         R_5 = R_18+R_5; R_10 = R_19*R_10; R_9 = R_10+R_9; R_1 = R_9*R_1;
         R_1 = (1.0/24.0)*R_1; R_20 = R_9*R_20; R_1 = R_20+R_1; R_8 = R_9*R_8;
-        R_8 = (1.0/1920.0)*R_8; R_1 = R_8+R_1; r_y += R_1; R_11 = R_9*R_11;
+        R_8 = (1.0/1920.0)*R_8; R_1 = R_8+R_1;
+
+        r_y += sf.coeff * R_1;
+
+        R_11 = R_9*R_11;
         R_11 = (1.0/24.0)*R_11; R_3 = R_9*R_3; R_11 = R_3+R_11; R_5 = R_9*R_5;
-        R_5 = (1.0/1920.0)*R_5; R_11 = R_5+R_11; r_x += R_11;
+        R_5 = (1.0/1920.0)*R_5; R_11 = R_5+R_11;
+
+        r_x += sf.coeff * R_11;
     };
 
     for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
@@ -988,7 +1020,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const FunctionEnum::Arfd &arf, SpaceFunctions::Constant<TF> sf, TF w ) const {
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Arfd &arf, TF w ) const {
     using std::atan2;
     using std::sqrt;
     using std::pow;
@@ -1403,7 +1435,7 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const Functi
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum::ExpWmR2db<TF> func, SpaceFunctions::Constant<TF> sf, TF /*w*/ ) const {
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &func, TF /*w*/ ) const {
     using std::sqrt;
 
     // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function Gaussian --end-log-scale 10 --precision 1e-10 --centroid
@@ -1449,31 +1481,26 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, FunctionEnum
 }
 
 template<class Pc>
-void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &/*ctd*/, TF &/*mea*/, FunctionEnum::R2, SpaceFunctions::Constant<TF> /*sf*/, TF /*w*/ ) const {
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &/*ctd*/, TF &/*mea*/, const SpaceFunctions::Constant<TF> &/*sf*/, const FunctionEnum::R2 &/*f*/, TF /*w*/ ) const {
     TODO;
 }
 
-template<class Pc> template<class FU>
-typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::centroid( const FU &f, TF w ) const {
+template<class Pc> template<class S,class R>
+typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::centroid( const S &sf, const R &rf, TF w ) const {
     TF mea = 0;
     Pt ctd = { 0, 0 };
-    add_centroid_contrib( ctd, mea, f, SpaceFunctions::Constant<TF>{ 1.0 }, w );
+    add_centroid_contrib( ctd, mea, sf, rf, w );
     return mea ? ctd / mea : ctd;
 }
 
 template<class Pc>
 typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::centroid() const {
-    return centroid( FunctionEnum::Unit() );
-}
-
-template<class Pc> template<class FU>
-typename Pc::TF ConvexPolyhedron2<Pc>::measure( const FU &f, TF w ) const {
-    return integration( f, w );
+    return centroid( SpaceFunctions::Constant<TF>{ 1 }, FunctionEnum::Unit() );
 }
 
 template<class Pc>
 typename Pc::TF ConvexPolyhedron2<Pc>::measure() const {
-    return measure( FunctionEnum::Unit() );
+    return integration( SpaceFunctions::Constant<TF>{ 1 }, FunctionEnum::Unit() );
 }
 
 template<class Pc>
@@ -1520,7 +1547,7 @@ typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::random_point() const {
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::ExpWmR2db<TF> func, TF w ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &func, TF w ) const {
     using std::sqrt;
     using std::exp;
 
@@ -1559,7 +1586,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::ExpWmR2db<TF> 
         {            1e+40, {  0.0004340438709, -1.647683473e-07,  3.572519365e-11, -4.838985987e-15,   4.19288882e-19,  -2.26961347e-23,  7.017013478e-28, -9.487047369e-33 } },
     };
 
-    return exp( w / func.eps ) * func.eps * _r_polynomials_integration( coeffs, TF( 1 ) / sqrt( func.eps ) );
+    return sf.coeff * exp( w / func.eps ) * func.eps * _r_polynomials_integration( coeffs, TF( 1 ) / sqrt( func.eps ) );
 }
 
 //template<class Pc>
@@ -1579,7 +1606,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::ExpWmR2db<TF> 
 //}
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::Unit, TF /*w*/ ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &, TF /*w*/ ) const {
     //    // nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function Unit --end-log-scale 100 --precision 1e-10 -r 100 -l 100
     //    if ( _cuts.empty() )
     //        return _sphere_radius > 0 ? 2 * pi() * 0.5 * pow( _sphere_radius, 2 ) : 0;
@@ -1629,11 +1656,11 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::Unit, TF /*w*/
                 res += _arc_area( point( i0 ), point( i1 ) );
     }
 
-    return res;
+    return sf.coeff * res;
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &arf, TF w ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Arfd &arf, TF w ) const {
     using std::atan2;
     using std::sqrt;
     using std::pow;
@@ -1822,22 +1849,22 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arfd &ar
     if ( arf.inp_scaling )
         res /= inp_scaling * inp_scaling;
 
-    return res;
+    return sf.coeff * res;
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration( const FunctionEnum::Arf &/*arf*/, TF /*w*/ ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Arf &/*arf*/, TF /*w*/ ) const {
     TODO;
     return 0;
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::WmR2, TF w ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::WmR2 &, TF w ) const {
     using std::pow;
 
     // hand coded version
     if ( nb_points() == 0 )
-        return sphere_radius > 0 ? pi() * pow( sphere_radius, 2 ) * ( w - pow( sphere_radius, 2 ) / 2 ) : 0;
+        return sphere_radius > 0 ? sf.coeff * pi() * pow( sphere_radius, 2 ) * ( w - pow( sphere_radius, 2 ) / 2 ) : 0;
 
     // hand coded version
     auto arc_val = [&]( Pt P0, Pt P1 ) {
@@ -1874,16 +1901,16 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::WmR2, TF w ) c
         else
             res += seg_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
     }
-    return res;
+    return sf.coeff * res;
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R2, TF /*w*/ ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R2 &, TF /*w*/ ) const {
     using std::pow;
 
     // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function R2 --end-log-scale 100 --precision 1e-10 -r 100 -l 100
     if ( nb_points() == 0 )
-        return sphere_radius > 0 ? TF( 1 ) / 2 * pi() * pow( sphere_radius, 4 ) : 0;
+        return sphere_radius > 0 ? sf.coeff * TF( 1 ) / 2 * pi() * pow( sphere_radius, 4 ) : 0;
 
     auto arc_val = []( Pt P0, Pt P1 ) {
         using std::atan2;
@@ -1918,16 +1945,16 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R2, TF /*w*/ )
         else
             res += seg_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
     }
-    return res;
+    return sf.coeff * res;
 }
 
 template<class Pc>
-typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R4, TF /*w*/ ) const {
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R4 &, TF /*w*/ ) const {
     using std::pow;
 
     // generated using nsmake run -g3 src/PowerDiagram/offline_integration/gen_approx_integration.cpp --function R4 --end-log-scale 100 --precision 1e-10 -r 100 -l 100
     if ( nb_points() == 0 )
-        return sphere_radius > 0 ? 2 * pi() / 6 * pow( sphere_radius, 6 ) : 0;
+        return sphere_radius > 0 ? sf.coeff * 2 * pi() / 6 * pow( sphere_radius, 6 ) : 0;
 
     auto arc_val = []( Pt P0, Pt P1 ) {
         using std::atan2;
@@ -1965,12 +1992,51 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( FunctionEnum::R4, TF /*w*/ )
         else
             res += seg_val( point( i0 ) - sphere_center, point( i1 ) - sphere_center );
     }
-    return res;
+    return sf.coeff * res;
 }
 
 template<class Pc>
-typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration( SpaceFunctions::Constant<TF> cst ) const {
-    return integration( FunctionEnum::Unit() ) * cst.coeff;
+typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Polynomial<TF,6> &pol, const FunctionEnum::Unit &/*f*/, TF weight ) const {
+    // hand coded version:
+    if ( nb_points() == 0 )
+        TODO;
+
+    // triangles
+    TF res = 0;
+    Pt A = point( 0 );
+    for( size_t i = 2; i < nb_points(); ++i ) {
+        Pt B = point( i - 1 );
+        Pt C = point( i - 0 );
+
+        TF R_0 = pol.coeffs[ 5 ]; TF R_1 = pol.coeffs[ 2 ]; TF R_2 = pol.coeffs[ 0 ]; R_2 = 0.5*R_2;
+        TF R_3 = B.y; TF R_4 = A.y; TF R_5 = (-1.0)*R_4; R_5 = R_3+R_5;
+        TF R_6 = pow(R_5,2); R_6 = R_0*R_6; R_6 = (1.0/48.0)*R_6; R_3 = R_4+R_3;
+        R_4 = -0.5*R_3; R_3 = 0.25*R_3; TF R_7 = C.y; R_4 = R_7+R_4;
+        TF R_8 = pow(R_4,2); R_8 = R_0*R_8; R_8 = (1.0/24.0)*R_8; R_7 = 0.5*R_7;
+        R_3 = R_7+R_3; R_0 = R_0*R_3; R_7 = 2.0*R_0; R_7 = R_1+R_7;
+        R_7 = R_4*R_7; R_7 = (-1.0/12.0)*R_7; R_0 = R_1+R_0; R_0 = R_3*R_0;
+        R_0 = 0.5*R_0; R_1 = pol.coeffs[ 4 ]; R_4 = R_1*R_4; R_5 = R_1*R_5;
+        R_3 = R_1*R_3; R_1 = pol.coeffs[ 1 ]; R_3 = R_1+R_3; R_1 = pol.coeffs[ 3 ];
+        TF R_9 = B.x; TF R_10 = A.x; TF R_11 = (-1.0)*R_10; R_11 = R_9+R_11;
+        TF R_12 = R_1*R_11; R_12 = R_5+R_12; R_12 = R_11*R_12; R_12 = (1.0/48.0)*R_12;
+        R_9 = R_10+R_9; R_10 = -0.5*R_9; R_9 = 0.25*R_9; R_11 = C.x;
+        R_10 = R_11+R_10; R_5 = R_1*R_10; R_5 = R_4+R_5; R_4 = R_5*R_10;
+        R_4 = (1.0/24.0)*R_4; R_11 = 0.5*R_11; R_9 = R_11+R_9; R_5 = R_5*R_9;
+        R_5 = (-1.0/12.0)*R_5; R_1 = R_1*R_9; R_3 = R_1+R_3; R_10 = R_10*R_3;
+        R_10 = (-1.0/12.0)*R_10; R_3 = R_9*R_3; R_3 = 0.5*R_3; R_2 = R_3+R_2;
+        R_0 = R_2+R_0; R_6 = R_0+R_6; R_12 = R_6+R_12; R_4 = R_12+R_4;
+        R_8 = R_4+R_8; R_5 = R_8+R_5; R_10 = R_5+R_10; R_7 = R_10+R_7;
+
+        res += R_7 * ( A.x * ( B.y - C.y ) + B.x * ( C.y - A.y ) + C.x * ( A.y - B.y ) );
+    }
+
+    // arcs
+    if ( allow_ball_cut )
+        for( size_t i0 = nb_points() - 1, i1 = 0; i1 < nb_points(); i0 = i1++ )
+            if ( arcs[ i0 ] )
+                TODO;
+
+    return res;
 }
 
 template<class Pc> template<class FU>

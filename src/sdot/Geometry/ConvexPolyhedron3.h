@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Support/PoolWithActiveAndInactiveItems.h"
-#include "../Integration/SpaceFunctions/Constant.h"
+#include "../Integration/SpaceFunctions/Polynomial.h"
 #include "../Integration/FunctionEnum.h"
 #include "../Display/VtkOutput.h"
 #include "Internal/Cp3Face.h"
@@ -26,98 +26,104 @@ namespace sdot {
 template<class Pc>
 class ConvexPolyhedron3 {
 public:
-    static constexpr bool   keep_min_max_coords      = false;
-    static constexpr bool   allow_ball_cut           = Pc::allow_ball_cut;
-    static constexpr int    dim                      = 3;
+    static constexpr bool   keep_min_max_coords       = false;
+    static constexpr bool   allow_ball_cut            = Pc::allow_ball_cut;
+    static constexpr int    dim                       = 3;
 
-    using                   Node                     = Cp3Node<Pc>;
-    using                   Edge                     = Cp3Edge<Pc>;
-    using                   Face                     = Cp3Face<Pc>;
-    using                   Hole                     = Cp3Hole<Pc>;
+    using                   Node                      = Cp3Node<Pc>;
+    using                   Edge                      = Cp3Edge<Pc>;
+    using                   Face                      = Cp3Face<Pc>;
+    using                   Hole                      = Cp3Hole<Pc>;
 
-    using                   FaceList                 = PoolWithActiveAndInactiveItems<Face>;
-    using                   HoleList                 = PoolWithActiveAndInactiveItems<Hole>;
-    using                   NodeList                 = PoolWithActiveAndInactiveItems<Node>;
-    using                   EdgeList                 = PoolWithInactiveItems<Edge>;
+    using                   FaceList                  = PoolWithActiveAndInactiveItems<Face>;
+    using                   HoleList                  = PoolWithActiveAndInactiveItems<Hole>;
+    using                   NodeList                  = PoolWithActiveAndInactiveItems<Node>;
+    using                   EdgeList                  = PoolWithInactiveItems<Edge>;
 
-    using                   TF                       = typename Face::TF; ///< floating point type
-    using                   TI                       = typename Face::TI; ///< index type
-    using                   CI                       = typename Face::TI; ///< cut info
-    using                   Pt                       = typename Face::Pt; ///< point
+    using                   TF                        = typename Face::TF; ///< floating point type
+    using                   TI                        = typename Face::TI; ///< index type
+    using                   CI                        = typename Face::TI; ///< cut info
+    using                   Pt                        = typename Face::Pt; ///< point
 
-    struct                  BoundaryItem             {};
+    struct                  BoundaryItem              {};
 
-    struct                  Tetra                    { Pt p0, p1, p2, p3; };
-    struct                  Box                      { Pt p0, p1; };
+    struct                  Tetra                     { Pt p0, p1, p2, p3; };
+    struct                  Box                       { Pt p0, p1; };
 
     /// we start from a tetrahedron that includes the sphere defined by sphere_center and sphere_radius... but this sphere is not used
-    /**/                    ConvexPolyhedron3        ( const Tetra &tetra, CI cut_id = {} );
-    /**/                    ConvexPolyhedron3        ( const Box &box = { { 0, 0, 0 }, { 1, 1, 1 } }, CI cut_id = {} );
-    /**/                    ConvexPolyhedron3        ( const ConvexPolyhedron3 &cp ) = delete;
-    /**/                    ConvexPolyhedron3        ( ConvexPolyhedron3 &&cp );
+    /**/                    ConvexPolyhedron3         ( const Tetra &tetra, CI cut_id = {} );
+    /**/                    ConvexPolyhedron3         ( const Box &box = { { 0, 0, 0 }, { 1, 1, 1 } }, CI cut_id = {} );
+    /**/                    ConvexPolyhedron3         ( const ConvexPolyhedron3 &cp ) = delete;
+    /**/                    ConvexPolyhedron3         ( ConvexPolyhedron3 &&cp );
 
-    void                    operator=                ( const ConvexPolyhedron3 &cp );
-    void                    operator=                ( ConvexPolyhedron3 &&cp );
+    void                    operator=                 ( const ConvexPolyhedron3 &cp );
+    void                    operator=                 ( ConvexPolyhedron3 &&cp );
 
     // display
-    void                    display_html_canvas      ( std::ostream &os, TF weight, bool ext = false ) const;
-    void                    write_to_stream          ( std::ostream &os ) const;
-    template<class V> void  display                  ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false ) const;
+    void                    display_html_canvas       ( std::ostream &os, TF weight, bool ext = false ) const;
+    void                    write_to_stream           ( std::ostream &os ) const;
+    template<class V> void  display                   ( V &vo, const typename V::CV &cell_data = {}, bool filled = true, TF max_ratio_area_error = 1e-1, bool display_tangents = false ) const;
 
     //
-    int                     is_a_ball                () const { return faces.empty() ? ( sphere_radius > 0 ? 1 : -1 ) : 0; } // 0 is not a ball. -1 if void, 1 if not void
-    TI                      nb_points                () const { return nodes.size(); }
+    int                     is_a_ball                 () const { return faces.empty() ? ( sphere_radius > 0 ? 1 : -1 ) : 0; } // 0 is not a ball. -1 if void, 1 if not void
+    TI                      nb_points                 () const { return nodes.size(); }
 
     // modifications
-    void                    intersect_with           ( const ConvexPolyhedron3 &cp );
-    template<int no> void   plane_cut                ( Pt origin, Pt normal, CI cut_id, N<no> normal_is_normalized ); ///< return true if effective cut
-    void                    plane_cut                ( Pt origin, Pt normal, CI cut_id = {} ) { plane_cut( origin, normal, cut_id, N<1>() ); }
-    void                    ball_cut                 ( Pt center, TF radius, CI cut_id = {} ); ///< beware: only one sphere cut is authorized, and it must be done after all the plane cuts.
-    void                    clear                    ( const Tetra &tetra, CI cut_id = {} );
-    void                    clear                    ( const Box &box, CI cut_id = {} );
+    void                    intersect_with            ( const ConvexPolyhedron3 &cp );
+    template<int no> void   plane_cut                 ( Pt origin, Pt normal, CI cut_id, N<no> normal_is_normalized ); ///< return true if effective cut
+    void                    plane_cut                 ( Pt origin, Pt normal, CI cut_id = {} ) { plane_cut( origin, normal, cut_id, N<1>() ); }
+    void                    ball_cut                  ( Pt center, TF radius, CI cut_id = {} ); ///< beware: only one sphere cut is authorized, and it must be done after all the plane cuts.
+    void                    clear                     ( const Tetra &tetra, CI cut_id = {} );
+    void                    clear                     ( const Box &box, CI cut_id = {} );
 
     // computations
-    void                    for_each_boundary_measure( const FunctionEnum::Arfd &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
-    void                    for_each_boundary_measure( FunctionEnum::ExpWmR2db<TF>, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
-    void                    for_each_boundary_measure( FunctionEnum::WmR2         , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
-    void                    for_each_boundary_measure( FunctionEnum::Unit         , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
-    void                    for_each_boundary_measure( FunctionEnum::R2           , const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    //    void                    for_each_boundary_measure( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF> &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
+    //    void                    for_each_boundary_measure( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd          &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
+    //    void                    for_each_boundary_measure( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2          &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
+    //    void                    for_each_boundary_measure( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit          &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
+    //    void                    for_each_boundary_measure( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2            &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
 
-    template<class F> void  for_each_boundary_item   ( const FunctionEnum::Arfd &r, const F &f, TF weight = 0 ) const { TODO; }
-    template<class F> void  for_each_boundary_item   ( FunctionEnum::ExpWmR2db<TF>, const F &f, TF weight = 0 ) const;
-    template<class F> void  for_each_boundary_item   ( FunctionEnum::WmR2         , const F &f, TF weight = 0 ) const;
-    template<class F> void  for_each_boundary_item   ( FunctionEnum::Unit         , const F &f, TF weight = 0 ) const;
-    template<class F> void  for_each_boundary_item   ( FunctionEnum::R2           , const F &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd          &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
+    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2          &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit          &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2            &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
 
-    template<class F> Node *find_node_maximizing     ( const F &f, bool return_node_only_if_true = true ) const; ///< f must return true to stop the search. It takes ( TF &value, Pt pos ) as parameters
-    void                    for_each_node            ( const std::function<void( Pt v )> &f ) const;
+    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &rf, const F &f, TF weight = 0 ) const;
+    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd          &rf, const F &f, TF weight = 0 ) const { TODO; }
+    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2          &rf, const F &f, TF weight = 0 ) const;
+    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit          &rf, const F &f, TF weight = 0 ) const;
+    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2            &rf, const F &f, TF weight = 0 ) const;
 
-    TF                      boundary_measure         ( FunctionEnum::Unit ) const;
-    Pt                      centroid                 ( FunctionEnum::Unit ) const;
+    template<class F> Node *find_node_maximizing      ( const F &f, bool return_node_only_if_true = true ) const; ///< f must return true to stop the search. It takes ( TF &value, Pt pos ) as parameters
+    void                    for_each_node             ( const std::function<void( Pt v )> &f ) const;
 
-    void                    add_centroid_contrib     ( Pt &ctd, TF &vol, const FunctionEnum::Arfd &r, SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const { TODO; }
-    void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::ExpWmR2db<TF>, SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
-    void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::WmR2         , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
-    void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::Unit         , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
-    void                    add_centroid_contrib     ( Pt &ctd, TF &vol, FunctionEnum::R2           , SpaceFunctions::Constant<TF> sf, TF weight = 0 ) const;
+    TF                      boundary_measure          ( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &rf ) const;
+    Pt                      centroid                  ( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &rf ) const;
 
-    Pt                      random_point             () const;
+    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &r, TF weight = 0 ) const;
+    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Arfd          &r, TF weight = 0 ) const { TODO; }
+    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::WmR2          &r, TF weight = 0 ) const;
+    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit          &r, TF weight = 0 ) const;
+    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R2            &r, TF weight = 0 ) const;
 
-    TF                      measure                  ( const FunctionEnum::Arfd &r, TF weight = 0 ) const { TODO; return 0; }
-    TF                      measure                  ( FunctionEnum::ExpWmR2db<TF>, TF weight = 0 ) const;
-    TF                      measure                  ( FunctionEnum::WmR2         , TF weight = 0 ) const;
-    TF                      measure                  ( FunctionEnum::Unit         , TF weight = 0 ) const;
-    TF                      measure                  ( FunctionEnum::R2           , TF weight = 0 ) const;
+    Pt                      random_point              () const;
 
-    template<class F> bool  all_pos                  ( const F &f ) const;
+    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &r, TF weight = 0 ) const;
+    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd          &r, TF weight = 0 ) const { TODO; return 0; }
+    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2          &r, TF weight = 0 ) const;
+    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit          &r, TF weight = 0 ) const;
+    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2            &r, TF weight = 0 ) const;
 
-    TF                      integration_der_wrt_weight( FunctionEnum::ExpWmR2db<TF>, TF weight ) const;
-    template<class FU> TF   integration_der_wrt_weight( const FU &, TF weight ) const;
+    template<class F> bool  all_pos                   ( const F &f ) const;
 
-    void                    add_centroid_contrib     ( Pt &ctd, TF &vol ) const { return add_centroid_contrib( ctd, vol, FunctionEnum::Unit(), SpaceFunctions::Constant<TF>{ 1.0 } ); }    
-    TF                      boundary_measure         ()                   const { return boundary_measure    ( FunctionEnum::Unit()           ); }
-    Pt                      centroid                 ()                   const { return centroid            ( FunctionEnum::Unit()           ); }
-    TF                      measure                  ()                   const { return measure             ( FunctionEnum::Unit()           ); }
+    TF                      integration_der_wrt_weight( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &r, TF weight ) const;
+    template<class FU> TF   integration_der_wrt_weight( const SpaceFunctions::Constant<TF>     &sf, const FU &r, TF weight ) const;
+
+    void                    add_centroid_contrib     ( Pt &ctd, TF &vol ) const { return add_centroid_contrib( ctd, vol, SpaceFunctions::Constant<TF>{ 1.0 }, FunctionEnum::Unit() ); }
+    TF                      boundary_measure         ()                   const { return boundary_measure( SpaceFunctions::Constant<TF>{ 1.0 }, FunctionEnum::Unit() ); }
+    Pt                      centroid                 ()                   const { return centroid( SpaceFunctions::Constant<TF>{ 1.0 }, FunctionEnum::Unit() ); }
+    TF                      measure                  ()                   const { return integration( SpaceFunctions::Constant<TF>{ 1.0 }, FunctionEnum::Unit() ); }
 
     // tests
     Pt                      min_position             () const;

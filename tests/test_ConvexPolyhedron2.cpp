@@ -316,6 +316,8 @@ TEST_CASE( "integration_only_lines" ) {
     using  TF = LC::TF;
     //    using  Pt = LC::Pt;
 
+    auto   sf = SpaceFunctions::Constant<TF>{ 1 };
+
     // box { 0, 0 }, { 2, 1 }
     LC icp( LC::Box{ { 0, 0 }, { 2, 1 } } );
     icp.sphere_center = { 0, 0 };
@@ -329,44 +331,44 @@ TEST_CASE( "integration_only_lines" ) {
     sph.ball_cut( { 4, 4 }, 2 );
  
     // Unit
-    CHECK( abs( icp.integration( FunctionEnum::Unit() )      - 2.0 ) < 1e-5 );
-    CHECK( abs( icp.centroid   ( FunctionEnum::Unit() )[ 0 ] - 1.0 ) < 1e-5 );
-    CHECK( abs( icp.centroid   ( FunctionEnum::Unit() )[ 1 ] - 0.5 ) < 1e-5 );
+    CHECK( abs( icp.measure ()      - 2.0 ) < 1e-5 );
+    CHECK( abs( icp.centroid()[ 0 ] - 1.0 ) < 1e-5 );
+    CHECK( abs( icp.centroid()[ 1 ] - 0.5 ) < 1e-5 );
     
-    CHECK( abs( scp.integration( FunctionEnum::Unit() )      - M_PI     ) < 1e-5 );
-    CHECK( abs( sph.integration( FunctionEnum::Unit() )      - M_PI * 4 ) < 1e-5 ); 
+    CHECK( abs( scp.measure ()      - M_PI     ) < 1e-5 );
+    CHECK( abs( sph.measure ()      - M_PI * 4 ) < 1e-5 );
 
     // Gaussian. With wolfram alpha: N[ Integrate[ Integrate[ Exp[ - x*x - y*y ], { x, 0, 2 } ], { y, 0, 1 } ] ]
     // N[ Integrate[ Integrate[ x * Exp[ - x*x - y*y ], { x, 0, 2 } ], { y, 0, 1 } ] ] / N[ Integrate[ Integrate[ Exp[ - x*x - y*y ], { x, 0, 2 } ], { y, 0, 1 } ] ]
-    CHECK( abs( icp.integration( FunctionEnum::ExpWmR2db<TF>{ 1 } )      - 0.6587596697261 ) < 1e-5 );
-    CHECK( abs( icp.centroid   ( FunctionEnum::ExpWmR2db<TF>{ 1 } )[ 0 ] - 0.5564590588759 ) < 1e-5 );
-    CHECK( abs( icp.centroid   ( FunctionEnum::ExpWmR2db<TF>{ 1 } )[ 1 ] - 0.423206        ) < 1e-5 );
+    CHECK( abs( icp.integration( sf, FunctionEnum::ExpWmR2db<TF>{ 1 } )      - 0.6587596697261 ) < 1e-5 );
+    CHECK( abs( icp.centroid   ( sf, FunctionEnum::ExpWmR2db<TF>{ 1 } )[ 0 ] - 0.5564590588759 ) < 1e-5 );
+    CHECK( abs( icp.centroid   ( sf, FunctionEnum::ExpWmR2db<TF>{ 1 } )[ 1 ] - 0.423206        ) < 1e-5 );
  
     // r^2. With wolfram alpha: Integrate[ Integrate[ x * ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ] / Integrate[ Integrate[ x * x + y * y, { x, 0, 2 } ], { y, 0, 1 } ]
-    CHECK( abs( icp.integration( FunctionEnum::R2() )   - 10.0 / 3.0 ) < 1e-5 );
-    // CHECK( abs( icp.centroid( FunctionEnum::R2() )[ 0 ] - 1.4        ) < 1e-5 );
-    // CHECK( abs( icp.centroid( FunctionEnum::R2() )[ 1 ] - 0.55       ) < 1e-5 );
+    CHECK( abs( icp.integration( sf, FunctionEnum::R2() )   - 10.0 / 3.0 ) < 1e-5 );
+    // CHECK( abs( icp.centroid( sf, FunctionEnum::R2() )[ 0 ] - 1.4        ) < 1e-5 );
+    // CHECK( abs( icp.centroid( sf, FunctionEnum::R2() )[ 1 ] - 0.55       ) < 1e-5 );
 
-    CHECK( abs( scp.integration( FunctionEnum::R2() ) - M_PI * 2 ) < 1e-5 );
-    CHECK( abs( sph.integration( FunctionEnum::R2() ) - M_PI * 8 ) < 1e-5 ); 
+    CHECK( abs( scp.integration( sf, FunctionEnum::R2() ) - M_PI * 2 ) < 1e-5 );
+    CHECK( abs( sph.integration( sf, FunctionEnum::R2() ) - M_PI * 8 ) < 1e-5 );
 
     // r^4. With wolfram alpha: Integrate[ Integrate[ ( x * x + y * y ) ^ 2, { x, 0, 2 } ], { y, 0, 1 } ]
-    CHECK( abs( icp.integration( FunctionEnum::R4() ) -  386.0 / 45.0 ) < 1e-5 );
+    CHECK( abs( icp.integration( sf, FunctionEnum::R4() ) -  386.0 / 45.0 ) < 1e-5 );
 
-    CHECK( abs( scp.integration( FunctionEnum::R4() ) - M_PI * 16 / 3 ) < 1e-5 );
-    CHECK( abs( sph.integration( FunctionEnum::R4() ) - M_PI * 64 / 3 ) < 1e-5 ); 
+    CHECK( abs( scp.integration( sf, FunctionEnum::R4() ) - M_PI * 16 / 3 ) < 1e-5 );
+    CHECK( abs( sph.integration( sf, FunctionEnum::R4() ) - M_PI * 64 / 3 ) < 1e-5 );
 
     // w - r^2. With wolfram alpha: Integrate[ Integrate[ 10 - ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ]
     // w = 10; Integrate[ Integrate[ x * ( 10 - ( x * x + y * y ) ), { x, 0, 2 } ], { y, 0, 1 } ] / Integrate[ Integrate[ 10 - ( x * x + y * y ), { x, 0, 2 } ], { y, 0, 1 } ]
-    CHECK( abs( icp.integration( FunctionEnum::WmR2(), 10 )      - 50.0 /  3.0 ) < 1e-5 );
-    CHECK( abs( icp.centroid   ( FunctionEnum::WmR2(), 10 )[ 0 ] - 23.0 / 25.0 ) < 1e-5 );
-    CHECK( abs( icp.centroid   ( FunctionEnum::WmR2(), 10 )[ 1 ] - 49.0 / 100. ) < 1e-5 );
+    CHECK( abs( icp.integration( sf, FunctionEnum::WmR2(), 10 )      - 50.0 /  3.0 ) < 1e-5 );
+    CHECK( abs( icp.centroid   ( sf, FunctionEnum::WmR2(), 10 )[ 0 ] - 23.0 / 25.0 ) < 1e-5 );
+    CHECK( abs( icp.centroid   ( sf, FunctionEnum::WmR2(), 10 )[ 1 ] - 49.0 / 100. ) < 1e-5 );
 
     //CHECK( abs( scp.integration( FunctionEnum::WmR2(),  4  - M_PI * 2 ) < 1e-5 );
     //CHECK( abs( sph.integration( FunctionEnum::WmR2(),  4  - M_PI * 8 ) < 1e-5 );
 
-    CHECK( abs( sph.centroid   ( FunctionEnum::WmR2(), 10 )[ 0 ] - 4 ) < 1e-5 );
-    CHECK( abs( sph.centroid   ( FunctionEnum::WmR2(), 10 )[ 1 ] - 4 ) < 1e-5 );
+    CHECK( abs( sph.centroid   ( sf, FunctionEnum::WmR2(), 10 )[ 0 ] - 4 ) < 1e-5 );
+    CHECK( abs( sph.centroid   ( sf, FunctionEnum::WmR2(), 10 )[ 1 ] - 4 ) < 1e-5 );
 
     /* 
         Integrate[ Integrate[ x * ( 4 - ( x * x + y * y ) ) * UnitStep[ 2^2 - x^2 - y^2 ] , { x, 0, 3 } ], { y, 0, 3 } ]
@@ -374,8 +376,8 @@ TEST_CASE( "integration_only_lines" ) {
         Integrate[ Integrate[ ( 4 - ( x * x + y * y ) ) * UnitStep[ 2^2 - x^2 - y^2 ] , { x, 0, 3 } ], { y, 0, 3 } ]
           => 2 * Pi
     */
-    CHECK( abs( scp.centroid( FunctionEnum::WmR2(), 4 )[ 0 ] - 32.0 / 15.0 / M_PI ) < 1e-5 );
-    CHECK( abs( scp.centroid( FunctionEnum::WmR2(), 4 )[ 1 ] - 32.0 / 15.0 / M_PI ) < 1e-5 );
+    CHECK( abs( scp.centroid   ( sf, FunctionEnum::WmR2(), 4 )[ 0 ] - 32.0 / 15.0 / M_PI ) < 1e-5 );
+    CHECK( abs( scp.centroid   ( sf, FunctionEnum::WmR2(), 4 )[ 1 ] - 32.0 / 15.0 / M_PI ) < 1e-5 );
 }
 
 //TEST_CASE( PowerDiagram::ConvexPolyhedron2, integration_line_and_disc ) {

@@ -19,7 +19,7 @@ void get_distances_from_boundaries( TF *res, const Pt *points, std::size_t nb_po
         d.resize( nb_points, std::numeric_limits<TF>::max() );
 
     grid.for_each_laguerre_cell( [&]( auto &lc, auto /*num_dirac*/, int num_thread ) {
-        bounds.for_each_intersection( lc, [&]( auto &cp, SpaceFunctions::Constant<TF> /*space_func*/ ) {
+        bounds.for_each_intersection( lc, [&]( auto &cp, const auto &/*space_func*/ ) {
             for( std::size_t n = 0; n < nb_points; ++n )
                 distances[ num_thread ][ n ] = min( distances[ num_thread ][ n ], cp.distance( points[ n ], count_domain_boundaries ) );
         } );

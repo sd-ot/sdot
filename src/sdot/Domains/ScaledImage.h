@@ -21,7 +21,7 @@ public:
     using                  CP                         = typename std::conditional<dim==3,CP3,CP2>::type;
     using                  Pt                         = typename CP::Pt;
 
-    /**/                   ScaledImage                ( Pt min_pt = {}, Pt max_pt = {}, const TF *data = 0, std::array<TI,dim> sizes = {} );
+    /**/                   ScaledImage                ( Pt min_pt = {}, Pt max_pt = {}, const TF *data = 0, std::array<TI,dim> sizes = {}, TI nb_coeffs = 1 );
 
     // info
     const CP&              englobing_convex_polyhedron() const;
@@ -33,11 +33,11 @@ public:
     TI                     nb_pixels                  () const;
     TF                     measure                    () const;
 
-    TF                     coeff_at                   ( const Pt &pos ) const;
+    TF                     coeff_at                   ( const Pt &pos, TI num_coeff = 0 ) const;
 
-    //
 private:
     CP                     englobing_polyheron;
+    TI                     nb_coeffs;
     Pt                     min_pt;
     Pt                     max_pt;
     std::array<TI,dim>     sizes;

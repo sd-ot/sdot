@@ -49,10 +49,10 @@ int get_der_integrals_wrt_weights( std::vector<TI> &m_offsets, std::vector<TI> &
         dpt.row_items.resize( 0 );
         Pt d0_center = positions[ num_dirac_0 ];
         TF d0_weight = weights[ num_dirac_0 ];
-        bounds.for_each_intersection( lc, [&]( auto &cp, SpaceFunctions::Constant<TF> space_func ) {
-            TF coeff = 0.5 * space_func.coeff;
-            v_values[ num_dirac_0 ] += space_func.coeff * cp.measure( radial_func.func_for_final_cp_integration(), d0_weight );
-            cp.for_each_boundary_measure( radial_func.func_for_final_cp_integration(), [&]( TF boundary_measure, TI num_dirac_1 ) {
+        bounds.for_each_intersection( lc, [&]( auto &cp, const auto &space_func ) {
+            TF coeff = 0.5;
+            v_values[ num_dirac_0 ] += cp.integration( space_func, radial_func.func_for_final_cp_integration(), d0_weight );
+            cp.for_each_boundary_measure( space_func, radial_func.func_for_final_cp_integration(), [&]( TF boundary_measure, TI num_dirac_1 ) {
                 if ( num_dirac_1 == TI( -1 ) )
                     return;
                 if ( num_dirac_0 == num_dirac_1 ) {
@@ -71,7 +71,7 @@ int get_der_integrals_wrt_weights( std::vector<TI> &m_offsets, std::vector<TI> &
                 }
             }, weights[ num_dirac_0 ] );
 
-            der_0 += cp.integration_der_wrt_weight( radial_func.func_for_final_cp_integration(), d0_weight );
+            der_0 += cp.integration_der_wrt_weight( space_func, radial_func.func_for_final_cp_integration(), d0_weight );
         } );
         dpt.row_items.emplace_back( num_dirac_0, der_0 );
         std::sort( dpt.row_items.begin(), dpt.row_items.end() );

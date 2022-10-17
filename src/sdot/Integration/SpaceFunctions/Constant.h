@@ -8,6 +8,8 @@ namespace SpaceFunctions {
 template<class TF>
 class Constant {
 public:
+    operator bool() const { return coeff; }
+
     TF coeff;
 };
 

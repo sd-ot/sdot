@@ -27,7 +27,7 @@ void get_image_integrals( TF *res, Grid &grid, Bounds &bounds, const Pt *positio
 
     grid.for_each_laguerre_cell( [&]( auto &lc, auto num_dirac, int num_thread ) {
         TF *ptr_res = tmp_res.data() + n * ( dim + 1 ) * num_thread;
-        bounds.for_each_intersection( lc, [&]( auto &cp, SpaceFunctions::Constant<TF> space_func ) {
+        bounds.for_each_intersection( lc, [&]( auto &cp, const auto &space_func ) {
             using CP = typename Grid::CP;
 
             // find min_y, max_y
@@ -61,7 +61,7 @@ void get_image_integrals( TF *res, Grid &grid, Bounds &bounds, const Pt *positio
                 ccp = { typename CP::Box{ min_pt + ps * ( pf + TF( 0 ) ), min_pt + ps * ( pf + TF( 1 ) ) }, typename CP::CI( -1 ) };
                 ccp.intersect_with( cp );
 
-                TF m = space_func.coeff * ccp.measure( radial_func.func_for_final_cp_integration(), weights[ num_dirac ] );
+                TF m = ccp.integration( space_func, radial_func.func_for_final_cp_integration(), weights[ num_dirac ] );
                 for( std::size_t d = 0; d < dim; ++d )
                     ptr_res[ off_pix + d ] += m * positions[ num_dirac ][ d ];
                 ptr_res[ off_pix + dim ] += m;
