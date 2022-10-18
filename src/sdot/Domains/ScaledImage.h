@@ -8,6 +8,8 @@ namespace sdot {
 
 /**
   Currently, only support constant coeffs per polyhedron
+
+  Rk: in pybind11 wraper, we have `sizes[ d ] = img.shape( img.ndim() - 1 - d );`, meaning that point[ 0 ] -> x, point[ 1 ] -> y, ...
 */
 template<class Pc>
 class ScaledImage {
@@ -33,7 +35,7 @@ public:
     TI                     nb_pixels                  () const;
     TF                     measure                    () const;
 
-    TF                     coeff_at                   ( const Pt &pos, TI num_coeff = 0 ) const;
+    TF                     coeff_at                   ( const Pt &pos ) const;
 
 private:
     CP                     englobing_polyheron;

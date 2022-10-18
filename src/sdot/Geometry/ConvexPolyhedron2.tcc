@@ -122,7 +122,38 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Polyno
 
 template<class Pc>
 void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight ) const {
-    TODO;
+    if ( nb_points() == 0 ) {
+        if ( sphere_radius > 0 )
+            TODO;
+        return;
+    }
+
+    for( size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
+        BoundaryItem item;
+        item.id = cut_ids[ i0 ];
+        item.points[ 0 ] = point( i0 );
+        item.points[ 1 ] = point( i1 );
+
+        if ( allow_ball_cut && arcs[ i0 ] ) {
+            TODO;
+        } else {
+            TF R_0 = sf.coeffs[ 5 ]; TF R_1 = sf.coeffs[ 2 ]; TF R_2 = sf.coeffs[ 4 ]; TF R_3 = sf.coeffs[ 3 ];
+            TF R_4 = sf.coeffs[ 1 ]; TF R_5 = sf.coeffs[ 0 ]; TF R_6 = point( i0 ).y; TF R_7 = (-1.0)*R_6;
+            TF R_8 = point( i1 ).y; R_6 = R_6+R_8; TF R_9 = R_0*R_6; R_9 = 0.5*R_9;
+            R_9 = R_1+R_9; R_9 = R_6*R_9; R_6 = R_2*R_6; R_7 = R_8+R_7;
+            R_2 = R_2*R_7; R_7 = pow(R_7,2); R_0 = R_0*R_7; R_8 = point( i0 ).x;
+            R_1 = (-1.0)*R_8; TF R_10 = point( i1 ).x; R_8 = R_8+R_10; TF R_11 = R_3*R_8;
+            R_6 = R_11+R_6; R_6 = 0.5*R_6; R_6 = R_4+R_6; R_6 = R_8*R_6;
+            R_9 = R_6+R_9; R_9 = 0.5*R_9; R_9 = R_5+R_9; R_1 = R_10+R_1;
+            R_3 = R_3*R_1; R_3 = R_2+R_3; R_3 = R_3*R_1; R_0 = R_3+R_0;
+            R_1 = pow(R_1,2); R_7 = R_1+R_7; R_7 = sqrt(R_7); R_0 = R_7*R_0;
+            R_0 = (1.0/12.0)*R_0; R_9 = R_7*R_9; R_0 = R_9+R_0;
+
+            item.measure = R_0;
+        }
+
+        cb( item );
+    }
 }
 
 template<class Pc>
@@ -382,6 +413,10 @@ void ConvexPolyhedron2<Pc>::write_to_stream( std::ostream &os ) const {
     os << "cuts: [";
     for( std::size_t i = 0; i < nb_points(); ++i )
         os << ( i ? "," : "" ) << "(" << point( i ) << ")";
+    os << "]";
+    os << " cids: [";
+    for( std::size_t i = 0; i < nb_points(); ++i )
+        os << ( i ? "," : "" ) << "(" << cut_ids[ i ] << ")";
     os << "]";
     if ( store_the_normals ) {
         os << " nrms: [";

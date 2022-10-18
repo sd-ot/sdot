@@ -49,5 +49,73 @@ def integration( nb_coeffs )
     stdout <<< "-------------"
     stdout << cw_c.to_string( 4 )
 
-integration( 1 )
-integration( 6 )
+
+def meas( nb_coeffs )
+    info nb_coeffs
+
+    x := symbol( "x" )
+    y := symbol( "y" )
+
+    u := symbol( "u" )
+    v := symbol( "v" )
+
+    dx := symbol( "dx" )
+    dy := symbol( "dy" )
+
+    P := [ x + u, y + v ]
+
+    coeffs := Vec[ Op, nb_coeffs ]( x => symbol( "data[ nb_pixels() * $x + o ]" ) )
+
+    val := coeffs[ 0 ]
+    if nb_coeffs >= 2
+        val += coeffs[ 1 ] * P[ 0 ]
+        val += coeffs[ 2 ] * P[ 1 ]
+    if nb_coeffs >= 6
+        val += coeffs[ 3 ] * P[ 0 ] * P[ 0 ]
+        val += coeffs[ 4 ] * P[ 0 ] * P[ 1 ]
+        val += coeffs[ 5 ] * P[ 1 ] * P[ 1 ]
+
+    r_0 := polynomial_integration( val, u, 0, dx, deg_poly_max = 20 )
+    r_0  = polynomial_integration( r_0, v, 0, dy, deg_poly_max = 20 )
+
+    r_1 := polynomial_integration( Op( 1 ), u, 0, dx, deg_poly_max = 20 )
+    r_1  = polynomial_integration( r_1, v, 0, dy, deg_poly_max = 20 )
+
+    cw_i := CodeWriter( "TF" )
+    cw_i.add( "res", r_0 / r_1, add )
+    stdout << cw_i.to_string( 4 )
+
+def meas_line( nb_coeffs )
+    info nb_coeffs
+
+    A := Vec[ Op ]( [ symbol( "point( i0 ).x" ), symbol( "point( i0 ).y" ) ] )
+    B := Vec[ Op ]( [ symbol( "point( i1 ).x" ), symbol( "point( i1 ).y" ) ] )
+
+    u := symbol( "u" )
+
+    P := ( 1 - u ) * A + u * B
+
+    coeffs := Vec[ Op, nb_coeffs ]( x => symbol( "sf.coeffs[ $x ]" ) )
+
+    val := coeffs[ 0 ]
+    if nb_coeffs >= 2
+        val += coeffs[ 1 ] * P[ 0 ]
+        val += coeffs[ 2 ] * P[ 1 ]
+    if nb_coeffs >= 6
+        val += coeffs[ 3 ] * P[ 0 ] * P[ 0 ]
+        val += coeffs[ 4 ] * P[ 0 ] * P[ 1 ]
+        val += coeffs[ 5 ] * P[ 1 ] * P[ 1 ]
+
+    val *= norm_2( P.diff( u ) )
+
+    val = polynomial_integration( val, u, 0, 1 )
+
+    cw_i := CodeWriter( "TF" )
+    cw_i.add( "item.measure", val, reassign )
+    stdout << cw_i.to_string( 4 )
+
+#integration( 1 )
+#integration( 6 )
+# meas( 6 )
+meas_line( 1 )
+meas_line( 6 )
