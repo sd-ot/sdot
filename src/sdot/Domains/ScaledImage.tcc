@@ -111,9 +111,13 @@ void ScaledImage<Pc>::for_each_intersection( CP &cp, const F &f ) const {
     std::array<TI,dim> max_i;
     Pt min_pos = cp.min_position();
     Pt max_pos = cp.max_position();
+
     for( std::size_t d = 0; d < dim; ++d ) {
-        min_i[ d ] = ( min_pos[ d ] - min_pt[ d ] ) * sizes[ d ] / ( max_pt[ d ] - min_pt[ d ] );
-        max_i[ d ] = ( max_pos[ d ] - min_pt[ d ] ) * sizes[ d ] / ( max_pt[ d ] - min_pt[ d ] );
+        TF mi = max( min_pos[ d ], min_pt[ d ] );
+        TF ma = min( max_pos[ d ], max_pt[ d ] );
+
+        min_i[ d ] = ( mi - min_pt[ d ] ) * sizes[ d ] / ( max_pt[ d ] - min_pt[ d ] );
+        max_i[ d ] = ( ma - min_pt[ d ] ) * sizes[ d ] / ( max_pt[ d ] - min_pt[ d ] );
         min_i[ d ] = max( TI( 1 ), min_i[ d ] ) - 1;
         max_i[ d ] = min( sizes[ d ], max_i[ d ] + 2 );
         ps[ d ] = ( max_pt[ d ] - min_pt[ d ] ) / sizes[ d ];
