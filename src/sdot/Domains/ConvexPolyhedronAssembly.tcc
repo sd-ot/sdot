@@ -33,7 +33,7 @@ void ConvexPolyhedronAssembly<Pc>::add_convex_polyhedron( const std::vector<Pt> 
 }
 
 template<class Pc>
-void ConvexPolyhedronAssembly<Pc>::add_box( Pt p0, Pt p1, TF coeff, TI cut_id ) {
+void ConvexPolyhedronAssembly<Pc>::add_box( Pt p0, Pt p1, TF coeff, CI cut_id ) {
     englobing_polyheron_is_up_to_date = false;
 
     items.push_back( { { typename CP::Box{ p0, p1 }, cut_id }, coeff } );

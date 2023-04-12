@@ -4,8 +4,8 @@
 #include "CbString.h"
 #include "CmString.h"
 #include "CbQueue.h"
-#include "CmQueue.h"
-#include "CfQueue.h"
+#include "CmQueue.h" // IWYU pragma: export
+#include "CfQueue.h" // IWYU pragma: export
 #include <string.h>
 #include <vector>
 #include <array>
@@ -590,7 +590,7 @@ struct BinStream {
         operator CbString      () { return b->read_CbString(); }
         operator CmString      () { return b->read_CmString(); }
         operator std::string   () { return b->read_String  (); }
-        // operator DaSi          () { return b->read_DaSi    (); }
+        // operator DaSi       () { return b->read_DaSi    (); }
 
         operator Bool          () { return b->read_byte(); }
 
@@ -604,9 +604,9 @@ struct BinStream {
         operator SI32          () { return b->read_signed(); }
         operator SI64          () { return b->read_signed(); }
 
-        #ifdef __llvm__
-        operator unsigned long () { return b->read_unsigned(); }
-        #endif
+        // #ifdef __llvm__
+        // operator unsigned long () { return b->read_unsigned(); }
+        // #endif
 
         operator FP32          () { FP32 val = 0; b->read_some( &val, sizeof( val ) ); return val; }
         operator FP64          () { FP64 val = 0; b->read_some( &val, sizeof( val ) ); return val; }
