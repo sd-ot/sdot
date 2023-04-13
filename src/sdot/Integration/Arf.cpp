@@ -98,7 +98,7 @@ void Arf::_append_approx( TF beg, TF end, std::size_t nb_points ) const {
         return;
     }
 
-    P( approx.beg, approx.end, approx.coeffs );
+    // P( approx.beg, approx.end, approx.coeffs );
     approximations.push_back( approx );
 }
 

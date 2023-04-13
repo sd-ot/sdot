@@ -105,5 +105,5 @@ private:
 
 } // namespace sdot
 
-#include "SpZGrid.tcc"
+#include "SpZGrid.tcc" // IWYU pragma: export
 

@@ -26,4 +26,4 @@ results/
 scripts/
 Untitled.*
 Untitled-checkpoint.*
-.qtc_clangd/
+.qtc_clangd

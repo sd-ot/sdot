@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../../Support/ThreadPool.h"
 #include "../../Support/BinStream.h"
 #include "../../Support/Mpi.h"
@@ -604,7 +606,7 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
                         #endif // WANT_STAT
                         for( TI num_in_ind_1 = box->beg_indices; num_in_ind_1 < box->end_indices; ++num_in_ind_1 ) {
                             TI num_dirac_1 = this->dirac_indices[ num_in_ind_1 ];
-                            if ( num_dirac_0 != num_dirac_1 )
+                            if ( num_dirac_0 != num_dirac_1 || num_sym >= 0 )
                                 plane_cut( lc, c0, w0, sym( positions[ num_dirac_1 ], num_sym ), weights[ num_dirac_1 ], num_dirac_1 );
                         }
                     } else if ( allow_mpi && box->ext_pwi.size() ) {

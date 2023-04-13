@@ -23,7 +23,7 @@ void VtkOutput<nb_cell_fields,TF>::save( std::ostream &os ) const {
     os << "DATASET UNSTRUCTURED_GRID\n";
 
     // POINTS
-    os << "POINTS " << _nb_vtk_points() << " float\n";
+    os << "POINTS " << _nb_vtk_points() << " double\n";
     for( Pt pt : _points )
         os << pt.p.x << " " << pt.p.y << " " << pt.p.z << "\n";
     for( Li li : _lines )
