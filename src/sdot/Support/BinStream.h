@@ -597,16 +597,17 @@ struct BinStream {
         operator PI8           () { return b->read_unsigned(); }
         operator PI16          () { return b->read_unsigned(); }
         operator PI32          () { return b->read_unsigned(); }
-        operator PI64          () { return b->read_unsigned(); }
+        // operator PI64       () { return b->read_unsigned(); }
+        operator unsigned long () { return b->read_unsigned(); } // HUM
 
         operator SI8           () { return b->read_signed(); }
         operator SI16          () { return b->read_signed(); }
         operator SI32          () { return b->read_signed(); }
         operator SI64          () { return b->read_signed(); }
 
-        #ifdef __llvm__
-        operator unsigned long () { return b->read_unsigned(); }
-        #endif
+        // #ifdef __llvm__
+        // operator unsigned long () { return b->read_unsigned(); }
+        // #endif
 
         operator FP32          () { FP32 val = 0; b->read_some( &val, sizeof( val ) ); return val; }
         operator FP64          () { FP64 val = 0; b->read_some( &val, sizeof( val ) ); return val; }
