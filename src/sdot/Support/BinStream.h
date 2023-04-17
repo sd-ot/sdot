@@ -604,9 +604,9 @@ struct BinStream {
         operator SI32          () { return b->read_signed(); }
         operator SI64          () { return b->read_signed(); }
 
-        // #ifdef __llvm__
-        // operator unsigned long () { return b->read_unsigned(); }
-        // #endif
+        #ifdef _MSC_VER
+        operator PI64          () { return b->read_unsigned(); }
+        #endif
 
         operator FP32          () { FP32 val = 0; b->read_some( &val, sizeof( val ) ); return val; }
         operator FP64          () { FP64 val = 0; b->read_some( &val, sizeof( val ) ); return val; }
