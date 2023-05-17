@@ -3,6 +3,7 @@
 #include <ostream>
 #include <array>
 #include <cmath>
+#include <tuple>
 
 namespace sdot {
 
@@ -20,6 +21,9 @@ struct Point3 {
     TF&                              operator[]     ( std::size_t d ) { return ( &x )[ d ]; }
     template<class Bq> static Point3 read_from      ( Bq &bq ) { return { TF( bq.read() ), TF( bq.read() ), TF( bq.read() ) }; }
     template<class Bq> void          write_to       ( Bq &bq ) const { bq << x << y << z; }
+
+    bool                             operator>      ( const Point3 &that ) const { return std::tie( x, y, z ) > std::tie( that.x, that.y, that.z ); }
+    bool                             operator<      ( const Point3 &that ) const { return std::tie( x, y, z ) < std::tie( that.x, that.y, that.z ); }
 
     TF                               x;
     TF                               y;

@@ -1,6 +1,9 @@
 #pragma once
 
 #include "StaticGenericListOfNumbers.h"
+#include "N.h"
+
+#include <tuple>
 
 /**
 */

@@ -142,27 +142,9 @@ bool ConvexPolyhedron3<Pc>::all_pos( const F &f ) const {
 
 template<class Pc>
 void ConvexPolyhedron3<Pc>::intersect_with( const ConvexPolyhedron3 &cp ) {
-    //    ASSERT( sphere_radius <= 0, "TODO: intersect ball cutted with ball cutted convex polyhedron" );
-    //    if ( cp._nb_points ) {
-    //        bool has_sphere_cut = false;
-    //        for( TI i = 0; i < cp._nb_points; ++i ) {
-    //            if ( cp.arcs[ i ] )
-    //                has_sphere_cut = true;
-    //            else
-    //                plane_cut( cp.point( i ), cp.normal( i ), cp.cut_ids[ i ] );
-    //        }
-
-    //        if ( has_sphere_cut )
-    //            ball_cut( cp.sphere_center, cp.sphere_radius, cp.sphere_cut_id );
-    //    } else {
-    //        if ( cp.sphere_radius > 0 ) {
-    //            ball_cut( cp.sphere_center, cp.sphere_radius, cp.sphere_cut_id );
-    //        } else {
-    //            sphere_radius = -1;
-    //            _nb_points = 0;
-    //        }
-    //    }
-    TODO;
+    ASSERT( sphere_radius < 0 && cp.sphere_radius < 0, "TODO: intersect ball cutted with ball cutted convex polyhedron" );
+    for( const Face &fp : cp.faces )
+        plane_cut( fp.cut_O, fp.cut_N, fp.cut_id );
 }
 
 template<class Pc>
@@ -929,6 +911,7 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::distance( const Pt &po
 template<class Pc>
 typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::min_position() const {
     Pt res{ + std::numeric_limits<TF>::max() };
+    using std::min;
     for( const Node &node : nodes )
         res = min( res, node.pos );
     return res;
@@ -937,6 +920,7 @@ typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::min_position() const {
 template<class Pc>
 typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::max_position() const {
     Pt res{ - std::numeric_limits<TF>::max() };
+    using std::max;
     for( const Node &node : nodes )
         res = max( res, node.pos );
     return res;

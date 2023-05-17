@@ -2,6 +2,7 @@
 #pragma once
 
 #include <ostream>
+#include <tuple>
 #include <array>
 #include <cmath>
 
@@ -21,6 +22,9 @@ struct Point2 {
     TF&                              operator[]     ( std::size_t d ) { return ( &x )[ d ]; }
     template<class Bq> static Point2 read_from      ( Bq &bq ) { return { TF( bq.read() ), TF( bq.read() ) }; }
     template<class Bq> void          write_to       ( Bq &bq ) const { bq << x << y; }
+
+    bool                             operator>      ( const Point2 &that ) const { return std::tie( x, y ) > std::tie( that.x, that.y ); }
+    bool                             operator<      ( const Point2 &that ) const { return std::tie( x, y ) < std::tie( that.x, that.y ); }
 
     TF                               x;
     TF                               y;

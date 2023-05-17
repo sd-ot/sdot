@@ -5,7 +5,7 @@
 
 #include "TypePromote.h"
 #include "StaticRange.h"
-#include "Array.h"
+#include "Array.h" // IWYU pragma: export
 #include "LN.h"
 
 namespace Internal {
