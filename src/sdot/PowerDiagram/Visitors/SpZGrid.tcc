@@ -607,7 +607,7 @@ int SpZGrid<Pc>::for_each_laguerre_cell( const std::function<void( CP &, TI num,
                         for( TI num_in_ind_1 = box->beg_indices; num_in_ind_1 < box->end_indices; ++num_in_ind_1 ) {
                             TI num_dirac_1 = this->dirac_indices[ num_in_ind_1 ];
                             if ( num_dirac_0 != num_dirac_1 || num_sym >= 0 )
-                                plane_cut( lc, c0, w0, sym( positions[ num_dirac_1 ], num_sym ), weights[ num_dirac_1 ], num_dirac_1 );
+                                plane_cut( lc, c0, w0, sym( positions[ num_dirac_1 ], num_sym ), weights[ num_dirac_1 ], num_dirac_1 + ( num_sym + 1 ) * nb_diracs );
                         }
                     } else if ( allow_mpi && box->ext_pwi.size() ) {
                         for( TI num_in_ext = 0; num_in_ext < box->ext_pwi.size(); ++num_in_ext )

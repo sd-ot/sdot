@@ -44,6 +44,9 @@ public:
 
     template<class V> void  display               ( V &vtk_output, TF z = 0 ) const; ///< for debug purpose
 
+    Pt                      inv_sym               ( Pt pt, int num_sym ) const { if ( allow_translations && num_sym >= 0 ) return pt - translations[ num_sym ]; return pt; };
+    Pt                      sym                   ( Pt pt, int num_sym ) const { if ( allow_translations && num_sym >= 0 ) return pt + translations[ num_sym ]; return pt; }
+
     // values used by update
     TI                      max_diracs_per_cell;
     int                     depth_initial_send;
@@ -94,8 +97,6 @@ private:
     bool                    can_be_evicted        ( CP &lc, Pt c0, TF w0, Box *box, int num_sym, std::vector<Node *> &front );
 
     template<class TA> TF   w_approx              ( const TA &c, Pt x ) const;
-    Pt                      inv_sym               ( Pt pt, int num_sym ) const { if ( allow_translations && num_sym >= 0 ) return pt - translations[ num_sym ]; return pt; };
-    Pt                      sym                   ( Pt pt, int num_sym ) const { if ( allow_translations && num_sym >= 0 ) return pt + translations[ num_sym ]; return pt; }
 
     std::vector<TI>         dirac_indices;
     std::vector<Neighbor>   neighbors;

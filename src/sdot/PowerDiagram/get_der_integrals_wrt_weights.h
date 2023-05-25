@@ -58,10 +58,10 @@ int get_der_integrals_wrt_weights( std::vector<TI> &m_offsets, std::vector<TI> &
                 if ( num_dirac_0 == num_dirac_1 ) {
                     der_0 += coeff * boundary_measure / sqrt( d0_weight );
                 } else {
-                    TI m_num_dirac_1 = num_dirac_1 % nb_diracs;
-                    Pt d1_center = positions[ m_num_dirac_1 ];
-                    if ( std::size_t nu = num_dirac_1 / nb_diracs )
-                        TODO; // d1_center = transformation( _tranformations[ nu - 1 ], d1_center );
+                    TI m_num_dirac_1 = num_dirac_1 % nb_diracs, d_num_dirac_1 = num_dirac_1 / nb_diracs;
+                    Pt d1_center = grid.sym( positions[ m_num_dirac_1 ], int( d_num_dirac_1 ) - 1 );
+                    //if ( std::size_t nu = num_dirac_1 / nb_diracs )
+                    //    TODO; // d1_center = transformation( _tranformations[ nu - 1 ], d1_center );
 
                     if ( TF dist = norm_2( d0_center - d1_center ) ) {
                         TF b_der = coeff * boundary_measure / dist;
