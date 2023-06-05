@@ -163,7 +163,7 @@ void SpZGrid<Pc>::update_box( const Pt *positions, const TF *weights, Box *box, 
 
     // recursion
     box->last_child = nullptr;
-    if ( end_indices - beg_indices > max_diracs_per_cell ) {
+    if ( depth < 14 && end_indices - beg_indices > max_diracs_per_cell ) {
         for( TI n = 0; n < nb_ch; ++n ) {
             TI beg = n ? sb_beg[ n - 1 ] : beg_indices;
             TI end = sb_beg[ n ];
