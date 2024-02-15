@@ -993,10 +993,71 @@ typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration( const Spa
     return sf.coeff * res;
 }
 
+template<class Pc> template<class F>
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::gauss_integration( const F &func, int nb_gauss_points ) const {
+    using std::abs;
+
+    TF res = 0;
+    if ( ! holes.empty() )
+        TODO;
+
+    Pt A = TF( 0 );
+    for( const Node &node : nodes )
+        A += node.pos;
+    A /= TF( nodes.size() );
+
+    for( const Face &fp : faces ) {
+        if ( allow_ball_cut && fp.round )
+            TODO;
+
+        Pt B = TF( 0 );
+        for( const Edge &edge : fp.edges )
+            B += edge.n0->pos + edge.n1->pos;
+        B /= TF( 2 * fp.edges.size() );
+
+        for( const Edge &ed : fp.edges ) {
+            const Pt &C = ed.n0->pos;
+            const Pt &D = ed.n1->pos;
+            Pt b = B - A;
+            Pt c = C - A;
+            Pt d = D - A;
+            TF det = abs(
+                b[ 0 ] * ( c[ 1 ] * d[ 2 ] - d[ 1 ] * c[ 2 ] ) +
+                c[ 0 ] * ( d[ 1 ] * b[ 2 ] - b[ 1 ] * d[ 2 ] ) +
+                d[ 0 ] * ( b[ 1 ] * c[ 2 ] - c[ 1 ] * b[ 2 ] )
+            ) / 6;
+
+            if ( nb_gauss_points <= 4 ) {
+                const TF e = 0.5854101966249685;
+                const TF f = 0.1381966011250105;
+                res += det / 4 * (
+                    func( f * A + e * B + e * C + e * D ) +
+                    func( e * A + f * B + e * C + e * D ) +
+                    func( e * A + e * B + f * C + e * D ) +
+                    func( e * A + e * B + e * C + f * D )
+                );
+            } else if ( nb_gauss_points <= 11 ) {
+                TF xa[] = { 0.2500000000000000, 0.7857142857142857, 0.0714285714285714, 0.0714285714285714, 0.0714285714285714, 0.1005964238332008, 0.3994035761667992, 0.3994035761667992, 0.3994035761667992, 0.1005964238332008, 0.1005964238332008 };
+                TF ya[] = { 0.2500000000000000, 0.0714285714285714, 0.0714285714285714, 0.0714285714285714, 0.7857142857142857, 0.3994035761667992, 0.1005964238332008, 0.3994035761667992, 0.1005964238332008, 0.3994035761667992, 0.1005964238332008 };
+                TF za[] = { 0.2500000000000000, 0.0714285714285714, 0.0714285714285714, 0.7857142857142857, 0.0714285714285714, 0.3994035761667992, 0.3994035761667992, 0.1005964238332008, 0.1005964238332008, 0.1005964238332008, 0.3994035761667992 };
+                TF wt[] = {-0.0789333333333333, 0.0457333333333333, 0.0457333333333333, 0.0457333333333333, 0.0457333333333333, 0.1493333333333333, 0.1493333333333333, 0.1493333333333333, 0.1493333333333333, 0.1493333333333333, 0.1493333333333333 };
+                for( int n = 0; n < 11; ++n ) {
+                    TF aa = 1 - xa[ n ] - ya[ n ] - za[ n ];
+                    res += det * wt[ n ] * func( aa * A + xa[ n ] * B + ya[ n ] * C + za[ n ] * D );
+                }
+            } else {
+                TODO;
+            }
+
+        }
+    }
+
+    return res;
+}
+
 template<class Pc>
 typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R2 &/*rf*/, TF weight ) const {
-    TODO;
-    return 0;
+    return sf.coeff * gauss_integration( [&]( const Pt &pt ) { return norm_2_p2( pt - sphere_center ); }, 11 );
 }
 
 template<class Pc>

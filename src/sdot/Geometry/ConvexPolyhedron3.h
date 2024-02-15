@@ -115,6 +115,8 @@ public:
     TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit          &r, TF weight = 0 ) const;
     TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2            &r, TF weight = 0 ) const;
 
+    template<class F> TF    gauss_integration         ( const F &f, int nb_gauss_points ) const;
+
     template<class F> bool  all_pos                   ( const F &f ) const;
 
     TF                      integration_der_wrt_weight( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &r, TF weight ) const;

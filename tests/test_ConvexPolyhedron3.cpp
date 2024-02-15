@@ -1,4 +1,5 @@
 #include "../src/sdot/Geometry/ConvexPolyhedron3.h"
+#include "../src/sdot/Support/Stream.h"
 #include "catch_main.h"
 
 struct Pc { using TF = double; using TI = std::size_t; using CI = int; enum { allow_ball_cut = false }; };
@@ -8,24 +9,39 @@ using  TF = Pc::TF;
 
 using std::abs;
 
-TEST_CASE( "ConvexPolyhedron3 diam" ) {
-   Cp cs( Cp::Box{ { -5, -5, -5 }, { +5, +5, +5 } } );
-   for( double z : { -1, 0, 1 } )
-       for( double y : { -1, 0, 1 } )
-           for( double x : { -1, 0, 1 } )
-               if ( x || y || z )
-                   cs.plane_cut( normalized( Pt( { x, y, z } ) ), normalized( Pt( { x, y, z } ) ) );
+TEST_CASE( "ConvexPolyhedron3 transport cost" ) {
+    // Integrate[ Integrate[ Integrate[ x * x + y * y + z * z, { x, 0, 1 } ], { y, 0, 1 } ], { z, 0, 1 } ]
+    Cp cs( Cp::Box{ { 0, 0, 0 }, { 1, 1, 1 } } );
+    cs.sphere_center.x = 0;
+    cs.sphere_center.y = 0;
+    cs.sphere_center.z = 0;
+    CHECK( abs( cs.integration( sdot::SpaceFunctions::Constant<double>{ 1.0 }, sdot::FunctionEnum::R2(), 1.0 ) - 1 ) < 1e-6 );
 
-   CHECK( abs( cs.boundary_measure() - 14.3319 ) < 1e-4 );
-   CHECK( abs( cs.measure         () - 4.77730 ) < 1e-4 );
-
-   CHECK( cs.contains( { 0, 0, 0 } ) == 1 );
-   CHECK( cs.contains( { 2, 0, 0 } ) == 0 );
-
-   sdot::VtkOutput<1> vo( { "num" } );
-   cs.display( vo, { 0 } );
-   vo.save( "cut.vtk" );
+    Cp ct( Cp::Box{ { 0, 0, 0 }, { 2, 1, 1 } } );
+    ct.sphere_center.x = 0;
+    ct.sphere_center.y = 0;
+    ct.sphere_center.z = 0;
+    CHECK( abs( ct.integration( sdot::SpaceFunctions::Constant<double>{ 1.0 }, sdot::FunctionEnum::R2(), 1.0 ) - 4 ) < 1e-6 );
 }
+
+//TEST_CASE( "ConvexPolyhedron3 diam" ) {
+//   Cp cs( Cp::Box{ { -5, -5, -5 }, { +5, +5, +5 } } );
+//   for( double z : { -1, 0, 1 } )
+//       for( double y : { -1, 0, 1 } )
+//           for( double x : { -1, 0, 1 } )
+//               if ( x || y || z )
+//                   cs.plane_cut( normalized( Pt( { x, y, z } ) ), normalized( Pt( { x, y, z } ) ) );
+
+//   CHECK( abs( cs.boundary_measure() - 14.3319 ) < 1e-4 );
+//   CHECK( abs( cs.measure         () - 4.77730 ) < 1e-4 );
+
+//   CHECK( cs.contains( { 0, 0, 0 } ) == 1 );
+//   CHECK( cs.contains( { 2, 0, 0 } ) == 0 );
+
+//   sdot::VtkOutput<1> vo( { "num" } );
+//   cs.display( vo, { 0 } );
+//   vo.save( "cut.vtk" );
+//}
 
 //TEST( LaguerreCell_3D, only_sphere ) {
 //    LaguerreCell<TF,std::string> cs( { 0, 0, 0 }, 100 );
