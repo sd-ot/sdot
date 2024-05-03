@@ -74,62 +74,63 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
 
                 // ball cut ---------------------------------
                 if ( num_dirac_0 == num_dirac_1 ) {
-                    // measure / weight
-                    TF R = sqrt( d0_weight );
-                    TF m = coeff * boundary_measure / R;
-                    der_0.back() += m;
+                    if constexpr ( dim == 2 ) {
+                        // measure / weight
+                        TF R = sqrt( d0_weight );
+                        TF m = coeff * boundary_measure / R;
+                        der_0.back() += m;
 
-                    if ( dim == 2 ) {
-                        // measure / position
-                        TF mx = R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) );
-                        TF my = R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) );
-                        if ( boundary_item.a0 < boundary_item.a1 ) {
-                            der_0[ nupd * dim + 0 ] += mx;
-                            der_0[ nupd * dim + 1 ] += my;
-                        }
+                        if ( dim == 2 ) {
+                            // measure / position
+                            TF mx = R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) );
+                            TF my = R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) );
+                            if ( boundary_item.a0 < boundary_item.a1 ) {
+                                der_0[ nupd * dim + 0 ] += mx;
+                                der_0[ nupd * dim + 1 ] += my;
+                            }
 
-                        // centroid / weight
-                        Pt T = m * d0_center;
-                        if ( boundary_item.a0 < boundary_item.a1 ) {
-                            T.x += coeff * R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) );
-                            T.y += coeff * R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) );
-                        }
-                        for( std::size_t e = 0; e < dim; ++e )
-                            der_0[ nupd * e + dim ] += T[ e ];
+                            // centroid / weight
+                            Pt T = m * d0_center;
+                            if ( boundary_item.a0 < boundary_item.a1 ) {
+                                T.x += coeff * R * ( sin( boundary_item.a1 ) - sin( boundary_item.a0 ) );
+                                T.y += coeff * R * ( cos( boundary_item.a0 ) - cos( boundary_item.a1 ) );
+                            }
+                            for( std::size_t e = 0; e < dim; ++e )
+                                der_0[ nupd * e + dim ] += T[ e ];
 
-                        // centroid / position
-                        if ( boundary_item.a0 < boundary_item.a1 ) {
-                            der_0[ nupd * 0 + 0 ] += mx * d0_center.x + R * R / 2 * (
-                                ( boundary_item.a1 + sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
-                                ( boundary_item.a0 + sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
-                            );
-                            der_0[ nupd * 0 + 1 ] += my * d0_center.x + R * R / 4 * (
-                                cos( 2 * boundary_item.a0 ) - cos( 2 * boundary_item.a1 )
-                            );
-                            der_0[ nupd * 1 + 0 ] += mx * d0_center.y + R * R / 4 * (
-                                cos( 2 * boundary_item.a0 ) - cos( 2 * boundary_item.a1 )
-                            );
-                            der_0[ nupd * 1 + 1 ] += my * d0_center.y + R * R / 2 * (
-                                ( boundary_item.a1 - sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
-                                ( boundary_item.a0 - sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
-                            );
+                            // centroid / position
+                            if ( boundary_item.a0 < boundary_item.a1 ) {
+                                der_0[ nupd * 0 + 0 ] += mx * d0_center.x + R * R / 2 * (
+                                    ( boundary_item.a1 + sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
+                                    ( boundary_item.a0 + sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
+                                );
+                                der_0[ nupd * 0 + 1 ] += my * d0_center.x + R * R / 4 * (
+                                    cos( 2 * boundary_item.a0 ) - cos( 2 * boundary_item.a1 )
+                                );
+                                der_0[ nupd * 1 + 0 ] += mx * d0_center.y + R * R / 4 * (
+                                    cos( 2 * boundary_item.a0 ) - cos( 2 * boundary_item.a1 )
+                                );
+                                der_0[ nupd * 1 + 1 ] += my * d0_center.y + R * R / 2 * (
+                                    ( boundary_item.a1 - sin( boundary_item.a1 ) * cos( boundary_item.a1 ) ) -
+                                    ( boundary_item.a0 - sin( boundary_item.a0 ) * cos( boundary_item.a0 ) )
+                                );
+                            } else {
+                                TF c = cp.pi() * R * R;
+                                der_0[ nupd * 0 + 0 ] += c;
+                                der_0[ nupd * 1 + 1 ] += c;
+                            }
                         } else {
-                            TF c = cp.pi() * R * R;
-                            der_0[ nupd * 0 + 0 ] += c;
-                            der_0[ nupd * 1 + 1 ] += c;
+                            TODO;
                         }
-                    } else {
+                    } else
                         TODO;
-                    }
 
                     return;
                 }
 
                 // dirac / dirac cut ------------------------
-                TI m_num_dirac_1 = num_dirac_1 % nb_diracs;
-                Pt d1_center = positions[ m_num_dirac_1 ];
-                if ( std::size_t nu = num_dirac_1 / nb_diracs )
-                    TODO; // d1_center = transformation( _tranformations[ nu - 1 ], d1_center );
+                TI m_num_dirac_1 = num_dirac_1 % nb_diracs, d_num_dirac_1 = num_dirac_1 / nb_diracs;
+                Pt d1_center = grid.sym( positions[ m_num_dirac_1 ], int( d_num_dirac_1 ) - 1 );
 
                 TF dist = norm_2( d0_center - d1_center );
                 TF b_der = coeff * boundary_measure / dist;
@@ -140,6 +141,9 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
                     v = TF( 0 );
                 der_0[ nupd * dim + dim ] += b_der;
                 der_1[ nupd * dim + dim ] = - b_der;
+
+                if ( dim == 3 )
+                    TODO;
 
                 Pt T = TF( 0.5 ) * ( boundary_item.points[ 0 ] + boundary_item.points[ 1 ] );
                 for( std::size_t e = 0; e < dim; ++e ) {

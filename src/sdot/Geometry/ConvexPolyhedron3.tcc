@@ -204,7 +204,13 @@ void ConvexPolyhedron3<Pc>::for_each_boundary_item( const SpaceFunctions::Consta
 
 template<class Pc> template<class Fu>
 void ConvexPolyhedron3<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &/*rf*/, const Fu &f, TF weight ) const {
-    TODO;
+    // flat parts
+    for( const Face &fp : faces ) {
+        BoundaryItem item;
+        item.measure = sf.coeff * area( fp );
+        item.id = fp.cut_id;
+        f( item );
+    }
 }
 
 template<class Pc> template<class Fu>
