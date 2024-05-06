@@ -207,6 +207,8 @@ void ConvexPolyhedron3<Pc>::for_each_boundary_item( const SpaceFunctions::Consta
     // flat parts
     for( const Face &fp : faces ) {
         BoundaryItem item;
+        //item.pos_integral = 0;
+        TODO;
         item.measure = sf.coeff * area( fp );
         item.id = fp.cut_id;
         f( item );

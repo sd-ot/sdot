@@ -400,6 +400,7 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Consta
                 item.a1 += 2 * pi();
             item.measure = sf.coeff * ( item.a1 - item.a0 ) * sphere_radius;
         } else {
+            item.pos_integral = TF( 1 ) / 2 * norm_2( item.points[ 1 ] - item.points[ 0 ] ) * ( item.points[ 0 ] + item.points[ 1 ] );
             item.measure = sf.coeff * norm_2( point( i1 ) - point( i0 ) );
         }
 

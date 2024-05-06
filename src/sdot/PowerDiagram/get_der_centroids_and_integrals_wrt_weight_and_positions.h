@@ -142,10 +142,10 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
                 der_0[ nupd * dim + dim ] += b_der;
                 der_1[ nupd * dim + dim ] = - b_der;
 
-                Pt C = boundary_item.pos_integral();
+                Pt C = boundary_item.pos_integral;
                 for( std::size_t e = 0; e < dim; ++e ) {
-                    der_0[ nupd * e + dim ] += coeff / dist * C[ e ];
-                    der_1[ nupd * e + dim ] = - coeff / dist * C[ e ];
+                    der_0[ nupd * e + dim ] += C[ e ] / dist;
+                    der_1[ nupd * e + dim ] = ( boundary_measure * d1_center[ e ] - C[ e ] ) / dist;
                 }
 
                 // d positions
