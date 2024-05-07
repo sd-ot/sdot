@@ -144,44 +144,24 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
 
                 Pt C = boundary_item.pos_integral;
                 for( std::size_t e = 0; e < dim; ++e ) {
-                    der_0[ nupd * e + dim ] += C[ e ] / dist;
-                    der_1[ nupd * e + dim ] = ( boundary_measure * d1_center[ e ] - C[ e ] ) / dist;
+                    // we're looking here for the derivative of the integral of the position (centroid)
+                    TF value = coeff * C[ e ] / dist;
+                    der_0[ nupd * e + dim ] += value;
+                    der_1[ nupd * e + dim ] = - value;
                 }
 
                 // d positions
-                // for( std::size_t d = 0; d < dim; ++d )
-                //     der_0[ nupd * dim + d ] += coeff / dist * ( C[ d ] - d0_center[ d ] );
-                // for( std::size_t d = 0; d < dim; ++d )
-                //     der_1[ nupd * dim + d ] = coeff / dist * ( d1_center[ d ] - C[ d ] );
+                for( std::size_t d = 0; d < dim; ++d ) {
+                    der_0[ nupd * dim + d ] += TF( 1 ) / dist * ( boundary_item.pos_integral[ d ] - boundary_measure * d0_center[ d ] );
+                    der_1[ nupd * dim + d ] = TF( 1 ) / dist * ( boundary_measure * d1_center[ d ] - boundary_item.pos_integral[ d ] );
+                }
 
-                // for( std::size_t d = 0; d < dim; ++d ) {
-                //     TF m = 0;
-                //     for( const auto &p : boundary_item.points )
-                //         m += p[ d ] - d0_center[ d ];
-                //     der_0[ nupd * dim + d ] += b_der * m;
-
-                //     TF a = boundary_item.points[ 0 ][ d ] - d0_center[ d ];
-                //     TF b = boundary_item.points[ 1 ][ d ] - d0_center[ d ];
-
-                //     TF p = b_der * ( a + 2 * b ) / 3;
-                //     Pt T = TF( m - p ) * boundary_item.points[ 0 ] + p * boundary_item.points[ 1 ];
-                //     // for( std::size_t e = 0; e < dim; ++e )
-                //     //     der_0[ nupd * e + d ] += T[ e ];
-                // }
-                // for( std::size_t d = 0; d < dim; ++d ) {
-                //     TF m = 0;
-                //     for( const auto &p : boundary_item.points )
-                //         m += d1_center[ d ] - p[ d ];
-                //     der_1[ nupd * dim + d ] = b_der * m;
-
-                //     TF a = d1_center[ d ] - boundary_item.points[ 0 ][ d ];
-                //     TF b = d1_center[ d ] - boundary_item.points[ 1 ][ d ];
-
-                //     TF p = b_der * ( a + 2 * b ) / 3;
-                //     Pt T = TF( m - p ) * boundary_item.points[ 0 ] + p * boundary_item.points[ 1 ];
-                //     // for( std::size_t e = 0; e < dim; ++e )
-                //     //     der_1[ nupd * e + d ] = T[ e ];
-                // }
+                for( std::size_t d = 0; d < dim; ++d ) {
+                    for( std::size_t e = 0; e < dim; ++e ) {
+                        der_0[ nupd * e + d ] += TF( 1 ) / dist * ( boundary_item.momentum[ d ][ e ] - boundary_item.pos_integral[ e ] * d0_center[ d ] );
+                        der_1[ nupd * e + d ] = TF( 1 ) / dist * ( boundary_item.pos_integral[ e ] * d1_center[ d ] - boundary_item.momentum[ d ][ e ] );
+                    }
+                }
 
                 dpt.row_items.emplace_back( m_num_dirac_1, der_1 );
             }, weights[ num_dirac_0 ] );
