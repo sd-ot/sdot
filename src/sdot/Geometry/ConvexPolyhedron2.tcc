@@ -410,10 +410,6 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Consta
                         2 * ( item.points[ 0 ][ i ] * item.points[ 0 ][ j ] + item.points[ 1 ][ i ] * item.points[ 1 ][ j ] ) +
                         item.points[ 0 ][ i ] * item.points[ 1 ][ j ] + item.points[ 1 ][ i ] * item.points[ 0 ][ j ]
                     );
-            // item.momentum[ i ][ j ] = l / 6 * (
-            //     item.points[ 0 ][ i ] * ( 2 * item.points[ 0 ][ j ] + 3 * item.points[ 1 ][ j ] ) +
-            //     item.points[ 1 ][ i ] * ( 2 * item.points[ 1 ][ j ] + 3 * item.points[ 0 ][ j ] )
-            // );
         }
 
         f( item );
