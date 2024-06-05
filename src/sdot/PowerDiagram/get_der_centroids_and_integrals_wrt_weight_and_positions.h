@@ -74,7 +74,7 @@ int get_der_centroids_and_integrals_wrt_weight_and_positions( std::vector<TI> &m
 
                 // ball cut ---------------------------------
                 if ( num_dirac_0 == num_dirac_1 ) {
-                    if constexpr ( dim == 2 ) {
+                    if constexpr ( Grid::dim == 2 ) {
                         // measure / weight
                         TF R = sqrt( d0_weight );
                         TF m = coeff * boundary_measure / R;
