@@ -106,8 +106,8 @@ void Arfd::_append_approx( TF &sum, TF beg, TF end, unsigned nb_points ) const {
     for( std::size_t index = 0; index < nb_points; ++index ) {
         TF x = beg + ( end - beg ) * ( index + 0.5 ) / nb_points;
         TF loc = 0;
-        for( std::size_t i = 0; i < nb_coeffs; ++i )
-            loc += D[ i ] * vx( x, i );
+        for( std::size_t i = 0; i < std::size_t( nb_coeffs ); ++i )
+            loc += D[ i ] * vx( x, int( i ) );
         error = max( error, abs( loc - values( x ) ) );
     }
 
@@ -118,8 +118,8 @@ void Arfd::_append_approx( TF &sum, TF beg, TF end, unsigned nb_points ) const {
         return;
     }
 
-    for( std::size_t i = 0; i < nb_coeffs; ++i )
-        D[ i ] /= sc( i );
+    for( std::size_t i = 0; i < std::size_t( nb_coeffs ); ++i )
+        D[ int( i ) ] /= sc( int( i ) );
 
     // update sum
     for( std::size_t i = 0; i < nb_coeffs; ++i )
