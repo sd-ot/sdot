@@ -45,7 +45,7 @@ public:
     using                   CI                        = typename Face::TI; ///< cut info
     using                   Pt                        = typename Face::Pt; ///< point
 
-    struct                  BoundaryItem              { std::vector<Pt> points; TF measure; CI id; Pt pos_integral; };
+    struct                  BoundaryItem              { std::vector<Pt> points; TF measure; CI id; Pt pos_integral, momentum[ dim ]; };
 
     struct                  Tetra                     { Pt p0, p1, p2, p3; };
     struct                  Box                       { Pt p0, p1; };

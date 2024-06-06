@@ -207,8 +207,38 @@ void ConvexPolyhedron3<Pc>::for_each_boundary_item( const SpaceFunctions::Consta
     // flat parts
     for( const Face &fp : faces ) {
         BoundaryItem item;
-        //item.pos_integral = 0;
-        TODO;
+
+        // straight triangles
+        for( size_t i = 0; i < Pc::dim; ++i )
+            item.pos_integral[ i ] = 0;
+        for( auto e0 = fp.edges.begin(), e1 = e0; ++e1 != fp.edges.end(); ) {
+            const auto &A = e0->n0->pos;
+            const auto &B = e1->n0->pos;
+            const auto &C = e1->n1->pos;
+            TF poly_area = dot( cross_prod( C - A, B - A ), fp.cut_N );
+            item.pos_integral += poly_area / 6 * ( A + B + C );
+        }
+
+        for( size_t i = 0; i < Pc::dim; ++i )
+            for( size_t j = 0; j < Pc::dim; ++j )
+                item.momentum[ i ][ j ] = 0;
+        for( auto e0 = fp.edges.begin(), e1 = e0; ++e1 != fp.edges.end(); ) {
+            const auto &A = e0->n0->pos;
+            const auto &B = e1->n0->pos;
+            const auto &C = e1->n1->pos;
+            TF poly_area = dot( cross_prod( C - A, B - A ), fp.cut_N );
+
+            for( size_t i = 0; i < Pc::dim; ++i ) {
+                for( size_t j = 0; j < Pc::dim; ++j ) {
+                    item.momentum[ i ][ j ] += poly_area / 24 * (
+                        A[ i ] * ( 2 * A[ j ] + B[ j ] + C[ j ] ) +
+                        B[ i ] * ( A[ j ] + 2 * B[ j ] + C[ j ] ) +
+                        C[ i ] * ( A[ j ] + B[ j ] + 2 * C[ j ] )
+                    );
+                }
+            }
+        }
+
         item.measure = sf.coeff * area( fp );
         item.id = fp.cut_id;
         f( item );
