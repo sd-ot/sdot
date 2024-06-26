@@ -1742,8 +1742,8 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Consta
 
     // hand coded version:
     if ( nb_points() == 0 )
-        return sphere_radius > 0 ? TF( pi() ) * pow( sphere_radius, 2 ) : TF( 0 );
-
+        return sphere_radius > 0 ? sf.coeff * TF( pi() ) * pow( sphere_radius, 2 ) : TF( 0 );
+    
     // triangles
     TF res = 0;
     Pt A = point( 0 );
