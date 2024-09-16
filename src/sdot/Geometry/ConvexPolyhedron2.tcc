@@ -14,6 +14,47 @@ ConvexPolyhedron2<Pc>::ConvexPolyhedron2( const EnglobingSimplex &/*es*/, CI /*c
 }
 
 template<class Pc>
+ConvexPolyhedron2<Pc>::ConvexPolyhedron2( const Simplex &simplex, CI cut_id ) {
+    sphere_center = TF( 1 ) / 3 * ( simplex.pts[ 0 ] + simplex.pts[ 1 ] + simplex.pts[ 2 ] );
+    sphere_radius = -1;
+    sphere_cut_id = -1;
+
+    min_coord = min( simplex.pts[ 0 ], min( simplex.pts[ 1 ], simplex.pts[ 2 ] ) );
+    max_coord = max( simplex.pts[ 0 ], max( simplex.pts[ 1 ], simplex.pts[ 2 ] ) );
+
+    //
+    set_nb_points( 3 );
+
+    // points
+    points[ 0 ][ 0 ] = simplex.pts[ 0 ][ 0 ]; points[ 1 ][ 0 ] = simplex.pts[ 0 ][ 1 ];
+    points[ 0 ][ 1 ] = simplex.pts[ 1 ][ 0 ]; points[ 1 ][ 1 ] = simplex.pts[ 1 ][ 1 ];
+    points[ 0 ][ 2 ] = simplex.pts[ 2 ][ 0 ]; points[ 1 ][ 2 ] = simplex.pts[ 2 ][ 1 ];
+
+    // normals
+    Pt n0 = rot90( simplex.pts[ 0 ] - simplex.pts[ 1 ] ); n0 = n0 / norm_2( n0 );
+    Pt n1 = rot90( simplex.pts[ 1 ] - simplex.pts[ 2 ] ); n1 = n1 / norm_2( n1 );
+    Pt n2 = rot90( simplex.pts[ 2 ] - simplex.pts[ 0 ] ); n2 = n2 / norm_2( n2 );
+
+    if ( dot( simplex.pts[ 0 ] - sphere_center, n0 ) < 0 ) {
+        std::swap( points[ 0 ][ 1 ], points[ 0 ][ 2 ] );
+        std::swap( points[ 1 ][ 1 ], points[ 1 ][ 2 ] );
+        Pt nt = n0;
+        n0 = - n2;
+        n1 = - n1;
+        n2 = - nt;
+    }
+
+    normals[ 0 ][ 0 ] = n0[ 0 ]; normals[ 1 ][ 0 ] = n0[ 1 ];
+    normals[ 0 ][ 1 ] = n1[ 0 ]; normals[ 1 ][ 1 ] = n1[ 1 ];
+    normals[ 0 ][ 2 ] = n2[ 0 ]; normals[ 1 ][ 2 ] = n2[ 1 ];
+
+    // cut_ids
+    cut_ids[ 0 ] = cut_id;
+    cut_ids[ 1 ] = cut_id;
+    cut_ids[ 2 ] = cut_id;
+}
+
+template<class Pc>
 ConvexPolyhedron2<Pc>::ConvexPolyhedron2() : ConvexPolyhedron2( Box{ { -1e10, -1e10 }, { +1e10, +1e10 } } ) {
 }
 
@@ -421,7 +462,7 @@ void ConvexPolyhedron2<Pc>::write_to_stream( std::ostream &os ) const {
     os << std::setprecision( 17 );
     os << "cuts: [";
     for( std::size_t i = 0; i < nb_points(); ++i )
-        os << ( i ? "," : "" ) << "(" << point( i ) << ")";
+        os << ( i ? "," : "" ) << "(" << point( i )[0] << "," << point( i )[1] << ")";
     os << "]";
     os << " cids: [";
     for( std::size_t i = 0; i < nb_points(); ++i )
@@ -430,10 +471,11 @@ void ConvexPolyhedron2<Pc>::write_to_stream( std::ostream &os ) const {
     if ( store_the_normals ) {
         os << " nrms: [";
         for( std::size_t i = 0; i < nb_points(); ++i )
-            os << ( i ? "," : "" ) << "(" << normal( i ) << ")";
+            os << ( i ? "," : "" ) << "(" << normal( i )[0] << "," << normal( i )[1] << ")";
         os << "]";
     }
-    os << " sphere center: " << sphere_center << " sphere radius: " << sphere_radius;
+    // os << " sphere center: " << sphere_center << " sphere radius: " << sphere_radius;
+    os << " sphere radius: " << sphere_radius;
 }
 
 template<class Pc>

@@ -10,6 +10,17 @@
 namespace sdot {
 
 template<class Pc>
+ConvexPolyhedron3<Pc>::ConvexPolyhedron3( const Simplex &simplex, CI cut_id ) : op_count( 0 ) {
+    Tetra tetra;
+    tetra.p0 = simplex.pts[ 0 ];
+    tetra.p1 = simplex.pts[ 1 ];
+    tetra.p2 = simplex.pts[ 2 ];
+    tetra.p3 = simplex.pts[ 3 ];
+
+    clear( tetra, cut_id );
+}
+
+template<class Pc>
 ConvexPolyhedron3<Pc>::ConvexPolyhedron3( const Tetra &tetra, CI cut_id ) : op_count( 0 ) {
     clear( tetra, cut_id );
 }
@@ -733,50 +744,35 @@ void ConvexPolyhedron3<Pc>::plane_cut( Pt origin, Pt normal, CI cut_id, N<no> no
 
 template<class Pc>
 void ConvexPolyhedron3<Pc>::clear( const Tetra &tetra, CI cut_id ) {
-    TODO;
-    //    round_surfaces.resize( 0 );
-    //    flat_surfaces      .resize( 0 );
-    //    edge_indices       .resize( 0 );
-    //    cut_info           .resize( 0 );
-    //    edges              .resize( 0 );
-    //    holes              .resize( 0 );
-    //    pos                .resize( 4 * 2 * nb_glued_nodes );
-    //    rpos               = pos.size() / 4;
-    //    _nb_nodes          = 0;
-    //    sphere_radius      = -1;
+    sphere_center = TF( 1 ) / 4 * ( tetra.p0 + tetra.p1 + tetra.p2 + tetra.p3 );
 
+    // start from a box. TODO: directly write the Tetra
+    Pt mi = min( tetra.p0, min( tetra.p1, min( tetra.p2, tetra.p3 ) ) );
+    Pt ma = max( tetra.p0, max( tetra.p1, max( tetra.p2, tetra.p3 ) ) );
+    Pt de = ma - mi;
 
-    //    // englobing tetra
-    //    const TF cm = - std::sqrt( TF( 1 ) / 9 );
-    //    const TF sm = + std::sqrt( TF( 8 ) / 9 );
-    //    const TF qm = + std::sqrt( TF( 2 ) / 3 );
+    Box b;
+    b.p0 = mi - de;
+    b.p1 = ma + de;
+    clear( b, cut_id );
 
-    //    const TI n0 = add_node( englobing_center + 4 * englobing_radius * Pt{  1,    0,        0 } );
-    //    const TI n1 = add_node( englobing_center + 4 * englobing_radius * Pt{ cm,    0,     - sm } );
-    //    const TI n2 = add_node( englobing_center + 4 * englobing_radius * Pt{ cm, + qm, 0.5 * sm } );
-    //    const TI n3 = add_node( englobing_center + 4 * englobing_radius * Pt{ cm, - qm, 0.5 * sm } );
+    // faces
+    using Face = std::array<const Pt *,3>;
+    Face faces[] = {
+        Face{ &tetra.p0, &tetra.p1, &tetra.p2 },
+        Face{ &tetra.p0, &tetra.p1, &tetra.p3 },
+        Face{ &tetra.p0, &tetra.p2, &tetra.p3 },
+        Face{ &tetra.p1, &tetra.p2, &tetra.p3 }
+    };
+    for( const auto face : faces ) {
+        Pt o = TF( 1 ) / 3 * ( *face[ 0 ] + *face[ 1 ] + *face[ 2 ] );
+        Pt n = cross_prod( *face[ 1 ] - *face[ 0 ], *face[ 2 ] - *face[ 0 ] );
+        if ( dot( *face[ 0 ] - sphere_center, n ) < 0 ) 
+            n = - n;
+        n = n / norm_2( n );
 
-    //    const TI e0 = add_straight_edge( n0, n1, 0 );
-    //    const TI e1 = add_straight_edge( n1, n2, 0 );
-    //    const TI e2 = add_straight_edge( n2, n0, 0 );
-    //    const TI e3 = add_straight_edge( n0, n3, 0 );
-    //    const TI e4 = add_straight_edge( n3, n1, 0 );
-    //    const TI e5 = add_straight_edge( n2, n3, 0 );
-
-    //    auto add_face = [&]( TI e0, TI e1, TI e2 ) {
-    //        const Pt &P0 = node_pos( edges[ e0 ].n0 );
-    //        const Pt &P1 = node_pos( edges[ e0 ].n1 );
-    //        const Pt &P2 = node_pos( edges[ e1 ].n1 );
-    //        const Pt  n  = normalized( cross_prod( P0 - P1, P2 - P1 ) );
-    //        const TI  ci = add_cut_info( node_pos( edges[ e0 ].n0 ), n, englobing_cut_id );
-    //        add_flat_surface( add_edge_indices( e0, e1, e2 ), ci );
-    //    };
-    //    add_face( e2 + 1, e1 + 1, e0 + 1 );
-    //    add_face( e0 + 0, e4 + 1, e3 + 1 );
-    //    add_face( e5 + 0, e4 + 0, e1 + 0 );
-    //    add_face( e2 + 0, e3 + 0, e5 + 1 );
-    // if ( keep_min_max_coords )
-    //     update_min_max_coord();
+        plane_cut( o, n, cut_id );
+    }
 }
 
 template<class Pc>

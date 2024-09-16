@@ -47,10 +47,12 @@ public:
 
     struct                  BoundaryItem              { std::vector<Pt> points; TF measure; CI id; Pt pos_integral, momentum[ dim ]; };
 
+    struct                  Simplex                   { Pt pts[ 4 ]; };
     struct                  Tetra                     { Pt p0, p1, p2, p3; };
     struct                  Box                       { Pt p0, p1; };
 
     /// we start from a tetrahedron that includes the sphere defined by sphere_center and sphere_radius... but this sphere is not used
+    /**/                    ConvexPolyhedron3         ( const Simplex &simplex, CI cut_id = {} );
     /**/                    ConvexPolyhedron3         ( const Tetra &tetra, CI cut_id = {} );
     /**/                    ConvexPolyhedron3         ( const Box &box = { { 0, 0, 0 }, { 1, 1, 1 } }, CI cut_id = {} );
     /**/                    ConvexPolyhedron3         ( const ConvexPolyhedron3 &cp ) = delete;

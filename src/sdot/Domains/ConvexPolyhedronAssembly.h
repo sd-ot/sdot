@@ -24,6 +24,7 @@ public:
 
     // modifications
     void                   add_convex_polyhedron      ( const std::vector<Pt> &positions, const std::vector<Pt> &normals, TF coeff = 1.0, TI cut_id = -1 );
+    void                   add_simplex                ( const TF *points, TF coeff = 1.0, CI cut_id = -1 );
     void                   add_box                    ( Pt p0, Pt p1, TF coeff = 1.0, CI cut_id = -1 );
 
     void                   normalize                  ();
