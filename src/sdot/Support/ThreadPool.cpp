@@ -21,5 +21,7 @@ void ThreadPool::_init_if_not_done( int nb_threads ) {
     _nb_threads = nb_threads <= 0 ?
         std::thread::hardware_concurrency() :
         nb_threads;
+
+    _nb_threads = 1;
 }
 

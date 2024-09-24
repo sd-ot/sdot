@@ -2,6 +2,7 @@
 #include "Internal/AreaOutput.h"
 #include "ConvexPolyhedron3.h"
 #include "Point2.h"
+//#include <iomanip>
 
 #ifdef PD_WANT_STAT
 #include "../Support/Stat.h"
@@ -754,7 +755,7 @@ void ConvexPolyhedron3<Pc>::clear( const Tetra &tetra, CI cut_id ) {
     Box b;
     b.p0 = mi - de;
     b.p1 = ma + de;
-    clear( b, cut_id );
+    clear( b, cut_id - 1 );
 
     // faces
     using Face = std::array<const Pt *,3>;
