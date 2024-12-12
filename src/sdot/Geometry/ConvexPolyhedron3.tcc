@@ -281,239 +281,239 @@ void ConvexPolyhedron3<Pc>::display_html_canvas( std::ostream &os, TF weight, bo
 template<class Pc>
 void ConvexPolyhedron3<Pc>::ball_cut( Pt center, TF radius, CI cut_id ) {
     TODO;
-    //    sphere_center = center;
-    //    sphere_radius = radius;
-    //    sphere_cut_id = cut_id;
+    // sphere_center = center;
+    // sphere_radius = radius;
+    // sphere_cut_id = cut_id;
 
-    //    if ( cut_info.empty() ) {
-    //        sphere_radius = 0;
-    //        return;
-    //    }
+    // if ( faces.empty() ) {
+    //     sphere_radius = 0;
+    //     return;
+    // }
 
-    //    bool all_inside = true;
-    //    for( Node &node : nodes ) {
-    //        node.soi.sd = norm_2_p2( node.pos - center ) - radius * radius;
-    //        all_inside &= node.inside();
-    //    }
+    // bool all_inside = true;
+    // for( Node &node : nodes ) {
+    //     node.soi.sd = norm_2_p2( node.pos - center ) - radius * radius;
+    //     all_inside &= node.inside();
+    // }
 
-    //    bool sphere_center_is_inside = true;
-    //    for( const CutInfo &ci : cut_info ) {
-    //        if ( dot( sphere_center - ci.cut_O, ci.cut_N ) >= 0 ) {
-    //            sphere_center_is_inside = false;
-    //            break;
-    //        }
-    //    }
+    // bool sphere_center_is_inside = true;
+    // for( const Face &ci : faces ) {
+    //     if ( dot( sphere_center - ci.cut_O, ci.cut_N ) >= 0 ) {
+    //         sphere_center_is_inside = false;
+    //         break;
+    //     }
+    // }
 
-    //    // if all points (corners) are inside the sphere, the sphere is not going to cut anything
-    //    if ( all_inside )
-    //        return;
+    // // if all points (corners) are inside the sphere, the sphere is not going to cut anything
+    // if ( all_inside )
+    //     return;
 
-    //    // cut edges
-    //    TI old_nodes_size = nodes.size();
-    //    TI old_edges_size = edges.size();
-    //    edges.reserve( 2 * old_edges_size ); // we want to keep the references during the loop
-    //    nodes.reserve( nodes.size() + old_edges_size );
-    //    for( TI num_edge = 0; num_edge < old_edges_size; num_edge += 2 ) {
-    //        Edge &edge_p0 = edges[ num_edge + 0 ];
-    //        Edge &edge_p1 = edges[ num_edge + 1 ];
-    //        Node &n0 = nodes[ edge_p0.n0 ];
-    //        Node &n1 = nodes[ edge_p0.n1 ];
+    // // cut edges
+    // TI old_nodes_size = nodes.size();
+    // TI old_edges_size = edges.size();
+    // //    edges.reserve( 2 * old_edges_size ); // we want to keep the references during the loop
+    // //    nodes.reserve( nodes.size() + old_edges_size );
+    // for( TI num_edge = 0; num_edge < old_edges_size; num_edge += 2 ) {
+    //     Edge &edge_p0 = edges[ num_edge + 0 ];
+    //     Edge &edge_p1 = edges[ num_edge + 1 ];
+    //     Node &n0 = nodes[ edge_p0.n0 ];
+    //     Node &n1 = nodes[ edge_p0.n1 ];
 
-    //        auto find_unique_intersection = [&]( Pt p0, Pt p1 ) {
-    //            // ( p0.x - sphere_center.x + ( p1.x - p0.x ) * t )² + ... = sphere_radius²
-    //            TF a = norm_2_p2( p1 - p0 );
-    //            TF b = dot( p0 - sphere_center, p1 - p0 );
-    //            TF c = norm_2_p2( p0 - sphere_center ) - sphere_radius * sphere_radius;
-    //            TF d = std::sqrt( std::max( TF( 0 ), b * b - a * c ) );
-    //            TF u = ( - b + d ) / a;
-    //            TF v = ( - b - d ) / a;
-    //            TF t = std::abs( u - 0.5 ) <= std::abs( v - 0.5 ) ? u : v;
-    //            return p0 + std::min( TF( 1 ), std::max( TF( 0 ), t ) ) * ( p1 - p0 );
-    //        };
+    //     auto find_unique_intersection = [&]( Pt p0, Pt p1 ) {
+    //         // ( p0.x - sphere_center.x + ( p1.x - p0.x ) * t )² + ... = sphere_radius²
+    //         TF a = norm_2_p2( p1 - p0 );
+    //         TF b = dot( p0 - sphere_center, p1 - p0 );
+    //         TF c = norm_2_p2( p0 - sphere_center ) - sphere_radius * sphere_radius;
+    //         TF d = std::sqrt( std::max( TF( 0 ), b * b - a * c ) );
+    //         TF u = ( - b + d ) / a;
+    //         TF v = ( - b - d ) / a;
+    //         TF t = std::abs( u - 0.5 ) <= std::abs( v - 0.5 ) ? u : v;
+    //         return p0 + std::min( TF( 1 ), std::max( TF( 0 ), t ) ) * ( p1 - p0 );
+    //     };
 
-    //        auto find_two_cuts = [&]( Pt &pi0, Pt &pi1, const Pt &p0, const Pt &p1 ) {
-    //            // ( p0.x - sphere_center.x + ( p1.x - p0.x ) * t )² + ... = sphere_radius²
-    //            TF a = norm_2_p2( p1 - p0 );
-    //            if ( a == 0 )
-    //                return false;
-    //            TF b = dot( p0 - sphere_center, p1 - p0 );
-    //            TF c = norm_2_p2( p0 - sphere_center ) - sphere_radius * sphere_radius;
-    //            TF s = b * b - a * c;
-    //            if ( s <= 0 )
-    //                return false;
-    //            TF d = std::sqrt( s );
-    //            TF u = ( - b - d ) / a;
-    //            TF v = ( - b + d ) / a;
-    //            if ( u > 0 && u < 1 )
-    //                v = std::max( TF( 0 ), std::min( TF( 1 ), v ) );
-    //            else if ( v > 0 && v < 1 )
-    //                u = std::max( TF( 0 ), std::min( TF( 1 ), u ) );
-    //            else
-    //                return false;
-    //            pi0 = p0 + u * ( p1 - p0 );
-    //            pi1 = p0 + v * ( p1 - p0 );
-    //            return true;
-    //        };
+    //     auto find_two_cuts = [&]( Pt &pi0, Pt &pi1, const Pt &p0, const Pt &p1 ) {
+    //         // ( p0.x - sphere_center.x + ( p1.x - p0.x ) * t )² + ... = sphere_radius²
+    //         TF a = norm_2_p2( p1 - p0 );
+    //         if ( a == 0 )
+    //             return false;
+    //         TF b = dot( p0 - sphere_center, p1 - p0 );
+    //         TF c = norm_2_p2( p0 - sphere_center ) - sphere_radius * sphere_radius;
+    //         TF s = b * b - a * c;
+    //         if ( s <= 0 )
+    //             return false;
+    //         TF d = std::sqrt( s );
+    //         TF u = ( - b - d ) / a;
+    //         TF v = ( - b + d ) / a;
+    //         if ( u > 0 && u < 1 )
+    //             v = std::max( TF( 0 ), std::min( TF( 1 ), v ) );
+    //         else if ( v > 0 && v < 1 )
+    //             u = std::max( TF( 0 ), std::min( TF( 1 ), u ) );
+    //         else
+    //             return false;
+    //         pi0 = p0 + u * ( p1 - p0 );
+    //         pi1 = p0 + v * ( p1 - p0 );
+    //         return true;
+    //     };
 
-    //        if ( s0 < 0 ) {
-    //            if ( s1 < 0 ) {
-    //                // no cut
-    //                edge_p0.used = 1;
-    //                edge_p1.used = 1;
-    //            } else {
-    //                TI nn = add_node( find_unique_intersection( p0, p1 ) );
-    //                edge_p0.nedge = add_straight_edge( edge_p0.n0, nn, edge_p0.cut_index );
-    //                edge_p1.nedge = edge_p0.nedge + 1;
-    //                edge_p0.used = 0;
-    //                edge_p1.used = 0;
-    //            }
-    //        } else {
-    //            if ( s1 < 0 ) {
-    //                TI nn = add_node( find_unique_intersection( p1, p0 ) );
-    //                edge_p0.nedge = add_straight_edge( nn, edge_p0.n1, edge_p0.cut_index );
-    //                edge_p1.nedge = edge_p0.nedge + 1;
-    //                edge_p0.used = 0;
-    //                edge_p1.used = 0;
-    //            } else {
-    //                // 2 or 0 cuts
-    //                Pt Pi0, Pi1;
-    //                if ( find_two_cuts( Pi0, Pi1, p0, p1 ) ) {
-    //                    edge_p0.nedge = add_straight_edge( add_node( Pi0 ), add_node( Pi1 ), edge_p0.cut_index );
-    //                    edge_p1.nedge = edge_p0.nedge + 1;
-    //                } else {
-    //                    edge_p0.nedge = TI( -1 );
-    //                    edge_p1.nedge = TI( -1 );
-    //                }
-    //                edge_p0.used = 0;
-    //                edge_p1.used = 0;
-    //            }
-    //        }
-    //    }
+    //     if ( s0 < 0 ) {
+    //         if ( s1 < 0 ) {
+    //             // no cut
+    //             edge_p0.used = 1;
+    //             edge_p1.used = 1;
+    //         } else {
+    //             TI nn = add_node( find_unique_intersection( p0, p1 ) );
+    //             edge_p0.nedge = add_straight_edge( edge_p0.n0, nn, edge_p0.cut_index );
+    //             edge_p1.nedge = edge_p0.nedge + 1;
+    //             edge_p0.used = 0;
+    //             edge_p1.used = 0;
+    //         }
+    //     } else {
+    //         if ( s1 < 0 ) {
+    //             TI nn = add_node( find_unique_intersection( p1, p0 ) );
+    //             edge_p0.nedge = add_straight_edge( nn, edge_p0.n1, edge_p0.cut_index );
+    //             edge_p1.nedge = edge_p0.nedge + 1;
+    //             edge_p0.used = 0;
+    //             edge_p1.used = 0;
+    //         } else {
+    //             // 2 or 0 cuts
+    //             Pt Pi0, Pi1;
+    //             if ( find_two_cuts( Pi0, Pi1, p0, p1 ) ) {
+    //                 edge_p0.nedge = add_straight_edge( add_node( Pi0 ), add_node( Pi1 ), edge_p0.cut_index );
+    //                 edge_p1.nedge = edge_p0.nedge + 1;
+    //             } else {
+    //                 edge_p0.nedge = TI( -1 );
+    //                 edge_p1.nedge = TI( -1 );
+    //             }
+    //             edge_p0.used = 0;
+    //             edge_p1.used = 0;
+    //         }
+    //     }
+    // }
 
-    //    // update existing surfaces
-    //    std::swap( edge_indices, old_edges_indices );
-    //    TI first_cut_edge = edges.size();
-    //    edge_indices.resize( 0 );
-    //    for( TI num_flat_surface = 0; num_flat_surface < flat_surfaces.size(); ++num_flat_surface ) {
-    //        FlatSurface &fs = flat_surfaces[ num_flat_surface ];
-    //        TI new_beg_in_edge_indices = edge_indices.size();
-    //        TI old_n1 = TI( -1 ), waiting_n0, waiting_ei = TI( -1 );
+    // // update existing surfaces
+    // std::swap( edge_indices, old_edges_indices );
+    // TI first_cut_edge = edges.size();
+    // edge_indices.resize( 0 );
+    // for( TI num_flat_surface = 0; num_flat_surface < flat_surfaces.size(); ++num_flat_surface ) {
+    //     FlatSurface &fs = flat_surfaces[ num_flat_surface ];
+    //     TI new_beg_in_edge_indices = edge_indices.size();
+    //     TI old_n1 = TI( -1 ), waiting_n0, waiting_ei = TI( -1 );
 
-    //        edges.reserve( edges.size() + 2 * ( fs.end_in_edge_indices - fs.beg_in_edge_indices ) );
-    //        for( TI num_in_edge_indices = fs.beg_in_edge_indices; num_in_edge_indices < fs.end_in_edge_indices; ++num_in_edge_indices ) {
-    //            TI    num_edge = old_edges_indices[ num_in_edge_indices ];
-    //            Edge &edge     = edges[ num_edge ];
-    //            Node &n0       = nodes[ edge.n0 ];
-    //            Node &n1       = nodes[ edge.n1 ];
+    //     edges.reserve( edges.size() + 2 * ( fs.end_in_edge_indices - fs.beg_in_edge_indices ) );
+    //     for( TI num_in_edge_indices = fs.beg_in_edge_indices; num_in_edge_indices < fs.end_in_edge_indices; ++num_in_edge_indices ) {
+    //         TI    num_edge = old_edges_indices[ num_in_edge_indices ];
+    //         Edge &edge     = edges[ num_edge ];
+    //         Node &n0       = nodes[ edge.n0 ];
+    //         Node &n1       = nodes[ edge.n1 ];
 
-    //            if ( s0 < 0 ) {
-    //                if ( s1 < 0 ) {
-    //                    edge_indices.push_back( num_edge );
-    //                } else {
-    //                    edge_indices.push_back( edge.nedge );
-    //                    old_n1 = edges[ edge.nedge ].n1;
-    //                }
-    //            } else {
-    //                if ( s1 < 0 ) {
-    //                    if ( old_n1 != TI( -1 ) )
-    //                        edge_indices.push_back( add_round_edge( old_n1, edges[ edge.nedge ].n0, fs.cut_index ) );
-    //                    else {
-    //                        waiting_n0 = edges[ edge.nedge ].n0;
-    //                        waiting_ei = edge_indices.size();
-    //                        edge_indices.push_back( 11700 );
-    //                    }
-    //                    edge_indices.push_back( edge.nedge );
-    //                } else if ( edge.nedge != TI( -1 ) ) {
-    //                    if ( old_n1 != TI( -1 ) )
-    //                        edge_indices.push_back( add_round_edge( old_n1, edges[ edge.nedge ].n0, fs.cut_index ) );
-    //                    else {
-    //                        waiting_n0 = edges[ edge.nedge ].n0;
-    //                        waiting_ei = edge_indices.size();
-    //                        edge_indices.push_back( 11700 );
-    //                    }
+    //         if ( s0 < 0 ) {
+    //             if ( s1 < 0 ) {
+    //                 edge_indices.push_back( num_edge );
+    //             } else {
+    //                 edge_indices.push_back( edge.nedge );
+    //                 old_n1 = edges[ edge.nedge ].n1;
+    //             }
+    //         } else {
+    //             if ( s1 < 0 ) {
+    //                 if ( old_n1 != TI( -1 ) )
+    //                     edge_indices.push_back( add_round_edge( old_n1, edges[ edge.nedge ].n0, fs.cut_index ) );
+    //                 else {
+    //                     waiting_n0 = edges[ edge.nedge ].n0;
+    //                     waiting_ei = edge_indices.size();
+    //                     edge_indices.push_back( 11700 );
+    //                 }
+    //                 edge_indices.push_back( edge.nedge );
+    //             } else if ( edge.nedge != TI( -1 ) ) {
+    //                 if ( old_n1 != TI( -1 ) )
+    //                     edge_indices.push_back( add_round_edge( old_n1, edges[ edge.nedge ].n0, fs.cut_index ) );
+    //                 else {
+    //                     waiting_n0 = edges[ edge.nedge ].n0;
+    //                     waiting_ei = edge_indices.size();
+    //                     edge_indices.push_back( 11700 );
+    //                 }
 
-    //                    edge_indices.push_back( edge.nedge );
+    //                 edge_indices.push_back( edge.nedge );
 
-    //                    old_n1 = edges[ edge.nedge ].n1;
-    //                }
-    //            }
-    //        }
+    //                 old_n1 = edges[ edge.nedge ].n1;
+    //             }
+    //         }
+    //     }
 
-    //        // if no remaining edges, remove the surface
-    //        if ( new_beg_in_edge_indices == edge_indices.size() ) {
-    //            // face cut ?
-    //            TF dist = dot( cut_info[ fs.cut_index ].cut_O - sphere_center, cut_info[ fs.cut_index ].cut_N );
-    //            if ( dist < sphere_radius && dist > -sphere_radius ) {
-    //                Pt proj = sphere_center + dist * cut_info[ fs.cut_index ].cut_N;
-    //                for( TI num_in_edge_indices = fs.beg_in_edge_indices; ; ++num_in_edge_indices ) {
-    //                    if ( num_in_edge_indices == fs.end_in_edge_indices ) {
-    //                        holes.push_back( { fs.cut_index } );
-    //                        break;
-    //                    }
-    //                    Edge &edge = edges[ old_edges_indices[ num_in_edge_indices ] ];
-    //                    Pt   &p0   = node_pos( edge.n0 );
-    //                    Pt   &p1   = node_pos( edge.n1 );
-    //                    if ( dot( cross_prod( proj - p0, p1 - p0 ), cut_info[ fs.cut_index ].cut_N ) < 0 )
-    //                        break;
-    //                }
-    //            }
+    //     // if no remaining edges, remove the surface
+    //     if ( new_beg_in_edge_indices == edge_indices.size() ) {
+    //         // face cut ?
+    //         TF dist = dot( cut_info[ fs.cut_index ].cut_O - sphere_center, cut_info[ fs.cut_index ].cut_N );
+    //         if ( dist < sphere_radius && dist > -sphere_radius ) {
+    //             Pt proj = sphere_center + dist * cut_info[ fs.cut_index ].cut_N;
+    //             for( TI num_in_edge_indices = fs.beg_in_edge_indices; ; ++num_in_edge_indices ) {
+    //                 if ( num_in_edge_indices == fs.end_in_edge_indices ) {
+    //                     holes.push_back( { fs.cut_index } );
+    //                     break;
+    //                 }
+    //                 Edge &edge = edges[ old_edges_indices[ num_in_edge_indices ] ];
+    //                 Pt   &p0   = node_pos( edge.n0 );
+    //                 Pt   &p1   = node_pos( edge.n1 );
+    //                 if ( dot( cross_prod( proj - p0, p1 - p0 ), cut_info[ fs.cut_index ].cut_N ) < 0 )
+    //                     break;
+    //             }
+    //         }
 
-    //            // in all the case, remove the surface
-    //            if ( num_flat_surface < flat_surfaces.size() - 1 )
-    //                fs = flat_surfaces[ flat_surfaces.size() - 1 ];
-    //            flat_surfaces.pop_back();
-    //            --num_flat_surface;
-    //        } else {
-    //            // need to close the loop ?
-    //            if ( waiting_ei != TI( -1 ) )
-    //                edge_indices[ waiting_ei ] = add_round_edge( old_n1, waiting_n0, fs.cut_index );
+    //         // in all the case, remove the surface
+    //         if ( num_flat_surface < flat_surfaces.size() - 1 )
+    //             fs = flat_surfaces[ flat_surfaces.size() - 1 ];
+    //         flat_surfaces.pop_back();
+    //         --num_flat_surface;
+    //     } else {
+    //         // need to close the loop ?
+    //         if ( waiting_ei != TI( -1 ) )
+    //             edge_indices[ waiting_ei ] = add_round_edge( old_n1, waiting_n0, fs.cut_index );
 
-    //            fs.beg_in_edge_indices = new_beg_in_edge_indices;
-    //            fs.end_in_edge_indices = edge_indices.size();
-    //        }
-    //    }
+    //         fs.beg_in_edge_indices = new_beg_in_edge_indices;
+    //         fs.end_in_edge_indices = edge_indices.size();
+    //     }
+    // }
 
-    //    // add surfaces to cover the holes
-    //    if ( first_cut_edge < edges.size() ) {
-    //        RoundSurface rs;
-    //        rs.beg_in_edge_indices = edge_indices.size();
-    //        for( TI n = first_cut_edge + 1; n < edges.size(); n += 2 )
-    //            edge_indices.push_back( n );
+    // // add surfaces to cover the holes
+    // if ( first_cut_edge < edges.size() ) {
+    //     RoundSurface rs;
+    //     rs.beg_in_edge_indices = edge_indices.size();
+    //     for( TI n = first_cut_edge + 1; n < edges.size(); n += 2 )
+    //         edge_indices.push_back( n );
 
-    //        TI old_n1 = edges[ edge_indices[ rs.beg_in_edge_indices ] ].n1;
-    //        for( TI n = rs.beg_in_edge_indices + 1; n < edge_indices.size(); ++n ) {
-    //            for( TI m = n; ; ++m ) {
-    //                if ( m == edge_indices.size() ) {
-    //                    rs.end_in_edge_indices = n;
-    //                    part_round_surfaces.push_back( rs );
+    //     TI old_n1 = edges[ edge_indices[ rs.beg_in_edge_indices ] ].n1;
+    //     for( TI n = rs.beg_in_edge_indices + 1; n < edge_indices.size(); ++n ) {
+    //         for( TI m = n; ; ++m ) {
+    //             if ( m == edge_indices.size() ) {
+    //                 rs.end_in_edge_indices = n;
+    //                 part_round_surfaces.push_back( rs );
 
-    //                    rs.beg_in_edge_indices = n;
-    //                    old_n1 = edges[ edge_indices[ n ] ].n1;
-    //                    break;
-    //                }
-    //                if ( edges[ edge_indices[ m ] ].n0 == old_n1 ) {
-    //                    std::swap( edge_indices[ n ], edge_indices[ m ] );
-    //                    old_n1 = edges[ edge_indices[ n ] ].n1;
-    //                    break;
-    //                }
-    //            }
-    //        }
+    //                 rs.beg_in_edge_indices = n;
+    //                 old_n1 = edges[ edge_indices[ n ] ].n1;
+    //                 break;
+    //             }
+    //             if ( edges[ edge_indices[ m ] ].n0 == old_n1 ) {
+    //                 std::swap( edge_indices[ n ], edge_indices[ m ] );
+    //                 old_n1 = edges[ edge_indices[ n ] ].n1;
+    //                 break;
+    //             }
+    //         }
+    //     }
 
-    //        rs.end_in_edge_indices = edge_indices.size();
-    //        part_round_surfaces.push_back( rs );
-    //    }
+    //     rs.end_in_edge_indices = edge_indices.size();
+    //     part_round_surfaces.push_back( rs );
+    // }
 
-    //    // remove unused items
-    //    remove_unused_edges( old_edges_size, true );
-    //    remove_unused_nodes( old_nodes_size );
-    //    remove_unused_cuts ();
+    // // remove unused items
+    // remove_unused_edges( old_edges_size, true );
+    // remove_unused_nodes( old_nodes_size );
+    // remove_unused_cuts ();
 
-    //    //
-    //    _make_ext_round_faces();
+    // //
+    // _make_ext_round_faces();
 
-    //    //
-    //    if ( cut_info.empty() && ! sphere_center_is_inside )
-    //        sphere_radius = 0;
+    // //
+    // if ( cut_info.empty() && ! sphere_center_is_inside )
+    //     sphere_radius = 0;
 }
 
 template<class Pc>
