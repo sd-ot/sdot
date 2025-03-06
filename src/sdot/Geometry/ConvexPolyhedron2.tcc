@@ -1,6 +1,7 @@
 #include "Internal/AreaOutput.h"
 #include "ConvexPolyhedron2.h"
 #include <iomanip>
+#include <memory>
 
 #ifdef PD_WANT_STAT
 #include "../Support/Stat.h"
@@ -2509,11 +2510,7 @@ void ConvexPolyhedron2<Pc>::for_each_approx_seg( const std::function<void( Pt )>
 
     for( std::size_t i = 0; i < nb_points(); ++i ) {
         std::size_t j = ( i + 1 ) % nb_points();
-        switch ( arcs[ i ] ) {
-        case 0:
-            f( point( i ) );
-            break;
-        case 1: {
+        if( arcs[ i ] ) {
             Pt p0 = point( i );
             Pt p1 = point( j );
             TF a0 = atan2( p0.y - sphere_center.y, p0.x - sphere_center.x );
@@ -2528,8 +2525,8 @@ void ConvexPolyhedron2<Pc>::for_each_approx_seg( const std::function<void( Pt )>
                     sphere_center.y + sphere_radius * sin( ai )
                 } );
             }
-            break;
-        }
+        } else {
+            f( point( i ) );
         }
     }
     f( point( 0 ) );
@@ -3356,7 +3353,7 @@ typename Pc::TF ConvexPolyhedron2<Pc>::_r_polynomials_integration( const Coeffs 
         return ( a1 - a0 ) * res;
     };
 
-    if ( nb_points() == 0 ) {
+    if ( nb_points() == 0 && sphere_radius > 0 ) {
         TF res = 0, r2 = pow( scaling * sphere_radius, 2 );
         const auto &poly_coeffs = coeffs[ cut_index_r( r2 ) ].second;
         for( std::size_t d = 0; d < poly_coeffs.size(); ++d )
@@ -3364,12 +3361,15 @@ typename Pc::TF ConvexPolyhedron2<Pc>::_r_polynomials_integration( const Coeffs 
         return 2 * pi() * res;
     }
 
-    TF res = 0;
-    for( std::size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ )
+    TF res = 0;    
+    for( std::size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
+        if ( point( i0 ) == point( i1 ) )
+            continue;
         if ( arcs[ i0 ] )
             res += int_arc( scaling * ( point( i0 ) - sphere_center ), scaling * ( point( i1 ) - sphere_center ) );
         else
             res += int_seg( scaling * ( point( i0 ) - sphere_center ), scaling * ( point( i1 ) - sphere_center ) );
+    }
     return res;
 }
 

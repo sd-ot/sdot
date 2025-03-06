@@ -19,7 +19,7 @@ struct ExpWmR2db {
         return "ExpWmR2db";
     }
 
-    auto func_for_final_cp_integration() const {
+    const auto &func_for_final_cp_integration() const {
         return *this;
     }
 

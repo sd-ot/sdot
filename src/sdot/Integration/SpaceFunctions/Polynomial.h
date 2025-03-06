@@ -6,6 +6,7 @@
 #include "../FunctionEnum.h"
 #include "Constant.h"
 #include <cstdint>
+#include <string>
 
 
 namespace sdot {
@@ -18,6 +19,7 @@ template<class TF,int nb_coeffs>
 class Polynomial {
 public:
     operator bool() const { return coeffs[ 0 ]; } // hum
+    std::string name() const { return "Polynomial" + std::to_string( nb_coeffs ); }
 
     TF coeffs[ nb_coeffs ];
 };
@@ -44,6 +46,7 @@ auto apply_poly( N<2>, const TF *coeffs, std::size_t delta_coeffs, std::size_t n
         pf.coeffs[ 5 ] = coeffs[ 5 * delta_coeffs ];
         return func( pf );
     }
+    std::cout << "nb_coeffs " << nb_coeffs << std::endl;
     TODO;
 }
 
