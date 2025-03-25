@@ -116,6 +116,7 @@ ConvexPolyhedron2<Pc>::ConvexPolyhedron2( const ConvexPolyhedron2 &that ) {
 
 template<class Pc> template<class Sf>
 typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( const Sf &sf, const FunctionEnum::CompressibleFunc<TF> &fu, TF weight ) const {
+    // derivative of the integral, assuming the bounds do not change
     throw std::runtime_error( "not implemented: " __FILE__ + std::to_string( __LINE__ ) );
     return 0;
 }
@@ -1603,6 +1604,8 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceF
 
 template<class Pc>
 void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::CompressibleFunc<TF> &func, TF /*w*/ ) const {
+    // mea = integral( 1 )
+    // ctd = integral( x )
     throw std::runtime_error( "not implemented: " __FILE__ + std::to_string( __LINE__ ) );
 }
 
