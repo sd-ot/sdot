@@ -160,6 +160,11 @@ void ConvexPolyhedron3<Pc>::intersect_with( const ConvexPolyhedron3 &cp ) {
 }
 
 template<class Pc>
+void ConvexPolyhedron3<Pc>::for_each_boundary_measure( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::CompressibleFunc<TF> &/*rf*/, const std::function<void(TF,CI)> &f, TF weight ) const {
+    TODO;
+}
+
+template<class Pc>
 void ConvexPolyhedron3<Pc>::for_each_boundary_measure( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &/*rf*/, const std::function<void(TF,CI)> &f, TF weight ) const {
     TODO;
 }
@@ -201,6 +206,11 @@ void ConvexPolyhedron3<Pc>::for_each_boundary_measure( const SpaceFunctions::Con
 
 template<class Pc>
 void ConvexPolyhedron3<Pc>::for_each_boundary_measure( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R2 &/*rf*/, const std::function<void(TF,CI)> &f, TF weight ) const {
+    TODO;
+}
+
+template<class Pc> template<class Fu>
+void ConvexPolyhedron3<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::CompressibleFunc<TF> &/*rf*/, const Fu &f, TF weight ) const {
     TODO;
 }
 
@@ -856,6 +866,11 @@ void ConvexPolyhedron3<Pc>::clear( const Box &box, CI cut_id ) {
 }
 
 template<class Pc>
+void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &/*sf*/, const FunctionEnum::CompressibleFunc<TF> &/*rf*/, TF weight ) const {
+    TODO;
+}
+
+template<class Pc>
 void ConvexPolyhedron3<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &/*sf*/, const FunctionEnum::ExpWmR2db<TF> &/*rf*/, TF weight ) const {
     TODO;
 }
@@ -970,12 +985,24 @@ typename ConvexPolyhedron3<Pc>::Pt ConvexPolyhedron3<Pc>::centroid( const SpaceF
 }
 
 template<class Pc>
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration_der_wrt_weight( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::CompressibleFunc<TF> &fu, TF weight ) const {
+    TODO;
+    return 0;
+}
+
+template<class Pc>
 typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration_der_wrt_weight( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &fu, TF weight ) const {
     return integration( sf, fu, weight ) / fu.eps;
 }
 
 template<class Pc> template<class FU>
 typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration_der_wrt_weight( const SpaceFunctions::Constant<TF> &sf, const FU &, TF weight ) const {
+    return 0;
+}
+
+template<class Pc>
+typename ConvexPolyhedron3<Pc>::TF ConvexPolyhedron3<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::CompressibleFunc<TF> &/*rf*/, TF weight ) const {
+    TODO;
     return 0;
 }
 

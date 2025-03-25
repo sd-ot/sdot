@@ -61,17 +61,19 @@ public:
     // traversal
     template<class S,class R> void for_each_boundary_measure ( const S &sf, const R &rf, const std::function<void( TF boundary_measure, CI id )> &f, TF weight = 0 ) const;
 
-    void                           for_each_boundary_item    ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF> &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
-    void                           for_each_boundary_item    ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd          &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
-    void                           for_each_boundary_item    ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2          &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
-    void                           for_each_boundary_item    ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit          &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
-    void                           for_each_boundary_item    ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2            &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
-
-    void                           for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
-    void                           for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd          &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
-    void                           for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2          &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
-    void                           for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit          &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
-    void                           for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2            &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+    void                           for_each_boundary_item    ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::CompressibleFunc<TF> &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+    void                           for_each_boundary_item    ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF>        &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+    void                           for_each_boundary_item    ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd                 &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+    void                           for_each_boundary_item    ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2                 &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+    void                           for_each_boundary_item    ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit                 &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+    void                           for_each_boundary_item    ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2                   &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+       
+    void                           for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::CompressibleFunc<TF> &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+    void                           for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF>        &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+    void                           for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd                 &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+    void                           for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2                 &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+    void                           for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit                 &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
+    void                           for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2                   &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight = 0 ) const;
 
     void                           for_each_approx_seg       ( const std::function<void( Pt )> &f, TF max_ratio_area_error = 1e-1 ) const; ///<
     void                           for_each_simplex          ( const std::function<void( CI num_0, CI num_1 )> &f ) const;
@@ -106,17 +108,19 @@ public:
     bool                           contains                  ( const Pt &pos ) const;
 
     // computations
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF> &f, TF weight = 0 ) const { TODO; }
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd          &f, TF weight = 0 ) const { TODO; }
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2          &f, TF weight = 0 ) const { TODO; }
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit          &f, TF weight = 0 ) const;
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2            &f, TF weight = 0 ) const { TODO; }
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::CompressibleFunc<TF> &f, TF weight = 0 ) const { TODO; }
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF>        &f, TF weight = 0 ) const { TODO; }
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd                 &f, TF weight = 0 ) const { TODO; }
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2                 &f, TF weight = 0 ) const { TODO; }
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit                 &f, TF weight = 0 ) const;
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2                   &f, TF weight = 0 ) const { TODO; }
 
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &f, TF weight = 0 ) const;
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd          &f, TF weight = 0 ) const;
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2          &f, TF weight = 0 ) const;
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit          &f, TF weight = 0 ) const;
-    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2            &f, TF weight = 0 ) const;
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::CompressibleFunc<TF> &f, TF weight = 0 ) const;
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF>        &f, TF weight = 0 ) const;
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd                 &f, TF weight = 0 ) const;
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2                 &f, TF weight = 0 ) const;
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit                 &f, TF weight = 0 ) const;
+    void                           add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2                   &f, TF weight = 0 ) const;
 
     void                           add_centroid_contrib      ( Pt &ctd, TF &vol ) const;
 
@@ -130,26 +134,29 @@ public:
     Pt                             centroid                  () const;
     TF                             measure                   () const;
 
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF> &f, TF weight = 0 ) const { TODO; return 0; }
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2          &f, TF weight = 0 ) const { TODO; return 0; }
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit          &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd          &f, TF weight = 0 ) const { TODO; return 0; }
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arf           &f, TF weight = 0 ) const { TODO; return 0; }
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2            &f, TF weight = 0 ) const { TODO; return 0; }
-    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R4            &f, TF weight = 0 ) const { TODO; return 0; }
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::CompressibleFunc<TF> &f, TF weight = 0 ) const { TODO; return 0; }
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::ExpWmR2db<TF>        &f, TF weight = 0 ) const { TODO; return 0; }
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::WmR2                 &f, TF weight = 0 ) const { TODO; return 0; }
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit                 &f, TF weight = 0 ) const;
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arfd                 &f, TF weight = 0 ) const { TODO; return 0; }
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Arf                  &f, TF weight = 0 ) const { TODO; return 0; }
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2                   &f, TF weight = 0 ) const { TODO; return 0; }
+    TF                             integration               ( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R4                   &f, TF weight = 0 ) const { TODO; return 0; }
 
-    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2          &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit          &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd          &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arf           &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2            &f, TF weight = 0 ) const;
-    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R4            &f, TF weight = 0 ) const;
+    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::CompressibleFunc<TF> &f, TF weight = 0 ) const;
+    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF>        &f, TF weight = 0 ) const;
+    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2                 &f, TF weight = 0 ) const;
+    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit                 &f, TF weight = 0 ) const;
+    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd                 &f, TF weight = 0 ) const;
+    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arf                  &f, TF weight = 0 ) const;
+    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2                   &f, TF weight = 0 ) const;
+    TF                             integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R4                   &f, TF weight = 0 ) const;
 
-    template<class Sf> TF          integration_der_wrt_weight( const Sf &sf, const FunctionEnum::ExpWmR2db<TF> &f, TF weight ) const;
-    template<class Sf> TF          integration_der_wrt_weight( const Sf &sf, const FunctionEnum::Arfd          &f, TF weight ) const;
-    template<class Sf> TF          integration_der_wrt_weight( const Sf &sf, const FunctionEnum::WmR2          &f, TF weight ) const;
-    template<class Sf,class FU> TF integration_der_wrt_weight( const Sf &sf, const FU                          &f, TF weight ) const;
+    template<class Sf> TF          integration_der_wrt_weight( const Sf &sf, const FunctionEnum::CompressibleFunc<TF> &f, TF weight ) const;
+    template<class Sf> TF          integration_der_wrt_weight( const Sf &sf, const FunctionEnum::ExpWmR2db<TF>        &f, TF weight ) const;
+    template<class Sf> TF          integration_der_wrt_weight( const Sf &sf, const FunctionEnum::Arfd                 &f, TF weight ) const;
+    template<class Sf> TF          integration_der_wrt_weight( const Sf &sf, const FunctionEnum::WmR2                 &f, TF weight ) const;
+    template<class Sf,class FU> TF integration_der_wrt_weight( const Sf &sf, const FU                                 &f, TF weight ) const;
 
     // approximate computations
     TF                             boundary_measure_ap       ( TF max_ratio_area_error = 1e-4 ) const; ///<

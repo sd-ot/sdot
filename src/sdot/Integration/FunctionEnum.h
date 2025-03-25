@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CompressibleFunc.h"
 #include "R2InBallW05.h"
 #include "ExpWmR2db.h"
 #include "InBallW05.h"

@@ -85,17 +85,19 @@ public:
     //    void                    for_each_boundary_measure( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::Unit          &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
     //    void                    for_each_boundary_measure( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::R2            &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
 
-    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
-    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd          &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
-    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2          &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
-    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit          &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
-    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2            &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::CompressibleFunc<TF> &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF>        &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd                 &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const { TODO; }
+    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2                 &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit                 &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
+    void                    for_each_boundary_measure ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2                   &r, const std::function<void( TF area, CI id )> &f, TF weight = 0 ) const;
 
-    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &rf, const F &f, TF weight = 0 ) const;
-    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd          &rf, const F &f, TF weight = 0 ) const { TODO; }
-    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2          &rf, const F &f, TF weight = 0 ) const;
-    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit          &rf, const F &f, TF weight = 0 ) const;
-    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2            &rf, const F &f, TF weight = 0 ) const;
+    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::CompressibleFunc<TF> &rf, const F &f, TF weight = 0 ) const;
+    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF>        &rf, const F &f, TF weight = 0 ) const;
+    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd                 &rf, const F &f, TF weight = 0 ) const { TODO; }
+    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2                 &rf, const F &f, TF weight = 0 ) const;
+    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit                 &rf, const F &f, TF weight = 0 ) const;
+    template<class F> void  for_each_boundary_item    ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2                   &rf, const F &f, TF weight = 0 ) const;
 
     template<class F> Node *find_node_maximizing      ( const F &f, bool return_node_only_if_true = true ) const; ///< f must return true to stop the search. It takes ( TF &value, Pt pos ) as parameters
     void                    for_each_node             ( const std::function<void( Pt v )> &f ) const;
@@ -103,24 +105,27 @@ public:
     TF                      boundary_measure          ( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &rf ) const;
     Pt                      centroid                  ( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &rf ) const;
 
-    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &r, TF weight = 0 ) const;
-    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Arfd          &r, TF weight = 0 ) const { TODO; }
-    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::WmR2          &r, TF weight = 0 ) const;
-    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit          &r, TF weight = 0 ) const;
-    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R2            &r, TF weight = 0 ) const;
+    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::CompressibleFunc<TF> &r, TF weight = 0 ) const;
+    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF>        &r, TF weight = 0 ) const;
+    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Arfd                 &r, TF weight = 0 ) const { TODO; }
+    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::WmR2                 &r, TF weight = 0 ) const;
+    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit                 &r, TF weight = 0 ) const;
+    void                    add_centroid_contrib      ( Pt &ctd, TF &vol, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::R2                   &r, TF weight = 0 ) const;
 
     Pt                      random_point              () const;
 
-    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &r, TF weight = 0 ) const;
-    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd          &r, TF weight = 0 ) const { TODO; return 0; }
-    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2          &r, TF weight = 0 ) const;
-    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit          &r, TF weight = 0 ) const;
-    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2            &r, TF weight = 0 ) const;
+    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::CompressibleFunc<TF> &r, TF weight = 0 ) const;
+    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF>        &r, TF weight = 0 ) const;
+    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Arfd                 &r, TF weight = 0 ) const { TODO; return 0; }
+    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::WmR2                 &r, TF weight = 0 ) const;
+    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::Unit                 &r, TF weight = 0 ) const;
+    TF                      integration               ( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::R2                   &r, TF weight = 0 ) const;
 
     template<class F> TF    gauss_integration         ( const F &f, int nb_gauss_points ) const;
 
     template<class F> bool  all_pos                   ( const F &f ) const;
 
+    TF                      integration_der_wrt_weight( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::CompressibleFunc<TF> &r, TF weight ) const;
     TF                      integration_der_wrt_weight( const SpaceFunctions::Constant<TF>     &sf, const FunctionEnum::ExpWmR2db<TF> &r, TF weight ) const;
     template<class FU> TF   integration_der_wrt_weight( const SpaceFunctions::Constant<TF>     &sf, const FU &r, TF weight ) const;
 

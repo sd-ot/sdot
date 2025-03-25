@@ -2,6 +2,8 @@
 #include "ConvexPolyhedron2.h"
 #include <iomanip>
 #include <memory>
+#include <stdexcept>
+#include <string>
 
 #ifdef PD_WANT_STAT
 #include "../Support/Stat.h"
@@ -113,6 +115,12 @@ ConvexPolyhedron2<Pc>::ConvexPolyhedron2( const ConvexPolyhedron2 &that ) {
 }
 
 template<class Pc> template<class Sf>
+typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( const Sf &sf, const FunctionEnum::CompressibleFunc<TF> &fu, TF weight ) const {
+    throw std::runtime_error( "not implemented: " __FILE__ + std::to_string( __LINE__ ) );
+    return 0;
+}
+
+template<class Pc> template<class Sf>
 typename ConvexPolyhedron2<Pc>::TF ConvexPolyhedron2<Pc>::integration_der_wrt_weight( const Sf &sf, const FunctionEnum::ExpWmR2db<TF> &fu, TF weight ) const {
     return integration( sf, fu, weight ) / fu.eps;
 }
@@ -145,6 +153,11 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_measure( const S &sf, const R &rf,
     for_each_boundary_item( sf, rf, [&]( const BoundaryItem &boundary_item ) {
         f( boundary_item.measure, boundary_item.id );
     }, weight );
+}
+
+template<class Pc>
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Polynomial<TF,6> &sf, const FunctionEnum::CompressibleFunc<TF> &f, const std::function<void( const BoundaryItem &boundary_item )> &cb, TF weight ) const {
+    throw std::runtime_error( "not implemented: " __FILE__ + std::to_string( __LINE__ ) );
 }
 
 template<class Pc>
@@ -321,6 +334,11 @@ void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Consta
             f( item );
         }
     }
+}
+
+template<class Pc>
+void ConvexPolyhedron2<Pc>::for_each_boundary_item( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::CompressibleFunc<TF> &e, const std::function<void( const BoundaryItem &boundary_item )> &f, TF weight ) const {
+    throw std::runtime_error( "not implemented: " __FILE__ + std::to_string( __LINE__ ) );
 }
 
 template<class Pc>
@@ -1584,6 +1602,11 @@ void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceF
 }
 
 template<class Pc>
+void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::CompressibleFunc<TF> &func, TF /*w*/ ) const {
+    throw std::runtime_error( "not implemented: " __FILE__ + std::to_string( __LINE__ ) );
+}
+
+template<class Pc>
 void ConvexPolyhedron2<Pc>::add_centroid_contrib( Pt &ctd, TF &mea, const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &func, TF /*w*/ ) const {
     using std::sqrt;
 
@@ -1696,6 +1719,29 @@ typename ConvexPolyhedron2<Pc>::Pt ConvexPolyhedron2<Pc>::random_point() const {
 }
 
 template<class Pc>
+typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::CompressibleFunc<TF> &func, TF w ) const {
+    // sf represents the domain, func is the cost function
+    // available constants : func.kappa, func.gamma, func.g, func.f_cor, func.pi_0, func.c_p
+
+    // here is an example, wrong but to show the indices and the notations
+    TF res = 0;
+    // for each segment
+    for( size_t i1 = 0, i0 = _cuts.size() - 1; i1 < _cuts.size(); i0 = i1++ ) {
+        if ( _cuts[ i0 ].seg_type == SegType::arc )
+            TODO; // should not happen
+        else {
+            auto x = sphere_center; // position of the dirac
+            auto p0 = _cuts[ i0 ].point;
+            auto p1 = _cuts[ i1 ].point;
+            res += 1 / p0[ 1 ] * ( func.f_cor / 2 * ( x[ 0 ] - p0[ 0 ] ) + func.g * x[ 1 ] );
+        }
+    }
+
+    throw std::runtime_error( "not implemented: " __FILE__ " " + std::to_string( __LINE__ ) );
+    return res;
+}
+
+template<class Pc>
 typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::ExpWmR2db<TF> &func, TF w ) const {
     using std::sqrt;
     using std::exp;
@@ -1737,22 +1783,6 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Consta
 
     return sf.coeff * exp( w / func.eps ) * func.eps * _r_polynomials_integration( coeffs, TF( 1 ) / sqrt( func.eps ) );
 }
-
-//template<class Pc>
-//typename Pc::TF ConvexPolyhedron2<Pc>::boundary_measure() const {
-//    using std::pow;
-//    if ( nb_points() == 0 )
-//        return sphere_radius >= 0 ? 2 * pi() * sphere_radius : TF( 0 );
-
-//    TF res = 0;
-//    for( std::size_t i1 = 0, i0 = nb_points() - 1; i1 < nb_points(); i0 = i1++ ) {
-//        if ( allow_ball_cut && arcs[ i0 ] )
-//            res += _arc_length( point( i0 ), point( i1 ) );
-//        else
-//            res += norm_2( point( i1 ) - point( i0 ) );
-//    }
-//    return res;
-//}
 
 template<class Pc>
 typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Constant<TF> &sf, const FunctionEnum::Unit &, TF /*w*/ ) const {
