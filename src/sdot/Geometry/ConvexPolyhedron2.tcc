@@ -1729,16 +1729,16 @@ typename Pc::TF ConvexPolyhedron2<Pc>::integration( const SpaceFunctions::Consta
     // here is an example, wrong but to show the indices and the notations
     TF res = 0;
     // for each segment
-    for( size_t i1 = 0, i0 = _cuts.size() - 1; i1 < _cuts.size(); i0 = i1++ ) {
-        if ( _cuts[ i0 ].seg_type == SegType::arc )
-            TODO; // should not happen
-        else {
-            auto x = sphere_center; // position of the dirac
-            auto p0 = _cuts[ i0 ].point;
-            auto p1 = _cuts[ i1 ].point;
-            res += 1 / p0[ 1 ] * ( func.f_cor / 2 * ( x[ 0 ] - p0[ 0 ] ) + func.g * x[ 1 ] );
-        }
-    }
+    // for( size_t i1 = 0, i0 = _cuts.size() - 1; i1 < _cuts.size(); i0 = i1++ ) {
+    //     if ( _cuts[ i0 ].seg_type == SegType::arc )
+    //         TODO; // should not happen
+    //     else {
+    //         auto x = sphere_center; // position of the dirac
+    //         auto p0 = _cuts[ i0 ].point;
+    //         auto p1 = _cuts[ i1 ].point;
+    //         res += 1 / p0[ 1 ] * ( func.f_cor / 2 * ( x[ 0 ] - p0[ 0 ] ) + func.g * x[ 1 ] );
+    //     }
+    // }
 
     throw std::runtime_error( "not implemented: " __FILE__ " " + std::to_string( __LINE__ ) );
     return res;
