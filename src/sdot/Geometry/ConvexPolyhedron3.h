@@ -58,7 +58,7 @@ public:
     /**/                    ConvexPolyhedron3         ( const ConvexPolyhedron3 &cp ) = delete;
     /**/                    ConvexPolyhedron3         ( ConvexPolyhedron3 &&cp );
 
-    void                    operator=                 ( const ConvexPolyhedron3 &cp );
+    void                    operator=                 ( const ConvexPolyhedron3 &cp ); ///< BEWARE: writes the old -> new correspondance in the scratch fields ( op_count, nitem, nedge ) of `cp`, so several threads must not copy the same source at the same time (make a copy per thread beforehand, as in SpZGrid::for_each_laguerre_cell)
     void                    operator=                 ( ConvexPolyhedron3 &&cp );
 
     // display

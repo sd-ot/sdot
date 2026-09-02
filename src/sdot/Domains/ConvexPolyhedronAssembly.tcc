@@ -133,10 +133,15 @@ void ConvexPolyhedronAssembly<Pc>::for_each_intersection( CP &cp, const F &f ) c
     if ( items.size() == 1 )
         return f( cp, SpaceFunctions::Constant<TF>{ items[ 0 ].coeff } );
 
+    // Beware: `operator=( const CP & )` uses scratch fields (op_count, nitem, nedge) of
+    // its *source* to store the old -> new item correspondance. Copying from `item.polyhedron`
+    // would thus write into data shared by all the threads. `cp` is local to the calling
+    // thread and `intersect_with` only reads the faces of its argument, so we copy the
+    // other way around (the intersection is of course the same).
     CP ccp;
     for( const Item &item : items ) {
-        ccp = item.polyhedron;
-        ccp.intersect_with( cp );
+        ccp = cp;
+        ccp.intersect_with( item.polyhedron );
         f( ccp, SpaceFunctions::Constant<TF>{ item.coeff } );
     }
 }
